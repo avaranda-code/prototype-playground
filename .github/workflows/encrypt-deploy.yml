@@ -47,7 +47,6 @@ jobs:
                 --password "$STATICRYPT_PASSWORD" \
                 --remember 1 \
                 --short \
-                --template password_template.html \
                 --template-title "Protected Page" \
                 --template-placeholder "Password" \
                 --template-button "Unlock" \
