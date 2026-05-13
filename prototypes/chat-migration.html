@@ -1,0 +1,2757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat settings — Interactive prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { font-family: 'Inter', sans-serif; color: #1e242e; background: #f9f9f9; height: 100%; }
+  body { display: flex; height: 100vh; padding: 0; margin: 0; overflow: hidden; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, textarea { font-family: inherit; color: inherit; }
+  textarea { resize: none; }
+  .hidden { display: none !important; }
+
+  /* ============ Frame ============ */
+  .app {
+    width: 100%;
+    height: 100vh;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  /* ============ Sidebar (combined nav) ============ */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: #FAFAFA;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 12px 12px 16px;
+    flex-shrink: 0;
+  }
+  .sidebar-back-btn {
+    width: 32px; height: 32px;
+    border: 1px solid #ebecef;
+    border-radius: 8px;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    color: #1e242e;
+    flex-shrink: 0;
+  }
+  .sidebar-back-btn:hover { background: #f3f4f6; }
+  .sidebar-title {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 16px; font-weight: 700;
+    color: #1e242e;
+    cursor: pointer;
+  }
+  .sidebar-title svg { width: 16px; height: 16px; color: #1e242e; }
+  .sidebar-header-icons {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .sidebar-header-icons button {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: #5c6370;
+    position: relative;
+  }
+  .sidebar-header-icons button:hover { background: #f3f4f6; color: #1e242e; }
+  .sidebar-header-icons .badge {
+    position: absolute; top: 0; right: 0;
+    background: #D6384D;
+    color: #fff;
+    font-size: 9px; font-weight: 600;
+    padding: 0 3px;
+    height: 14px; min-width: 14px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .sidebar-nav {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 8px 8px 16px;
+  }
+  .sidebar-section { margin-bottom: 4px; }
+  .sidebar-section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 6px 12px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    color: #1e242e;
+    border-radius: 8px;
+    user-select: none;
+  }
+  .sidebar-section-header:hover { background: rgba(0,0,0,0.03); }
+  .sidebar-section-header .cat-icon {
+    width: 16px; height: 16px; color: #1e242e;
+    flex-shrink: 0;
+  }
+  .sidebar-section-header .label { flex-grow: 1; }
+  .sidebar-section-header .chev {
+    width: 16px; height: 16px; color: #5c6370;
+    transition: transform 0.15s;
+  }
+  .sidebar-section.collapsed .chev { transform: rotate(-90deg); }
+  .sidebar-section.collapsed .sidebar-items { display: none; }
+  .sidebar-items {
+    display: flex; flex-direction: column;
+    padding: 2px 0;
+  }
+  .sidebar-item {
+    padding: 6px 12px 6px 40px;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #1e242e;
+    user-select: none;
+  }
+  .sidebar-item:hover { background: rgba(0,0,0,0.03); }
+  .sidebar-item.active {
+    background: #f1ecff;
+    color: #7e55f6;
+    font-weight: 500;
+  }
+  .sidebar-footer {
+    border-top: 1px solid #ebecef;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+  .sidebar-footer .avatar-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd1d1, #ffe6cc);
+    color: #1e242e;
+    font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .sidebar-footer .avatar-circle::after {
+    content: '';
+    position: absolute;
+    width: 8px; height: 8px;
+    background: #24D69D;
+    border: 1.5px solid #fff;
+    border-radius: 50%;
+    bottom: -1px; right: -1px;
+    box-sizing: content-box;
+  }
+  .sidebar-footer .footer-icons {
+    margin-left: auto;
+    display: flex; gap: 2px;
+  }
+  .sidebar-footer .footer-icons button {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: #5c6370;
+  }
+  .sidebar-footer .footer-icons button:hover { background: #f3f4f6; color: #1e242e; }
+  .sidebar-footer .footer-icons button.active {
+    border: 1px solid #ebecef;
+    color: #1e242e;
+  }
+
+  /* ============ Secondary nav (Settings) ============ */
+  .secondary-nav {
+    width: 250px;
+    background: #fafafa;
+    border-right: 1px solid #ebecef;
+    box-shadow: 4px 4px 16px 0px #1616161a;
+    display: flex; flex-direction: column;
+    flex-shrink: 0;
+  }
+  .secondary-nav .nav-header {
+    padding: 12px 8px 4px 16px;
+    font-size: 16px; font-weight: 600;
+  }
+  .secondary-nav .nav-list {
+    padding: 16px 8px;
+    display: flex; flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+  }
+  .nav-item {
+    height: 28px;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 14px; font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #1e242e;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+  }
+  .nav-item:hover { background: rgba(0,0,0,0.04); }
+  .nav-item .chev { width: 16px; height: 16px; color: #5c6370; }
+  .nav-item .chev svg { width: 100%; height: 100%; }
+  .nav-children { display: none; flex-direction: column; gap: 2px; padding-left: 16px; }
+  .nav-item.open + .nav-children { display: flex; }
+  .nav-child {
+    height: 28px;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 14px; font-weight: 400;
+    letter-spacing: -0.01em;
+    color: #1e242e;
+    display: flex; align-items: center;
+    cursor: pointer;
+  }
+  .nav-child:hover { background: rgba(0,0,0,0.04); }
+  .nav-child.active {
+    background: #eeeeee;
+    border: 1px solid #dddddd;
+    font-weight: 600;
+    color: #222;
+  }
+
+  /* ============ Page (center) ============ */
+  .page {
+    flex-grow: 1;
+    background: #fafafa;
+    padding: 8px 8px 8px 0;
+    display: flex; flex-direction: column;
+    min-width: 0;
+  }
+  .page-content {
+    flex-grow: 1;
+    background: #ffffff;
+    border: 1px solid #ebecef;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .page-header {
+    padding: 24px;
+    display: flex; flex-direction: column;
+    gap: 8px;
+  }
+  .breadcrumb {
+    display: flex; align-items: center;
+    font-size: 12px;
+    color: #5c6370;
+    gap: 4px;
+  }
+  .breadcrumb .crumb { padding: 2px 4px; border-radius: 6px; }
+  .breadcrumb .crumb.current { color: #1e242e; font-weight: 500; }
+  .breadcrumb .sep { opacity: 0.5; }
+  .page-title-bar {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .page-title-left { display: flex; align-items: center; gap: 12px; }
+  .back-btn {
+    width: 24px; height: 24px;
+    border: 0.5px solid #b3b8c1;
+    border-radius: 6px;
+    background: #ffffff03;
+    box-shadow: 0px 2px 3px 0px #0000000d;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .page-title { font-size: 20px; font-weight: 600; line-height: 32px; }
+  .save-btn {
+    height: 32px;
+    background: #1e242e; color: #fff;
+    border-radius: 8px;
+    padding: 0 12px;
+    font-size: 14px; font-weight: 600;
+    box-shadow: 0px 2px 3px 0px #0000000d;
+  }
+  .save-btn:hover { background: #2d343f; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 24px;
+    padding: 0 24px;
+    border-bottom: 1px solid #ebecef;
+  }
+  .tab {
+    padding: 12px 0;
+    font-size: 14px; font-weight: 500;
+    color: #5c6370;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab:hover { color: #1e242e; }
+  .tab.active { color: #1e242e; font-weight: 600; border-bottom-color: #1e242e; }
+
+  /* Scrollable body */
+  .page-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+  }
+  .panel { display: none; flex-direction: column; gap: 16px; }
+  .panel.active { display: flex; }
+
+  /* Cards */
+  .card {
+    background: #ffffff;
+    border: 1px solid #ebecef;
+    border-radius: 12px;
+    box-shadow: 0px 2px 20px 0px #0000000a;
+    padding: 24px;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .card-title {
+    font-size: 16px; font-weight: 600; line-height: 24px;
+  }
+  .card-subtitle { font-size: 14px; color: #5c6370; line-height: 20px; margin-top: 4px; }
+  .card-header-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Field */
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field-label { font-size: 14px; font-weight: 600; color: #1e242e; }
+  .field-help { font-size: 12px; color: #5c6370; }
+  .field-sublabel { font-size: 14px; font-weight: 500; color: #1e242e; }
+  .input,
+  .textarea {
+    width: 100%;
+    border: 1px solid #ebecef;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 14px;
+    line-height: 20px;
+    background: #fff;
+    color: #1e242e;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .input:focus, .textarea:focus {
+    outline: none;
+    border-color: #7e55f6;
+    box-shadow: 0 0 0 3px #7e55f622;
+  }
+  .input::placeholder, .textarea::placeholder { color: #8992a0; }
+  .input.compact { height: 32px; }
+  .textarea { min-height: 52px; padding: 8px; }
+  .char-counter { font-size: 12px; color: #6e7686; }
+
+  /* Brand color picker (presentational) */
+  .brand-color {
+    display: flex; align-items: stretch;
+    width: 191px; height: 32px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .brand-color-swatch {
+    width: 32px;
+    border: 1px solid #ebecef;
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 6px 8px;
+  }
+  .brand-color-swatch .chip {
+    width: 16px; height: 16px;
+    background: var(--brand, #ffdfe2);
+    border-radius: 4px;
+  }
+  .brand-color-hex {
+    flex-grow: 1;
+    border: 1px solid #ebecef;
+    border-radius: 0 6px 6px 0;
+    padding: 6px 8px;
+    font-size: 14px;
+    color: #1e242e;
+    background: #fff;
+    width: 160px;
+  }
+  .brand-color-hex:focus {
+    outline: none;
+    border-color: #7e55f6;
+    box-shadow: 0 0 0 3px #7e55f622;
+  }
+
+  /* Logo upload */
+  .logo-row { display: flex; gap: 16px; }
+  .logo-card {
+    flex: 1;
+    border: 1px solid #00000014;
+    border-radius: 8px;
+    box-shadow: 0px 2px 20px 0px #0000000a;
+    padding: 12px 16px;
+    display: flex; flex-direction: column;
+    gap: 12px;
+    background: #fff;
+  }
+  .logo-card .title { font-size: 14px; font-weight: 600; }
+  .logo-card .help { font-size: 12px; color: #5c6370; }
+  .logo-card-row { display: flex; align-items: center; gap: 8px; justify-content: space-between; margin-top: auto; }
+  .logo-thumb {
+    width: 116px; height: 50px;
+    background: #d5d7dd;
+    border-radius: 6px;
+    padding: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-style: italic;
+    font-size: 14px;
+  }
+  .logo-thumb img { max-width: 100%; max-height: 100%; }
+  .icon-x-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: #5c6370; border-radius: 4px;
+  }
+  .icon-x-btn:hover { background: #f3f4f6; color: #1e242e; }
+  .add-logo-btn {
+    height: 24px;
+    background: #ffffff80;
+    border: 0.5px solid #67718380;
+    border-radius: 6px;
+    box-shadow: 0px 2px 3px 0px #0000000d;
+    padding: 0 8px 0 6px;
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  /* Launcher card */
+  .launcher-options { display: flex; gap: 16px; }
+  .launcher-card {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #00000014;
+    border-radius: 8px;
+    box-shadow: 0px 2px 20px 0px #0000000a;
+    padding: 12px 16px;
+    display: flex; flex-direction: column; gap: 8px;
+    cursor: pointer;
+    position: relative;
+  }
+  .launcher-card.selected { border-color: #7e55f6; }
+  .launcher-card .title-row {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .launcher-card .title { font-size: 14px; font-weight: 600; }
+  .launcher-card .check { color: #7e55f6; display: none; }
+  .launcher-card.selected .check { display: inline-flex; }
+  .launcher-card .preview-slot {
+    background: #f1ecff;
+    height: 56px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #5c6370;
+  }
+  .field-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+  .field-grid > .field { flex: 1; min-width: 140px; }
+  .select {
+    height: 32px;
+    border: 1px solid #ebecef;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: #fff;
+    font-size: 14px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'><path d='M4 6L8 10L12 6' stroke='%231e242e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+  }
+
+  /* Toggle switch */
+  .toggle {
+    position: relative;
+    width: 28px; height: 16px;
+    background: #d5d7dd;
+    border-radius: 32px;
+    box-shadow: inset 1px 2px 3px 0px #0000000f;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 12px; height: 12px;
+    background: #fff;
+    border-radius: 32px;
+    transition: left 0.15s;
+  }
+  .toggle.on { background: #7e55f6; }
+  .toggle.on::after { left: 14px; }
+
+  /* Checkbox */
+  .checkbox-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; color: #5c6370;
+    cursor: pointer;
+  }
+  .checkbox {
+    appearance: none;
+    width: 16px; height: 16px;
+    border: 1px solid #b3b8c1;
+    border-radius: 4px;
+    background: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .checkbox:checked {
+    background: #1e242e;
+    border-color: #1e242e;
+  }
+  .checkbox:checked::after {
+    content: '';
+    width: 4px; height: 8px;
+    border: solid #fff;
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+    margin-top: -2px;
+  }
+
+  /* Radios */
+  .radio-row { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .radio-text { font-size: 14px; color: #1e242e; }
+  .radio-help { font-size: 12px; color: #5c6370; margin-top: 2px; }
+  .radio {
+    appearance: none;
+    width: 14px; height: 14px;
+    border: 1px solid #b3b8c1;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: inset 1px 2px 3px 0px #0000000f;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .radio:checked {
+    border-color: #6e7686;
+    background: #fff;
+  }
+  .radio:checked::after {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #1e242e;
+  }
+
+  /* ============ Chat preview (right side) ============ */
+  .preview {
+    width: 480px;
+    flex-shrink: 0;
+    padding: 8px 8px 8px 0;
+    background: #f9f9f9;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .preview-header {
+    padding: 16px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-shrink: 0;
+  }
+  .preview-top {
+    flex-shrink: 0;
+    display: flex; flex-direction: column;
+    border-bottom: 1px solid #ebecef;
+  }
+  .biz-toggle-section {
+    padding: 0 16px 12px;
+    flex-shrink: 0;
+  }
+  .preview-header .title { font-size: 16px; font-weight: 600; }
+  .preview-header .view-toggle {
+    display: flex; gap: 4px;
+    border: 1px solid #ebecef;
+    border-radius: 8px;
+    padding: 2px;
+    background: #fff;
+  }
+  .view-toggle .icon-btn {
+    width: 28px; height: 24px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: #5c6370;
+  }
+  .view-toggle .icon-btn.active { background: #ebecef; color: #1e242e; }
+
+  .preview-frame {
+    flex-grow: 1;
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative;
+    min-height: 0;
+  }
+  .preview-inner {
+    flex-grow: 1;
+    padding: 16px;
+    display: flex; flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    overflow-y: auto;
+  }
+
+  /* Business hours tab toggle (matches chat width) */
+  .biz-toggle {
+    width: 400px;
+    margin: 0 auto;
+    height: 32px;
+    border: 1px solid #00000014;
+    border-radius: 8px;
+    padding: 4px;
+    display: flex;
+    gap: 4px;
+  }
+  .biz-toggle button {
+    flex: 1;
+    border-radius: 6px;
+    font-size: 12px; font-weight: 500;
+    color: #1e242e;
+  }
+  .biz-toggle button.active { background: #ebecef; }
+
+  /* Phone frame */
+  .phone {
+    width: 400px;
+    height: 623px;
+    flex-shrink: 0;
+    background:
+      radial-gradient(circle at 0% 0%, var(--brand-glow, #ffdfe2) 0%, transparent 65%),
+      radial-gradient(circle at 100% 100%, var(--brand-glow, #ffdfe2) 0%, transparent 65%),
+      linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
+    border-radius: 32px;
+    padding: 96px 20px 24px;
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+  }
+  .phone > * { position: relative; z-index: 1; }
+
+  .phone-header {
+    position: absolute;
+    left: 20px; right: 20px;
+    top: 0; height: 92px;
+    padding: 32px 20px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1;
+  }
+  .glass-btn {
+    width: 106px;
+    height: 32px;
+    background: #ffffff33;
+    border-radius: 24px;
+    box-shadow: 0px 2px 3px 0px #0000001a;
+    padding: 0 12px;
+    font-size: 12px; font-weight: 500;
+    color: #1e242e;
+    display: inline-flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .glass-btn.icon-only {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+  .glass-btn.icon-only svg { width: 16px; height: 16px; }
+
+  .phone-top {
+    display: flex; flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-logo {
+    width: 100%;
+    height: 68px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-style: italic;
+    font-size: 44px;
+    color: #1e242e;
+    letter-spacing: -1px;
+  }
+  .privacy-text {
+    font-size: 12px;
+    color: #5c6370;
+    text-align: center;
+    line-height: 16px;
+    width: 100%;
+  }
+  .privacy-text .more { text-decoration: underline; cursor: pointer; }
+  .greeting {
+    font-size: 20px; font-weight: 600; line-height: 32px;
+    text-align: center;
+    color: #1e242e;
+    width: 100%;
+    word-wrap: break-word;
+  }
+
+  .phone-bottom {
+    display: flex; flex-direction: column;
+    gap: 24px;
+  }
+  .quick-actions {
+    display: flex; flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .quick-action {
+    background: #ffffff33;
+    border-radius: 24px;
+    box-shadow: 0px 2px 3px 0px #0000001a;
+    padding: 8px 14px;
+    font-size: 12px; font-weight: 500;
+    color: #1c1d1f;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    white-space: nowrap;
+  }
+  .live-chat {
+    height: 44px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 24px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
+    padding: 0 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-sizing: border-box;
+  }
+  .live-chat .left { display: flex; align-items: center; gap: 8px; }
+  .avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, #ff9c9c, #ffd180);
+    border: 1.5px solid #fff;
+  }
+  /* Brand avatar (Glossier G mark) with online/offline status dot */
+  .brand-avatar {
+    width: 28px; height: 28px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .brand-avatar .mark {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--brand, #ffdfe2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-style: italic;
+    font-size: 16px;
+    color: #e89a9f;
+    letter-spacing: -0.5px;
+  }
+  .brand-avatar .status-dot {
+    position: absolute;
+    right: -1px; bottom: -1px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #38c172;
+    border: 1.5px solid #fff;
+  }
+  .brand-avatar.offline .status-dot { background: #b3b8c1; }
+  .live-chat .label { font-size: 12px; font-weight: 500; color: #1c1d1f; }
+  .live-chat .chev { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #1e242e; }
+
+  /* Chat view */
+  .chat-msg {
+    display: flex; justify-content: flex-end;
+  }
+  .chat-msg .bubble {
+    background: #ebecef;
+    border-radius: 24px;
+    padding: 8px 14px;
+    font-size: 12px;
+    max-width: 260px;
+  }
+  /* Agent message (plain text, left-aligned) */
+  .agent-msg {
+    display: flex;
+    padding: 0 4px;
+  }
+  .agent-msg .text {
+    font-size: 12px;
+    line-height: 18px;
+    color: #1e242e;
+  }
+  /* Email capture card */
+  .email-capture {
+    background: #ffffff;
+    border: 1px solid #ebecef;
+    border-radius: 20px;
+    box-shadow: 0px 2px 20px 0px #0000000a;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .email-capture-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e242e;
+    line-height: 16px;
+  }
+  .email-capture-input {
+    height: 36px;
+    background: #ffffff;
+    border: 1px solid #ebecef;
+    border-radius: 24px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: #6e7686;
+  }
+  .email-capture-cta {
+    width: 100%;
+    height: 36px;
+    background: #1e242e;
+    color: #ffffff;
+    border-radius: 24px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 2px 3px 0px #0000000d;
+    opacity: 0.5;
+  }
+  .offline-status {
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+    font-size: 12px; font-weight: 500;
+    color: #5c6370;
+  }
+  .input-field {
+    background: #ffffff66;
+    border-radius: 24px;
+    box-shadow: 0px 2px 3px 0px #0000001a;
+    padding: 0 6px 0 14px;
+    display: flex; align-items: center; gap: 12px;
+    height: 36px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .input-field .icon-btn { width: 24px; height: 24px; }
+  .input-field .icon-btn svg { width: 16px; height: 16px; }
+  .input-field .placeholder { font-size: 12px; color: #5c6370; flex-grow: 1; }
+  .input-field .icon-btn { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+
+  /* Placeholder bordered card (preferences/automation) */
+  .placeholder-panel {
+    background: #fff;
+    border: 1px dashed #d5d7dd;
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    color: #5c6370;
+    font-size: 14px;
+  }
+
+  /* Preferences specifics */
+  .pref-row {
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .pref-row .text-block { flex: 1; }
+  .pref-row .text-block .title { font-size: 14px; color: #1e242e; }
+  .pref-row .text-block .help { font-size: 12px; color: #5c6370; margin-top: 2px; }
+
+  /* Automation specifics */
+  .flow-list {
+    border: 1px solid #ebecef;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .flow-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #ebecef;
+    background: #fff;
+  }
+  .flow-item:last-child { border-bottom: none; }
+  .flow-grip { color: #b3b8c1; cursor: grab; }
+  .flow-name { flex-grow: 1; font-size: 14px; }
+  .flow-actions { display: flex; gap: 4px; color: #5c6370; }
+
+  /* Footer save bar */
+  .save-bar {
+    border-top: 1px solid #ebecef;
+    padding: 12px 24px;
+    display: flex; justify-content: flex-end; gap: 8px;
+    background: #fff;
+  }
+
+  /* Settings header (cog area) */
+  .secondary-header { display: flex; align-items: center; gap: 8px; }
+
+  /* ============ Legacy (current product) ============ */
+  .legacy-version {
+    display: flex;
+    flex-grow: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 8px 8px 8px 0;
+    gap: 8px;
+  }
+  .legacy-page-area {
+    flex-grow: 1;
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 16px;
+    overflow: hidden;
+    min-width: 0;
+    display: flex; flex-direction: column;
+  }
+  .legacy-page-scroll {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+  }
+  .legacy-page-header {
+    padding: 16px 24px 0;
+    display: flex; align-items: center; gap: 12px;
+    flex-shrink: 0;
+  }
+  .legacy-page-header .legacy-back-btn {
+    width: 32px; height: 32px;
+    border: 1px solid #ebecef;
+    border-radius: 8px;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    color: #1e242e;
+  }
+  .legacy-page-header h1 {
+    font-size: 20px; font-weight: 700; color: #1e242e;
+  }
+  .legacy-tabs {
+    display: flex; gap: 24px;
+    padding: 16px 24px 0;
+    border-bottom: 1px solid #ebecef;
+    flex-shrink: 0;
+  }
+  .legacy-tab {
+    padding: 8px 0 12px;
+    font-size: 14px; font-weight: 500;
+    color: #5c6370;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    background: none; border-left: none; border-right: none; border-top: none;
+    cursor: pointer;
+  }
+  .legacy-tab:hover { color: #1e242e; }
+  .legacy-tab.active { color: #1e242e; font-weight: 600; border-bottom-color: #1e242e; }
+  .legacy-form {
+    padding: 24px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .legacy-section {
+    padding: 24px 0;
+  }
+  .legacy-section:first-child { padding-top: 0; }
+  .legacy-section h2 {
+    font-size: 16px; font-weight: 600; margin-bottom: 8px; color: #1e242e;
+  }
+  .legacy-section .legacy-section-desc {
+    font-size: 13px; color: #5c6370; line-height: 1.5; margin-bottom: 16px;
+  }
+  .legacy-section .legacy-link { color: #7e55f6; text-decoration: underline; }
+  .legacy-field { margin-bottom: 16px; }
+  .legacy-field-label {
+    font-size: 14px; font-weight: 500;
+    margin-bottom: 6px;
+    display: block; color: #1e242e;
+  }
+  .legacy-field-label .required { color: #d90b28; }
+  .legacy-input, .legacy-textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ebecef;
+    border-radius: 6px;
+    font-size: 14px; color: #1e242e;
+    background: #fff;
+    font-family: inherit;
+  }
+  .legacy-textarea { min-height: 60px; resize: vertical; }
+  .legacy-input:focus, .legacy-textarea:focus { outline: none; border-color: #7e55f6; box-shadow: 0 0 0 3px #7e55f622; }
+  .legacy-row { display: flex; gap: 16px; }
+  .legacy-row .legacy-field { flex: 1; }
+  .legacy-color-input {
+    display: flex; align-items: center;
+    border: 1px solid #ebecef; border-radius: 6px;
+    overflow: hidden; max-width: 220px;
+  }
+  .legacy-color-input .swatch { width: 32px; height: 32px; border-right: 1px solid #ebecef; flex-shrink: 0; }
+  .legacy-color-input input { border: none; padding: 8px 10px; flex-grow: 1; font-size: 14px; }
+  .legacy-color-input input:focus { outline: none; }
+  .legacy-radio-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; }
+  .legacy-radio-text { font-size: 14px; color: #1e242e; }
+  .legacy-radio-help { font-size: 12px; color: #5c6370; margin-top: 2px; }
+  .legacy-checkbox-row { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .legacy-checkbox-row .text { font-size: 14px; color: #1e242e; }
+  .legacy-toggle-row { display: flex; align-items: flex-start; gap: 12px; }
+  .legacy-toggle-row .text-block { flex: 1; }
+  .legacy-toggle-row .title { font-size: 14px; font-weight: 500; color: #1e242e; }
+  .legacy-toggle-row .help { font-size: 12px; color: #5c6370; margin-top: 2px; }
+  .legacy-select {
+    width: 100%; max-width: 320px;
+    padding: 8px 28px 8px 10px;
+    border: 1px solid #ebecef;
+    border-radius: 6px;
+    font-size: 14px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'><path d='M4 6L8 10L12 6' stroke='%231e242e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-color: #fff;
+    color: #1e242e;
+  }
+  .legacy-logo-row { display: flex; gap: 16px; margin-top: 8px; }
+  .legacy-logo-card { flex: 1; }
+  .legacy-logo-card .label { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .legacy-logo-thumb {
+    width: 100%; height: 80px;
+    background: #d5d7dd;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter'; font-weight: 800; font-style: italic;
+    font-size: 24px; color: #fff;
+    position: relative;
+  }
+  .legacy-logo-thumb .x {
+    position: absolute; top: 6px; right: 6px;
+    color: #5c6370; cursor: pointer;
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .legacy-logo-thumb.empty { background: #f0f0f0; }
+  .legacy-logo-thumb.empty .placeholder-icon {
+    width: 32px; height: 32px;
+    background: #d5d7dd;
+    border-radius: 4px;
+  }
+  .legacy-replace { font-size: 13px; color: #7e55f6; margin-top: 6px; cursor: pointer; }
+  .legacy-help-text { font-size: 12px; color: #5c6370; line-height: 1.4; margin-top: 4px; }
+  .legacy-avatar-thumb {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--brand, #ffdfe2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter'; font-weight: 800; font-style: italic;
+    font-size: 22px; color: #e89a9f;
+    position: relative;
+    margin-top: 8px;
+  }
+  .legacy-avatar-thumb .x {
+    position: absolute; top: -4px; right: -4px;
+    width: 18px; height: 18px;
+    background: #fff; border: 1px solid #ebecef;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #5c6370;
+    font-size: 12px;
+  }
+  .legacy-launcher-row { display: flex; gap: 16px; margin-top: 8px; width: 100%; }
+  .legacy-launcher-card {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 24px 16px 12px;
+    background: #f9f9f9;
+    border: 1.5px solid transparent;
+    border-radius: 8px;
+    display: flex; flex-direction: column; align-items: stretch; gap: 12px;
+    cursor: pointer; position: relative;
+    overflow: hidden;
+  }
+  .legacy-launcher-card.selected { border-color: #7e55f6; background: #fff; }
+  .legacy-launcher-card .preview {
+    background: #1e242e; color: #fff;
+    border-radius: 24px;
+    padding: 8px 12px;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .legacy-launcher-card .preview svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .legacy-launcher-card .label-row {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 14px; color: #1e242e; align-self: flex-start;
+  }
+  .legacy-launcher-card .label-row input[type="radio"] { margin: 0; }
+  .legacy-save-bar {
+    padding: 0 24px 24px;
+  }
+  .legacy-save-btn {
+    background: #1e242e; color: #fff;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px; font-weight: 600;
+  }
+
+  /* Legacy preview area (right side) — single floating white card */
+  .legacy-preview {
+    width: 480px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border: 1px solid #ebecef;
+    border-radius: 16px;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+    gap: 12px;
+  }
+  .legacy-banner {
+    background: #f1ecff;
+    border: 1px solid #e2d6ff;
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+  }
+  .legacy-banner-close {
+    position: absolute; top: 12px; right: 12px;
+    color: #5c6370; cursor: pointer;
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .legacy-banner-title {
+    font-size: 14px; font-weight: 600; color: #1e242e;
+    margin-bottom: 4px;
+    padding-right: 24px;
+  }
+  .legacy-banner-desc {
+    font-size: 13px; color: #1e242e;
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .legacy-banner-btn {
+    background: #1e242e; color: #fff;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+  }
+  .legacy-variant-toggle {
+    display: flex; gap: 4px;
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 8px;
+    padding: 4px;
+    width: 400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  .legacy-variant-toggle button {
+    flex: 1;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 500;
+    color: #1e242e;
+    background: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .legacy-variant-toggle button.active { background: #ebecef; }
+  .legacy-variant-toggle .new-dot {
+    width: 6px; height: 6px;
+    background: #d600ff;
+    border-radius: 50%;
+  }
+  .legacy-variant-caption {
+    font-size: 12px; color: #5c6370;
+    text-align: center;
+    margin-top: -8px;
+  }
+
+  /* Legacy phone (current chat UI) */
+  .legacy-phone {
+    width: 400px;
+    height: 520px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    flex-shrink: 0;
+  }
+  .legacy-phone .legacy-phone-body {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  .legacy-phone-header {
+    background: #1e242e;
+    color: #fff;
+    padding: 14px 16px;
+  }
+  .legacy-phone-title { font-size: 15px; font-weight: 600; }
+  .legacy-phone-status {
+    font-size: 12px; color: #b3b8c1;
+    display: flex; align-items: center; gap: 4px;
+    margin-top: 2px;
+  }
+  .legacy-phone-body {
+    padding: 16px;
+    display: flex; flex-direction: column;
+    gap: 12px;
+    background: #fff;
+    min-height: 360px;
+  }
+  .legacy-customer-msg { display: flex; justify-content: flex-end; }
+  .legacy-customer-msg .bubble {
+    background: #f0f0f0; color: #1e242e;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 13px; max-width: 220px;
+  }
+  .legacy-bot-row { display: flex; gap: 8px; align-items: flex-start; }
+  .legacy-bot-avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--brand, #ffdfe2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Inter'; font-weight: 800; font-style: italic;
+    font-size: 11px; color: #e89a9f;
+  }
+  .legacy-bot-content { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .legacy-bot-name { font-size: 12px; font-weight: 600; color: #1e242e; }
+  .legacy-bot-msg { font-size: 13px; color: #1e242e; line-height: 1.4; }
+  .legacy-email-card {
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .legacy-email-card .label { font-size: 12px; font-weight: 600; }
+  .legacy-email-input-row {
+    display: flex; align-items: stretch;
+    border: 1px solid #ebecef;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .legacy-email-input-row input {
+    flex: 1; border: none; padding: 8px 10px; font-size: 13px;
+    color: #6e7686;
+  }
+  .legacy-email-input-row input:focus { outline: none; }
+  .legacy-email-send-btn {
+    width: 36px; background: #1e242e; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .legacy-automated { font-size: 11px; color: #6e7686; }
+  .legacy-input-bar {
+    border-top: 1px solid #ebecef;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+    background: #fff;
+  }
+  .legacy-input-bar input {
+    flex: 1; border: none; font-size: 13px;
+    color: #1e242e;
+  }
+  .legacy-input-bar input::placeholder { color: #6e7686; }
+  .legacy-input-bar input:focus { outline: none; }
+
+  /* Wrapper to swap between legacy and new versions */
+  .new-version { display: flex; flex-grow: 1; min-width: 0; }
+
+  /* ============ Option 2 (Axiom-native): NEW Tag + Popover ============ */
+  /* Tag — uses Axiom Green color (surface-success-default / content-success-default) */
+  .axiom-tag {
+    display: inline-flex; align-items: center;
+    background: #e9fbf5; /* Axiom: surface-success-default (green-50) */
+    color: #147656; /* Axiom: content-success-default (green-800) */
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-left: 8px;
+    user-select: none;
+  }
+  .axiom-tag:hover { background: #bbf2e1; /* green-100 */ }
+
+  .tag-popover-anchor { position: relative; display: inline-flex; }
+
+  /* Popover — Axiom Popover spec (April 7, 2026): "based on modal with smaller paddings and gaps, smaller title" */
+  .axiom-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: #ffffff; /* elevation-neutral-default */
+    border: 1px solid rgba(0, 0, 0, 0.08); /* border-neutral-default */
+    border-radius: 8px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+    width: 280px;
+    z-index: 50;
+    display: none;
+    overflow: hidden;
+  }
+  .axiom-popover.open { display: block; }
+  .axiom-popover-header {
+    padding: 12px 16px 4px;
+  }
+  .axiom-popover-title {
+    font-size: 14px; /* heading-sm */
+    font-weight: 600;
+    line-height: 20px;
+    color: #1e242e; /* content-neutral-default */
+  }
+  .axiom-popover-body {
+    padding: 0 16px 12px;
+    font-size: 12px; /* regular-sm */
+    line-height: 16px;
+    color: #5c6370; /* content-neutral-secondary */
+  }
+  .axiom-popover-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #ebecef;
+    display: flex; justify-content: flex-end;
+    background: #fafafa; /* surface-neutral-primary / grey-50 */
+  }
+  .axiom-popover-btn {
+    background: #ffffff;
+    border: 1px solid rgba(103, 113, 131, 0.5); /* border-neutral-tertiary */
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e242e;
+    cursor: pointer;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05); /* shadow-component */
+  }
+  .axiom-popover-btn:hover { background: #fafafa; }
+
+  /* Confirmation Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-card {
+    background: #fff;
+    border-radius: 12px;
+    width: 440px;
+    max-width: 92vw;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 20px 20px 0;
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e242e;
+  }
+  .modal-body {
+    padding: 12px 20px 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #5c6370;
+  }
+  .modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #ebecef;
+    display: flex; justify-content: flex-end; gap: 8px;
+    background: #fafafa;
+  }
+  .modal-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .modal-btn.tertiary {
+    background: #fff;
+    border: 1px solid #ebecef;
+    color: #1e242e;
+  }
+  .modal-btn.tertiary:hover { background: #f3f4f6; }
+  .modal-btn.destructive {
+    background: #1e242e;
+    color: #fff;
+    border: 1px solid #1e242e;
+  }
+  .modal-btn.destructive:hover { background: #2d343f; }
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ Sidebar (combined nav) ============ -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <button class="sidebar-back-btn" title="Back">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8L10 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="sidebar-title">
+        Settings
+        <svg viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="sidebar-header-icons">
+        <button title="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3C8.5 3 6 5.5 6 9V13L4 16H20L18 13V9C18 5.5 15.5 3 12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 19C10 20 11 21 12 21C13 21 14 20 14 19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="badge">2</span>
+        </button>
+        <button title="Search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <button title="Toggle sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4.5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="9.5" y1="5" x2="9.5" y2="19" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section collapsed">
+        <div class="sidebar-section-header">
+          <svg class="cat-icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="8" cy="3" r="1.2"/><circle cx="13" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="13" cy="8" r="1.2"/><circle cx="3" cy="13" r="1.2"/><circle cx="8" cy="13" r="1.2"/><circle cx="13" cy="13" r="1.2"/></svg>
+          <span class="label">Apps</span>
+          <svg class="chev" viewBox="0 0 16 16" fill="none"><path d="M4 10L8 6L12 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sidebar-items">
+          <div class="sidebar-item">Installed apps</div>
+          <div class="sidebar-item">App store</div>
+        </div>
+      </div>
+      <div class="sidebar-section collapsed">
+        <div class="sidebar-section-header">
+          <svg class="cat-icon" viewBox="0 0 24 24" fill="none"><path d="M4 21V8L12 3L20 8V21H4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 21V13H15V21" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <span class="label">Workspace</span>
+          <svg class="chev" viewBox="0 0 16 16" fill="none"><path d="M4 10L8 6L12 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sidebar-items">
+          <div class="sidebar-item">Store</div>
+          <div class="sidebar-item">Business hours</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <svg class="cat-icon" viewBox="0 0 24 24" fill="none"><path d="M4 6C4 4.9 4.9 4 6 4H16C17.1 4 18 4.9 18 6V13C18 14.1 17.1 15 16 15H9L5 19V15C4.45 15 4 14.55 4 14V6Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <span class="label">Channels</span>
+          <svg class="chev" viewBox="0 0 16 16" fill="none"><path d="M4 10L8 6L12 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sidebar-items">
+          <div class="sidebar-item">Help Center</div>
+          <div class="sidebar-item">Phone numbers</div>
+          <div class="sidebar-item">Email</div>
+          <div class="sidebar-item">Voice</div>
+          <div class="sidebar-item">SMS</div>
+          <div class="sidebar-item active">Chat</div>
+          <div class="sidebar-item">Contact form</div>
+        </div>
+      </div>
+      <div class="sidebar-section collapsed">
+        <div class="sidebar-section-header">
+          <svg class="cat-icon" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M3 20C3 16.5 6 14 9 14C12 14 15 16.5 15 20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="17" cy="9" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M14 17C15 15 17 14.5 18.5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="label">Account</span>
+          <svg class="chev" viewBox="0 0 16 16" fill="none"><path d="M4 10L8 6L12 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sidebar-items">
+          <div class="sidebar-item">Users</div>
+          <div class="sidebar-item">Teams</div>
+          <div class="sidebar-item">Agent unavailability</div>
+          <div class="sidebar-item">Access management</div>
+          <div class="sidebar-item">Billing and usage</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="avatar-circle">AP</div>
+      <div class="footer-icons">
+        <button title="Console">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 6L7 8L5 10M9 10H11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="active" title="Settings">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M13 9.6a1.1 1.1 0 0 0 .22 1.21l.04.04a1.34 1.34 0 0 1-1.89 1.89l-.04-.04a1.1 1.1 0 0 0-1.21-.22 1.1 1.1 0 0 0-.67 1V14a1.34 1.34 0 1 1-2.67 0v-.06a1.1 1.1 0 0 0-.67-1 1.1 1.1 0 0 0-1.21.22l-.04.04a1.34 1.34 0 1 1-1.89-1.89l.04-.04a1.1 1.1 0 0 0 .22-1.21 1.1 1.1 0 0 0-1-.67H2a1.34 1.34 0 1 1 0-2.67h.06a1.1 1.1 0 0 0 1-.67 1.1 1.1 0 0 0-.22-1.21l-.04-.04a1.34 1.34 0 1 1 1.89-1.89l.04.04a1.1 1.1 0 0 0 1.21.22h.06a1.1 1.1 0 0 0 .67-1V2a1.34 1.34 0 1 1 2.67 0v.06a1.1 1.1 0 0 0 .67 1 1.1 1.1 0 0 0 1.21-.22l.04-.04a1.34 1.34 0 1 1 1.89 1.89l-.04.04a1.1 1.1 0 0 0-.22 1.21V6a1.1 1.1 0 0 0 1 .67H14a1.34 1.34 0 1 1 0 2.67h-.06a1.1 1.1 0 0 0-1 .67z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        </button>
+        <button title="Help">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 6.5C6.5 5.5 7.2 5 8 5C8.8 5 9.5 5.5 9.5 6.5C9.5 7.5 8 7.5 8 8.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11" r="0.6" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ Legacy (current product) version ============ -->
+  <div class="legacy-version" id="legacy-version">
+    <div class="legacy-page-area">
+      <div class="legacy-page-header">
+        <button class="legacy-back-btn" title="Back">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8L10 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <h1>Glossier</h1>
+      </div>
+      <div class="legacy-tabs">
+        <button class="legacy-tab" data-legacy-tab="quick-replies">Quick replies</button>
+        <button class="legacy-tab active" data-legacy-tab="appearance">Appearance</button>
+        <button class="legacy-tab" data-legacy-tab="preferences">Preferences</button>
+        <button class="legacy-tab" data-legacy-tab="language">Language</button>
+        <button class="legacy-tab" data-legacy-tab="campaigns">Campaigns</button>
+        <button class="legacy-tab" data-legacy-tab="installation">Installation</button>
+      </div>
+
+      <div class="legacy-page-scroll">
+
+      <!-- Legacy Appearance form -->
+      <div class="legacy-form" id="legacy-form-appearance">
+        <div class="legacy-section">
+          <div class="legacy-field">
+            <label class="legacy-field-label">Chat title <span class="required">*</span></label>
+            <input class="legacy-input" value="Glossier" />
+          </div>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Intro message</h2>
+          <div class="legacy-field">
+            <label class="legacy-field-label">During business hours</label>
+            <input class="legacy-input" value="How can we help?" />
+          </div>
+          <div class="legacy-field">
+            <label class="legacy-field-label">Outside business hours</label>
+            <input class="legacy-input" value="We're offline -- email us at gteam@glossier.com" />
+          </div>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Colors</h2>
+          <div class="legacy-row">
+            <div class="legacy-field">
+              <label class="legacy-field-label">Main color</label>
+              <div class="legacy-color-input">
+                <div class="swatch" style="background:#000"></div>
+                <input value="#000" />
+              </div>
+            </div>
+            <div class="legacy-field">
+              <label class="legacy-field-label">Conversation color</label>
+              <div class="legacy-color-input">
+                <div class="swatch" style="background:#E8E8E8"></div>
+                <input value="#E8E8E8" />
+              </div>
+            </div>
+          </div>
+          <label class="legacy-checkbox-row" style="margin-top:8px">
+            <input type="checkbox" />
+            <span class="text">Keep main color when outside business hours</span>
+          </label>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Background style</h2>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-bg" checked /> <span class="legacy-radio-text">Gradient</span></label>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-bg" /> <span class="legacy-radio-text">Solid</span></label>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Font</h2>
+          <select class="legacy-select"><option>Arial</option><option>Inter</option></select>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Company logo</h2>
+          <div class="legacy-help-text" style="margin-bottom:12px">
+            <strong style="color:#1e242e">Header logo</strong><br/>Used in the header instead of chat title.
+          </div>
+          <div class="legacy-logo-row">
+            <div class="legacy-logo-card">
+              <div class="label">Standard logo</div>
+              <div class="legacy-logo-thumb"><i>Glossier.</i><span class="x">×</span></div>
+              <div class="legacy-replace">Replace image</div>
+              <div class="legacy-help-text">– Works best with horizontal logos with transparent background. Max 500 KB.</div>
+            </div>
+            <div class="legacy-logo-card">
+              <div class="label">Dark logo</div>
+              <div class="legacy-logo-thumb empty"><div class="placeholder-icon"></div></div>
+              <div class="legacy-replace">Upload image</div>
+              <div class="legacy-help-text">– Works best with horizontal logos with transparent background. Max 500 KB.</div>
+            </div>
+          </div>
+
+          <div class="legacy-help-text" style="margin-top:24px">
+            <strong style="color:#1e242e">Avatar logo</strong><br/>Used as your team's or bot avatar.
+          </div>
+          <div class="legacy-avatar-thumb">G<span class="x">×</span></div>
+          <div class="legacy-replace" style="margin-top:8px">Replace image</div>
+          <div class="legacy-help-text">– Recommended size 100 × 100 px. Max 500 KB.</div>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Agent avatar</h2>
+          <div class="legacy-row" style="align-items:flex-start">
+            <div class="legacy-field">
+              <label class="legacy-field-label">Name</label>
+              <label class="legacy-radio-row"><input type="radio" name="legacy-agent-name" checked /> <span class="legacy-radio-text">First name only</span></label>
+              <label class="legacy-radio-row"><input type="radio" name="legacy-agent-name" /> <span class="legacy-radio-text">First name, last name initial</span></label>
+              <label class="legacy-radio-row"><input type="radio" name="legacy-agent-name" /> <span class="legacy-radio-text">Full name</span></label>
+              <label class="legacy-radio-row"><input type="radio" name="legacy-agent-name" /> <span class="legacy-radio-text">Use chat title instead of agent name</span></label>
+            </div>
+            <div class="legacy-field">
+              <label class="legacy-field-label">Image</label>
+              <label class="legacy-radio-row"><input type="radio" name="legacy-agent-img" /> <span class="legacy-radio-text">Profile picture</span></label>
+              <label class="legacy-radio-row"><input type="radio" name="legacy-agent-img" /> <span class="legacy-radio-text">Initials</span></label>
+              <label class="legacy-radio-row"><input type="radio" name="legacy-agent-img" checked /> <span class="legacy-radio-text">Logo</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Chatbot</h2>
+          <div class="legacy-toggle-row">
+            <div class="toggle on"></div>
+            <div class="text-block"><div class="title">Display "Bot" next to chat title for automated messages</div></div>
+          </div>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Launcher</h2>
+          <div class="legacy-launcher-row">
+            <div class="legacy-launcher-card selected">
+              <div class="preview"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="13" cy="8" r="1.5"/></svg></div>
+              <label class="label-row"><input type="radio" name="legacy-launcher" checked /> Icon</label>
+            </div>
+            <div class="legacy-launcher-card">
+              <div class="preview"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="13" cy="8" r="1.5"/></svg> Chat with us</div>
+              <label class="label-row"><input type="radio" name="legacy-launcher" /> Icon and label</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="legacy-section">
+          <div class="legacy-row">
+            <div class="legacy-field">
+              <label class="legacy-field-label">Widget position on page</label>
+              <select class="legacy-select"><option>Bottom right</option><option>Bottom left</option></select>
+            </div>
+            <div class="legacy-field">
+              <label class="legacy-field-label">Move left / right</label>
+              <input class="legacy-input" value="0 px" />
+            </div>
+            <div class="legacy-field">
+              <label class="legacy-field-label">Move up / down</label>
+              <input class="legacy-input" value="0 px" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legacy Preferences form -->
+      <div class="legacy-form" id="legacy-form-preferences" style="display:none">
+        <div class="legacy-section">
+          <h2>Live chat</h2>
+          <div class="legacy-section-desc">Choose when customers can send live chat messages to your team during <a class="legacy-link">business hours</a>. Live chat is always unavailable outside business hours.</div>
+          <label class="legacy-radio-row" style="align-items:flex-start"><input type="radio" name="legacy-live" /> <div><div class="legacy-radio-text">Live when agents are available</div><div class="legacy-radio-help">Customers can only send live chat messages when an agent is available in Gorgias.</div></div></label>
+          <label class="legacy-radio-row" style="align-items:flex-start"><input type="radio" name="legacy-live" checked /> <div><div class="legacy-radio-text">Always live during business hours</div><div class="legacy-radio-help">Customers can always send live chat messages during business hours</div></div></label>
+          <label class="legacy-radio-row" style="align-items:flex-start"><input type="radio" name="legacy-live" /> <div><div class="legacy-radio-text">Offline</div><div class="legacy-radio-help">Customers can only send messages using the offline capture</div></div></label>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Require automated interaction</h2>
+          <div class="legacy-section-desc">Hide "Send us a message" so customers must start with an automation button before they can send a message.</div>
+          <div class="legacy-toggle-row"><div class="toggle"></div><div class="text-block"><div class="title">Remove "Send us a message" button</div></div></div>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Visibility options</h2>
+          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle"></div><div class="text-block"><div class="title">Hide chat</div><div class="help">Remove widget from your website without uninstalling it</div></div></div>
+          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle on"></div><div class="text-block"><div class="title">Hide outside of business hours</div><div class="help">Remove widget from your website after business hours</div></div></div>
+          <div class="legacy-toggle-row"><div class="toggle"></div><div class="text-block"><div class="title">Hide on mobile</div></div></div>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Email capture</h2>
+          <div class="legacy-section-desc">Collecting customer emails helps grow your email list and send follow-up messages. However, only around 30% of customers will send a message if they must provide an email.</div>
+          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle on"></div><div class="text-block"><div class="title">Enable email capture</div></div></div>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-email" /> <span class="legacy-radio-text">Optional</span></label>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-email" checked /> <span class="legacy-radio-text">Required</span></label>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Auto-reply with wait time</h2>
+          <div class="legacy-section-desc">During <a class="legacy-link">business hours</a>, let customers know how fast they can expect a response with an auto-reply. A message is sent in new chat tickets after 30 seconds without replies from an agent.</div>
+          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle on"></div><div class="text-block"><div class="title">Send auto-reply with wait time</div></div></div>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-wait" checked /> <span class="legacy-radio-text">Dynamic wait time (recommended)</span></label>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-wait" /> <span class="legacy-radio-text">In a few minutes</span></label>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-wait" /> <span class="legacy-radio-text">In a few hours</span></label>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Privacy policy disclaimer</h2>
+          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle on"></div><div class="text-block"><div class="title">Display privacy policy disclaimer</div></div></div>
+          <textarea class="legacy-textarea">Before we begin, you should know that Glossier will store and use the information in this chat in accordance with its Privacy Policy, and by continuing, you consent to this storage and usage.</textarea>
+          <div class="legacy-help-text" style="margin-top:8px">Gorgias is not responsible for ensuring compliance with applicable privacy laws. It is your responsibility to implement privacy policies.</div>
+        </div>
+
+        <div class="legacy-section">
+          <h2>Connect email</h2>
+          <div class="legacy-section-desc">Connect an email to your chat to send conversation transcripts, offline capture confirmation, and <a class="legacy-link">satisfaction surveys</a> to your customers.</div>
+          <label class="legacy-field-label">Select which email address sends these messages</label>
+          <select class="legacy-select" style="max-width:none"><option>Glossier gTEAM &lt;gteam@glossier.com&gt;</option></select>
+          <div class="legacy-toggle-row" style="margin-top:16px"><div class="toggle on"></div><div class="text-block"><div class="title">Send chat transcripts to customer email</div><div class="help">When customers don't see your message in chat, we automatically send them a transcript after 30 minutes.</div></div></div>
+        </div>
+      </div>
+
+      <!-- Other legacy tab placeholders -->
+      <div class="legacy-form" id="legacy-form-other" style="display:none">
+        <div class="legacy-section" style="text-align:center;color:#5c6370">
+          <p>This tab isn't part of the upgrade preview.</p>
+        </div>
+      </div>
+
+      <div class="legacy-save-bar">
+        <button class="legacy-save-btn">Save Changes</button>
+      </div>
+      </div>
+      <!-- /legacy-page-scroll -->
+    </div>
+
+    <aside class="legacy-preview">
+      <div class="legacy-banner">
+        <div class="legacy-banner-close">×</div>
+        <div class="legacy-banner-title">A fresh new look for your chat</div>
+        <div class="legacy-banner-desc">Redesigned settings and chat with new order management, clearer entry points, and faster mobile load. Preview below or update now — revert anytime before June 15.</div>
+        <button class="legacy-banner-btn" id="update-btn">Update</button>
+      </div>
+
+      <div class="legacy-variant-toggle" id="legacy-variant-toggle">
+        <button class="active" data-variant="current">Current</button>
+        <button data-variant="new"><span class="new-dot"></span>New (2.0)</button>
+      </div>
+
+      <!-- Current chat UI -->
+      <div class="legacy-phone" id="legacy-phone-current">
+        <div class="legacy-phone-header">
+          <div class="legacy-phone-title">Glossier</div>
+          <div class="legacy-phone-status">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5V8L10 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            We will reply in a few moments
+          </div>
+        </div>
+        <div class="legacy-phone-body">
+          <div style="text-align:center;font-size:11px;color:#9aa0a8;font-weight:600">MAY 13</div>
+          <div class="legacy-customer-msg">
+            <div class="bubble">Hi, could you give me an update on my order status?</div>
+          </div>
+          <div class="legacy-bot-row">
+            <div class="legacy-bot-avatar">G</div>
+            <div class="legacy-bot-content">
+              <div class="legacy-bot-name">Glossier Bot</div>
+              <div class="legacy-bot-msg">Thanks for reaching out! We will get back to you in about 5 minutes.</div>
+              <div class="legacy-email-card">
+                <div class="label">Email <span style="color:#d90b28">*</span></div>
+                <div class="legacy-email-input-row">
+                  <input placeholder="your@email.com" />
+                  <button class="legacy-email-send-btn">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="legacy-automated">Automated</div>
+            </div>
+          </div>
+          <div class="legacy-bot-row">
+            <div class="legacy-bot-avatar">G</div>
+            <div class="legacy-bot-content">
+              <div class="legacy-bot-name">Gorgias</div>
+              <div class="legacy-bot-msg">Hi there, thanks for your patience! Sure, let me check. What's your order…</div>
+            </div>
+          </div>
+        </div>
+        <div class="legacy-input-bar">
+          <input placeholder="Type a message…" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12L21 4L13 21L11 13L3 12Z" stroke="#1e242e" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <!-- New chat UI preview (smaller — wraps the new prototype's phone) -->
+      <div class="legacy-phone" id="legacy-phone-new" style="display:none;background:linear-gradient(180deg,#fafafa 0%,#f3f4f6 100%);padding:0">
+        <div style="background:radial-gradient(circle at 0% 0%, #ffdfe2 0%, transparent 65%),radial-gradient(circle at 100% 100%, #ffdfe2 0%, transparent 65%),linear-gradient(180deg,#fafafa 0%,#f3f4f6 100%);padding:64px 20px 20px;display:flex;flex-direction:column;gap:12px;flex:1;position:relative">
+          <div style="display:flex;justify-content:flex-end;gap:8px;position:absolute;top:16px;right:16px">
+            <span style="background:#ffffff66;border-radius:24px;padding:6px 12px;font-size:11px;font-weight:500">Track Orders</span>
+            <span style="background:#ffffff66;width:28px;height:28px;border-radius:24px;display:flex;align-items:center;justify-content:center">×</span>
+          </div>
+          <div style="font-family:Inter;font-weight:800;font-style:italic;font-size:32px;color:#1e242e;text-align:center;margin-top:24px">Glossier.</div>
+          <div style="font-size:18px;font-weight:600;text-align:center">How can we help?</div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:auto">
+            <div style="background:#ffffff66;border-radius:24px;padding:8px 14px;font-size:12px;align-self:flex-start">What's new in the collection?</div>
+            <div style="background:#ffffff66;border-radius:24px;padding:8px 14px;font-size:12px;align-self:flex-start">How can I get 10% off my first order?</div>
+            <div style="height:44px;background:rgba(255,255,255,0.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:24px;box-shadow:0 1px 2px rgba(0,0,0,0.04),0 4px 12px rgba(0,0,0,0.06);padding:0 12px;display:flex;justify-content:space-between;align-items:center;margin-top:6px;box-sizing:border-box">
+              <span style="display:flex;align-items:center;gap:8px">
+                <span style="position:relative;width:24px;height:24px;flex-shrink:0">
+                  <span style="width:24px;height:24px;border-radius:50%;background:#ffdfe2;display:flex;align-items:center;justify-content:center;font-family:Inter;font-style:italic;font-weight:800;font-size:14px;color:#e89a9f">G</span>
+                  <span style="position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;background:#24D69D;border:1.5px solid #fff;border-radius:50%;box-sizing:content-box"></span>
+                </span>
+                <span style="font-size:14px;font-weight:500;color:#1c1d1f">Chat with us</span>
+              </span>
+              <span style="color:#1e242e;font-size:14px">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- ============ NEW prototype version ============ -->
+  <div class="new-version" id="new-version" style="display:none">
+
+  <!-- ============ Center page ============ -->
+  <main class="page">
+    <div class="page-content">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span class="crumb">All chats</span>
+          <span class="sep"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 3L7 6L4 9" stroke="#5C6370" stroke-width="1.2" stroke-linecap="round"/></svg></span>
+          <span class="crumb current">Glossier</span>
+        </div>
+        <div class="page-title-bar">
+          <div class="page-title-left">
+            <button class="back-btn">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8L10 12" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="page-title">Settings</span>
+          </div>
+          <button class="save-btn">Save</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="appearance">Appearance</button>
+        <button class="tab" data-tab="preferences">Preferences</button>
+        <button class="tab" data-tab="automation">Automation</button>
+        <button class="tab" data-tab="language">Language</button>
+        <button class="tab" data-tab="installation">Installation</button>
+      </div>
+
+      <div class="page-body">
+
+        <!-- ============ Appearance panel ============ -->
+        <div class="panel active" data-panel="appearance">
+
+          <!-- Brand card -->
+          <div class="card">
+            <div>
+              <div class="card-title">Brand</div>
+              <div class="card-subtitle">Customize your chat to match your store's look and feel.</div>
+            </div>
+
+            <div class="field">
+              <div class="field-sublabel">Brand color</div>
+              <div class="field-help">Select your brand color to personalize the chat experience.</div>
+              <div class="brand-color">
+                <div class="brand-color-swatch"><div class="chip" id="brand-chip"></div></div>
+                <input type="text" id="brand-hex" class="brand-color-hex" value="#FFDFE2" maxlength="7" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-sublabel">Logo</div>
+              <div class="field-help">Upload a horizontal logo (PNG, JPG, or GIF) with a transparent background. You only need an alternative logo if your default isn't visible on white backgrounds.</div>
+              <div class="logo-row">
+                <div class="logo-card">
+                  <div>
+                    <div class="title">Default logo</div>
+                    <div class="help">Works on your brand color</div>
+                  </div>
+                  <div class="logo-card-row">
+                    <div class="logo-thumb">Glossier.</div>
+                    <button class="icon-x-btn" title="Remove">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="logo-card">
+                  <div>
+                    <div class="title">Alternative logo</div>
+                    <div class="help">Works on white backgrounds</div>
+                  </div>
+                  <div class="logo-card-row">
+                    <button class="add-logo-btn">
+                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                      Add logo
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-sublabel">Greeting</div>
+              <div class="field-help">Set a greeting when customers open chat · 50 characters max</div>
+
+              <div class="field">
+                <div class="field-help" style="color:#1e242e;font-weight:500">During business hours</div>
+                <input
+                  type="text"
+                  class="input compact"
+                  id="greeting-during"
+                  maxlength="50"
+                  placeholder="How can we help?"
+                  value="How can we help?"
+                />
+              </div>
+
+              <div class="field">
+                <div class="field-help" style="color:#1e242e;font-weight:500">Outside business hours</div>
+                <input
+                  type="text"
+                  class="input compact"
+                  id="greeting-outside"
+                  maxlength="50"
+                  placeholder="We'll be back soon"
+                  value="We'll be back soon"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Launcher card -->
+          <div class="card">
+            <div>
+              <div class="card-title">Chat launcher</div>
+              <div class="card-subtitle">Customize how the chat launcher appears on your website.</div>
+            </div>
+
+            <div class="field">
+              <div class="field-sublabel">Launcher appearance</div>
+              <div class="launcher-options">
+                <div class="launcher-card" data-launcher="icon">
+                  <div class="title-row">
+                    <span class="title">Icon only</span>
+                    <span class="check"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" fill="#7e55f6"/><path d="M6 10L9 13L14 8" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  </div>
+                  <div class="preview-slot">[icon only preview image]</div>
+                </div>
+                <div class="launcher-card selected" data-launcher="label">
+                  <div class="title-row">
+                    <span class="title">Icon and label</span>
+                    <span class="check"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" fill="#7e55f6"/><path d="M6 10L9 13L14 8" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  </div>
+                  <div class="preview-slot">[icon and label preview image]</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-sublabel">Label *</div>
+              <input type="text" class="input compact" id="launcher-label" value="Shop with AI" maxlength="20" />
+              <div class="char-counter"><span id="label-count">12</span>/20 characters · Short labels work best</div>
+            </div>
+
+            <div class="field">
+              <div class="field-sublabel">Launcher position</div>
+              <div class="field-help">Control where the launcher sits on your page.</div>
+              <div class="field-grid">
+                <div class="field">
+                  <div class="field-help">Position</div>
+                  <select class="select">
+                    <option>Custom</option>
+                    <option>Bottom right</option>
+                    <option>Bottom left</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <div class="field-help">Move horizontally</div>
+                  <input class="input compact" value="0px" />
+                </div>
+                <div class="field">
+                  <div class="field-help">Move vertically</div>
+                  <input class="input compact" value="0px" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Privacy policy card -->
+          <div class="card">
+            <div class="card-header-row">
+              <div>
+                <div class="card-title">Privacy policy</div>
+                <div class="card-subtitle">Add a privacy policy that shoppers will see in chat.</div>
+              </div>
+              <div class="toggle" id="privacy-toggle" role="switch" aria-checked="false"></div>
+            </div>
+
+            <div class="field" id="privacy-controls" style="opacity:0.5;pointer-events:none">
+              <textarea class="textarea" id="privacy-text" rows="3" placeholder="Add your privacy policy here. Shoppers will see this in chat before they begin a conversation."></textarea>
+              <div class="char-counter">Gorgias is not responsible for compliance with applicable privacy laws.</div>
+              <label class="checkbox-row">
+                <input type="checkbox" class="checkbox" id="privacy-on-home" />
+                Show privacy policy on home page
+              </label>
+            </div>
+          </div>
+
+          <!-- How team appears card -->
+          <div class="card">
+            <div>
+              <div class="card-title">How your team appears to customers</div>
+              <div class="card-subtitle">Choose how your team's name and profile appear in conversations.</div>
+            </div>
+            <div class="field">
+              <div class="field-sublabel">Name</div>
+              <label class="radio-row"><input class="radio" type="radio" name="name-mode" /> <span class="radio-text">First name only</span></label>
+              <label class="radio-row"><input class="radio" type="radio" name="name-mode" /> <span class="radio-text">First name and last initial</span></label>
+              <label class="radio-row"><input class="radio" type="radio" name="name-mode" /> <span class="radio-text">Full name</span></label>
+              <label class="radio-row"><input class="radio" type="radio" name="name-mode" checked /> <span class="radio-text">Custom</span></label>
+              <input type="text" class="input compact" value="Customer Care" style="width:160px;margin-left:22px" />
+            </div>
+            <div class="field">
+              <div class="field-sublabel">Profile picture</div>
+              <label class="radio-row"><input class="radio" type="radio" name="pic-mode" checked /> <span class="radio-text">Profile picture</span></label>
+              <label class="radio-row"><input class="radio" type="radio" name="pic-mode" /> <span class="radio-text">Initials</span></label>
+              <label class="radio-row"><input class="radio" type="radio" name="pic-mode" /> <span class="radio-text">Logo</span></label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ============ Preferences panel (placeholder for now) ============ -->
+        <div class="panel" data-panel="preferences">
+          <div class="card">
+            <div>
+              <div class="card-title">Chat availability</div>
+              <div class="card-subtitle">Control when shoppers can start a live chat and what happens outside business hours.</div>
+            </div>
+            <div class="field">
+              <label class="radio-row"><input class="radio" type="radio" name="avail" checked /> <div><div class="radio-text">Live when agents are available</div><div class="radio-help">Customers can only send live chat messages when an agent is available in Gorgias.</div></div></label>
+              <label class="radio-row"><input class="radio" type="radio" name="avail" /> <div><div class="radio-text">Always live during business hours</div><div class="radio-help">Customers can always send live chat messages during business hours.</div></div></label>
+              <label class="radio-row"><input class="radio" type="radio" name="avail" /> <div><div class="radio-text">Offline (capture messages only)</div><div class="radio-help">Customers can only send messages using the offline capture.</div></div></label>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header-row">
+              <div>
+                <div class="card-title">Start conversations with automation</div>
+                <div class="card-subtitle">Decide if customers begin chatting with your automated flows before reaching your team.</div>
+              </div>
+              <div class="toggle" id="start-automation-toggle" role="switch"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div>
+              <div class="card-title">Where chat appears</div>
+              <div class="card-subtitle">Control when and where your chat widget is visible to customers.</div>
+            </div>
+            <div class="pref-row"><div class="toggle on"></div><div class="text-block"><div class="title">Display chat</div><div class="help">Turn off to temporarily remove the chat widget from your website without uninstalling it.</div></div></div>
+            <div class="pref-row"><div class="toggle on"></div><div class="text-block"><div class="title">Show chat outside of business hours</div><div class="help">Automatically hide the widget when your team is offline.</div></div></div>
+            <div class="pref-row"><div class="toggle on"></div><div class="text-block"><div class="title">Show on mobile</div><div class="help">Turn off to hide the chat widget from your mobile site.</div></div></div>
+            <div class="pref-row"><div class="toggle"></div><div class="text-block"><div class="title">Display campaigns when chat is hidden</div><div class="help">Keep campaigns visible even when chat is turned off. Customers won't be able to reply.</div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header-row">
+              <div>
+                <div class="card-title">Collect customer emails</div>
+                <div class="card-subtitle">Grow your email list and send follow-up messages.</div>
+              </div>
+              <div class="toggle" id="collect-emails-toggle" role="switch"></div>
+            </div>
+            <div class="field" id="collect-emails-options" style="opacity:0.5;pointer-events:none">
+              <label class="radio-row">
+                <input class="radio" type="radio" name="email-mode" value="optional" checked />
+                <span class="radio-text">Optional</span>
+              </label>
+              <label class="radio-row" style="align-items:flex-start">
+                <input class="radio" type="radio" name="email-mode" value="required" style="margin-top:3px" />
+                <div>
+                  <div class="radio-text">Required</div>
+                  <div class="radio-help">Reduces incoming conversations by ~70%</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header-row">
+              <div>
+                <div class="card-title">Share wait time with customers</div>
+                <div class="card-subtitle">Let customers know when to expect a reply while waiting for your team.</div>
+              </div>
+              <div class="toggle" id="share-wait-toggle" role="switch"></div>
+            </div>
+            <div class="field" id="share-wait-options" style="opacity:0.5;pointer-events:none">
+              <label class="radio-row" style="align-items:flex-start">
+                <input class="radio" type="radio" name="wait-mode" value="dynamic" checked style="margin-top:3px" />
+                <div>
+                  <div class="radio-text">Dynamic wait time (recommended)</div>
+                  <div class="radio-help">Customers can only send live chat messages when an agent is available in Gorgias.</div>
+                </div>
+              </label>
+              <label class="radio-row">
+                <input class="radio" type="radio" name="wait-mode" value="few-minutes" />
+                <span class="radio-text">In a few minutes</span>
+              </label>
+              <label class="radio-row">
+                <input class="radio" type="radio" name="wait-mode" value="few-hours" />
+                <span class="radio-text">In a few hours</span>
+              </label>
+            </div>
+          </div>
+          <div class="card">
+            <div>
+              <div class="card-title">Shopper experience</div>
+              <div class="card-subtitle">Customize how customers experience chat after the conversation.</div>
+            </div>
+            <div class="field">
+              <div class="field-sublabel">Connect email</div>
+              <select class="select" style="width:240px">
+                <option>Select an email</option>
+                <option>support@glossier.com</option>
+                <option>hello@glossier.com</option>
+              </select>
+              <div class="field-help">Select an email to send conversation transcripts, offline confirmations, and satisfaction surveys.</div>
+            </div>
+            <label class="checkbox-row" style="align-items:flex-start;gap:8px">
+              <input type="checkbox" class="checkbox" style="margin-top:2px" />
+              <div>
+                <div style="color:#1e242e">Send conversation transcripts to customers</div>
+                <div class="field-help" style="margin-top:2px">If a customer doesn't see your reply in chat, we'll automatically send them a transcript after 30 minutes.</div>
+              </div>
+            </label>
+            <label class="checkbox-row" style="align-items:flex-start;gap:8px">
+              <input type="checkbox" class="checkbox" style="margin-top:2px" />
+              <div>
+                <div style="color:#1e242e">Send CSAT</div>
+                <div class="field-help" style="margin-top:2px">Send a customer satisfaction survey after each conversation.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- ============ Automation panel (placeholder for now) ============ -->
+        <div class="panel" data-panel="automation">
+          <div class="card">
+            <div>
+              <div class="card-title">Flows</div>
+              <div class="card-subtitle">Show up to 6 flows on your chat to proactively resolve top customer requests.</div>
+            </div>
+            <div class="flow-list">
+              <div class="flow-item"><span class="flow-grip">⋮⋮</span><span class="flow-name">Tennis Racket Finder</span><span class="flow-actions">✎ ✕</span></div>
+              <div class="flow-item"><span class="flow-grip">⋮⋮</span><span class="flow-name">Can I adjust my order?</span><span class="flow-actions">✎ ✕</span></div>
+              <div class="flow-item"><span class="flow-grip">⋮⋮</span><span class="flow-name">How can I get 10% off my first order?</span><span class="flow-actions">✎ ✕</span></div>
+              <div class="flow-item"><span class="flow-grip">⋮⋮</span><span class="flow-name">How long does shipping take?</span><span class="flow-actions">✎ ✕</span></div>
+              <div class="flow-item"><span class="flow-grip">⋮⋮</span><span class="flow-name">Warranty</span><span class="flow-actions">✎ ✕</span></div>
+            </div>
+            <button class="add-logo-btn" style="height:32px;padding:0 12px 0 8px;font-size:14px;align-self:flex-start">+ Add flow</button>
+          </div>
+          <div class="card">
+            <div class="card-header-row">
+              <div>
+                <div class="card-title">Order management</div>
+                <div class="card-subtitle">Let customers sign in to track, return, cancel or report issues with orders.</div>
+              </div>
+              <div class="toggle on" id="order-management-toggle" role="switch"></div>
+            </div>
+          </div>
+          <div class="placeholder-panel">More Automation sections will be wired up next (Quick replies, Article recommendations).</div>
+        </div>
+
+        <!-- ============ Language placeholder ============ -->
+        <div class="panel" data-panel="language">
+          <div class="placeholder-panel">Language settings.</div>
+        </div>
+
+        <!-- ============ Installation placeholder ============ -->
+        <div class="panel" data-panel="installation">
+          <div class="placeholder-panel">Installation instructions.</div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ Chat preview ============ -->
+  <aside class="preview">
+    <div class="preview-frame">
+      <div class="preview-top">
+        <div class="preview-header">
+          <div class="title">
+            Chat preview
+            <span class="tag-popover-anchor">
+              <span class="axiom-tag" id="new-tag" role="button" tabindex="0" aria-label="New chat is enabled">New</span>
+              <div class="axiom-popover" id="new-popover" role="dialog">
+                <div class="axiom-popover-header">
+                  <div class="axiom-popover-title">This is the UI visitors see today.</div>
+                </div>
+                <div class="axiom-popover-body">
+                  Switch back to the old chat UI anytime before June 15.
+                </div>
+                <div class="axiom-popover-footer">
+                  <button class="axiom-popover-btn" id="popover-switch-back-btn">Switch back</button>
+                </div>
+              </div>
+            </span>
+          </div>
+          <div class="view-toggle">
+            <button class="icon-btn active" data-view="home" title="Home view">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 8L10 3L17 8V16C17 16.55 16.55 17 16 17H4C3.45 17 3 16.55 3 16V8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="icon-btn" data-view="chat" title="Chat view">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 5C3 4 4 3 5 3H13C14 3 15 4 15 5V11C15 12 14 13 13 13H8L4 16V13C3.4 13 3 12.5 3 12V5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- Business hours toggle (above the divider) -->
+        <div class="biz-toggle-section">
+          <div class="biz-toggle">
+            <button class="active" data-biz="during">During Business Hours</button>
+            <button data-biz="outside">Outside business hours</button>
+          </div>
+        </div>
+      </div>
+      <div class="preview-inner">
+
+        <!-- Phone frame -->
+        <div class="phone" id="phone">
+          <div class="phone-header">
+            <span></span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="glass-btn" id="track-orders-pill">Track Orders</span>
+              <span class="glass-btn icon-only">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 5L10 10L5 5M5 15L10 10L15 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="phone-top">
+            <div class="brand-logo">Glossier.</div>
+            <div class="privacy-text" id="privacy-preview" style="display:none">
+              <span id="privacy-preview-text">Before we begin, you should know that Glossier will store and use the information in...</span>
+              <span class="more">Read more</span>
+            </div>
+            <div class="greeting" id="greeting-preview">How can we help?</div>
+          </div>
+
+          <!-- Home view actions -->
+          <div class="phone-bottom" id="view-home">
+            <div class="quick-actions">
+              <div class="quick-action">What's new in the collection?</div>
+              <div class="quick-action">How can I get 10% off my first order?</div>
+              <div class="quick-action">Help me find the right size</div>
+              <div class="quick-action">How do I use my gift card?</div>
+            </div>
+            <div class="live-chat" id="live-chat-pill">
+              <div class="left">
+                <div class="brand-avatar" id="live-chat-avatar">
+                  <div class="mark">G</div>
+                  <div class="status-dot"></div>
+                </div>
+                <span class="label" id="live-chat-label">Chat with us</span>
+              </div>
+              <div class="chev">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8.25 5.5L12.75 10L8.25 14.5" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat view -->
+          <div class="phone-bottom hidden" id="view-chat">
+            <div class="chat-msg"><div class="bubble" id="chat-bubble-customer">I need a new light foundation</div></div>
+            <div class="agent-msg hidden" id="agent-msg">
+              <p class="text" id="agent-msg-text"></p>
+            </div>
+            <div class="email-capture hidden" id="email-capture">
+              <div>
+                <p class="email-capture-label">Your email</p>
+                <div class="email-capture-input" style="margin-top:12px">you@email.com</div>
+              </div>
+              <button class="email-capture-cta">Continue</button>
+            </div>
+            <div id="offline-status-wrap">
+              <div class="offline-status" id="offline-status">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 6V10H14M10 17C6 17 3 14 3 10C3 6 6 3 10 3C14 3 17 6 17 10C17 14 14 17 10 17Z" stroke="#5C6370" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span id="status-text">Back online at 9:00 AM EST</span>
+              </div>
+            </div>
+            <div class="input-field" id="chat-input-field">
+              <span class="placeholder" id="chat-input-placeholder">Leave a message</span>
+              <button class="icon-btn">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2.9H6c-1.4 0-2.1 0-2.6.3a2 2 0 00-1 1.1c-.3.5-.3 1.2-.3 2.6V14c0 1.4 0 2.1.3 2.6.2.5.6.9 1 1.1.6.3 1.3.3 2.7.3h7.6c.8 0 1.2 0 1.5-.1.9-.2 1.5-.9 1.8-1.8.1-.3.1-.7.1-1.5M15.4 7.1V2.1M12.9 4.6h5M8.3 7.5a1.7 1.7 0 11-3.3 0 1.7 1.7 0 013.3 0zm3.8 2.8L5 16.8c-.4.4-.6.5-.6.7 0 .1 0 .3.2.4.1.1.4.1.9.1h7.8c1.2 0 1.8 0 2.3-.2a3 3 0 001.5-1.5c.2-.5.2-1.1.2-2.3v-.2c0-.4 0-.6-.04-.8a1.5 1.5 0 00-.3-.6c-.1-.2-.3-.3-.6-.6L13.8 10c-.3-.2-.4-.4-.6-.4-.2 0-.3 0-.5 0-.2 0-.3.2-.6.4z" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  </div>
+  <!-- /new-version -->
+
+  <!-- Confirmation Modal for switching back to previous chat -->
+  <div class="modal-overlay" id="switch-back-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Switch back to the old chat UI?</div>
+      </div>
+      <div class="modal-body">
+        Customers on your store will see the old chat. You can switch to the new chat anytime before June 15.
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn tertiary" id="switch-back-cancel">Cancel</button>
+        <button class="modal-btn destructive" id="switch-back-confirm">Switch back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== State =====
+  const state = {
+    panel: 'appearance', // 'appearance' | 'preferences' | 'automation' | 'language' | 'installation'
+    bizMode: 'during', // 'during' | 'outside'
+    view: 'home', // 'home' | 'chat'
+    privacyEnabled: false,
+    privacyOnHome: false,
+    greetingDuring: 'How can we help?',
+    greetingOutside: "We'll be back soon",
+    privacyText: '',
+    brandHex: '#FFDFE2',
+    collectEmails: false,
+    emailMode: 'optional', // 'optional' | 'required'
+    shareWaitTime: false,
+    waitTimeMode: 'dynamic', // 'dynamic' | 'few-minutes' | 'few-hours'
+    orderManagement: true,
+    startWithAutomation: false,
+  };
+
+  // ===== Helpers =====
+  function $(sel, root = document) { return root.querySelector(sel); }
+  function $$(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
+
+  // ===== Render =====
+  function render() {
+    // Greeting in preview (only shown on home view)
+    const greeting = state.bizMode === 'during' ? state.greetingDuring : state.greetingOutside;
+    const greetingEl = $('#greeting-preview');
+    greetingEl.textContent = greeting;
+    const showGreeting = state.view === 'home' && greeting.trim() !== '';
+    greetingEl.style.display = showGreeting ? '' : 'none';
+
+    // Privacy in preview
+    const privacyEl = $('#privacy-preview');
+    const privacyTextEl = $('#privacy-preview-text');
+    const showPrivacy =
+      state.privacyEnabled &&
+      (state.view === 'chat' || (state.view === 'home' && state.privacyOnHome));
+    if (showPrivacy) {
+      const text = (state.privacyText || '').trim();
+      if (text === '') {
+        // Toggle on but no text → show default placeholder text
+        privacyTextEl.textContent = 'Before we begin, you should know that Glossier will store and use the information in...';
+        privacyEl.querySelector('.more').style.display = '';
+      } else {
+        privacyTextEl.textContent = text + ' ';
+        privacyEl.querySelector('.more').style.display = '';
+      }
+      privacyEl.style.display = '';
+    } else {
+      privacyEl.style.display = 'none';
+    }
+
+    // View toggle
+    $('#view-home').classList.toggle('hidden', state.view !== 'home');
+    $('#view-chat').classList.toggle('hidden', state.view !== 'chat');
+    $$('.view-toggle .icon-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
+
+    // Biz toggle visual
+    $$('.biz-toggle button').forEach(b => b.classList.toggle('active', b.dataset.biz === state.bizMode));
+
+    // Biz-toggle is only meaningful on the Appearance tab (drives greeting preview).
+    // Use visibility (not display) on other tabs so the phone position stays fixed.
+    const bizSection = document.querySelector('.biz-toggle-section');
+    if (bizSection) bizSection.style.visibility = state.panel === 'appearance' ? '' : 'hidden';
+
+    // Track Orders pill visibility (toggled via Order management on Automation tab)
+    const trackOrdersPill = $('#track-orders-pill');
+    if (trackOrdersPill) trackOrdersPill.style.display = state.orderManagement ? '' : 'none';
+
+    // "Chat with us" pill on home view: hidden when Start with automation is on
+    const liveChatPill = $('#live-chat-pill');
+    if (liveChatPill) liveChatPill.style.display = state.startWithAutomation ? 'none' : '';
+    const startAutoToggle = $('#start-automation-toggle');
+    if (startAutoToggle) startAutoToggle.classList.toggle('on', state.startWithAutomation);
+
+    // Home view live-chat pill: "Chat with us" (during) / "Leave us a message" (outside)
+    const liveChatLabel = $('#live-chat-label');
+    if (liveChatLabel) {
+      liveChatLabel.textContent = state.bizMode === 'during' ? 'Chat with us' : 'Leave us a message';
+    }
+    // Online/offline status dot on the brand avatar
+    const liveChatAvatar = $('#live-chat-avatar');
+    if (liveChatAvatar) {
+      liveChatAvatar.classList.toggle('offline', state.bizMode === 'outside');
+    }
+
+    // ===== Consolidated chat view content =====
+    // On Preferences, ignore bizMode (always preview as during-business-hours)
+    const effectiveBiz = state.panel === 'preferences' ? 'during' : state.bizMode;
+
+    let customerBubbleText, agentMsgText, statusText;
+    let showEmailCapture, showInput;
+
+    if (state.shareWaitTime) {
+      customerBubbleText = 'I need a new light foundation';
+      if (state.waitTimeMode === 'few-hours') {
+        agentMsgText = 'Hi! Thanks for reaching out. We will be with you in a few hours.';
+        statusText = 'We will reply in a few hours';
+      } else if (state.waitTimeMode === 'few-minutes') {
+        agentMsgText = 'Hi! Thanks for reaching out. We will be with you in a few minutes.';
+        statusText = 'We will reply in a few minutes';
+      } else {
+        agentMsgText = 'Hi! Thanks for reaching out. We will be with you in about 5 minutes.';
+        statusText = 'We will reply in a few moments';
+      }
+      showEmailCapture = state.collectEmails;
+      showInput = !(state.collectEmails && state.emailMode === 'required');
+    } else if (state.collectEmails) {
+      customerBubbleText = 'I need a new light foundation';
+      if (state.emailMode === 'required') {
+        agentMsgText = 'Welcome! Please enter your email then send us a message to connect with our team.';
+      } else {
+        agentMsgText = 'Welcome! Someone from our team will be with you soon.';
+      }
+      statusText = null;
+      showEmailCapture = true;
+      showInput = state.emailMode !== 'required';
+    } else {
+      customerBubbleText = 'I need a new light foundation';
+      agentMsgText = null;
+      statusText = effectiveBiz === 'outside' ? 'Back online at 9:00 AM EST' : null;
+      showEmailCapture = false;
+      showInput = true;
+    }
+
+    // Apply chat view content
+    $('#chat-bubble-customer').textContent = customerBubbleText;
+
+    const agentMsgEl = $('#agent-msg');
+    if (agentMsgText) {
+      agentMsgEl.classList.remove('hidden');
+      $('#agent-msg-text').textContent = agentMsgText;
+    } else {
+      agentMsgEl.classList.add('hidden');
+    }
+
+    const offlineWrap = $('#offline-status-wrap');
+    if (statusText) {
+      offlineWrap.style.display = '';
+      $('#status-text').textContent = statusText;
+    } else {
+      offlineWrap.style.display = 'none';
+    }
+
+    $('#email-capture').classList.toggle('hidden', !showEmailCapture);
+    $('#chat-input-field').classList.toggle('hidden', !showInput);
+
+    // Chat input placeholder: "Reply" when no wait time is shared and during business hours;
+    // "Leave a message" when wait time is shared or outside business hours
+    const chatInputPlaceholder = $('#chat-input-placeholder');
+    if (chatInputPlaceholder) {
+      const isReplyMode = !state.shareWaitTime && effectiveBiz === 'during';
+      chatInputPlaceholder.textContent = isReplyMode ? 'Reply' : 'Leave a message';
+    }
+
+    // Collect-emails radio panel visual enable/disable
+    const optsEl = $('#collect-emails-options');
+    if (optsEl) {
+      optsEl.style.opacity = state.collectEmails ? '1' : '0.5';
+      optsEl.style.pointerEvents = state.collectEmails ? '' : 'none';
+    }
+    const collectToggle = $('#collect-emails-toggle');
+    if (collectToggle) collectToggle.classList.toggle('on', state.collectEmails);
+
+    // Share-wait radio panel visual enable/disable
+    const waitOptsEl = $('#share-wait-options');
+    if (waitOptsEl) {
+      waitOptsEl.style.opacity = state.shareWaitTime ? '1' : '0.5';
+      waitOptsEl.style.pointerEvents = state.shareWaitTime ? '' : 'none';
+    }
+    const waitToggle = $('#share-wait-toggle');
+    if (waitToggle) waitToggle.classList.toggle('on', state.shareWaitTime);
+
+    // Privacy controls enable/disable visual
+    const ctrls = $('#privacy-controls');
+    if (state.privacyEnabled) {
+      ctrls.style.opacity = '1';
+      ctrls.style.pointerEvents = '';
+    } else {
+      ctrls.style.opacity = '0.5';
+      ctrls.style.pointerEvents = 'none';
+    }
+    $('#privacy-toggle').classList.toggle('on', state.privacyEnabled);
+
+    // Brand color
+    document.documentElement.style.setProperty('--brand', state.brandHex);
+    document.documentElement.style.setProperty('--brand-glow', state.brandHex);
+    $('#brand-chip').style.background = state.brandHex;
+
+    // Label char counter
+    const labelInput = $('#launcher-label');
+    if (labelInput) $('#label-count').textContent = labelInput.value.length;
+  }
+
+  // ===== Bindings =====
+  // Greeting inputs
+  $('#greeting-during').addEventListener('input', e => {
+    state.greetingDuring = e.target.value;
+    render();
+  });
+  $('#greeting-outside').addEventListener('input', e => {
+    state.greetingOutside = e.target.value;
+    render();
+  });
+
+  // Privacy toggle
+  $('#privacy-toggle').addEventListener('click', () => {
+    state.privacyEnabled = !state.privacyEnabled;
+    render();
+  });
+
+  // Privacy text
+  $('#privacy-text').addEventListener('input', e => {
+    state.privacyText = e.target.value;
+    render();
+  });
+
+  // Privacy on home checkbox
+  $('#privacy-on-home').addEventListener('change', e => {
+    state.privacyOnHome = e.target.checked;
+    render();
+  });
+
+  // Brand color hex
+  $('#brand-hex').addEventListener('input', e => {
+    const v = e.target.value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(v) || /^#[0-9a-fA-F]{3}$/.test(v)) {
+      state.brandHex = v;
+      render();
+    }
+  });
+
+  // View toggle (home/chat)
+  $$('.view-toggle .icon-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.view = btn.dataset.view;
+      render();
+    });
+  });
+
+  // Biz toggle
+  $$('.biz-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.bizMode = btn.dataset.biz;
+      render();
+    });
+  });
+
+  // Tabs
+  $$('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      $$('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.dataset.tab;
+      $$('.panel').forEach(p => p.classList.toggle('active', p.dataset.panel === target));
+      state.panel = target;
+      render();
+    });
+  });
+
+  // Sidebar section collapse/expand
+  $$('.sidebar-section-header').forEach(h => {
+    h.addEventListener('click', () => {
+      h.parentElement.classList.toggle('collapsed');
+    });
+  });
+
+  // Launcher cards
+  $$('.launcher-card').forEach(card => {
+    card.addEventListener('click', () => {
+      $$('.launcher-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+  });
+
+  // Label counter
+  const labelInput = $('#launcher-label');
+  if (labelInput) labelInput.addEventListener('input', render);
+
+  // Collect customer emails toggle
+  $('#collect-emails-toggle').addEventListener('click', () => {
+    state.collectEmails = !state.collectEmails;
+    render();
+  });
+
+  // Email mode radios (Optional / Required)
+  $$('input[name="email-mode"]').forEach(r => {
+    r.addEventListener('change', e => {
+      state.emailMode = e.target.value;
+      render();
+    });
+  });
+
+  // Share wait time toggle
+  $('#share-wait-toggle').addEventListener('click', () => {
+    state.shareWaitTime = !state.shareWaitTime;
+    render();
+  });
+
+  // Order management toggle (Automation)
+  $('#order-management-toggle').addEventListener('click', () => {
+    state.orderManagement = !state.orderManagement;
+    $('#order-management-toggle').classList.toggle('on', state.orderManagement);
+    render();
+  });
+
+  // Start conversations with automation toggle (Preferences)
+  $('#start-automation-toggle').addEventListener('click', () => {
+    state.startWithAutomation = !state.startWithAutomation;
+    render();
+  });
+
+  // Wait time mode radios
+  $$('input[name="wait-mode"]').forEach(r => {
+    r.addEventListener('change', e => {
+      state.waitTimeMode = e.target.value;
+      render();
+    });
+  });
+
+  // Generic toggles (Preferences/Automation placeholders)
+  $$('.toggle').forEach(t => {
+    if (t.id === 'privacy-toggle') return; // handled above
+    if (t.id === 'collect-emails-toggle') return; // handled above
+    if (t.id === 'share-wait-toggle') return; // handled above
+    if (t.id === 'order-management-toggle') return; // handled above
+    if (t.id === 'start-automation-toggle') return; // handled above
+    t.addEventListener('click', () => {
+      t.classList.toggle('on');
+    });
+  });
+
+  // ===== Legacy / new version switching =====
+  const legacyEl = document.getElementById('legacy-version');
+  const newEl = document.getElementById('new-version');
+
+  // Update button → switch to new prototype
+  const updateBtn = document.getElementById('update-btn');
+  if (updateBtn) {
+    updateBtn.addEventListener('click', () => {
+      legacyEl.style.display = 'none';
+      newEl.style.display = 'flex';
+    });
+  }
+
+  // Legacy banner close (just hides the banner)
+  document.querySelectorAll('.legacy-banner-close').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.legacy-banner').style.display = 'none');
+  });
+
+  // ===== Switch back to legacy with confirmation Modal =====
+  function switchBackToLegacy() {
+    legacyEl.style.display = 'flex';
+    newEl.style.display = 'none';
+  }
+
+  // NEW Tag → Popover (Option 2 — Axiom Tag + Popover composition)
+  const newTag = document.getElementById('new-tag');
+  const newPopover = document.getElementById('new-popover');
+  const popoverSwitchBtn = document.getElementById('popover-switch-back-btn');
+  function closePopover() { if (newPopover) newPopover.classList.remove('open'); }
+  if (newTag) {
+    newTag.addEventListener('click', e => {
+      e.stopPropagation();
+      newPopover.classList.toggle('open');
+    });
+    newTag.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        newPopover.classList.toggle('open');
+      }
+    });
+    document.addEventListener('click', e => {
+      if (newPopover && !newPopover.contains(e.target) && e.target !== newTag) {
+        closePopover();
+      }
+    });
+  }
+
+  // Confirmation Modal (triggered from popover's Switch back button)
+  const switchModal = document.getElementById('switch-back-modal');
+  const switchCancel = document.getElementById('switch-back-cancel');
+  const switchConfirm = document.getElementById('switch-back-confirm');
+  function openSwitchModal() { switchModal.classList.add('open'); }
+  function closeSwitchModal() { switchModal.classList.remove('open'); }
+  if (popoverSwitchBtn) popoverSwitchBtn.addEventListener('click', () => {
+    closePopover();
+    openSwitchModal();
+  });
+  if (switchCancel) switchCancel.addEventListener('click', closeSwitchModal);
+  if (switchConfirm) switchConfirm.addEventListener('click', () => {
+    closeSwitchModal();
+    switchBackToLegacy();
+  });
+  if (switchModal) switchModal.addEventListener('click', e => {
+    if (e.target === switchModal) closeSwitchModal();
+  });
+
+  // Current / New (2.0) variant toggle in legacy preview
+  const variantToggle = document.getElementById('legacy-variant-toggle');
+  if (variantToggle) {
+    variantToggle.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        variantToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const variant = btn.dataset.variant;
+        document.getElementById('legacy-phone-current').style.display = variant === 'current' ? '' : 'none';
+        document.getElementById('legacy-phone-new').style.display = variant === 'new' ? '' : 'none';
+      });
+    });
+  }
+
+  // Legacy tab switching (Appearance / Preferences / others)
+  document.querySelectorAll('.legacy-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.legacy-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.dataset.legacyTab;
+      document.getElementById('legacy-form-appearance').style.display = target === 'appearance' ? '' : 'none';
+      document.getElementById('legacy-form-preferences').style.display = target === 'preferences' ? '' : 'none';
+      document.getElementById('legacy-form-other').style.display = (target !== 'appearance' && target !== 'preferences') ? '' : 'none';
+    });
+  });
+
+  // Initial render
+  render();
+</script>
+
+</body>
+</html>
