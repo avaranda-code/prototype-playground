@@ -47,11 +47,13 @@ jobs:
                 --password "$STATICRYPT_PASSWORD" \
                 --remember 1 \
                 --short \
-                --template-title "Protected Page" \
-                --template-placeholder "Password" \
-                --template-button "Unlock" \
-                --template-remember "Remember me" \
-                --template-error "Wrong password" \
+                --template password_template.html \
+                --template-title "Psst! Got the password?" \
+                --template-instructions "Just a quick check before you come in." \
+                --template-placeholder "the secret word..." \
+                --template-button "Let me in" \
+                --template-remember "Remember me next time" \
+                --template-error "Hmm, that's not it. Try again?" \
                 -d "$tmpdir"
               mv "$tmpdir/$(basename $file)" "$file"
               rm -rf "$tmpdir"
@@ -59,7 +61,7 @@ jobs:
 
       - name: Verify encryption
         run: |
-          echo "--- index.html title (should say Protected Page) ---"
+          echo "--- index.html title ---"
           grep -m1 "<title>" ./index.html
 
       - name: Configure Pages
