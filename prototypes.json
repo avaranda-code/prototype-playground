@@ -6,5 +6,5 @@
     "description": "Prototype of new chat UI preview in legacy settings, enabling Chat 2.0 as a non-AI agent customer, and the ability to temporarily revery back",
     "file": "chat-migration.html",
     "image": "chat-migration.png"
-  },
+  }
 ]
