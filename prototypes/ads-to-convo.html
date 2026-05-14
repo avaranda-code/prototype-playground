@@ -1228,10 +1228,61 @@
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
 
+  /* ── Mobile responsive ──────────────────────────────────────────────
+     Tablet + small laptop: shrink the phone so the panel still fits. */
   @media (max-width: 900px) {
-    .stage { flex-direction: column; padding: 16px; gap: 24px; }
     .phone { transform: scale(0.85); transform-origin: top center; }
-    .edit-panel { width: 100%; }
+    .edit-panel { width: min(460px, 100%); }
+  }
+
+  /* Mobile: stack the topbar, let the brand selector take a full row, hide
+     non-essential labels, and keep the phone naturally sized + centered.   */
+  @media (max-width: 640px) {
+    .topbar {
+      padding: 10px 12px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .topbar h1 { font-size: 13px; }
+    .topbar > div:first-of-type { display: none; } /* the flex spacer */
+    /* Brand selector wraps to its own row, full-width */
+    .brand-select-wrap {
+      order: 99;
+      width: 100%;
+      flex-basis: 100%;
+      margin-top: 4px;
+    }
+    .brand-select-trigger {
+      min-width: 0;
+      width: 100%;
+    }
+    .brand-select-menu {
+      width: calc(100vw - 24px);
+      max-width: 400px;
+      left: 0;
+    }
+    .btn {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    /* Stage: tighter spacing, phone stays centered naturally */
+    .stage {
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 0 28px;
+      gap: 14px;
+    }
+    .phone { transform: none; }
+    /* Flow toggle remains centered */
+    .flow-toggle { margin: 0 auto; }
+    /* Edit panel goes full-width on mobile */
+    .edit-panel { width: 100%; max-width: 100vw; }
+  }
+
+  /* Very narrow phones: tighten further, hide the title's sub-text */
+  @media (max-width: 380px) {
+    .topbar h1 .sub { display: none; }
+    .phone { width: 300px; height: 620px; }
   }
 </style>
 </head>
@@ -4250,9 +4301,7 @@ function renderEditPanel() {
 
   // ── Shared sections (apply to all flows) ──────────────────────────
   body.appendChild(iconSection('📢', 'Ad creative',
-    inputField('Caption', 'caption', brand.caption, true),
     inputField('CTA button label', 'ctaLabel', brand.ctaLabel),
-    inputField('Likes (display)', 'likes', brand.likes),
   ));
 
   body.appendChild(iconSection('🛍️', 'Product (PDP)',
