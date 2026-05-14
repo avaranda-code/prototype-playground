@@ -1,0 +1,4333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ads-to-Convo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&family=Grand+Hotel&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #14171f;
+    --border: #232733;
+    --muted: #8b909c;
+    --text: #e7e9ee;
+    --accent: #ff7a59;
+    --ink: #1e242e;
+    --ink-soft: #5c6370;
+    --ink-muted: #8a8f99;
+    --browser-bg: #1c1e26;
+    --chat-grad: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { scrollbar-width: none; }
+
+  .topbar {
+    position: relative; z-index: 50;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px;
+    background: rgba(11,13,18,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar h1 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .topbar h1 .accent { color: var(--accent); }
+  .topbar .sub { font-size: 12px; color: var(--muted); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: #1a1e28; border-color: #2e3340; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #ff8d70; border-color: #ff8d70; }
+
+  .brand-select-wrap { position: relative; }
+  .brand-select-trigger {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    min-width: 240px;
+    transition: all 0.15s;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .brand-select-trigger:hover { border-color: #2e3340; }
+  .brand-select-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    flex-shrink: 0;
+    background-size: cover; background-position: center;
+    background-color: #2a2e3a;
+    border: 1px solid #2e3340;
+  }
+  .brand-select-name { font-size: 13px; font-weight: 600; flex: 1; text-align: left; }
+  .brand-select-meta { font-size: 11px; color: var(--muted); text-align: left; }
+  .brand-select-chev { color: var(--muted); }
+
+  .brand-select-menu {
+    position: absolute; top: calc(100% + 6px); left: 0;
+    width: 360px; max-height: 520px; overflow-y: auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    padding: 8px;
+    z-index: 100;
+  }
+  .brand-select-section {
+    padding: 8px 8px 4px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .brand-select-industry {
+    padding: 6px 8px 2px 8px;
+    font-size: 11px; font-weight: 500;
+    color: #6b7280;
+  }
+  .brand-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .brand-option:hover { background: #1a1e28; }
+  .brand-option.selected { background: #1f2530; }
+  .brand-option-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background-size: cover; background-position: center;
+    background-color: #2a2e3a;
+    flex-shrink: 0;
+  }
+  .brand-option-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .brand-option-domain { font-size: 11px; color: var(--muted); }
+
+  .stage {
+    display: flex; align-items: flex-start; justify-content: center;
+    gap: 32px;
+    padding: 24px 24px 32px;
+    min-height: calc(100vh - 56px);
+    flex-wrap: wrap;
+  }
+  .flow-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .flow-toggle {
+    display: inline-flex;
+    padding: 4px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    margin-bottom: 4px;
+  }
+  .flow-toggle button {
+    padding: 7px 16px;
+    font-size: 12px; font-weight: 600;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .flow-toggle button:hover { color: #fff; }
+  .flow-toggle button.active { background: #fff; color: #1a1a1a; }
+  .flow-toggle .sub { color: rgba(255,255,255,0.45); font-weight: 400; margin-left: 6px; font-size: 11px; }
+  .flow-toggle button.active .sub { color: rgba(26,26,26,0.5); }
+  .flow-bar {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 4px 4px 14px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    color: #fff;
+  }
+  .flow-bar .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 6px; }
+  .flow-bar .label-text { margin-right: 8px; }
+  .flow-bar button {
+    padding: 5px 12px;
+    font-size: 11px; font-weight: 600;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .flow-bar button:hover { color: #fff; }
+  .flow-bar button.active { background: #fff; color: #1a1a1a; }
+
+  /* ── Phone frame ── */
+  .phone {
+    width: 320px; height: 660px;
+    background: #1a1a1a;
+    border-radius: 46px;
+    padding: 10px;
+    position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(255,255,255,0.04);
+  }
+  .phone-side-l1 { left: -3px; top: 110px; width: 3px; height: 28px; border-radius: 3px 0 0 3px; background: #2a2a2a; position: absolute; }
+  .phone-side-l2 { left: -3px; top: 150px; width: 3px; height: 54px; border-radius: 3px 0 0 3px; background: #2a2a2a; position: absolute; }
+  .phone-side-l3 { left: -3px; top: 215px; width: 3px; height: 54px; border-radius: 3px 0 0 3px; background: #2a2a2a; position: absolute; }
+  .phone-side-r1 { right: -3px; top: 156px; width: 3px; height: 70px; border-radius: 0 3px 3px 0; background: #2a2a2a; position: absolute; }
+
+  .phone-screen {
+    width: 100%; height: 100%;
+    background: #fff;
+    border-radius: 40px;
+    overflow: hidden;
+    position: relative;
+    color: var(--ink);
+  }
+
+  .status-bar-light, .status-bar-dark {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 12px; padding-bottom: 4px;
+    font-size: 11px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .status-bar-light { padding-left: 20px; padding-right: 20px; color: #161616; background: #fff; }
+  .status-bar-dark { padding-left: 16px; padding-right: 16px; color: #fff; background: var(--browser-bg); }
+  .status-bar-icons { display: flex; align-items: center; gap: 4px; }
+  .status-bar-dark .status-bar-icons { gap: 6px; }
+
+  /* ── Instagram feed ── */
+  .ig-screen { display: flex; flex-direction: column; height: 100%; background: #fff; }
+  .ig-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 16px;
+    flex-shrink: 0;
+  }
+  .ig-logo {
+    font-family: 'Grand Hotel', 'Billabong', cursive;
+    font-size: 26px; line-height: 1;
+    letter-spacing: -0.5px;
+    color: #161616;
+  }
+  .ig-icon { color: #161616; }
+  .ig-notif { position: relative; cursor: pointer; }
+  .ig-notif-badge {
+    position: absolute; top: -3px; right: -3px;
+    width: 14px; height: 14px;
+    background: #ef4444;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; font-weight: 700; color: #fff;
+  }
+  .ig-stories {
+    display: flex; gap: 12px;
+    padding: 8px 16px;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+  .ig-story { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+  .ig-story-ring {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    padding: 2px;
+    background-image: var(--story-grad, linear-gradient(135deg, #f59e0b, #f43f5e));
+  }
+  .ig-story-inner {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: #fff;
+    padding: 2px;
+  }
+  .ig-story-avatar {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background-image: var(--story-grad, linear-gradient(135deg, #f59e0b, #f43f5e));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 18px;
+  }
+  .ig-story-name {
+    font-size: 10px; color: #161616;
+    width: 56px; text-align: center;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ig-divider { height: 1px; background: #f3f4f6; flex-shrink: 0; }
+
+  .ig-feed { flex: 1; overflow-y: auto; }
+  .ig-post-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px;
+    flex-shrink: 0;
+    min-height: 48px;
+    background: #fff;
+  }
+  .ig-post-head-left { display: flex; align-items: center; gap: 8px; }
+  .ig-post-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background-image: var(--brand-grad);
+    background-size: cover; background-position: center;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 12px;
+  }
+  .ig-post-handle { font-size: 13px; font-weight: 600; color: #161616; }
+  .ig-post-sub { font-size: 10px; color: #9ca3af; }
+  .ig-post-image {
+    width: 100%; aspect-ratio: 1 / 1;
+    background: #f5f4f2;
+    background-size: cover; background-position: center;
+    flex-shrink: 0;
+  }
+  .ig-post-actions {
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 12px 4px;
+    color: #161616;
+  }
+  .ig-post-actions .spacer { flex: 1; }
+  .ig-post-actions svg { cursor: pointer; }
+  .ig-likes { padding: 0 12px 4px; font-size: 13px; font-weight: 600; color: #161616; }
+  .ig-caption {
+    padding: 0 12px 8px;
+    font-size: 13px; line-height: 18px; color: #161616;
+  }
+  .ig-caption strong { font-weight: 600; }
+
+  .ig-cta-bar {
+    flex-shrink: 0;
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ig-cta-domain-wrap {
+    display: flex; align-items: center; gap: 6px;
+    flex: 1; min-width: 0;
+    cursor: pointer;
+  }
+  .ig-cta-icon {
+    width: 20px; height: 20px;
+    border-radius: 4px;
+    background-image: var(--brand-grad);
+    background-size: cover; background-position: center;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 8px;
+    flex-shrink: 0;
+  }
+  .ig-cta-domain {
+    font-size: 12px; color: #6b7280;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ig-cta-btn {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    background: var(--brand-hex);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s;
+  }
+  .ig-cta-btn:active { opacity: 0.8; }
+
+  /* ── PDP ── */
+  .pdp-screen {
+    position: absolute; inset: 0;
+    background: #f5f4f2;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .pdp-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 1;
+  }
+  .pdp-sheet {
+    position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+    background: #fff;
+    border-radius: 18px 18px 0 0;
+    z-index: 2;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    animation: sheetSlideUp 320ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @keyframes sheetSlideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .pdp-handle-row {
+    position: relative;
+    min-height: 32px;
+    padding: 10px 0 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .pdp-handle {
+    width: 36px; height: 5px;
+    border-radius: 999px;
+    background: #d1d5db; opacity: 0.6;
+  }
+  .pdp-close {
+    position: absolute; right: 14px; top: 4px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none; background: transparent;
+    cursor: pointer;
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pdp-body {
+    flex: 1; overflow-y: auto;
+    padding-bottom: 168px;
+  }
+  .pdp-hero {
+    width: 100%; aspect-ratio: 1/1;
+    background: #eceae6;
+    background-size: cover; background-position: center;
+  }
+  .pdp-thumbs {
+    display: flex; gap: 8px;
+    padding: 12px 16px 4px;
+    overflow-x: auto;
+  }
+  .pdp-thumb {
+    flex-shrink: 0;
+    width: 56px; height: 56px;
+    border-radius: 6px;
+    background: #f5f4f2;
+    background-size: cover; background-position: center;
+    border: 1px solid rgba(20,24,32,0.12);
+    cursor: pointer;
+  }
+  .pdp-thumb.active { border: 2px solid var(--ink); }
+  .pdp-info {
+    padding: 16px 20px 0;
+  }
+  .pdp-name {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    font-size: 30px; line-height: 34px; font-weight: 400;
+    color: var(--ink);
+    margin: 0;
+    letter-spacing: -0.3px;
+    white-space: pre-line;
+  }
+  .pdp-meta-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 10px;
+  }
+  .pdp-rating { display: flex; align-items: center; gap: 6px; color: var(--ink); }
+  .pdp-rating-stars { font-size: 14px; letter-spacing: 1px; }
+  .pdp-rating-stars .empty { opacity: 0.35; }
+  .pdp-rating-count { font-size: 12px; color: var(--ink); text-decoration: underline; }
+  .pdp-price { font-size: 14px; color: var(--ink); }
+  .pdp-desc {
+    font-size: 14px; line-height: 21px;
+    color: #3d4350;
+    margin: 14px 0 0;
+  }
+  .pdp-features {
+    padding: 22px 20px 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .pdp-feature {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--ink);
+  }
+  .pdp-feature-check {
+    width: 18px; height: 18px;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    color: var(--brand-hex);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .pdp-sticky {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 30%);
+    padding: 10px 12px 16px;
+    z-index: 3;
+  }
+  .pdp-chat-row {
+    display: flex; gap: 8px; align-items: center;
+    padding: 2px 2px 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+  }
+  .pdp-chat-input-wrap {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 6px 6px 14px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid rgba(20,24,32,0.12);
+    box-shadow: 0 1px 2px rgba(20,24,32,0.04), 0 8px 18px -14px rgba(20,24,32,0.25);
+  }
+  .pdp-chat-input-wrap input {
+    border: none; outline: none;
+    background: transparent;
+    font-size: 13px; font-weight: 500;
+    color: var(--ink);
+    font-family: inherit;
+    padding: 6px 0;
+    min-width: 0;
+  }
+  .pdp-chat-input-wrap input::placeholder { color: #9aa0aa; }
+  .pdp-chat-send {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0;
+  }
+  .pdp-chat-send.disabled { background: #e6e7eb; cursor: default; }
+  .pdp-chip {
+    flex-shrink: 0;
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #fff, #f6f7fb);
+    border: 1px solid rgba(20,24,32,0.1);
+    font-size: 13px; font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(20,24,32,0.04), 0 8px 18px -14px rgba(20,24,32,0.25);
+    font-family: inherit;
+    white-space: nowrap;
+    transition: transform 0.15s;
+  }
+  .pdp-chip:hover { transform: translateY(-1px); }
+  .pdp-divider {
+    height: 1px;
+    background: rgba(20,24,32,0.08);
+    margin: 4px -12px 10px;
+  }
+  .pdp-cta {
+    width: 100%;
+    height: 46px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #2a313d, var(--ink));
+    color: #fff;
+    border: none;
+    font-size: 14.5px; font-weight: 700;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 12px 24px -12px rgba(20,24,32,0.55);
+    font-family: inherit;
+  }
+
+  /* ── Listing / Product page ── */
+  .listing-screen {
+    display: flex; flex-direction: column;
+    height: 100%;
+    background: #fff;
+  }
+  .listing-body {
+    flex: 1; overflow-y: auto;
+  }
+  .listing-header {
+    padding: 16px 20px 8px;
+  }
+  .listing-eyebrow {
+    font-size: 10px; font-weight: 600;
+    color: #8a8f99;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .listing-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 400;
+    color: var(--ink);
+    margin: 4px 0 6px;
+    letter-spacing: -0.3px;
+  }
+  .listing-desc {
+    font-size: 13px; line-height: 19px;
+    color: #5c6370;
+    margin: 0;
+  }
+  .listing-grid {
+    padding: 12px 12px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .listing-card {
+    background: #fff;
+    border: 1px solid rgba(20,24,32,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    padding: 0;
+    box-shadow: 0 1px 2px rgba(20,24,32,0.04);
+    transition: transform 0.15s;
+  }
+  .listing-card:hover { transform: translateY(-1px); }
+  .listing-card-img {
+    aspect-ratio: 1/1;
+    background: #f5f4f2;
+    background-size: cover; background-position: center;
+  }
+  .listing-card-info { padding: 10px 12px 14px; }
+  .listing-card-name {
+    font-size: 12px; font-weight: 600;
+    color: var(--ink);
+    line-height: 16px;
+    margin: 0;
+  }
+  .listing-card-variant {
+    font-size: 11px; color: #8a8f99;
+    margin: 2px 0 6px;
+  }
+  .listing-card-price {
+    font-size: 13px; font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e242e;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px; font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    z-index: 50;
+    animation: toastIn 0.3s, toastOut 0.3s 1.7s forwards;
+    white-space: nowrap;
+    pointer-events: none;
+    display: flex; align-items: center; gap: 6px;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translate(-50%, 10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  @keyframes toastOut {
+    to { opacity: 0; transform: translate(-50%, -8px); }
+  }
+
+  /* ── Flow 0 — real-website product page via a screenshot service ── */
+  .product-page-screen {
+    display: flex; flex-direction: column;
+    width: 100%; height: 100%;
+    background: #fff;
+  }
+  .product-page-scroll {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    background: #fff;
+    /* Hide the scrollbar so the screenshot can use the full 300px width.
+       Content remains scrollable via touch/wheel. */
+    scrollbar-width: none;        /* Firefox */
+    -ms-overflow-style: none;     /* IE/Edge legacy */
+  }
+  .product-page-scroll::-webkit-scrollbar {
+    display: none;                /* Chrome/Safari */
+    width: 0; height: 0;
+  }
+  .product-page-screenshot {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .product-page-screenshot.loaded { opacity: 1; }
+  .product-page-loading {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px;
+    font-size: 12px; color: #6b7280;
+    background: #fff;
+  }
+  .product-page-spinner {
+    width: 26px; height: 26px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #1e242e;
+    border-radius: 50%;
+    animation: ppSpin 0.8s linear infinite;
+  }
+  @keyframes ppSpin { to { transform: rotate(360deg); } }
+  .product-page-fallback {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    text-align: center;
+    color: #1a1a1a;
+    background: #fff;
+    gap: 12px;
+  }
+  .product-page-fallback p { font-size: 13px; color: #6b7280; margin: 0; line-height: 1.5; }
+  .product-page-fallback a {
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: #1e242e;
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ── Discovery 1.0 — half-sheet chat (Big Bold Health) ── */
+  .discovery-half-sheet {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 62%;
+    background: var(--chat-grad);
+    border-radius: 18px 18px 0 0;
+    z-index: 20;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    animation: halfSheetSlideUp 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.18);
+  }
+  @keyframes halfSheetSlideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .discovery-half-head {
+    position: relative;
+    flex-shrink: 0;
+    min-height: 36px;
+    padding: 10px 0 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .discovery-half-handle {
+    width: 36px; height: 5px;
+    background: #d1d5db; opacity: 0.6;
+    border-radius: 999px;
+  }
+  .discovery-half-close {
+    position: absolute; right: 14px; top: 4px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none; background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #1e242e;
+  }
+
+  /* ── Chat ── */
+  .chat-screen {
+    display: flex; flex-direction: column;
+    height: 100%;
+    background: var(--chat-grad);
+  }
+  .browser-bar {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--browser-bg);
+  }
+  .browser-bar-btn {
+    width: 36px; height: 36px;
+    border: none; background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: #fff;
+  }
+  .browser-bar-center {
+    display: flex; flex-direction: column; align-items: center;
+    line-height: 1.15;
+  }
+  .browser-bar-domain { display: flex; align-items: center; gap: 4px; color: #fff; }
+  .browser-bar-domain svg { flex-shrink: 0; }
+  .browser-bar-domain span { font-weight: 600; font-size: 13px; letter-spacing: 0.1px; }
+  .browser-bar-source { color: #8e8e8e; font-size: 11px; margin-top: 1px; }
+
+  .chat-header {
+    flex-shrink: 0;
+    height: 52px;
+    padding: 0 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: transparent;
+  }
+  .chat-circle-btn {
+    width: 32px; height: 32px;
+    border-radius: 999px;
+    border: 1px solid #ebecef;
+    background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+    color: var(--ink);
+  }
+  .chat-header-right { display: flex; align-items: center; gap: 8px; }
+  .chat-track-pill {
+    display: inline-flex; align-items: center;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid #ebecef;
+    cursor: pointer;
+    font-size: 14px; font-weight: 500;
+    color: var(--ink);
+    line-height: 20px;
+    font-family: inherit;
+  }
+
+  .ai-disclosure {
+    padding: 4px 24px 10px;
+    text-align: center;
+    font-size: 11px; line-height: 16px; color: #8a8f99;
+  }
+  .ai-disclosure u { color: #6b7280; cursor: pointer; }
+
+  .chat-body {
+    flex: 1; overflow-y: auto;
+    padding: 8px 16px 12px;
+  }
+
+  .in-chat-product {
+    display: flex; justify-content: flex-end;
+    margin-bottom: 12px;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .in-chat-product-btn {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 16px 8px 8px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(20,24,32,0.05);
+    box-shadow: 0 1px 2px rgba(20,24,32,0.04), 0 12px 28px -18px rgba(20,24,32,0.25);
+    cursor: pointer;
+    max-width: 84%;
+    font-family: inherit;
+  }
+  .in-chat-product-img {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    background-size: cover; background-position: center;
+    background-color: #f5f5f7;
+    flex-shrink: 0;
+  }
+  .in-chat-product-name {
+    font-size: 14px; font-weight: 600;
+    color: var(--ink);
+    line-height: 19px;
+    text-align: left;
+    white-space: pre-line;
+  }
+
+  .chat-pdp-question {
+    display: flex; justify-content: flex-end;
+    margin-bottom: 8px;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .chat-pdp-question span {
+    font-size: 13px; font-weight: 400;
+    line-height: 20px;
+    color: #6b7280;
+  }
+  .chat-pdp-question .arrow { margin-right: 4px; }
+
+  .chat-msg-ai {
+    margin-bottom: 12px;
+    font-size: 14px; line-height: 22px;
+    color: var(--ink);
+    white-space: pre-line;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .chat-msg-user {
+    display: flex; justify-content: flex-end;
+    margin-bottom: 12px;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .chat-msg-user-bubble {
+    background: #ebecef;
+    color: var(--ink);
+    border-radius: 24px;
+    padding: 8px 16px;
+    max-width: calc(100% - 32px);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+
+  .typing-dots {
+    display: flex; gap: 5px;
+    padding: 8px 0 14px;
+    animation: fadeInUp 0.2s ease;
+  }
+  .typing-dots span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(30, 36, 46, 0.3);
+    animation: bounce 1s ease-in-out infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  .chat-replies {
+    display: flex; flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 4px 0 8px;
+    margin-top: 8px;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .chat-reply {
+    display: inline-flex;
+    padding: 11px 16px;
+    justify-content: center; align-items: center;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.20);
+    box-shadow: 0 2px 3px rgba(0,0,0,0.10);
+    border: none;
+    font-size: 14px; font-weight: 500; line-height: 20px;
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: transform 0.15s ease;
+  }
+  .chat-reply:hover { transform: translateY(-1px); }
+
+  .rec-card {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff, #f7f3ec);
+    border: 1px solid rgba(20,24,32,0.06);
+    box-shadow: 0 1px 2px rgba(20,24,32,0.04), 0 16px 40px -24px rgba(30,36,46,0.4);
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    animation: fadeInUp 0.35s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .rec-card-img {
+    width: 60px; height: 60px;
+    border-radius: 12px;
+    background-size: cover; background-position: center;
+    flex-shrink: 0;
+  }
+  .rec-card-info { flex: 1; min-width: 0; }
+  .rec-card-eyebrow {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--brand-hex);
+    margin: 0;
+  }
+  .rec-card-title {
+    font-size: 14px; font-weight: 700;
+    color: var(--ink);
+    margin: 2px 0 0;
+    white-space: pre-line;
+    line-height: 18px;
+  }
+  .rec-card-sub {
+    font-size: 12px; color: #6b7280;
+    margin: 2px 0 0;
+  }
+  .rec-card-cta {
+    font-size: 11px; font-weight: 700;
+    color: var(--brand-hex);
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--brand-soft);
+    flex-shrink: 0;
+  }
+
+  .chat-reply-input {
+    flex-shrink: 0;
+    padding: 10px 12px 12px;
+    background: #f5f6f8;
+    border-top: 1px solid rgba(20,24,32,0.04);
+  }
+  .chat-reply-input-pill {
+    display: flex; align-items: center;
+    padding: 8px 8px 8px 16px;
+    background: #fff;
+    border-radius: 999px;
+    border: 1px solid rgba(20,24,32,0.05);
+    box-shadow: 0 1px 2px rgba(20,24,32,0.04), 0 14px 30px -22px rgba(20,24,32,0.25);
+  }
+  .chat-reply-input-pill input {
+    flex: 1;
+    border: none; outline: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--ink);
+    font-family: inherit;
+  }
+  .chat-reply-input-pill input::placeholder { color: #9aa0aa; }
+  .chat-reply-input-pill .send-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .chat-reply-input-pill .send-btn.active { background: var(--ink); }
+  .chat-reply-input-pill .send-btn.inactive { background: #d8dade; cursor: default; }
+
+  .browser-toolbar {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 8px 8px;
+    background: var(--browser-bg);
+    color: #fff;
+  }
+  .browser-toolbar-btn {
+    width: 40px; height: 28px;
+    border: none; background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    cursor: pointer;
+  }
+  .browser-toolbar-btn.disabled { opacity: 0.3; }
+
+  /* ── Edit panel ── */
+  .edit-panel {
+    position: fixed; top: 0; right: 0;
+    height: 100vh;
+    width: 480px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    box-shadow: -16px 0 48px rgba(0,0,0,0.5);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(.2,.8,.2,1);
+    z-index: 90;
+    display: flex; flex-direction: column;
+  }
+  .edit-panel.open { transform: translateX(0); }
+  .edit-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .edit-head h3 { font-size: 14px; font-weight: 700; margin: 0; color: var(--text); }
+  .edit-head .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .edit-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 22px; line-height: 1; }
+  .edit-close:hover { color: var(--text); }
+  .edit-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+  .edit-tab {
+    flex: 1;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-family: inherit;
+  }
+  .edit-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .edit-body {
+    flex: 1; overflow-y: auto;
+    padding: 18px 20px;
+  }
+  .edit-section { margin-bottom: 20px; }
+  /* Default (common) section headers — Ad / Product / Recommendation */
+  .edit-section h4 {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .edit-section h4 .icon {
+    font-size: 14px;
+    display: inline-block;
+    line-height: 1;
+  }
+
+  /* Per-flow sections get a visually distinct boxed look so the demoer can
+     scan and find "the chip on Flow 2" or "Flow 0's URL" quickly. */
+  .edit-section.flow-section {
+    margin-bottom: 24px;
+    padding: 14px 14px 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+  }
+  .edit-section.flow-section h4 {
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text);
+    font-size: 13px;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin: 0 0 2px;
+  }
+  .flow-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 28px;
+    padding: 3px 8px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .flow-section-sub {
+    font-size: 11px; color: var(--muted);
+    margin: 0 0 14px;
+    padding-left: 36px;
+  }
+
+  /* Turn sub-headers inside a flow section */
+  .edit-section h5 {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.04em; text-transform: uppercase;
+    margin: 18px 0 8px;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+  }
+  .edit-section h5:first-of-type { margin-top: 4px; }
+  .edit-field { margin-bottom: 10px; }
+  .edit-field label {
+    display: block;
+    font-size: 11px; color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .edit-input, .edit-textarea {
+    width: 100%;
+    padding: 8px 10px;
+    background: #0b0d12;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+  }
+  .edit-input:focus, .edit-textarea:focus { border-color: var(--accent); }
+  .edit-textarea { min-height: 60px; line-height: 1.4; }
+  .edit-chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .edit-chip-item {
+    display: flex; align-items: center; gap: 4px;
+    padding: 4px 4px 4px 10px;
+    background: #0b0d12;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 12px;
+  }
+  .edit-chip-item input {
+    border: none; background: transparent;
+    color: var(--text);
+    font-family: inherit; font-size: 12px;
+    outline: none;
+    width: 140px;
+  }
+  .edit-chip-item button {
+    width: 18px; height: 18px;
+    border: none; background: #2a2e3a; color: #aaa;
+    border-radius: 50%; cursor: pointer;
+    font-size: 11px; line-height: 1;
+  }
+  .edit-add-chip {
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .edit-add-chip:hover { color: var(--text); border-color: var(--muted); }
+
+  .edit-option-row {
+    display: flex; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .edit-option-row .edit-input { flex: 1; }
+  .edit-option-row .edit-input.opt-label { flex: 0 0 38%; font-weight: 600; }
+  .edit-option-row .opt-remove {
+    width: 28px;
+    border: 1px solid var(--border); background: transparent; color: #aaa;
+    border-radius: 6px; cursor: pointer;
+    font-size: 14px;
+  }
+  .edit-option-row .opt-remove:hover { color: var(--accent); border-color: var(--accent); }
+
+  .edit-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px;
+  }
+  .edit-footer .btn { flex: 1; justify-content: center; }
+
+  .edit-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 80;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .edit-overlay.open { opacity: 1; pointer-events: auto; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+  @media (max-width: 900px) {
+    .stage { flex-direction: column; padding: 16px; gap: 24px; }
+    .phone { transform: scale(0.85); transform-origin: top center; }
+    .edit-panel { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Ads<span class="accent">→</span>Convo</h1>
+  <div style="flex:1"></div>
+  <div class="brand-select-wrap">
+    <button class="brand-select-trigger" id="brandTrigger" onclick="toggleBrandMenu()">
+      <div class="brand-select-avatar" id="brandTriggerAvatar"></div>
+      <div style="flex:1">
+        <div class="brand-select-name" id="brandTriggerName">Brand</div>
+        <div class="brand-select-meta" id="brandTriggerMeta"></div>
+      </div>
+      <svg class="brand-select-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="brand-select-menu" id="brandMenu" style="display:none"></div>
+  </div>
+  <button class="btn" onclick="resetCurrentBrand()" title="Reset overrides">↺ Reset brand</button>
+  <button class="btn primary" onclick="toggleEdit()">✎ Edit panel</button>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<div class="edit-overlay" id="editOverlay" onclick="toggleEdit()"></div>
+<div class="edit-panel" id="editPanel">
+  <div class="edit-head">
+    <div>
+      <h3 id="editPanelTitle">Edit brand</h3>
+      <div class="sub" id="editPanelSub"></div>
+    </div>
+    <button class="edit-close" onclick="toggleEdit()">×</button>
+  </div>
+  <div class="edit-tabs">
+    <button class="edit-tab active" data-tab="content" onclick="switchEditTab('content')">Content</button>
+    <button class="edit-tab" data-tab="notes" onclick="switchEditTab('notes')">Notes</button>
+  </div>
+  <div class="edit-body" id="editBody"></div>
+  <div class="edit-footer">
+    <button class="btn" onclick="resetCurrentBrand()">Reset brand</button>
+    <button class="btn primary" onclick="toggleEdit()">Done</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BRAND DATA
+   ============================================================ */
+
+const STORIES_DEFAULT = [
+  { name: 'sephora',  grad: 'linear-gradient(135deg, #a855f7, #ec4899)', initial: 'S' },
+  { name: 'glossier', grad: 'linear-gradient(135deg, #fda4af, #fbcfe8)', initial: 'G' },
+  { name: 'byredo',   grad: 'linear-gradient(135deg, #475569, #94a3b8)', initial: 'B' },
+  { name: 'aesop',    grad: 'linear-gradient(135deg, #d97706, #fbbf24)', initial: 'A' },
+];
+
+const BRANDS = [
+  // ── PROSPECTIVE ────────────────────────────────────────────
+  {
+    id: 'dylans',
+    name: "Dylan's Candy Bar",
+    handle: 'dylanscandybar',
+    domain: 'dylanscandybar.com',
+    category: 'prospective',
+    industry: 'Food & Beverage',
+    initial: 'D',
+    avatar: 'https://www.dylanscandybar.com/cdn/shop/files/750x932.5-1_9023fa8e-a05a-4626-b608-3529b6c288ef.jpg',
+    brandHex: '#E91E63',
+    brandSoft: 'rgba(233,30,99,0.10)',
+    brandGrad: 'linear-gradient(135deg, #f472b6, #ec4899)',
+    storyGrad: 'linear-gradient(135deg, #f472b6, #ec4899)',
+    likes: '4,213 likes',
+    caption: "Build your dream candy mix in 60 seconds 🍭 Tell us what you crave and we'll fill your tackle box. #DylansCandyBar #SugarRush",
+    ctaLabel: "Build your tackle box",
+    adImage: 'https://www.dylanscandybar.com/cdn/shop/files/750x932.5-1_9023fa8e-a05a-4626-b608-3529b6c288ef.jpg',
+    product: {
+      name: "Signature Sampler\nTackle Box",
+      shortName: "Signature Sampler Tackle Box",
+      brandEyebrow: "DYLAN'S CANDY BAR",
+      images: ['https://www.dylanscandybar.com/cdn/shop/files/750x932.5-1_9023fa8e-a05a-4626-b608-3529b6c288ef.jpg'],
+      rating: 4,
+      reviewCount: '1,840',
+      priceLow: 30,
+      priceHigh: 50,
+      currency: '$',
+      description: "A curated mix of our most-loved gummies, chocolates, and retro favorites — packed in our iconic tackle box.",
+      features: [
+        '12+ candy types in one box',
+        'Made in our NYC kitchens',
+        'Free gift wrap available',
+      ],
+    },
+    listing: {
+      eyebrow: 'CANDY',
+      title: 'Tackle Boxes',
+      description: 'Curated candy mixes packed in our iconic tackle boxes.',
+      products: [
+        { name: 'Signature Sampler', variant: 'Tackle Box', price: 30 },
+        { name: 'Sour Lover\'s', variant: 'Tackle Box', price: 30 },
+        { name: 'Chocolate Lover\'s', variant: 'Tackle Box', price: 30 },
+        { name: 'Build Your Own', variant: 'Custom Mix', price: 50 },
+      ],
+    },
+    flowA: {
+      pdpInputPlaceholder: "What's on your mind?",
+      pdpChips: ['Best for kids?', 'Gluten-free options', 'Gift wrap?'],
+      starterChip: 'Best for kids?',
+      welcome: "Hey 👋 Let's build your perfect tackle box.",
+      turns: [
+        {
+          prompt: "First — what kind of candy lights you up?",
+          options: [
+            { label: 'Gummies & jellies', ack: "Solid pick — our pectin gummies are vegan-friendly too." },
+            { label: 'Chocolate', ack: "Love it — small-batch bars from American makers." },
+            { label: 'Sour candy', ack: "Welcome to the dark side. Our sour mix is famously face-puckering." },
+            { label: 'A mix of everything', ack: "Best answer — that's exactly what the Signature box is built for." },
+          ],
+        },
+        {
+          prompt: "Got it. And who's it for?",
+          options: [
+            { label: 'Treat for myself', ack: "Self-care is sugar care." },
+            { label: 'Birthday gift', ack: "Birthdays get free hand-tied ribbon — flag it at checkout." },
+            { label: 'Office / team', ack: "Team gifts go fast. The 30-pc box is the office MVP." },
+            { label: 'A kid', ack: "Got it — I'll keep it under-12 friendly." },
+          ],
+        },
+      ],
+    },
+    flowC1: {
+      productLabel: 'Signature Sampler Tackle Box',
+      welcome: "Sweet — tackle boxes are our most-loved gift.",
+      turns: [
+        {
+          prompt: "What kind of candy do you crave the most right now?",
+          options: [
+            { label: 'Gummies & jellies', ack: "Solid pick — pectin gummies are vegan too." },
+            { label: 'Chocolate', ack: "Small-batch bars from American makers, you'll love it." },
+            { label: 'Sour candy', ack: "Sour heads, welcome." },
+            { label: 'A mix of everything', ack: "Best answer — Signature box was built for you." },
+          ],
+        },
+        {
+          prompt: "Building this for yourself or as a gift?",
+          options: [
+            { label: 'For me', ack: "Treat yourself." },
+            { label: 'For a friend', ack: "Free gift wrap if you flag it at checkout." },
+            { label: 'For a kid', ack: "We'll keep it kid-safe." },
+          ],
+        },
+      ],
+    },
+    recommendation: {
+      title: "Signature Sampler\nTackle Box",
+      sub: "$30 · 12+ candy types · NYC-made",
+      blurb: "Our most-loved gift — every kind of candy in one box. Free gift wrap available.",
+      ctaLabel: 'View →',
+    },
+    freeText: [
+      { match: '(allerg|nut|peanut)', reply: "We make in a nut-friendly facility, but every product page lists allergens. Anything specific to avoid?", followUps: ['Gluten-free?', 'Vegan options', 'Show me the box'] },
+      { match: '(gluten|vegan)', reply: "Gluten-free and vegan options are tagged on each product. Pectin gummies are both — want me to show you?", followUps: ['Show me the box', 'Build me a custom box'] },
+      { match: '(gift|wrap|note|message)', reply: "Yes — gift wrap and a personalized note are free at checkout for any tackle box.", followUps: ['Show me the box', 'How fast does it ship?'] },
+      { match: '(ship|deliver|arrive|fast)', reply: "Standard 3–5 days, express 2 days, free over $75.", followUps: ['Show me the box', 'Gift wrap?'] },
+      { match: '(price|cost|how much)', reply: "Tackle boxes range $30–$50. The Signature Sampler is $30.", followUps: ['Show me the box'] },
+      { match: '(kid|child|birthday)', reply: "Kid favorites? Sour fizzies and gummy bears. Signature box is a safe bet.", followUps: ['Show me the box'] },
+    ],
+  },
+  {
+    id: 'bollandbranch',
+    name: 'Boll & Branch',
+    handle: 'bollandbranch',
+    domain: 'bollandbranch.com',
+    category: 'prospective',
+    industry: 'Home & Lifestyle',
+    initial: 'B',
+    avatar: 'https://cdn.shopify.com/s/files/1/1154/7838/files/white-cotton-bed-sheet-set-stacked.jpg?v=1767971242',
+    brandHex: '#9c8b73',
+    brandSoft: 'rgba(156,139,115,0.12)',
+    brandGrad: 'linear-gradient(135deg, #d6c5ad, #9c8b73)',
+    storyGrad: 'linear-gradient(135deg, #d6c5ad, #9c8b73)',
+    likes: '3,124 likes',
+    caption: "Find your perfect sheets in 60 seconds 🌙 Sateen, percale, or linen? We'll help you choose. #BollAndBranch #BetterSleep",
+    ctaLabel: "Find your sheets",
+    adImage: 'https://cdn.shopify.com/s/files/1/1154/7838/files/white-cotton-bed-sheet-set-stacked.jpg?v=1767971242',
+    product: {
+      name: 'Signature Hemmed\nSheet Set',
+      shortName: 'Signature Hemmed Sheet Set',
+      brandEyebrow: 'BOLL & BRANCH',
+      images: ['https://cdn.shopify.com/s/files/1/1154/7838/files/white-cotton-bed-sheet-set-stacked.jpg?v=1767971242'],
+      rating: 5,
+      reviewCount: '14,230',
+      priceLow: 229,
+      priceHigh: 349,
+      currency: '$',
+      description: 'Bestselling everyday luxury sateen sheets crafted from long-staple organic cotton. Smooth, buttery soft, and breathable.',
+      features: [
+        '100% organic long-staple cotton',
+        'OEKO-TEX & Fair Trade certified',
+        '60-night home trial',
+      ],
+    },
+    listing: {
+      eyebrow: 'BEDDING',
+      title: 'Sheet Sets',
+      description: 'Soft, breathable, and built to last. Choose your weave.',
+      products: [
+        { name: 'Signature Sheet Set', variant: 'Sateen, White', price: 229 },
+        { name: 'Linen Sheet Set', variant: 'Natural', price: 269 },
+        { name: 'Brushed Cotton Sheet Set', variant: 'Sage', price: 169 },
+        { name: 'Percale Sheet Set', variant: 'Coastal Blue', price: 199 },
+      ],
+    },
+    flowA: {
+      pdpInputPlaceholder: "What's on your mind?",
+      pdpChips: ['Sateen vs percale?', 'What size fits me?', 'How do I wash?'],
+      starterChip: 'Sateen vs percale?',
+      welcome: "Hey 👋 I'll help you find your perfect sheets in about 60 seconds.",
+      turns: [
+        {
+          prompt: "First — how do you sleep, hot or cold?",
+          options: [
+            { label: 'I run pretty hot', ack: "Got it — let's keep this breathable." },
+            { label: 'I get cold easily', ack: "Cozy and warm coming up." },
+            { label: 'Somewhere in between', ack: "Perfect — that's where most people land." },
+          ],
+        },
+        {
+          prompt: "And what feel are you after?",
+          options: [
+            { label: 'Crisp & cool (percale)', ack: "Percale's the classic — feels like a fresh hotel sheet." },
+            { label: 'Smooth & silky (sateen)', ack: "Sateen — buttery soft, with a subtle sheen." },
+            { label: 'Cozy & textured (linen)', ack: "Linen, gorgeous — softens with every wash." },
+          ],
+        },
+      ],
+    },
+    flowC1: {
+      productLabel: 'Signature Hemmed Sheet Set',
+      welcome: "Welcome to Boll & Branch.",
+      turns: [
+        {
+          prompt: "I'll help you find your perfect sheet set. What feel are you after?",
+          options: [
+            { label: 'Crisp & cool (percale)', ack: "Percale — feels like a fresh hotel sheet." },
+            { label: 'Smooth & silky (sateen)', ack: "Sateen — buttery soft, subtle sheen." },
+            { label: 'Cozy & textured (linen)', ack: "Linen — softens with every wash." },
+            { label: 'Not sure — help me choose', ack: "Easy: sateen if you like soft, percale if you like crisp." },
+          ],
+        },
+        {
+          prompt: "And how do you sleep — hot or cold?",
+          options: [
+            { label: 'I run hot', ack: "Then percale or linen breathes best." },
+            { label: 'I get cold', ack: "Sateen wraps you up." },
+            { label: 'In between', ack: "Sateen is a safe bet." },
+          ],
+        },
+      ],
+    },
+    recommendation: {
+      title: 'Signature Hemmed\nSheet Set',
+      sub: '$229 · Sateen, Queen · 60-night trial',
+      blurb: "Based on what you told me — soft, breathable, and built for everyday luxury. 60 nights, free returns.",
+      ctaLabel: 'View →',
+    },
+    freeText: [
+      { match: '(wash|care|launder|clean)', reply: "Machine wash cold, tumble dry low. Softens with every wash. Pre-shrunk so no surprises.", followUps: ['What size fits me?', 'Show me the set'] },
+      { match: '(size|king|queen|twin|full|cal)', reply: "Sizes match standard US bedding. Queen, King, and Cal King available.", followUps: ['Show me the set', 'Sateen vs percale?'] },
+      { match: '(return|trial|guarantee)', reply: "60-night home trial. Sleep on it, send back free if not in love.", followUps: ['Show me the set'] },
+      { match: '(organic|fair trade|cotton|where.*from)', reply: "100% organic long-staple cotton, OEKO-TEX & Fair Trade certified. From family-run mills in India.", followUps: ['Show me the set'] },
+      { match: '(price|cost|how much)', reply: "Sets range $229–$349. Sateen Queen is $229.", followUps: ['Show me the set'] },
+    ],
+  },
+
+  // ── CURRENT ────────────────────────────────────────────────
+  {
+    id: 'tarte',
+    name: 'Tarte Cosmetics',
+    handle: 'tartecosmetics',
+    domain: 'tartecosmetics.com',
+    category: 'current',
+    industry: 'Beauty & Personal Care',
+    initial: 'T',
+    avatar: 'https://tartecosmetics.com/cdn/shop/files/unique__846733029006__shape-tape-contour-concealer-35H-medium-honey__01.jpg?v=1762804790&width=990',
+    brandHex: '#d96b8a',
+    brandSoft: 'rgba(217,107,138,0.12)',
+    brandGrad: 'linear-gradient(135deg, #f9a8c4, #d96b8a)',
+    storyGrad: 'linear-gradient(135deg, #f9a8c4, #d96b8a)',
+    likes: '12,488 likes',
+    caption: "Find your Shape Tape match in 30 seconds ✨ Skip the swatching — we'll help you pick. #ShapeTape #TarteCosmetics",
+    ctaLabel: "Find my shade",
+    adImage: 'https://tartecosmetics.com/cdn/shop/files/unique__846733029006__shape-tape-contour-concealer-35H-medium-honey__01.jpg?v=1762804790&width=990',
+    product: {
+      name: 'Shape Tape™\nConcealer',
+      shortName: 'Shape Tape™ Concealer',
+      brandEyebrow: 'TARTE',
+      images: ['https://tartecosmetics.com/cdn/shop/files/unique__846733029006__shape-tape-contour-concealer-35H-medium-honey__01.jpg?v=1762804790&width=990'],
+      rating: 5,
+      reviewCount: '25,980',
+      priceLow: 32,
+      priceHigh: 32,
+      currency: '$',
+      description: 'Award-winning, full-coverage concealer that brightens, contours, and stays put for 16 hours. 50 shades.',
+      features: [
+        '16-hour full coverage',
+        '50 shades · all skin tones',
+        'Vegan & cruelty-free',
+      ],
+    },
+    listing: {
+      eyebrow: 'BEST SELLERS',
+      title: 'Shape Tape™ Family',
+      description: 'Award-winning, full-coverage favorites — find yours.',
+      products: [
+        { name: 'Shape Tape™ Concealer', variant: 'Original · 50 shades', price: 32 },
+        { name: 'Shape Tape™ Hydrate', variant: 'Hyaluronic · 30 shades', price: 32 },
+        { name: 'Shape Tape™ Foundation', variant: 'Full coverage · 32 shades', price: 42 },
+        { name: 'Shape Tape™ Glow Wand', variant: 'Brightening · 8 shades', price: 28 },
+      ],
+    },
+    flowA: {
+      pdpInputPlaceholder: "What's on your mind?",
+      pdpChips: ['Find my shade', 'Is it dry under eyes?', 'Best for oily skin?'],
+      starterChip: 'Find my shade',
+      welcome: "Hey beauty 👋 Let's find your perfect Shape Tape match.",
+      turns: [
+        {
+          prompt: "First — how would you describe your skin tone?",
+          options: [
+            { label: 'Fair / Light', ack: "Got it — fair tones." },
+            { label: 'Light–Medium', ack: "Light–medium it is." },
+            { label: 'Medium', ack: "Medium tones — easiest range to match." },
+            { label: 'Tan', ack: "Tan — warm undertones likely." },
+            { label: 'Deep', ack: "Deep — we have 22 shades just here." },
+            { label: 'Rich', ack: "Rich tones — gorgeous." },
+          ],
+        },
+        {
+          prompt: "What's your skin type?",
+          options: [
+            { label: 'Oily', ack: "Shape Tape is your friend — 16hr wear, no melt." },
+            { label: 'Dry', ack: "Try Shape Tape Hydrate — same coverage with hyaluronic acid." },
+            { label: 'Combination', ack: "Original Shape Tape is buildable and balances well." },
+            { label: 'Sensitive', ack: "Hypoallergenic and dermatologist-tested ✓" },
+          ],
+        },
+      ],
+    },
+    flowC1: {
+      productLabel: 'Shape Tape™ Concealer',
+      welcome: "Hey beauty! Shape Tape comes in 50 shades — let's find yours.",
+      turns: [
+        {
+          prompt: "How would you describe your skin tone?",
+          options: [
+            { label: 'Fair / Light', ack: "Fair tones, got it." },
+            { label: 'Light–Medium', ack: "Light–medium." },
+            { label: 'Medium', ack: "Medium." },
+            { label: 'Tan', ack: "Tan with warm undertones." },
+            { label: 'Deep', ack: "Deep tones — 22 shades to pick from." },
+            { label: 'Rich', ack: "Rich — gorgeous." },
+          ],
+        },
+        {
+          prompt: "What's most important to you?",
+          options: [
+            { label: 'Long-wear coverage', ack: "Original Shape Tape, no question." },
+            { label: 'Hydrating finish', ack: "Shape Tape Hydrate — coverage + hyaluronic acid." },
+            { label: 'Brightening under eyes', ack: "Shape Tape Radiant brightens with a soft glow." },
+          ],
+        },
+      ],
+    },
+    recommendation: {
+      title: 'Shape Tape™ Concealer\nin 22N Light Neutral',
+      sub: '$32 · Full coverage · 16hr wear',
+      blurb: "We'll match your shade exactly at checkout — free swap if it's off.",
+      ctaLabel: 'View →',
+    },
+    freeText: [
+      { match: '(dry|cake|crease)', reply: "Shape Tape Hydrate is the dry-skin sister formula — same coverage, less crease.", followUps: ['Find my shade', 'Show me the product'] },
+      { match: '(oily|melt|all day|long wear)', reply: "16-hour wear, no melt. A setting powder helps if you're really oily.", followUps: ['Find my shade'] },
+      { match: '(shade|match|undertone)', reply: "50 shades across 5 undertones. Free virtual try-on and free shade swaps.", followUps: ['Find my shade'] },
+      { match: '(vegan|cruelty|test)', reply: "Vegan, cruelty-free, ophthalmologist-tested ✓", followUps: ['Find my shade'] },
+      { match: '(price|cost)', reply: "Shape Tape Concealer is $32. Mini is $14. Free shipping over $40.", followUps: ['Find my shade'] },
+    ],
+  },
+  // ──────────────────────────────────────────────────────────────────────────
+  //  ADDITIONAL BRANDS — auto-built using a shared template (makeBrand)
+  //  appended after the BRANDS array below
+  // ──────────────────────────────────────────────────────────────────────────
+];
+
+// Helper to spread brand fields with sensible defaults
+function makeBrand(b) {
+  const hex = b.brandHex;
+  const soft = b.brandSoft || hex.replace(/^#/, '').match(/.{2}/g).map(h => parseInt(h, 16)).join(',');
+  return {
+    ...b,
+    brandSoft: b.brandSoft || `rgba(${soft},0.12)`,
+    storyGrad: b.storyGrad || b.brandGrad,
+    avatar: b.avatar || b.adImage,
+    likes: b.likes || (Math.floor(Math.random() * 9000 + 1500)).toLocaleString() + ' likes',
+    product: {
+      shortName: b.product.shortName || b.product.name.replace(/\n/g, ' '),
+      brandEyebrow: b.product.brandEyebrow || b.name.toUpperCase(),
+      images: b.product.images || [b.adImage],
+      rating: b.product.rating || 5,
+      currency: b.product.currency || '$',
+      ...b.product,
+    },
+    flowA: {
+      pdpInputPlaceholder: "What's on your mind?",
+      ...b.flowA,
+    },
+    recommendation: {
+      ctaLabel: 'View →',
+      ...b.recommendation,
+    },
+  };
+}
+
+// ── PROSPECTIVE — Fashion & Apparel ─────────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'birdygrey', name: 'Birdy Grey', handle: 'birdygrey', domain: 'birdygrey.com',
+  category: 'prospective', industry: 'Fashion & Apparel', initial: 'B',
+  brandHex: '#a8b5d4',
+  brandGrad: 'linear-gradient(135deg, #d4c5b9, #a8b5d4)',
+  caption: "Find your dream bridesmaid dress in 60 seconds 💍 25+ colors, all under $99. We'll match your vibe. #BirdyGrey",
+  ctaLabel: 'Find your dress',
+  adImage: 'https://cdn.shopify.com/s/files/1/2053/3799/files/wr-espresso-matte-satin-alex-reg-bridesmaid-apparel-dresses-100.jpg',
+  likes: '5,210 likes',
+  product: {
+    name: 'Alex Matte Satin\nBridesmaid Dress',
+    rating: 5, reviewCount: '8,240', priceLow: 89, priceHigh: 99,
+    description: 'Versatile, elegant matte satin dress in 25+ colors. Designed for easy coordination across the wedding party.',
+    features: ['Sizes 00–32 + Junior fits', '25+ matte satin colors', 'Free 10 fabric swatches'],
+  },
+  listing: {
+    eyebrow: 'BRIDESMAID', title: 'Best Sellers',
+    description: 'Dresses your bridesmaids will actually want to wear again.',
+    products: [
+      { name: 'Alex Matte Satin', variant: 'Espresso · Floor length', price: 89 },
+      { name: 'Christina Crepe', variant: 'Sage · Tea length', price: 89 },
+      { name: 'Lottie Tulle', variant: 'Petal pink · Floor length', price: 99 },
+      { name: 'Park Crepe', variant: 'Twilight · Midi', price: 89 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['Color match my wedding?', 'Sizing guide', 'When does it ship?'],
+    starterChip: 'Color match my wedding?',
+    welcome: "Hey 👋 Let's find your perfect bridesmaid dress.",
+    turns: [
+      { prompt: "First — what's your wedding vibe?", options: [
+        { label: 'Classic & timeless', ack: "Lovely — neutral palettes work best." },
+        { label: 'Modern & moody', ack: "Espresso, charcoal, jewel tones are your friends." },
+        { label: 'Garden / romantic', ack: "Sage, dusty rose, petal pink — gorgeous." },
+        { label: 'Beach / coastal', ack: "Soft blues, natural tones, very on-trend." },
+      ]},
+      { prompt: "And what length is the wedding party going for?", options: [
+        { label: 'Floor-length', ack: "Classic and dramatic." },
+        { label: 'Tea-length / midi', ack: "Easy, comfortable, photogenic." },
+        { label: 'Mix and match', ack: "Bold choice — and we love it." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Alex Matte Satin Dress',
+    welcome: "Welcome to Birdy Grey! All dresses under $99.",
+    turns: [
+      { prompt: "What's your wedding vibe?", options: [
+        { label: 'Classic & timeless', ack: "Neutrals it is." },
+        { label: 'Modern & moody', ack: "Deep tones, love it." },
+        { label: 'Garden / romantic', ack: "Soft florals incoming." },
+        { label: 'Beach / coastal', ack: "Light blues, coastal vibes." },
+      ]},
+      { prompt: "Are you the bride or a bridesmaid?", options: [
+        { label: 'Bride', ack: "Hey hey! Free swatches are on us." },
+        { label: 'Bridesmaid', ack: "Got it — let's find your fit." },
+        { label: 'Maid of honor', ack: "Stand out subtly — we got you." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Alex Matte Satin\nDress in Espresso',
+    sub: '$89 · Floor-length · 25+ colors',
+    blurb: "Our most-loved silhouette — flattering on every body type, in your exact wedding color.",
+  },
+  freeText: [
+    { match: '(swatch|color|match)', reply: "We send 10 free fabric swatches so you can color-match in person before ordering.", followUps: ['Show me the dress', 'Sizing guide'] },
+    { match: '(size|fit|measure)', reply: "Sizes 00–32 plus Junior fits. Free 30-day exchanges.", followUps: ['Show me the dress'] },
+    { match: '(ship|deliver|fast|when)', reply: "Standard 3–5 days. Ready-to-Ship next day. Free over $50.", followUps: ['Show me the dress'] },
+    { match: '(price|cost|how much)', reply: "Most dresses are $89, all under $99 — designed to be a smart bridesmaid budget.", followUps: ['Show me the dress'] },
+  ],
+}));
+
+// ── PROSPECTIVE — Beauty & Personal Care ────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'verb', name: 'Verb Products', handle: 'verbproducts', domain: 'verbproducts.com',
+  category: 'prospective', industry: 'Beauty & Personal Care', initial: 'V',
+  brandHex: '#ff8a65',
+  brandGrad: 'linear-gradient(135deg, #ffd6c0, #ff8a65)',
+  caption: "Find your perfect haircare routine 💁 Salon-quality formulas, $10 each. Match in 30 seconds. #VerbHair",
+  ctaLabel: 'Find my routine',
+  adImage: 'https://www.verbproducts.com/cdn/shop/files/Verb_Ghost_Shampoo_Glass_Shelfie_Coral_1.jpg?v=1762440851&width=1200',
+  likes: '3,872 likes',
+  product: {
+    name: 'Ghost™ Shampoo',
+    rating: 5, reviewCount: '12,400', priceLow: 10, priceHigh: 10,
+    description: 'Weightless shampoo for fine hair that delivers shine without weighing it down. Salon-quality at drugstore prices.',
+    features: ['Weightless formula', 'Sulfate-free', 'Color-safe & vegan'],
+  },
+  listing: {
+    eyebrow: 'HAIRCARE', title: 'Best Sellers',
+    description: 'Salon-quality haircare for every hair type. All $10.',
+    products: [
+      { name: 'Ghost™ Shampoo', variant: 'Fine hair', price: 10 },
+      { name: 'Ghost™ Conditioner', variant: 'Fine hair', price: 10 },
+      { name: 'Hydrating Shampoo', variant: 'Dry hair', price: 10 },
+      { name: 'Curl Cream', variant: 'Curly / coily', price: 16 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['Best for fine hair?', 'Color-safe?', 'Vegan?'],
+    starterChip: 'Best for fine hair?',
+    welcome: "Hey 👋 Let's find your perfect Verb routine.",
+    turns: [
+      { prompt: "First — how would you describe your hair?", options: [
+        { label: 'Fine & flat', ack: "Ghost is built for you — weightless lift." },
+        { label: 'Thick & dry', ack: "Hydrating line is your match." },
+        { label: 'Curly / coily', ack: "Our Curl line — moisture and definition." },
+        { label: 'Color-treated', ack: "Color-safe formulas across the board." },
+      ]},
+      { prompt: "What's your top concern?", options: [
+        { label: 'More volume', ack: "Ghost shampoo + Volume spray combo." },
+        { label: 'More moisture', ack: "Hydrating duo, easy." },
+        { label: 'Frizz control', ack: "Smoothing oil + Curl cream." },
+        { label: 'Damage repair', ack: "Bonding mask is the move." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Ghost™ Shampoo',
+    welcome: "Hey hi! Let's match you with a Verb routine.",
+    turns: [
+      { prompt: "What's your hair type?", options: [
+        { label: 'Fine', ack: "Ghost line." },
+        { label: 'Thick', ack: "Hydrating line." },
+        { label: 'Curly', ack: "Curl line." },
+        { label: 'Color-treated', ack: "Color-safe options." },
+      ]},
+      { prompt: "Top concern right now?", options: [
+        { label: 'Volume', ack: "Lift coming up." },
+        { label: 'Moisture', ack: "Hydration on the way." },
+        { label: 'Frizz', ack: "Smoothing solutions." },
+        { label: 'Repair', ack: "Bonding treatment." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Ghost™ Shampoo\n+ Conditioner',
+    sub: '$20 bundle · Fine hair · Weightless',
+    blurb: "Our most-loved duo for fine hair — shine, no weigh-down.",
+  },
+  freeText: [
+    { match: '(fine|flat|thin)', reply: "Ghost line is built for fine hair — weightless lift, color-safe.", followUps: ['Show me the bundle'] },
+    { match: '(color|dye|treated|brass)', reply: "All Verb formulas are color-safe and sulfate-free.", followUps: ['Show me the bundle'] },
+    { match: '(vegan|cruelty|clean)', reply: "Vegan, cruelty-free, and free of sulfates, parabens, gluten.", followUps: ['Show me the bundle'] },
+    { match: '(price|cost)', reply: "Most products are $10. Curl line $16. Free shipping over $20.", followUps: ['Show me the bundle'] },
+  ],
+}));
+
+// ── PROSPECTIVE — Health, Wellness & Supplements ────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'healthybaby', name: 'Healthybaby', handle: 'healthybaby', domain: 'healthybaby.com',
+  category: 'prospective', industry: 'Health, Wellness & Supplements', initial: 'H',
+  brandHex: '#7ec4a8',
+  brandGrad: 'linear-gradient(135deg, #c5e8d6, #7ec4a8)',
+  caption: "The first EWG VERIFIED® diaper — non-toxic, organic, 3× drier. Built for sensitive skin. #Healthybaby",
+  ctaLabel: 'Match my baby',
+  adImage: 'https://healthybaby.com/cdn/shop/files/Subscription-PDP-Carousel-3.jpg',
+  likes: '2,340 likes',
+  product: {
+    name: 'Our Diaper\nSubscription',
+    rating: 5, reviewCount: '4,200', priceLow: 105, priceHigh: 105,
+    description: 'The first EWG VERIFIED® diaper made with non-toxic materials, organic cotton, and 3× drier absorbency.',
+    features: ['EWG VERIFIED® · 3,900+ chemicals avoided', 'Organic cotton + plant-based core', '3× drier · day & night'],
+  },
+  listing: {
+    eyebrow: 'BABY', title: 'Diapers & Wipes',
+    description: 'Non-toxic, EWG VERIFIED® essentials for sensitive skin.',
+    products: [
+      { name: 'Our Diaper', variant: 'Subscription · Sizes NB-6', price: 105 },
+      { name: 'Our Wipes', variant: '99% water · 12-pack', price: 60 },
+      { name: 'Our Pull-Ups', variant: 'Toddler · 18m+', price: 105 },
+      { name: 'Diaper Bundle', variant: 'Diapers + Wipes', price: 150 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['Best size for my baby?', 'Sensitive skin?', 'How does subscription work?'],
+    starterChip: 'Best size for my baby?',
+    welcome: "Hi! Let's match a diaper plan to your baby. 👶",
+    turns: [
+      { prompt: "First — how old is your baby?", options: [
+        { label: 'Newborn (0–3m)', ack: "Newborn it is — softest cotton, gentle on cord stump." },
+        { label: '3–9 months', ack: "Sizes 1–3 most likely. Free size exchanges." },
+        { label: '9–18 months', ack: "Size 4–5 range, plus pull-up options." },
+        { label: 'Toddler (18m+)', ack: "Pull-ups are likely the move." },
+      ]},
+      { prompt: "And any sensitivities to know about?", options: [
+        { label: 'Eczema / sensitive skin', ack: "EWG VERIFIED® — that's exactly what we're built for." },
+        { label: 'No known issues', ack: "Still — chemical-free is the move." },
+        { label: 'Just exploring', ack: "Welcome — most parents start with a single pack." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Our Diaper · EWG VERIFIED®',
+    welcome: "Hi! We make the only EWG VERIFIED® diaper.",
+    turns: [
+      { prompt: "What's your top priority?", options: [
+        { label: 'Non-toxic / clean', ack: "Exactly what we're built on." },
+        { label: 'Sensitive skin', ack: "Eczema-friendly, free of fragrance & dyes." },
+        { label: 'Sustainability', ack: "Plant-based core, recyclable packaging." },
+        { label: 'Just want a great diaper', ack: "Got you — 3× drier, soft as cotton." },
+      ]},
+      { prompt: "How old is your little one?", options: [
+        { label: 'Newborn', ack: "Sizes NB & 1." },
+        { label: 'Infant', ack: "Sizes 2–4." },
+        { label: 'Toddler', ack: "Pull-ups available." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Our Diaper\nSubscription',
+    sub: '$105/mo · Free shipping · Cancel anytime',
+    blurb: "EWG VERIFIED®, organic cotton, plant-based core. Pause or cancel anytime.",
+  },
+  freeText: [
+    { match: '(eczema|sensitive|rash|allerg)', reply: "EWG VERIFIED® means we avoid 3,900+ potentially harmful chemicals — perfect for sensitive skin.", followUps: ['Show me the diaper'] },
+    { match: '(subscription|cancel|skip)', reply: "Pause, skip, or cancel anytime. We auto-adjust size based on baby's age.", followUps: ['Show me the diaper'] },
+    { match: '(size|fit)', reply: "Sizes NB through 6, plus pull-ups. Free size swap if you order the wrong one.", followUps: ['Show me the diaper'] },
+    { match: '(price|cost)', reply: "Subscription is $105/mo for diapers. Bundles save more.", followUps: ['Show me the diaper'] },
+  ],
+}));
+
+// ── PROSPECTIVE — Sports & Outdoor ──────────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'vktry', name: 'VKTRY', handle: 'vktry', domain: 'vktry.com',
+  category: 'prospective', industry: 'Sports & Outdoor', initial: 'V',
+  brandHex: '#d4af37',
+  brandGrad: 'linear-gradient(135deg, #f4d35e, #d4af37)',
+  caption: "Carbon fiber insoles. Jump higher. Run faster. Same shoes. 90-day guarantee. #VKTRY",
+  ctaLabel: 'Build your pair',
+  adImage: 'https://vktry.com/cdn/shop/files/Frame_124.png?v=1749858300&width=800',
+  likes: '8,140 likes',
+  product: {
+    name: 'Gold Performance\nInsoles',
+    rating: 5, reviewCount: '15,800', priceLow: 145, priceHigh: 200,
+    description: 'Carbon fiber sports insoles engineered for explosive jumps, sprinting power, and all-day comfort.',
+    features: ['Carbon fiber spring plate', '15+ sport-specific versions', '90-day money-back guarantee'],
+  },
+  listing: {
+    eyebrow: 'PERFORMANCE', title: 'Insoles',
+    description: 'Carbon fiber engineered for your sport.',
+    products: [
+      { name: 'Gold', variant: 'Maximum performance', price: 200 },
+      { name: 'Silver', variant: 'All-around', price: 145 },
+      { name: 'Run', variant: 'Endurance running', price: 165 },
+      { name: 'Pickleball', variant: 'Court sports', price: 165 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['Best for my sport?', 'Sizing?', 'Money-back guarantee?'],
+    starterChip: 'Best for my sport?',
+    welcome: "Hey athlete 👋 Let's match you to the right insole.",
+    turns: [
+      { prompt: "First — what's your main sport?", options: [
+        { label: 'Basketball / volleyball', ack: "Gold for max jump — that's the spec." },
+        { label: 'Running', ack: "Run insole — built for endurance." },
+        { label: 'Football / baseball', ack: "Gold or Silver depending on cleat." },
+        { label: 'Court sports (tennis, pickle)', ack: "Pickleball is purpose-built for lateral cuts." },
+      ]},
+      { prompt: "And what's the priority?", options: [
+        { label: 'Higher jump / explosion', ack: "Gold — 9% vertical lift on average." },
+        { label: 'Comfort / less fatigue', ack: "Silver gives all-day support." },
+        { label: 'Recovery', ack: "Reduced impact = faster recovery." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'VKTRY Gold Insoles',
+    welcome: "Athlete! VKTRY engineers carbon fiber insoles for performance.",
+    turns: [
+      { prompt: "What sport?", options: [
+        { label: 'Basketball', ack: "Gold for vertical." },
+        { label: 'Running', ack: "Run insole." },
+        { label: 'Football', ack: "Gold or Silver." },
+        { label: 'Other', ack: "We have 15+ sport-specific versions." },
+      ]},
+      { prompt: "How serious is your training?", options: [
+        { label: 'Competitive', ack: "Gold is the spec." },
+        { label: 'Regular gym / pickup', ack: "Silver is plenty." },
+        { label: 'Recovery focus', ack: "Reduced impact will help." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Gold Performance\nInsoles',
+    sub: '$200 · Maximum performance · 90-day guarantee',
+    blurb: "Built for explosion: 9% vertical lift, 7% sprint power on average. 90-day money back.",
+  },
+  freeText: [
+    { match: '(size|fit|trim)', reply: "Order your shoe size — we trim them to fit. Quiz takes 30 seconds.", followUps: ['Show me the insole'] },
+    { match: '(guarantee|return|money back)', reply: "90-day money-back guarantee. If they don't help your performance, send them back.", followUps: ['Show me the insole'] },
+    { match: '(sport|basketball|football|run)', reply: "We have 15+ sport-specific versions. Match yours via the build-your-pair quiz.", followUps: ['Show me the insole'] },
+    { match: '(price|cost)', reply: "Silver $145, Gold $200. Some sport-specific versions in between.", followUps: ['Show me the insole'] },
+  ],
+}));
+
+// ── PROSPECTIVE — Jewelry & Accessories ─────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'tennisclub', name: 'Tennis Club Fine Jewelry', handle: 'tennisclubjewelry', domain: 'tennisclubfinejewelry.com',
+  category: 'prospective', industry: 'Jewelry & Accessories', initial: 'T',
+  brandHex: '#c9a961',
+  brandGrad: 'linear-gradient(135deg, #ead7b1, #c9a961)',
+  caption: "Lab-grown diamonds, made-to-order. The fine jewelry your everyday deserves. #TennisClub",
+  ctaLabel: 'Shop fine jewelry',
+  adImage: 'https://tennisclubfinejewelry.com/cdn/shop/files/C758FD1F-D252-46A8-9D6F-6E214BCCBCE0.jpg',
+  likes: '1,820 likes',
+  product: {
+    name: 'Pear East-West\nLab Diamond Bracelet',
+    rating: 5, reviewCount: '420', priceLow: 6560, priceHigh: 6560,
+    description: 'Contemporary pear-cut lab diamond bracelet, made to order in 14k recycled gold.',
+    features: ['Lab-grown diamonds', '14k recycled gold', 'Made to order · 2–3 weeks'],
+  },
+  listing: {
+    eyebrow: 'FINE JEWELRY', title: 'Signature Pieces',
+    description: "Made-to-order lab diamonds that move with you.",
+    products: [
+      { name: 'Pear E-W Bracelet', variant: 'Lab diamonds · 14k', price: 6560 },
+      { name: 'Tennis Necklace', variant: 'Lab diamonds · 14k', price: 4800 },
+      { name: 'Marquise Studs', variant: 'Lab diamonds · 14k', price: 1240 },
+      { name: 'Stacking Band', variant: 'Lab diamonds · 14k', price: 980 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['Made-to-order timeline?', 'Sizing?', 'Lab vs natural?'],
+    starterChip: 'Lab vs natural?',
+    welcome: "Hi 👋 Let's find your forever piece.",
+    turns: [
+      { prompt: "First — what's the occasion?", options: [
+        { label: 'Everyday treat', ack: "Stacking band or studs are perfect." },
+        { label: 'Anniversary / milestone', ack: "Bracelet or necklace — something to mark the moment." },
+        { label: 'Engagement / proposal', ack: "Custom consultation — we'd love to help." },
+        { label: 'Just exploring', ack: "Take your time — every piece is made to order." },
+      ]},
+      { prompt: "Style preference?", options: [
+        { label: 'Classic & timeless', ack: "Tennis bracelet or studs." },
+        { label: 'Modern & sculptural', ack: "Pear E-W or marquise pieces." },
+        { label: 'Stackable / layered', ack: "Bands and chains designed to stack." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Pear E-W Bracelet',
+    welcome: "Welcome to Tennis Club. Lab diamonds, made to order.",
+    turns: [
+      { prompt: "What are you shopping for?", options: [
+        { label: 'Self-treat', ack: "Treat yourself." },
+        { label: 'A gift', ack: "Free gift packaging." },
+        { label: 'Engagement', ack: "Custom consultation available." },
+      ]},
+      { prompt: "Budget range?", options: [
+        { label: 'Under $1k', ack: "Studs and bands sit here." },
+        { label: '$1k–$3k', ack: "Most pieces in this range." },
+        { label: '$3k+', ack: "Statement pieces and custom designs." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Pear E-W Lab\nDiamond Bracelet',
+    sub: '$6,560 · Made-to-order · 2–3 weeks',
+    blurb: "Our most-loved sculptural piece — lab diamonds, 14k recycled gold.",
+  },
+  freeText: [
+    { match: '(lab|natural|diamond|grown)', reply: "All our diamonds are lab-grown — same crystalline structure, ethical, ~30% better value.", followUps: ['Show me the bracelet'] },
+    { match: '(time|wait|when|deliver)', reply: "Made to order — 2–3 weeks turnaround. Express options available.", followUps: ['Show me the bracelet'] },
+    { match: '(size|fit|adjust)', reply: "Free re-sizing within 60 days. Bracelets adjustable in 6\"–7.5\" range.", followUps: ['Show me the bracelet'] },
+    { match: '(return|warranty)', reply: "Lifetime warranty on craftsmanship. 30-day full returns.", followUps: ['Show me the bracelet'] },
+  ],
+}));
+
+// ── PROSPECTIVE — E-commerce / Specialty Retail ─────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'getbullish', name: 'Get Bullish', handle: 'getbullish', domain: 'getbullish.com',
+  category: 'prospective', industry: 'E-commerce / Specialty Retail', initial: 'G',
+  brandHex: '#ec4899',
+  brandGrad: 'linear-gradient(135deg, #fda4af, #ec4899)',
+  caption: "Empowerment merch that says it loud. 6,000+ feminist gifts, made and curated. #GetBullish",
+  ctaLabel: 'Shop empowerment',
+  adImage: 'https://www.getbullish.com/wp-content/uploads/2025/01/getbullish-store-favorites.png',
+  likes: '6,240 likes',
+  product: {
+    name: 'Best of Bullish\nGift Box',
+    rating: 5, reviewCount: '2,180', priceLow: 65, priceHigh: 95,
+    description: 'A curated mix of our most-loved feminist merch — pins, stickers, mug, and a tote.',
+    features: ['Curated by Jen Dziura', 'Ships in 2 days', 'Perfect feminist gift'],
+  },
+  listing: {
+    eyebrow: 'GIFTS', title: 'Best of Bullish',
+    description: '6,000+ empowerment products, hand-curated.',
+    products: [
+      { name: 'Best of Bullish Box', variant: 'Pins + mug + tote', price: 65 },
+      { name: 'Feminist Sticker Pack', variant: '12 stickers', price: 18 },
+      { name: 'Empowerment Mug', variant: 'Bestseller quote', price: 22 },
+      { name: 'Tote Bag', variant: 'Heavy canvas', price: 28 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['What\'s in the box?', 'Customizable?', 'Gift wrap?'],
+    starterChip: "What's in the box?",
+    welcome: "Hey 👋 Let's find the right empowerment gift.",
+    turns: [
+      { prompt: "First — who's it for?", options: [
+        { label: 'A friend', ack: "Box is the move — covers all bases." },
+        { label: 'A coworker', ack: "Mug + sticker is tasteful & subtle." },
+        { label: 'Myself', ack: "Treat yourself." },
+        { label: 'A whole team', ack: "We do bulk discounts — flag at checkout." },
+      ]},
+      { prompt: "What's their vibe?", options: [
+        { label: 'Loud and proud', ack: "Pins, stickers, statement tee." },
+        { label: 'Subtle activist', ack: "Mug + tote work everywhere." },
+        { label: 'Office friendly', ack: "Mug + small pin = win." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Best of Bullish Gift Box',
+    welcome: "Hey there — Get Bullish has 6,000+ empowerment gifts.",
+    turns: [
+      { prompt: "Shopping for…?", options: [
+        { label: 'Yourself', ack: "Treat yourself." },
+        { label: 'A friend', ack: "Box is a winner." },
+        { label: 'A team gift', ack: "Bulk options available." },
+      ]},
+      { prompt: "Style?", options: [
+        { label: 'Statement', ack: "Pins and tees, loud and proud." },
+        { label: 'Subtle', ack: "Mug, tote, small pin." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Best of Bullish\nGift Box',
+    sub: '$65 · Pins + mug + tote',
+    blurb: "Hand-curated by founder Jen — covers all the empowerment bases.",
+  },
+  freeText: [
+    { match: '(box|inside|whats in)', reply: "Box: 5 enamel pins, signature mug, canvas tote, and a sticker pack.", followUps: ['Show me the box'] },
+    { match: '(custom|personal)', reply: "Most items can be personalized at checkout — names, monograms, custom quotes.", followUps: ['Show me the box'] },
+    { match: '(ship|deliver|fast)', reply: "Most orders ship in 2 days. Express available.", followUps: ['Show me the box'] },
+    { match: '(price|cost|bulk)', reply: "Box is $65. Bulk discounts kick in at 10+ items.", followUps: ['Show me the box'] },
+  ],
+}));
+
+// ── CURRENT — Fashion & Apparel ─────────────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: '7fam', name: '7 For All Mankind', handle: '7forallmankind', domain: '7forallmankind.com',
+  category: 'current', industry: 'Fashion & Apparel', initial: '7',
+  brandHex: '#0a3d62',
+  brandGrad: 'linear-gradient(135deg, #6c7a89, #0a3d62)',
+  caption: "Find your perfect denim fit in 60 seconds 👖 25+ years of fit expertise. #7FAM",
+  ctaLabel: 'Find my fit',
+  adImage: 'https://cdn.shopify.com/s/files/1/0557/0612/4373/files/7U003526_SIB_1_7a057ab8-9b34-41b5-8b78-0c30295a55d2.jpg?v=1769421641',
+  likes: '14,820 likes',
+  product: {
+    name: 'High Waist\nSlim Kick Jean',
+    rating: 5, reviewCount: '4,200', priceLow: 189, priceHigh: 249,
+    description: '25+ years of denim expertise in a flattering high-waist slim kick fit.',
+    features: ['Iconic 7FAM stretch', 'Premium Italian denim', 'Free hemming on every pair'],
+  },
+  listing: {
+    eyebrow: 'DENIM', title: 'Best Sellers',
+    description: 'The fits that defined American luxury denim.',
+    products: [
+      { name: 'High Waist Slim Kick', variant: 'Mid wash', price: 189 },
+      { name: 'Skinny Bootcut', variant: 'Black rinse', price: 198 },
+      { name: 'Modern Straight', variant: 'Light wash', price: 198 },
+      { name: 'Wide Leg Crop', variant: 'Vintage indigo', price: 218 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['What rise should I get?', 'Sizing TTS?', 'How do I wash these?'],
+    starterChip: 'What rise should I get?',
+    welcome: "Hi 👋 Let's find your perfect denim fit.",
+    turns: [
+      { prompt: "First — what fit do you usually like?", options: [
+        { label: 'Skinny / slim', ack: "Slim Kick or Skinny Bootcut for you." },
+        { label: 'Straight', ack: "Modern Straight is your fit." },
+        { label: 'Wide / relaxed', ack: "Wide Leg Crop trending hard." },
+        { label: 'Not sure', ack: "Slim Kick is the safe bet — most-loved fit." },
+      ]},
+      { prompt: "What's your vibe?", options: [
+        { label: 'Polished / dressy', ack: "Dark wash, high-rise — done." },
+        { label: 'Casual / weekend', ack: "Mid wash, slim kick — you'll wear it everywhere." },
+        { label: 'Trend-forward', ack: "Wide leg crop, light wash — on it." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'High Waist Slim Kick Jean',
+    welcome: "Hey hi! 7FAM is your denim home.",
+    turns: [
+      { prompt: "What fit do you wear most?", options: [
+        { label: 'Skinny', ack: "Slim Kick is your sister fit." },
+        { label: 'Straight', ack: "Modern Straight." },
+        { label: 'Wide leg', ack: "Wide Leg Crop, big mood." },
+      ]},
+      { prompt: "Wash preference?", options: [
+        { label: 'Dark / black', ack: "Polished and versatile." },
+        { label: 'Mid', ack: "Year-round wear." },
+        { label: 'Light / vintage', ack: "Casual trend pick." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'High Waist Slim Kick\nin Mid Wash',
+    sub: '$189 · Free hemming · True to size',
+    blurb: "Our most-loved fit — flattering, polished, and pairs with everything.",
+  },
+  freeText: [
+    { match: '(size|fit|tts|true)', reply: "Run true to size. Free in-store hemming on every pair.", followUps: ['Show me the jeans'] },
+    { match: '(wash|care|launder)', reply: "Cold wash inside out, hang dry. Stretch holds for 50+ wears.", followUps: ['Show me the jeans'] },
+    { match: '(stretch|hold|sag)', reply: "Italian premium denim with iconic 7FAM stretch — holds shape all day.", followUps: ['Show me the jeans'] },
+    { match: '(price|cost)', reply: "Jeans range $189–$249. Free shipping over $150.", followUps: ['Show me the jeans'] },
+  ],
+}));
+
+// ── CURRENT — Health, Wellness & Supplements ────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'armra', name: 'ARMRA', handle: 'armra', domain: 'tryarmra.com',
+  category: 'current', industry: 'Health, Wellness & Supplements', initial: 'A',
+  brandHex: '#1e242e',
+  brandGrad: 'linear-gradient(135deg, #c9b078, #1e242e)',
+  caption: "Whole-food colostrum with 400+ bioactives. Built to support immunity, gut, recovery & skin. #ARMRA",
+  ctaLabel: 'Find your routine',
+  adImage: 'https://armra.com/cdn/shop/files/ARMRA_Health_Revival_Unflavored_180g_Front.png?v=1761590170',
+  likes: '18,400 likes',
+  product: {
+    name: 'Colostrum\nImmune Revival',
+    rating: 5, reviewCount: '32,400', priceLow: 65, priceHigh: 65,
+    description: 'Whole-food bovine colostrum with 400+ bioactive nutrients. Supports immunity, gut, recovery, and skin.',
+    features: ['400+ bioactive nutrients', 'Cold-processed · grass-fed', 'Unflavored · 30 servings'],
+  },
+  listing: {
+    eyebrow: 'COLOSTRUM', title: 'Foundation Routine',
+    description: 'Whole-food colostrum, the foundation for your body.',
+    products: [
+      { name: 'Immune Revival', variant: 'Original · 30 servings', price: 65 },
+      { name: 'Performance', variant: 'Pre/post-workout', price: 70 },
+      { name: 'Sleep & Recovery', variant: 'Nighttime stack', price: 70 },
+      { name: 'Travel Sticks', variant: '20-pack', price: 55 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['How does it support gut health?', 'When will I feel a difference?', 'How do I take it?'],
+    starterChip: 'How does it support gut health?',
+    welcome: "ARMRA works like a foundation — strengthens your gut and immune barriers.",
+    turns: [
+      { prompt: "What are you mainly trying to improve right now?", options: [
+        { label: 'Improve digestion / gut health', ack: "Gut is the #1 reason people use ARMRA — supports the gut lining over time." },
+        { label: 'Boost immunity', ack: "Most of your immune system lives in your gut, exactly where ARMRA works." },
+        { label: 'Better recovery & energy', ack: "ARMRA gives the building blocks for repair — most feel the shift in weeks." },
+        { label: 'Skin & hair benefits', ack: "Growth factors support skin & hair from the inside out." },
+      ]},
+      { prompt: "Want me to show you how to start?", options: [
+        { label: 'Yes, show me', ack: "Easy — one scoop a day, water or smoothie. No hot liquids." },
+        { label: 'How do I take it?', ack: "One scoop in cold water, ideally morning, empty stomach." },
+        { label: 'When will I feel a difference?', ack: "Subtle shifts in 2–4 weeks. Deeper benefits build over months." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'ARMRA Colostrum · Immune Revival',
+    welcome: "ARMRA is whole-food colostrum — supports your body's foundations.",
+    turns: [
+      { prompt: "What's most important to you right now?", options: [
+        { label: 'Gut health', ack: "Gut support is what we're built on." },
+        { label: 'Immunity', ack: "Immunoglobulins for resilience." },
+        { label: 'Recovery / energy', ack: "Tissue repair + gut integrity." },
+        { label: 'Skin / hair', ack: "Growth factors at work." },
+      ]},
+      { prompt: "Show you how to start?", options: [
+        { label: 'Yes', ack: "One scoop daily." },
+        { label: 'How do I take it?', ack: "Cold water, morning, empty stomach." },
+        { label: 'When do I feel it?', ack: "2–4 weeks for subtle shifts." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Colostrum\nImmune Revival',
+    sub: '$65 · 30 servings · Subscribe & save',
+    blurb: "Original formula most people start with. Sub & Save for 15% off.",
+  },
+  freeText: [
+    { match: '(gut|digest|bloat|stomach)', reply: "Colostrum supports the gut lining — eases bloating and improves digestion over time.", followUps: ['Show me the product'] },
+    { match: '(immun|sick|cold|flu)', reply: "Immunoglobulins are core to immune defense. Most feel resilient through stress and seasonal changes.", followUps: ['Show me the product'] },
+    { match: '(how.*take|dose|scoop)', reply: "One scoop in cold water daily. Avoid hot liquids — heat breaks down the nutrients.", followUps: ['Show me the product'] },
+    { match: '(when.*feel|how long|results)', reply: "Subtle shifts in 2–4 weeks. Deeper benefits build over a couple months.", followUps: ['Show me the product'] },
+    { match: '(dairy|lactose|allerg)', reply: "Cow-derived but processed to remove most casein and fat — most lactose-sensitive people tolerate it.", followUps: ['Show me the product'] },
+  ],
+}));
+
+// ── CURRENT — Food & Beverage ───────────────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'poppi', name: 'Poppi', handle: 'drinkpoppi', domain: 'drinkpoppi.com',
+  category: 'current', industry: 'Food & Beverage', initial: 'P',
+  brandHex: '#ff4757',
+  brandGrad: 'linear-gradient(135deg, #ffb6c1, #ff4757)',
+  caption: "Prebiotic soda. 5g sugar. Apple cider vinegar inside. Tastes like the soda you grew up with. #Poppi",
+  ctaLabel: 'Find your flavor',
+  adImage: 'https://drinkpoppi.com/cdn/shop/files/large-0131_2025_VP_Images_MajorMix.png?v=1768260254',
+  likes: '22,400 likes',
+  product: {
+    name: 'Variety Pack\n12-Pack',
+    rating: 5, reviewCount: '48,200', priceLow: 30, priceHigh: 30,
+    description: 'A mix of our most-loved prebiotic soda flavors. 5g sugar, ACV inside, real fruit.',
+    features: ['Prebiotic soda · gut friendly', '5g sugar per can', 'Apple cider vinegar inside'],
+  },
+  listing: {
+    eyebrow: 'PREBIOTIC SODA', title: 'Best Sellers',
+    description: 'The soda you grew up with, reinvented.',
+    products: [
+      { name: 'Variety Pack', variant: '12 cans · 4 flavors', price: 30 },
+      { name: 'Strawberry Lemon', variant: '12-pack', price: 30 },
+      { name: 'Raspberry Rose', variant: '12-pack', price: 30 },
+      { name: 'Doc Pop', variant: '12-pack', price: 30 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['Best flavor for newbies?', 'Sugar content?', 'Subscribe & save?'],
+    starterChip: 'Best flavor for newbies?',
+    welcome: "Hey 👋 Let's find your Poppi flavor.",
+    turns: [
+      { prompt: "First — what soda did you love growing up?", options: [
+        { label: 'Cherry / fruit', ack: "Cherry Limeade or Strawberry Lemon will hit." },
+        { label: 'Cola / Dr. Pepper', ack: "Doc Pop is your sister flavor." },
+        { label: 'Cream / vanilla', ack: "Try the Watermelon — surprisingly creamy." },
+        { label: 'Something tropical', ack: "Mango Mint or Pineapple Mango are your jam." },
+      ]},
+      { prompt: "How often will you drink it?", options: [
+        { label: 'Daily replacement for soda', ack: "Subscribe & save 15%." },
+        { label: 'Few times a week', ack: "12-pack will last." },
+        { label: 'Trying it out', ack: "Variety pack is the move." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Poppi Variety Pack',
+    welcome: "Hey hey! Poppi is prebiotic soda — 5g sugar, ACV inside.",
+    turns: [
+      { prompt: "What flavor profile do you love?", options: [
+        { label: 'Fruity & sweet', ack: "Strawberry Lemon, Raspberry Rose." },
+        { label: 'Cola / dark', ack: "Doc Pop." },
+        { label: 'Tropical', ack: "Mango Mint." },
+        { label: 'Surprise me', ack: "Variety pack — try them all." },
+      ]},
+      { prompt: "How often?", options: [
+        { label: 'Daily', ack: "Subscribe & save 15%." },
+        { label: 'Sometimes', ack: "Single 12-pack works." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Variety Pack\n12 Cans',
+    sub: '$30 · 4 flavors · 5g sugar',
+    blurb: "Best way to find your flavor — Strawberry Lemon, Raspberry Rose, Doc Pop, Cherry Lime.",
+  },
+  freeText: [
+    { match: '(sugar|sweet|diet)', reply: "5g sugar per can — sweetened with stevia and real fruit juice.", followUps: ['Show me the pack'] },
+    { match: '(prebiotic|gut|acv|vinegar)', reply: "1 tbsp apple cider vinegar in every can — gentle prebiotic for gut health.", followUps: ['Show me the pack'] },
+    { match: '(flavor|taste)', reply: "12 flavors — fan favorites are Strawberry Lemon, Raspberry Rose, Doc Pop.", followUps: ['Show me the pack'] },
+    { match: '(price|sub|subscribe)', reply: "12-pack is $30. Subscribe & Save brings it to $25.50/case.", followUps: ['Show me the pack'] },
+  ],
+}));
+
+// ── CURRENT — Home & Lifestyle ──────────────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'muji', name: 'MUJI', handle: 'muji_us', domain: 'muji.us',
+  category: 'current', industry: 'Home & Lifestyle', initial: 'M',
+  brandHex: '#8b1e2c',
+  brandGrad: 'linear-gradient(135deg, #d4a5aa, #8b1e2c)',
+  caption: "No-frills design. Quality everyday objects. Aroma diffuser back in stock. #MUJI",
+  ctaLabel: 'Shop MUJI',
+  adImage: 'https://www.muji.us/cdn/shop/files/Aroma-Diffuser_10ml.jpg?crop=center&v=1765307389&width=800',
+  likes: '7,810 likes',
+  product: {
+    name: 'Ultrasonic\nAroma Diffuser',
+    rating: 5, reviewCount: '8,450', priceLow: 65, priceHigh: 65,
+    description: 'Quiet ultrasonic diffuser. Soft mist, ambient light, runs for up to 3 hours.',
+    features: ['Ultra-quiet ultrasonic', 'LED ambient light', 'Auto-off timer'],
+  },
+  listing: {
+    eyebrow: 'BEST SELLERS', title: 'Home Essentials',
+    description: 'No-frills design. Quality everyday objects.',
+    products: [
+      { name: 'Aroma Diffuser', variant: 'Ultrasonic · Walnut', price: 65 },
+      { name: 'Essential Oil Set', variant: 'Calming · 3-pack', price: 38 },
+      { name: 'Storage Boxes', variant: 'Polypropylene · 3-pack', price: 28 },
+      { name: 'Gel Ink Pens', variant: '0.38mm · 10-pack', price: 18 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['Which oils work best?', 'How long does it run?', 'Is it quiet?'],
+    starterChip: 'Which oils work best?',
+    welcome: "Hi 👋 Let's set up your MUJI aroma routine.",
+    turns: [
+      { prompt: "What are you trying to create at home?", options: [
+        { label: 'Calm / unwind', ack: "Lavender + chamomile — the calming set." },
+        { label: 'Focus / energy', ack: "Citrus and peppermint blends." },
+        { label: 'Sleep', ack: "Lavender alone or our sleep blend." },
+        { label: 'Just nice ambience', ack: "Bergamot is a crowd-pleaser." },
+      ]},
+      { prompt: "Where will you use it?", options: [
+        { label: 'Bedroom', ack: "Calming oils on the timer — perfect." },
+        { label: 'Living room', ack: "Bigger room — runs strong for hours." },
+        { label: 'Office / WFH', ack: "Energizing blends boost focus." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Ultrasonic Aroma Diffuser',
+    welcome: "Welcome to MUJI. No-frills design, everyday quality.",
+    turns: [
+      { prompt: "What's the goal?", options: [
+        { label: 'Calm', ack: "Lavender chamomile blend." },
+        { label: 'Focus', ack: "Peppermint + citrus." },
+        { label: 'Sleep', ack: "Lavender, simple." },
+      ]},
+      { prompt: "Where will it live?", options: [
+        { label: 'Bedroom', ack: "Use the timer." },
+        { label: 'Living room', ack: "Strong enough for the space." },
+        { label: 'Office', ack: "Energizing blends help focus." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Ultrasonic\nAroma Diffuser',
+    sub: '$65 · Quiet · 3-hour runtime',
+    blurb: "Most-loved MUJI essential — soft mist, ambient light, quiet.",
+  },
+  freeText: [
+    { match: '(quiet|noise|loud)', reply: "Ultra-quiet ultrasonic — no fan noise, perfect for bedrooms.", followUps: ['Show me the diffuser'] },
+    { match: '(oil|scent|fragrance|essential)', reply: "Use any pure essential oils. We sell our own calming, focus, and sleep blends.", followUps: ['Show me the diffuser'] },
+    { match: '(timer|run|hours|how long)', reply: "Runs up to 3 hours, auto-off when water runs out.", followUps: ['Show me the diffuser'] },
+    { match: '(price|cost|ship)', reply: "$65 for the diffuser. Free shipping over $75.", followUps: ['Show me the diffuser'] },
+  ],
+}));
+
+// ── CURRENT — Footwear & Accessories ────────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'striderite', name: 'Stride Rite', handle: 'striderite', domain: 'striderite.com',
+  category: 'current', industry: 'Footwear & Accessories', initial: 'S',
+  brandHex: '#1e88e5',
+  brandGrad: 'linear-gradient(135deg, #90caf9, #1e88e5)',
+  caption: "First steps to first day of school — kids' shoes that fit growing feet. #StrideRite",
+  ctaLabel: 'Find their fit',
+  adImage: 'https://www.striderite.com/cdn/shop/files/Best_Sellers_7dbc7529-5e6b-4b64-96d6-d92defadba09.jpg',
+  likes: '4,210 likes',
+  product: {
+    name: 'Made2Play\nPhibian Sneaker',
+    rating: 5, reviewCount: '6,800', priceLow: 50, priceHigh: 60,
+    description: 'Machine-washable, 100% sneaker, 100% sandal. Made for water, mud, and everything in between.',
+    features: ['Machine washable', 'Slip-resistant outsole', 'Sizes infant through kids 13'],
+  },
+  listing: {
+    eyebrow: 'KIDS SHOES', title: 'Best Sellers',
+    description: 'Built to fit growing feet, washed by parents.',
+    products: [
+      { name: 'Phibian Sneaker', variant: 'Toddler · Navy', price: 50 },
+      { name: 'Soft Motion Jazzy', variant: 'Walker · Pink', price: 50 },
+      { name: 'Made2Play Lighted', variant: 'Big kid · Multi', price: 60 },
+      { name: 'SR Sneaker Velcro', variant: 'Toddler · White', price: 50 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['What size for my kid?', 'Machine wash safe?', 'Wide widths?'],
+    starterChip: 'What size for my kid?',
+    welcome: "Hi parent 👋 Let's find shoes that fit growing feet.",
+    turns: [
+      { prompt: "First — what's your child's stage?", options: [
+        { label: 'Crawling / pre-walker', ack: "Soft Motion line — flexible, supportive." },
+        { label: 'New walker', ack: "Soft Motion or Surprize Walker, easy on/off." },
+        { label: 'Toddler running everywhere', ack: "Made2Play — built for chaos." },
+        { label: 'Big kid (4+)', ack: "Made2Play kids' sizes, lighted options too." },
+      ]},
+      { prompt: "Top need?", options: [
+        { label: 'Easy on/off', ack: "Velcro and slip-on options galore." },
+        { label: 'Washable', ack: "Made2Play line — machine wash, problem solved." },
+        { label: 'Wide / chubby feet', ack: "Wide widths in most styles." },
+        { label: 'Just durable', ack: "Made2Play is built for it." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Made2Play Phibian Sneaker',
+    welcome: "Hi parent! Stride Rite makes shoes that fit growing feet.",
+    turns: [
+      { prompt: "Age range?", options: [
+        { label: 'Walker (6m–2y)', ack: "Soft Motion." },
+        { label: 'Toddler (2–4)', ack: "Made2Play." },
+        { label: 'Big kid (4+)', ack: "Made2Play kids' line." },
+      ]},
+      { prompt: "Most-needed feature?", options: [
+        { label: 'Machine washable', ack: "Made2Play — wash and go." },
+        { label: 'Easy on/off', ack: "Velcro or slip-on." },
+        { label: 'Wide width', ack: "Available in most styles." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Made2Play Phibian\nSneaker',
+    sub: '$50 · Machine washable · Slip-resistant',
+    blurb: "Sneaker meets sandal — water, mud, classroom, all of it.",
+  },
+  freeText: [
+    { match: '(size|fit|measure)', reply: "Free in-store fitting at any Stride Rite. Kids grow ½ size every 3-4 months.", followUps: ['Show me the shoes'] },
+    { match: '(wash|clean|machine)', reply: "Made2Play line is machine washable — cold, gentle, air dry.", followUps: ['Show me the shoes'] },
+    { match: '(wide|width|chubby)', reply: "Wide (W) widths available in most styles. XW too for some.", followUps: ['Show me the shoes'] },
+    { match: '(price|cost)', reply: "Most Made2Play styles are $50–$60. Free shipping over $50.", followUps: ['Show me the shoes'] },
+  ],
+}));
+
+// ── CURRENT — Pet & Baby ────────────────────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'burtsbaby', name: "Burt's Bees Baby", handle: 'burtsbeesbaby', domain: 'burtsbeesbaby.com',
+  category: 'current', industry: 'Pet & Baby', initial: 'B',
+  brandHex: '#fdb913',
+  brandGrad: 'linear-gradient(135deg, #fde68a, #fdb913)',
+  caption: "Organic cotton essentials for little ones. Beekeeper sleep sacks back in stock. #BurtsBeesBaby",
+  ctaLabel: "Shop baby",
+  adImage: 'https://burtsbeesbaby.com/cdn/shop/files/beekeeper_4936fd6e-dc30-42e1-a4a9-560d8de1a9d0.jpg?v=1774982929&width=2100',
+  likes: '6,920 likes',
+  product: {
+    name: 'Beekeeper™\nWearable Blanket',
+    rating: 5, reviewCount: '9,400', priceLow: 28, priceHigh: 38,
+    description: '100% organic cotton sleep sack — warm, safe, and easy on/off for nighttime.',
+    features: ['100% organic cotton', 'TOG-rated for season', 'Two-way zipper · diaper-friendly'],
+  },
+  listing: {
+    eyebrow: 'BABY', title: 'Sleep & Layette',
+    description: 'Organic cotton essentials for the early years.',
+    products: [
+      { name: 'Beekeeper™ Sleep Sack', variant: 'Heather · 1.0 TOG', price: 32 },
+      { name: 'Coverall', variant: 'Bee print · Newborn', price: 22 },
+      { name: 'Bodysuit 5-pack', variant: 'Solid mix · 0–9m', price: 35 },
+      { name: 'Swaddle 3-pack', variant: 'Muslin · OS', price: 30 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['What size for my baby?', 'TOG rating?', 'Machine wash?'],
+    starterChip: 'What size for my baby?',
+    welcome: "Hi! Let's match a Beekeeper sleep sack to your baby. 👶",
+    turns: [
+      { prompt: "First — age?", options: [
+        { label: 'Newborn (0–3m)', ack: "Size 0–6m, 1.0 TOG is most parents' default." },
+        { label: '3–9 months', ack: "Size 6–12m. Two-way zipper for diaper changes." },
+        { label: '9–18 months', ack: "Size 12–18m. TOG depending on room temp." },
+      ]},
+      { prompt: "How warm is the room at night?", options: [
+        { label: 'Cool (under 68°F)', ack: "2.5 TOG, cozy." },
+        { label: 'Comfortable (68–72°F)', ack: "1.0 TOG — most popular." },
+        { label: 'Warm (72°F+)', ack: "0.5 TOG, breathable." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Beekeeper™ Sleep Sack',
+    welcome: "Hey! 100% organic cotton baby essentials.",
+    turns: [
+      { prompt: "What are you shopping for?", options: [
+        { label: 'Sleep & nighttime', ack: "Beekeeper sleep sack is our most-loved." },
+        { label: 'Daytime layette', ack: "Bodysuits and coveralls." },
+        { label: 'Swaddles', ack: "Organic muslin swaddles." },
+      ]},
+      { prompt: "Baby's age?", options: [
+        { label: 'Newborn', ack: "0–6m, 1.0 TOG." },
+        { label: 'Infant', ack: "6–12m sizes." },
+        { label: 'Older', ack: "12m+ sizes." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Beekeeper™ Sleep\nSack · 1.0 TOG',
+    sub: '$32 · 100% organic cotton · Two-way zip',
+    blurb: "Most-loved sleep sack — safe, breathable, easy diaper changes.",
+  },
+  freeText: [
+    { match: '(tog|warm|cold|temperature)', reply: "TOG = warmth. 0.5 for hot rooms, 1.0 for normal, 2.5 for cool.", followUps: ['Show me the sleep sack'] },
+    { match: '(wash|machine|dry)', reply: "Machine wash cold, tumble dry low. Stays soft after dozens of washes.", followUps: ['Show me the sleep sack'] },
+    { match: '(organic|gots|cotton)', reply: "GOTS-certified 100% organic cotton — gentle on baby skin.", followUps: ['Show me the sleep sack'] },
+    { match: '(price|cost)', reply: "Sleep sacks $28–$38. Bodysuit packs $35.", followUps: ['Show me the sleep sack'] },
+  ],
+}));
+
+// ── CURRENT — Workwear & Outdoor ────────────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'brunt', name: 'BRUNT Workwear', handle: 'bruntworkwear', domain: 'bruntworkwear.com',
+  category: 'current', industry: 'Workwear & Outdoor', initial: 'B',
+  brandHex: '#d97706',
+  brandGrad: 'linear-gradient(135deg, #fbbf24, #d97706)',
+  caption: "Built for the trades. Premium work boots, no markup. The Marin: 7,800+ five-stars. #BRUNT",
+  ctaLabel: 'Shop boots',
+  adImage: 'https://bruntworkwear.com/cdn/shop/files/BRUNT-Boots-PDP-Marin-Comp-Toe-Right-3_5c14bc5f-1b6c-4aad-8224-45d86991e61d.jpg',
+  likes: '11,240 likes',
+  product: {
+    name: 'The Marin\nWaterproof Comp Toe',
+    rating: 5, reviewCount: '7,820', priceLow: 165, priceHigh: 195,
+    description: '6-inch composite-toe work boot. Waterproof, electrical hazard rated, premium leather.',
+    features: ['Composite safety toe', 'Waterproof + EH rated', 'Premium full-grain leather'],
+  },
+  listing: {
+    eyebrow: 'WORK BOOTS', title: 'Best Sellers',
+    description: 'Built for the trades, priced for the trades.',
+    products: [
+      { name: 'The Marin Waterproof', variant: 'Comp toe · Brown', price: 165 },
+      { name: 'The Marin Soft Toe', variant: 'Brown leather', price: 145 },
+      { name: 'The Bowden', variant: 'Wedge sole · Honey', price: 175 },
+      { name: 'The Hoback', variant: 'Insulated · Black', price: 195 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['What trade is it for?', 'Waterproof?', 'Comp toe vs steel?'],
+    starterChip: 'What trade is it for?',
+    welcome: "Hey, let's get you in the right boot.",
+    turns: [
+      { prompt: "First — what trade are you in?", options: [
+        { label: 'Construction / general', ack: "Marin Comp Toe — most-loved across trades." },
+        { label: 'Electrical', ack: "Marin EH-rated, no question." },
+        { label: 'Plumbing / HVAC', ack: "Marin Soft Toe if no impact risk." },
+        { label: 'Farm / outdoor', ack: "Bowden wedge sole, all-day comfort on farm work." },
+      ]},
+      { prompt: "Climate / conditions?", options: [
+        { label: 'Wet / muddy', ack: "Waterproof Marin is the move." },
+        { label: 'Hot / dry', ack: "Soft toe Marin breathes better." },
+        { label: 'Cold weather', ack: "Hoback insulated keeps feet warm." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'The Marin Comp Toe',
+    welcome: "Hey — BRUNT makes premium work boots without the markup.",
+    turns: [
+      { prompt: "What's your work?", options: [
+        { label: 'Construction', ack: "Marin Comp Toe." },
+        { label: 'Electrical', ack: "Marin EH-rated." },
+        { label: 'Farm / outdoor', ack: "Bowden wedge." },
+        { label: 'Indoor trades', ack: "Marin Soft Toe." },
+      ]},
+      { prompt: "Conditions?", options: [
+        { label: 'Wet', ack: "Waterproof Marin." },
+        { label: 'Hot', ack: "Soft toe breathes." },
+        { label: 'Cold', ack: "Hoback insulated." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'The Marin Waterproof\nComposite Toe',
+    sub: '$165 · 7,820 five-stars · 30-day try-on',
+    blurb: "Most-loved boot for general trades — composite toe, waterproof, EH rated.",
+  },
+  freeText: [
+    { match: '(comp|composite|steel|toe)', reply: "Composite toe is lighter, non-conductive, and ASTM rated. Most prefer it over steel.", followUps: ['Show me the boot'] },
+    { match: '(waterproof|wet|rain)', reply: "Marin Waterproof is fully sealed. EH rated for electrical hazard too.", followUps: ['Show me the boot'] },
+    { match: '(size|fit|true)', reply: "Run true to size. 30-day work-it-in trial.", followUps: ['Show me the boot'] },
+    { match: '(price|cost|warranty)', reply: "Marin starts at $145. Most under $200. Lifetime warranty on leather.", followUps: ['Show me the boot'] },
+  ],
+}));
+
+// ── CURRENT — Electronics & Appliances ──────────────────────────────────────
+BRANDS.push(makeBrand({
+  id: 'pyle', name: 'Pyle USA', handle: 'pyleusa', domain: 'pyleusa.com',
+  category: 'current', industry: 'Electronics & Appliances', initial: 'P',
+  brandHex: '#dc2626',
+  brandGrad: 'linear-gradient(135deg, #fca5a5, #dc2626)',
+  caption: "Pro-grade audio without the pro price. Megaphones, speakers, soundbars. #PyleUSA",
+  ctaLabel: 'Shop audio',
+  adImage: 'https://pyleusa.com/cdn/shop/files/PMP50.jpg?v=1776132057&width=533',
+  likes: '2,940 likes',
+  product: {
+    name: 'PMP50 Portable\nMegaphone',
+    rating: 4, reviewCount: '3,200', priceLow: 40, priceHigh: 57,
+    description: '50W portable megaphone with siren alarm and 1,200-yard broadcast range.',
+    features: ['50W output · 1,200 yard range', 'Built-in siren', 'Battery + handheld'],
+  },
+  listing: {
+    eyebrow: 'PRO AUDIO', title: 'Best Sellers',
+    description: 'Pro-grade audio without the pro price.',
+    products: [
+      { name: 'PMP50 Megaphone', variant: '50W · 1,200 yd', price: 40 },
+      { name: 'PSBV200BT Soundbar', variant: 'Bluetooth · 300W', price: 79 },
+      { name: 'PWPBT60BK Speaker', variant: 'Waterproof BT', price: 49 },
+      { name: 'PHPMP3 Headphones', variant: 'BT + MP3', price: 35 },
+    ],
+  },
+  flowA: {
+    pdpChips: ['What\'s the range?', 'Battery life?', 'Loudness in dB?'],
+    starterChip: "What's the range?",
+    welcome: "Hi 👋 Let's match you to the right Pyle product.",
+    turns: [
+      { prompt: "First — what's the use case?", options: [
+        { label: 'Coaching / sports', ack: "Megaphone — 1,200-yard reach." },
+        { label: 'Outdoor events', ack: "Megaphone or portable PA speaker." },
+        { label: 'Home audio', ack: "Soundbar or BT speaker." },
+        { label: 'Personal listening', ack: "BT headphones." },
+      ]},
+      { prompt: "Where will you use it most?", options: [
+        { label: 'Outdoor / loud env', ack: "Megaphone is a no-brainer." },
+        { label: 'Indoor / room', ack: "Soundbar fills a room cleanly." },
+        { label: 'On-the-go', ack: "Portable BT speaker, waterproof options." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'PMP50 Portable Megaphone',
+    welcome: "Hey — Pyle does pro audio without the pro markup.",
+    turns: [
+      { prompt: "What are you shopping for?", options: [
+        { label: 'Megaphone', ack: "PMP50 — 1,200-yard range." },
+        { label: 'Speaker', ack: "BT or portable options." },
+        { label: 'Soundbar', ack: "300W home theater." },
+        { label: 'Headphones', ack: "BT models from $35." },
+      ]},
+      { prompt: "Indoor or outdoor?", options: [
+        { label: 'Outdoor', ack: "Battery-powered, waterproof options." },
+        { label: 'Indoor', ack: "Wired or BT, room-filling sound." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'PMP50 Portable\nMegaphone',
+    sub: '$40 · 50W · 1,200 yard range',
+    blurb: "Most-loved megaphone — coaching, events, emergency. Built-in siren.",
+  },
+  freeText: [
+    { match: '(range|loud|db|distance)', reply: "PMP50 reaches 1,200 yards (~0.7 miles). 130dB peak.", followUps: ['Show me the megaphone'] },
+    { match: '(battery|charge|power)', reply: "Built-in rechargeable battery, 8–10 hours of use per charge.", followUps: ['Show me the megaphone'] },
+    { match: '(siren|alarm)', reply: "Built-in siren tone — useful for emergencies, sports, crowd alerts.", followUps: ['Show me the megaphone'] },
+    { match: '(price|cost|warranty)', reply: "PMP50 is $40 (regular $57). 1-year manufacturer warranty.", followUps: ['Show me the megaphone'] },
+  ],
+}));
+
+// ── CURRENT — Health, Wellness & Supplements (Big Bold Health) ──────────────
+BRANDS.push(makeBrand({
+  id: 'bigboldhealth', name: 'Big Bold Health', handle: 'bigboldhealth', domain: 'bigboldhealth.com',
+  category: 'current', industry: 'Health, Wellness & Supplements', initial: 'B',
+  hasDiscovery1: true,
+  // Flow 0 takes the user straight to this real product page on tap.
+  // If `screenshotImage` is set, we render that local file scrollably
+  // (avoids X-Frame-Options blocking on Shopify sites).
+  productPageUrl: 'https://bigboldhealth.com/products/htb-immune-energy-chews',
+  screenshotImage: 'bbh-product-page.png',
+  brandHex: '#d4451e',
+  brandGrad: 'linear-gradient(135deg, #f4b87a, #d4451e)',
+  caption: "Daily immune support + clean energy in a chocolate chew 🍫 Powered by sprouted Himalayan Tartary Buckwheat. #BigBoldHealth",
+  ctaLabel: 'Try the chews',
+  adImage: 'https://bigboldhealth.com/cdn/shop/files/Immunity_Chews_Nexty_Winner.webp',
+  likes: '6,840 likes',
+  product: {
+    name: 'HTB Immune\nEnergy Chews',
+    rating: 5, reviewCount: '3,420', priceLow: 38, priceHigh: 45,
+    description: 'Chocolate chews with 1,000mg organic sprouted Himalayan Tartary Buckwheat plus zinc, magnesium, vitamin C & D. Daily immune support and clean energy.',
+    features: ['1,000mg sprouted HTB · 100+ polyphenols', 'Zinc, Mg, Vit C & D', 'Gluten-free · non-GMO · vegetarian'],
+  },
+  listing: {
+    eyebrow: 'IMMUNE & ENERGY', title: 'Daily Chews',
+    description: 'Sprouted Himalayan Tartary Buckwheat — clean energy from a real food source.',
+    products: [
+      { name: 'HTB Immunity Chews', variant: 'Cocoa · 30 servings', price: 45 },
+      { name: 'HTB Immunity Chews', variant: '2-Jar Bundle', price: 76 },
+      { name: 'HTB Immunity Chews', variant: '3-Jar Bundle · Free ship', price: 108 },
+      { name: 'HTB Reset Powder', variant: 'Daily polyphenols', price: 65 },
+    ],
+  },
+  flowA: {
+    pdpInputPlaceholder: "What's on your mind?",
+    pdpChips: ['How often should I take it?', 'Vegan or vegetarian?', 'Is it kid-safe?'],
+    starterChip: 'How often should I take it?',
+    welcome: "Hey 👋 Let's get you started with HTB Chews.",
+    turns: [
+      { prompt: "First — what are you mainly looking for?", options: [
+        { label: 'Stronger immune system', ack: "Exactly what these chews are built for — polyphenols + zinc + Vit C & D." },
+        { label: 'Clean daily energy', ack: "HTB gives a stable, non-jittery lift — most people use it AM or pre-workout." },
+        { label: 'Both', ack: "Best answer — that's the whole point. 2 chews a day handles both." },
+        { label: 'Just curious', ack: "Welcome — this is the easiest way to get HTB into your routine." },
+      ]},
+      { prompt: "And when would you take them?", options: [
+        { label: 'Morning routine', ack: "Pairs great with coffee — no jitters, clean energy." },
+        { label: 'Pre-workout', ack: "20 minutes before training is the sweet spot." },
+        { label: 'Afternoon slump', ack: "Beats a 3pm coffee — no crash." },
+        { label: 'On-the-go', ack: "That's why we made them chews — no pills to forget." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'HTB Immune Energy Chews',
+    welcome: "Welcome to Big Bold Health. Immune + clean energy in a chew.",
+    turns: [
+      { prompt: "What's your main goal?", options: [
+        { label: 'Immune support', ack: "Polyphenols + Vit C & D + zinc." },
+        { label: 'Clean energy', ack: "No caffeine crash, real-food lift." },
+        { label: 'Both', ack: "Most people take it for both." },
+      ]},
+      { prompt: "How often do you want to take them?", options: [
+        { label: 'Daily', ack: "Subscribe & Save: 15% off + free ship." },
+        { label: 'A few times a week', ack: "A single jar is 30 servings — plenty." },
+        { label: 'When I need a boost', ack: "Works on-demand too." },
+      ]},
+    ],
+  },
+  discovery1: {
+    productLabel: 'HTB Immune Energy Chews',
+    welcome: "Welcome to Big Bold Health. Immune + clean energy in a chew.",
+    turns: [
+      { prompt: "What's your main goal?", options: [
+        { label: 'Immune support', ack: "Polyphenols + Vit C & D + zinc." },
+        { label: 'Clean energy', ack: "No caffeine crash, real-food lift." },
+        { label: 'Both', ack: "Most people take it for both." },
+      ]},
+      { prompt: "How often do you want to take them?", options: [
+        { label: 'Daily', ack: "Subscribe & Save: 15% off + free ship." },
+        { label: 'A few times a week', ack: "A single jar is 30 servings — plenty." },
+        { label: 'When I need a boost', ack: "Works on-demand too." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'HTB Immune\nEnergy Chews',
+    sub: '$45 · 30 servings · Subscribe & save 15%',
+    blurb: "Award-winning chocolate chew with sprouted HTB. 2 chews/day for immune + energy.",
+  },
+  freeText: [
+    { match: '(htb|buckwheat|tartary|polyphenol)', reply: "HTB is sprouted Himalayan Tartary Buckwheat — 100+ polyphenols including quercetin and rutin.", followUps: ['Show me the chews'] },
+    { match: '(immun|sick|cold|defense)', reply: "Zinc + Vitamin C + D + polyphenols — covers the immune basics in a single chew.", followUps: ['Show me the chews'] },
+    { match: '(energy|caffeine|jitter|crash)', reply: "No caffeine. Energy comes from real polyphenols and B-vitamin-like nutrients — stable, no crash.", followUps: ['Show me the chews'] },
+    { match: '(vegan|vegetarian|dairy|gluten)', reply: "Vegetarian, gluten-free, non-GMO, dairy-free. Contains honey so not strictly vegan.", followUps: ['Show me the chews'] },
+    { match: '(kid|child|safe|teen)', reply: "Safe for adults and teens. Talk to your pediatrician for younger kids.", followUps: ['Show me the chews'] },
+    { match: '(price|cost|subscribe)', reply: "Single jar $45. Subscribe & Save: 15% off + free shipping. Bundles save more.", followUps: ['Show me the chews'] },
+  ],
+}));
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+
+const LS_KEY = 'ad2chat_overrides_v3';
+const LS_BRAND_KEY = 'ad2chat_selected_brand_v3';
+
+function loadOverrides() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
+  catch { return {}; }
+}
+function saveOverrides() {
+  localStorage.setItem(LS_KEY, JSON.stringify(state.overrides));
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+
+function freshChatState() {
+  return {
+    messages: [],          // [{ id, role: 'ai'|'user'|'rec', text?, fromPdp?, recRef? }]
+    phase: 'idle',         // 'idle' | 'asking' | 'typing' | 'recommending' | 'done'
+    turnIdx: 0,
+    isTyping: false,
+    freeFollowUps: [],     // chips to show after free-text answer
+    skippedToFree: false,  // user typed before answering, skip guided turns
+    inputDraft: '',
+  };
+}
+
+// Returns the flow we should land on when a given brand becomes active.
+// Brands with Discovery 1.0 (currently only Big Bold Health) default to 'flow0'.
+function defaultFlowForBrand(brandId) {
+  const b = BRANDS.find(x => x.id === brandId);
+  return b && b.hasDiscovery1 ? 'flow0' : 'flowA';
+}
+
+const _initialBrandId = localStorage.getItem(LS_BRAND_KEY) || BRANDS[0].id;
+const state = {
+  selectedBrandId: _initialBrandId,
+  overrides: loadOverrides(),
+  activeFlow: defaultFlowForBrand(_initialBrandId),  // 'flowA' | 'flowC1' | 'discovery1' | 'flow0' (last two BBH only)
+  flow0: 'ad',                  // 'ad' | 'page'  (BBH only — links to real product page)
+  flowA: 'ad',                  // 'ad' | 'pdp' | 'chat'
+  flowC1: 'ad',                 // 'ad' | 'chat' | 'pdp'
+  discovery1: 'ad',             // 'ad' | 'chat-half' | 'chat-full' | 'pdp'
+  flowAReturnTo: 'ad',
+  flowC1ReturnTo: 'chat',
+  discovery1ReturnTo: 'chat-full',
+  flowAClickedChip: null,
+  chatA: freshChatState(),
+  chatC1: freshChatState(),
+  chatDiscovery1: freshChatState(),
+  editOpen: false,
+  editTab: 'content',
+  brandMenuOpen: false,
+};
+
+function getBrand() {
+  const base = BRANDS.find(b => b.id === state.selectedBrandId) || BRANDS[0];
+  const ov = state.overrides[base.id] || {};
+  return {
+    ...base,
+    ...ov,
+    product: { ...base.product, ...(ov.product || {}) },
+    flowA: { ...base.flowA, ...(ov.flowA || {}),
+      turns: ov.flowA?.turns || base.flowA.turns,
+    },
+    flowC1: { ...base.flowC1, ...(ov.flowC1 || {}),
+      turns: ov.flowC1?.turns || base.flowC1.turns,
+    },
+    recommendation: { ...base.recommendation, ...(ov.recommendation || {}) },
+    freeText: ov.freeText || base.freeText,
+    notes: ov.notes || '',
+  };
+}
+
+// Debounced stage render: keeps typing smooth so the IG/PDP/chat preview
+// doesn't rebuild on every keystroke (which causes layout flash + scroll jumps).
+let _stageRenderTimer = null;
+function scheduleStageRender(delay = 120) {
+  if (_stageRenderTimer) clearTimeout(_stageRenderTimer);
+  _stageRenderTimer = setTimeout(() => {
+    _stageRenderTimer = null;
+    renderStage();
+  }, delay);
+}
+
+function setOverride(path, value) {
+  const id = state.selectedBrandId;
+  if (!state.overrides[id]) state.overrides[id] = {};
+  const parts = path.split('.');
+  let cur = state.overrides[id];
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (cur[parts[i]] == null || typeof cur[parts[i]] !== 'object') cur[parts[i]] = Array.isArray(value) && i === parts.length - 2 ? {} : {};
+    cur = cur[parts[i]];
+  }
+  cur[parts[parts.length - 1]] = value;
+  saveOverrides();
+  // Debounced stage re-render so the IG/PDP preview doesn't rebuild on every
+  // keystroke. The edit panel is NOT re-rendered (focus stays put).
+  // Callers that need the panel itself to update (chip add/remove, turn
+  // add/remove) should explicitly call renderEditPanel() after this.
+  scheduleStageRender();
+  renderBrandSelector();
+}
+
+function resetCurrentBrand() {
+  if (confirm('Reset all edits for ' + getBrand().name + '?')) {
+    delete state.overrides[state.selectedBrandId];
+    saveOverrides();
+    state.chatA = freshChatState();
+    state.chatC1 = freshChatState();
+    render();
+  }
+}
+
+function selectBrand(id) {
+  state.selectedBrandId = id;
+  localStorage.setItem(LS_BRAND_KEY, id);
+  state.flow0 = 'ad';
+  state.flowA = 'ad';
+  state.flowC1 = 'ad';
+  state.discovery1 = 'ad';
+  state.flowAClickedChip = null;
+  state.chatA = freshChatState();
+  state.chatC1 = freshChatState();
+  state.chatDiscovery1 = freshChatState();
+  // Default the active flow to the new brand's natural starting point.
+  // BBH → Flow 0; everything else → Flow A.
+  state.activeFlow = defaultFlowForBrand(id);
+  state.brandMenuOpen = false;
+  render();
+}
+
+function toggleBrandMenu() {
+  state.brandMenuOpen = !state.brandMenuOpen;
+  render();
+}
+function toggleEdit() {
+  state.editOpen = !state.editOpen;
+  render();
+}
+function switchEditTab(tab) {
+  state.editTab = tab;
+  render();
+}
+
+/* ============================================================
+   CHAT ENGINE
+   ============================================================ */
+
+let msgIdSeq = 1;
+function nextId() { return ++msgIdSeq; }
+
+function getChat(flowKey) {
+  if (flowKey === 'flowA') return state.chatA;
+  if (flowKey === 'discovery1') return state.chatDiscovery1;
+  return state.chatC1;
+}
+
+function getFlowConfig(flowKey) {
+  const brand = getBrand();
+  if (flowKey === 'flowA') return brand.flowA;
+  if (flowKey === 'discovery1') return brand.discovery1 || brand.flowC1;
+  return brand.flowC1;
+}
+
+function openChat(flowKey, opts = {}) {
+  const chat = freshChatState();
+  const flow = getFlowConfig(flowKey);
+
+  // Flow A: PDP-origin user message appears first
+  if (opts.starter) {
+    chat.messages.push({ id: nextId(), role: 'user', text: opts.starter, fromPdp: true });
+  }
+
+  // Initial AI message: welcome + first turn
+  const t0 = flow.turns[0];
+  const aiText = (flow.welcome ? flow.welcome + '\n' : '') + t0.prompt;
+  chat.messages.push({ id: nextId(), role: 'ai', text: aiText });
+
+  chat.phase = 'asking';
+  chat.turnIdx = 0;
+
+  if (flowKey === 'flowA') state.chatA = chat;
+  else if (flowKey === 'discovery1') state.chatDiscovery1 = chat;
+  else state.chatC1 = chat;
+}
+
+function pickChipAck(turn, label) {
+  const opt = turn.options.find(o => o.label === label);
+  return opt && opt.ack ? opt.ack : "Got it.";
+}
+
+function handleChipClick(flowKey, label) {
+  const chat = getChat(flowKey);
+  const flow = getFlowConfig(flowKey);
+  if (chat.phase !== 'asking') return;
+
+  // Append user msg
+  chat.messages.push({ id: nextId(), role: 'user', text: label });
+  chat.phase = 'typing';
+  chat.isTyping = true;
+  render();
+
+  // Compute ack + next prompt
+  const currentTurn = flow.turns[chat.turnIdx];
+  const ack = pickChipAck(currentTurn, label);
+  const nextTurnIdx = chat.turnIdx + 1;
+  const nextTurn = flow.turns[nextTurnIdx];
+  const isLast = !nextTurn;
+
+  setTimeout(() => {
+    const target = getChat(flowKey);
+    if (target !== chat) return; // chat reset between
+    target.isTyping = false;
+
+    if (isLast) {
+      // ack + recommendation card
+      target.messages.push({ id: nextId(), role: 'ai', text: ack });
+      target.messages.push({ id: nextId(), role: 'rec' });
+      target.phase = 'done';
+    } else {
+      // ack + next prompt
+      target.messages.push({ id: nextId(), role: 'ai', text: ack + '\n\n' + nextTurn.prompt });
+      target.phase = 'asking';
+      target.turnIdx = nextTurnIdx;
+    }
+    render();
+  }, 800);
+}
+
+function handleFollowUpFreeChip(flowKey, chip) {
+  const chat = getChat(flowKey);
+  // Special: "Show me the product/box/jar/set"
+  if (/show me|^show me$/i.test(chip)) {
+    chat.messages.push({ id: nextId(), role: 'user', text: chip });
+    chat.messages.push({ id: nextId(), role: 'rec' });
+    chat.freeFollowUps = [];
+    chat.phase = 'done';
+    render();
+    return;
+  }
+  // Treat as free text question
+  handleFreeText(flowKey, chip);
+}
+
+function looksLikeProductQuestion(text) {
+  const t = text.trim().toLowerCase();
+  if (t.endsWith('?')) return true;
+  return /\b(how|what|does|do|can|is|are|why|when|where|which)\b/.test(t);
+}
+
+function findFreeTextResponse(brand, text) {
+  const t = text.toLowerCase();
+  for (const entry of brand.freeText || []) {
+    let pattern;
+    try { pattern = new RegExp(entry.match, 'i'); } catch { continue; }
+    if (pattern.test(t)) return entry;
+  }
+  return {
+    reply: "Good question — I can help with that. Let me grab a quick detail to point you to the right product.",
+    followUps: [],
+  };
+}
+
+function handleFreeText(flowKey, raw) {
+  const text = raw.trim();
+  if (!text) return;
+  const brand = getBrand();
+  const chat = getChat(flowKey);
+
+  // Append user msg
+  chat.messages.push({ id: nextId(), role: 'user', text });
+  chat.freeFollowUps = [];
+  chat.skippedToFree = true;
+  chat.phase = 'typing';
+  chat.isTyping = true;
+  chat.inputDraft = '';
+  render();
+
+  setTimeout(() => {
+    const target = getChat(flowKey);
+    if (target !== chat) return;
+    const { reply, followUps } = findFreeTextResponse(brand, text);
+    target.isTyping = false;
+    target.messages.push({ id: nextId(), role: 'ai', text: reply });
+    target.freeFollowUps = followUps && followUps.length ? followUps : [];
+    target.phase = target.freeFollowUps.length ? 'free' : 'idle';
+    render();
+  }, 700);
+}
+
+function handleSendDraft(flowKey) {
+  const chat = getChat(flowKey);
+  const text = chat.inputDraft.trim();
+  if (!text) return;
+  // If asking phase + answer-ish text, treat as turn answer
+  const flow = getFlowConfig(flowKey);
+  if (chat.phase === 'asking' && !looksLikeProductQuestion(text)) {
+    // Try to match an option exactly, else free-text
+    const turn = flow.turns[chat.turnIdx];
+    const matchOpt = turn.options.find(o => o.label.toLowerCase() === text.toLowerCase());
+    if (matchOpt) {
+      chat.inputDraft = '';
+      handleChipClick(flowKey, matchOpt.label);
+      return;
+    }
+  }
+  handleFreeText(flowKey, text);
+}
+
+function setDraft(flowKey, value) {
+  const chat = getChat(flowKey);
+  chat.inputDraft = value;
+  // partial render — only update input value via direct DOM
+  const inputEl = document.querySelector(`[data-input="${flowKey}"]`);
+  if (inputEl && inputEl.value !== value) inputEl.value = value;
+  // Update send button state
+  const sendBtn = document.querySelector(`[data-send="${flowKey}"]`);
+  if (sendBtn) {
+    sendBtn.classList.toggle('active', value.trim().length > 0);
+    sendBtn.classList.toggle('inactive', value.trim().length === 0);
+  }
+}
+
+/* ============================================================
+   DOM HELPERS
+   ============================================================ */
+
+const el = (tag, attrs = {}, ...children) => {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') node.className = v;
+    else if (k === 'style') node.setAttribute('style', v);
+    else if (k === 'html') node.innerHTML = v;
+    else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (v != null && v !== false) node.setAttribute(k, v);
+  }
+  for (const c of children.flat()) {
+    if (c == null || c === false) continue;
+    node.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c);
+  }
+  return node;
+};
+
+const ICONS = {
+  igMenu:    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  igNotif:   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20.5 3.5L3 10.5l6 2.5 2.5 6 3-7 6-8.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  igHeart:   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  igComment: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  igShare:   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><line x1="22" y1="2" x2="11" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polygon points="22 2 15 22 11 13 2 9 22 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  igBookmark:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  igMore:    '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="4" cy="10" r="1.5" fill="currentColor"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/><circle cx="16" cy="10" r="1.5" fill="currentColor"/></svg>',
+  statusSignalDark: '<svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="4" width="3" height="7" rx="1" fill="#161616"/><rect x="4" y="2.5" width="3" height="8.5" rx="1" fill="#161616"/><rect x="8" y="1" width="3" height="10" rx="1" fill="#161616"/><rect x="12" y="0" width="3" height="11" rx="1" fill="#161616"/></svg>',
+  statusBatteryDark: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#161616" stroke-opacity="0.35"/><rect x="2" y="2" width="17" height="8" rx="2" fill="#161616"/></svg>',
+  statusSignalLight: '<svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="4" width="3" height="7" rx="1" fill="white"/><rect x="4" y="2.5" width="3" height="8.5" rx="1" fill="white"/><rect x="8" y="1" width="3" height="10" rx="1" fill="white"/><rect x="12" y="0" width="3" height="11" rx="1" fill="white"/></svg>',
+  statusBatteryLight: '<svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="2" fill="white"/></svg>',
+  pdpClose: '<svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M1 1L11 11M11 1L1 11" stroke="#1e242e" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  send: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 12L20 4L13 20L11 13L4 12Z" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sendUp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cart: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h9.2a2 2 0 0 0 2-1.6L23 6H6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.5" fill="#fff"/><circle cx="18" cy="20" r="1.5" fill="#fff"/><path d="M14 8v4M12 10h4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  browserClose: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>',
+  browserMore: '<svg width="20" height="5" viewBox="0 0 20 5" fill="none"><circle cx="2.5" cy="2.5" r="2.5" fill="white"/><circle cx="10" cy="2.5" r="2.5" fill="white"/><circle cx="17.5" cy="2.5" r="2.5" fill="white"/></svg>',
+  lock: '<svg width="11" height="13" viewBox="0 0 24 28" fill="none"><rect x="3" y="12" width="18" height="15" rx="3" stroke="white" stroke-width="2.2"/><path d="M8 12V8a4 4 0 0 1 8 0v4" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  back: '<svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M7 1L1 7L7 13" stroke="#1E242E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cartHeader: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="21" r="1" stroke="#1E242E" stroke-width="1.6"/><circle cx="20" cy="21" r="1" stroke="#1E242E" stroke-width="1.6"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" stroke="#1E242E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  closeX: '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1L11 11M11 1L1 11" stroke="#1E242E" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  attach: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  bbBack: '<svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M9 1L1 9L9 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  bbFwd:  '<svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M1 1L9 9L1 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  bbShare:'<svg width="20" height="22" viewBox="0 0 20 22" fill="none"><path d="M10 1v14M4 7l6-6 6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>',
+  bbReload:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 15a9 9 0 1 1-.3-4.5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>',
+  bbHistory:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3v5h5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7v5l4 2" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>',
+};
+
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+
+function StatusBarLight() {
+  return el('div', { class: 'status-bar-light' },
+    el('span', {}, '9:41'),
+    el('div', { class: 'status-bar-icons' },
+      el('span', { html: ICONS.statusSignalDark }),
+      el('span', { html: ICONS.statusBatteryDark }),
+    ),
+  );
+}
+function StatusBarDark() {
+  return el('div', { class: 'status-bar-dark' },
+    el('span', {}, '9:41'),
+    el('div', { class: 'status-bar-icons' },
+      el('span', { html: ICONS.statusSignalLight }),
+      el('span', { html: ICONS.statusBatteryLight }),
+    ),
+  );
+}
+
+/* ── Instagram Feed ── */
+function renderInstagramFeed(brand, onCta) {
+  const wrap = el('div', { class: 'ig-screen' });
+  wrap.appendChild(StatusBarLight());
+
+  wrap.appendChild(el('div', { class: 'ig-header' },
+    el('span', { class: 'ig-icon', html: ICONS.igMenu }),
+    el('span', { class: 'ig-logo' }, 'Instagram'),
+    el('span', { class: 'ig-notif' },
+      el('span', { class: 'ig-icon', html: ICONS.igNotif }),
+      el('span', { class: 'ig-notif-badge' }, '3'),
+    ),
+  ));
+
+  const stories = [
+    { name: brand.handle.length > 9 ? brand.handle.slice(0, 9) + '…' : brand.handle, grad: brand.storyGrad, initial: brand.initial },
+    ...STORIES_DEFAULT,
+  ];
+  const storiesEl = el('div', { class: 'ig-stories scrollbar-hide' });
+  stories.forEach(s => {
+    storiesEl.appendChild(el('div', { class: 'ig-story' },
+      el('div', { class: 'ig-story-ring', style: '--story-grad: ' + s.grad },
+        el('div', { class: 'ig-story-inner' },
+          el('div', { class: 'ig-story-avatar', style: '--story-grad: ' + s.grad }, s.initial),
+        ),
+      ),
+      el('div', { class: 'ig-story-name' }, s.name),
+    ));
+  });
+  wrap.appendChild(storiesEl);
+
+  wrap.appendChild(el('div', { class: 'ig-divider' }));
+
+  // Post head — fixed (not inside scrollable feed)
+  wrap.appendChild(el('div', { class: 'ig-post-head' },
+    el('div', { class: 'ig-post-head-left' },
+      el('div', { class: 'ig-post-avatar', style: '--brand-grad: ' + brand.brandGrad + '; background-image: url(' + JSON.stringify(brand.adImage) + ')' }, ''),
+      el('div', {},
+        el('div', { class: 'ig-post-handle' }, brand.handle),
+        el('div', { class: 'ig-post-sub' }, 'Sponsored'),
+      ),
+    ),
+    el('span', { class: 'ig-icon', html: ICONS.igMore }),
+  ));
+
+  const feed = el('div', { class: 'ig-feed' });
+
+  // Image is also clickable
+  feed.appendChild(el('div', {
+    class: 'ig-post-image',
+    style: 'background-image: url(' + JSON.stringify(brand.adImage) + '); cursor: pointer',
+    onclick: onCta,
+  }));
+
+  feed.appendChild(el('div', { class: 'ig-post-actions' },
+    el('span', { html: ICONS.igHeart }),
+    el('span', { html: ICONS.igComment }),
+    el('span', { html: ICONS.igShare }),
+    el('span', { class: 'spacer' }),
+    el('span', { html: ICONS.igBookmark }),
+  ));
+
+  feed.appendChild(el('div', { class: 'ig-likes' }, brand.likes));
+  feed.appendChild(el('div', { class: 'ig-caption' },
+    el('strong', {}, brand.handle), ' ', brand.caption,
+  ));
+
+  wrap.appendChild(feed);
+  // Ensure feed scrolls to top so post-head is visible
+  setTimeout(() => { feed.scrollTop = 0; }, 0);
+
+  wrap.appendChild(el('div', { class: 'ig-cta-bar' },
+    el('div', { class: 'ig-cta-domain-wrap', onclick: onCta },
+      el('div', { class: 'ig-cta-icon', style: '--brand-grad: ' + brand.brandGrad }, brand.initial),
+      el('div', { class: 'ig-cta-domain' }, brand.domain),
+    ),
+    el('button', {
+      class: 'ig-cta-btn',
+      style: '--brand-hex: ' + brand.brandHex,
+      onclick: onCta,
+    }, brand.ctaLabel),
+  ));
+
+  return wrap;
+}
+
+/* ── PDP ── */
+function renderPdp(brand, onClose, onChipClick) {
+  const wrap = el('div', { class: 'pdp-screen', style: '--brand-hex:' + brand.brandHex + '; --brand-soft:' + brand.brandSoft });
+  wrap.appendChild(el('div', { class: 'pdp-backdrop', onclick: onClose }));
+
+  const sheet = el('div', { class: 'pdp-sheet' });
+  sheet.appendChild(StatusBarDark());
+
+  sheet.appendChild(el('div', { class: 'pdp-handle-row' },
+    el('div', { class: 'pdp-handle' }),
+    el('button', { class: 'pdp-close', html: ICONS.pdpClose, onclick: onClose }),
+  ));
+
+  const body = el('div', { class: 'pdp-body' });
+  body.appendChild(el('div', { class: 'pdp-hero', style: 'background-image: url(' + JSON.stringify(brand.product.images[0]) + ')' }));
+
+  const thumbs = el('div', { class: 'pdp-thumbs scrollbar-hide' });
+  for (let i = 0; i < 3; i++) {
+    thumbs.appendChild(el('div', {
+      class: 'pdp-thumb' + (i === 0 ? ' active' : ''),
+      style: 'background-image: url(' + JSON.stringify(brand.product.images[0]) + ')',
+    }));
+  }
+  body.appendChild(thumbs);
+
+  const info = el('div', { class: 'pdp-info' });
+  info.appendChild(el('h1', { class: 'pdp-name' }, brand.product.name));
+
+  const stars = '★'.repeat(brand.product.rating) + '<span class="empty">' + '★'.repeat(5 - brand.product.rating) + '</span>';
+  const priceText = brand.product.priceLow === brand.product.priceHigh
+    ? brand.product.currency + brand.product.priceLow
+    : brand.product.currency + brand.product.priceLow + ' - ' + brand.product.currency + brand.product.priceHigh;
+  info.appendChild(el('div', { class: 'pdp-meta-row' },
+    el('div', { class: 'pdp-rating' },
+      el('span', { class: 'pdp-rating-stars', html: stars }),
+      el('span', { class: 'pdp-rating-count' }, '(' + brand.product.reviewCount + ')'),
+    ),
+    el('div', { class: 'pdp-price' }, priceText),
+  ));
+
+  info.appendChild(el('p', { class: 'pdp-desc' }, brand.product.description));
+  body.appendChild(info);
+
+  if (brand.product.features && brand.product.features.length) {
+    const feats = el('div', { class: 'pdp-features' });
+    brand.product.features.forEach(f => {
+      feats.appendChild(el('div', { class: 'pdp-feature' },
+        el('span', { class: 'pdp-feature-check' }, '✓'),
+        el('span', {}, f),
+      ));
+    });
+    body.appendChild(feats);
+  }
+
+  sheet.appendChild(body);
+
+  // Sticky bottom: chat row + add to cart
+  const sticky = el('div', { class: 'pdp-sticky' });
+
+  const chatRow = el('div', { class: 'pdp-chat-row scrollbar-hide' });
+  const inputWrap = el('div', { class: 'pdp-chat-input-wrap' });
+  const placeholderText = brand.flowA.pdpInputPlaceholder || "What's on your mind?";
+  const placeholderSize = Math.max(8, placeholderText.length - 2);
+  const inputEl = el('input', {
+    type: 'text',
+    placeholder: placeholderText,
+    // size = visible width in characters; lets the pill hug whatever the
+    // placeholder is (per-brand editable).
+    size: placeholderSize,
+  });
+  inputWrap.appendChild(inputEl);
+  const sendBtn = el('button', { class: 'pdp-chat-send disabled', html: ICONS.send });
+  inputEl.addEventListener('input', (e) => {
+    sendBtn.classList.toggle('disabled', !e.target.value.trim());
+    // Grow the input as the user types past the placeholder length
+    e.target.size = Math.max(placeholderSize, e.target.value.length + 1);
+  });
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && inputEl.value.trim()) onChipClick(inputEl.value.trim());
+  });
+  sendBtn.addEventListener('click', () => {
+    if (inputEl.value.trim()) onChipClick(inputEl.value.trim());
+  });
+  inputWrap.appendChild(sendBtn);
+  chatRow.appendChild(inputWrap);
+
+  brand.flowA.pdpChips.forEach(chip => {
+    chatRow.appendChild(el('button', { class: 'pdp-chip', onclick: () => onChipClick(chip) }, chip));
+  });
+  sticky.appendChild(chatRow);
+
+  sticky.appendChild(el('div', { class: 'pdp-divider' }));
+  sticky.appendChild(el('div', { style: 'display:flex; padding: 4px 0' },
+    el('button', { class: 'pdp-cta' },
+      el('span', { html: ICONS.cart }),
+      ' Add to cart — ' + brand.product.currency + brand.product.priceLow,
+    ),
+  ));
+  sheet.appendChild(sticky);
+
+  wrap.appendChild(sheet);
+  return wrap;
+}
+
+/* ── Recommendation card ── */
+function renderRecCard(flowKey, brand) {
+  const rec = brand.recommendation || {};
+  const card = el('div', {
+    class: 'rec-card',
+    style: '--brand-hex: ' + brand.brandHex + '; --brand-soft: ' + brand.brandSoft,
+    onclick: (e) => {
+      // Don't open PDP if user clicked the Add-to-cart button
+      if (e.target.closest('.rec-card-cta')) return;
+      if (flowKey === 'flowA') {
+        state.flowAReturnTo = 'chat';
+        state.flowA = 'pdp';
+      } else if (flowKey === 'discovery1') {
+        state.discovery1ReturnTo = 'chat-full';
+        state.discovery1 = 'pdp';
+      } else {
+        state.flowC1ReturnTo = 'chat';
+        state.flowC1 = 'pdp';
+      }
+      render();
+    },
+  });
+  card.appendChild(el('div', { class: 'rec-card-img', style: 'background-image: url(' + JSON.stringify(brand.product.images[0]) + ')' }));
+  card.appendChild(el('div', { class: 'rec-card-info' },
+    el('p', { class: 'rec-card-eyebrow' }, brand.product.brandEyebrow || brand.name.toUpperCase()),
+    el('p', { class: 'rec-card-title' }, rec.title || brand.product.name),
+    el('p', { class: 'rec-card-sub' }, rec.sub || (brand.product.currency + brand.product.priceLow)),
+  ));
+  card.appendChild(el('button', {
+    class: 'rec-card-cta',
+    onclick: (e) => {
+      e.stopPropagation();
+      showToast(flowKey, 'Added to cart 🛒');
+    },
+  }, 'Add to cart'));
+  return card;
+}
+
+/* ── Toast ── */
+function showToast(flowKey, message) {
+  const chat = getChat(flowKey);
+  chat.toast = { message, ts: Date.now() };
+  render();
+  setTimeout(() => {
+    const c = getChat(flowKey);
+    if (c.toast && c.toast.ts === chat.toast.ts) {
+      c.toast = null;
+      render();
+    }
+  }, 2200);
+}
+
+/* ── Listing / Product page ── */
+function renderListingPage(flowKey, brand, onClose) {
+  const listing = brand.listing || { eyebrow: 'SHOP', title: brand.name, description: '', products: [] };
+  const wrap = el('div', { class: 'listing-screen' });
+
+  wrap.appendChild(StatusBarDark());
+  wrap.appendChild(el('div', { class: 'browser-bar' },
+    el('button', { class: 'browser-bar-btn', html: ICONS.browserClose, onclick: onClose }),
+    el('div', { class: 'browser-bar-center' },
+      el('div', { class: 'browser-bar-domain' },
+        el('span', { html: ICONS.lock }),
+        el('span', {}, brand.domain),
+      ),
+      el('div', { class: 'browser-bar-source' }, 'Instagram'),
+    ),
+    el('button', { class: 'browser-bar-btn', html: ICONS.browserMore }),
+  ));
+
+  const body = el('div', { class: 'listing-body' });
+  body.appendChild(el('div', { class: 'listing-header' },
+    el('p', { class: 'listing-eyebrow' }, listing.eyebrow),
+    el('p', { class: 'listing-title' }, listing.title),
+    el('p', { class: 'listing-desc' }, listing.description),
+  ));
+
+  const grid = el('div', { class: 'listing-grid' });
+  listing.products.forEach((p, i) => {
+    const card = el('button', {
+      class: 'listing-card',
+      onclick: () => {
+        // Click any product → open PDP, return to listing on close
+        if (flowKey === 'flowA') {
+          state.flowAReturnTo = 'listing';
+          state.flowA = 'pdp';
+        } else {
+          state.flowC1ReturnTo = 'listing';
+          state.flowC1 = 'pdp';
+        }
+        render();
+      },
+    });
+    card.appendChild(el('div', { class: 'listing-card-img', style: 'background-image: url(' + JSON.stringify(brand.product.images[0]) + ')' }));
+    card.appendChild(el('div', { class: 'listing-card-info' },
+      el('p', { class: 'listing-card-name' }, p.name),
+      el('p', { class: 'listing-card-variant' }, p.variant),
+      el('p', { class: 'listing-card-price' }, brand.product.currency + p.price),
+    ));
+    grid.appendChild(card);
+  });
+  body.appendChild(grid);
+  wrap.appendChild(body);
+
+  wrap.appendChild(el('div', { class: 'browser-toolbar' },
+    el('button', { class: 'browser-toolbar-btn disabled', html: ICONS.bbBack }),
+    el('button', { class: 'browser-toolbar-btn disabled', html: ICONS.bbFwd }),
+    el('button', { class: 'browser-toolbar-btn', html: ICONS.bbShare }),
+    el('button', { class: 'browser-toolbar-btn', html: ICONS.bbReload }),
+    el('button', { class: 'browser-toolbar-btn', html: ICONS.bbHistory }),
+  ));
+
+  return wrap;
+}
+
+function renderTypingDots() {
+  return el('div', { class: 'typing-dots' },
+    el('span', {}), el('span', {}), el('span', {}),
+  );
+}
+
+/* ── Chat Screen ── */
+function renderChat(flowKey, brand, onClose) {
+  const chat = getChat(flowKey);
+  const flow = getFlowConfig(flowKey);
+  const wrap = el('div', { class: 'chat-screen' });
+
+  wrap.appendChild(StatusBarDark());
+  wrap.appendChild(el('div', { class: 'browser-bar' },
+    el('button', { class: 'browser-bar-btn', html: ICONS.browserClose, onclick: onClose }),
+    el('div', { class: 'browser-bar-center' },
+      el('div', { class: 'browser-bar-domain' },
+        el('span', { html: ICONS.lock }),
+        el('span', {}, brand.domain),
+      ),
+      el('div', { class: 'browser-bar-source' }, 'Instagram'),
+    ),
+    el('button', { class: 'browser-bar-btn', html: ICONS.browserMore }),
+  ));
+  wrap.appendChild(el('div', { class: 'chat-header' },
+    el('button', { class: 'chat-circle-btn', html: ICONS.back }),
+    el('div', { class: 'chat-header-right' },
+      el('button', { class: 'chat-circle-btn', html: ICONS.cartHeader }),
+      el('button', { class: 'chat-track-pill' }, 'Track orders'),
+      el('button', { class: 'chat-circle-btn', html: ICONS.closeX, onclick: onClose }),
+    ),
+  ));
+  // Body
+  const body = el('div', { class: 'chat-body' });
+
+  // AI disclaimer — sits inside the scroll body so it scrolls away with messages
+  body.appendChild(el('div', { class: 'ai-disclosure' },
+    'This chat is powered by AI assistance.',
+  ));
+
+  // Product card at top (always shown) — clicking opens PDP
+  const productLabel = (flow.productLabel || brand.product.shortName || brand.product.name.replace(/\n/g, ' '));
+  body.appendChild(el('div', { class: 'in-chat-product' },
+    el('button', {
+      class: 'in-chat-product-btn',
+      onclick: () => {
+        if (flowKey === 'flowA') {
+          state.flowAReturnTo = 'chat';
+          state.flowA = 'pdp';
+        } else if (flowKey === 'discovery1') {
+          state.discovery1ReturnTo = 'chat-full';
+          state.discovery1 = 'pdp';
+        } else {
+          state.flowC1ReturnTo = 'chat';
+          state.flowC1 = 'pdp';
+        }
+        render();
+      },
+    },
+      el('span', { class: 'in-chat-product-img', style: 'background-image: url(' + JSON.stringify(brand.product.images[0]) + ')' }),
+      el('span', { class: 'in-chat-product-name' }, productLabel),
+    ),
+  ));
+
+  // PDP-origin user messages first (with arrow)
+  chat.messages.filter(m => m.role === 'user' && m.fromPdp).forEach(m => {
+    body.appendChild(el('div', { class: 'chat-pdp-question' },
+      el('span', {},
+        el('span', { class: 'arrow' }, '↳ '),
+        m.text,
+      ),
+    ));
+  });
+
+  // Other messages in order
+  chat.messages.forEach(m => {
+    if (m.role === 'user' && m.fromPdp) return;
+    if (m.role === 'ai') {
+      body.appendChild(el('div', { class: 'chat-msg-ai' }, m.text));
+    } else if (m.role === 'user') {
+      body.appendChild(el('div', { class: 'chat-msg-user' },
+        el('div', { class: 'chat-msg-user-bubble' }, m.text),
+      ));
+    } else if (m.role === 'rec') {
+      body.appendChild(renderRecCard(flowKey, brand));
+    }
+  });
+
+  // Typing indicator
+  if (chat.isTyping) body.appendChild(renderTypingDots());
+
+  // Active chips
+  if (!chat.isTyping && chat.phase === 'asking' && !chat.skippedToFree) {
+    const turn = flow.turns[chat.turnIdx];
+    if (turn && turn.options) {
+      const replies = el('div', { class: 'chat-replies' });
+      turn.options.forEach(opt => {
+        replies.appendChild(el('button', {
+          class: 'chat-reply',
+          onclick: () => handleChipClick(flowKey, opt.label),
+        }, opt.label));
+      });
+      body.appendChild(replies);
+    }
+  }
+  // Free-text follow-up chips
+  if (!chat.isTyping && chat.freeFollowUps && chat.freeFollowUps.length) {
+    const replies = el('div', { class: 'chat-replies' });
+    chat.freeFollowUps.forEach(chip => {
+      replies.appendChild(el('button', {
+        class: 'chat-reply',
+        onclick: () => handleFollowUpFreeChip(flowKey, chip),
+      }, chip));
+    });
+    body.appendChild(replies);
+  }
+
+  wrap.appendChild(body);
+
+  // Auto-scroll to bottom
+  setTimeout(() => { body.scrollTop = body.scrollHeight; }, 0);
+
+  // Reply input
+  const inputBar = el('div', { class: 'chat-reply-input' });
+  const pill = el('div', { class: 'chat-reply-input-pill' });
+  const input = el('input', {
+    type: 'text',
+    placeholder: chat.isTyping ? 'One sec…' : 'Type a question or reply…',
+    'data-input': flowKey,
+  });
+  input.value = chat.inputDraft;
+  input.addEventListener('input', (e) => {
+    setDraft(flowKey, e.target.value);
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSendDraft(flowKey);
+    }
+  });
+  pill.appendChild(input);
+
+  const isActive = chat.inputDraft.trim().length > 0;
+  const sendBtn = el('button', {
+    class: 'send-btn ' + (isActive ? 'active' : 'inactive'),
+    'data-send': flowKey,
+    html: ICONS.sendUp,
+    onclick: () => handleSendDraft(flowKey),
+  });
+  pill.appendChild(sendBtn);
+  inputBar.appendChild(pill);
+  wrap.appendChild(inputBar);
+
+  wrap.appendChild(el('div', { class: 'browser-toolbar' },
+    el('button', { class: 'browser-toolbar-btn disabled', html: ICONS.bbBack }),
+    el('button', { class: 'browser-toolbar-btn disabled', html: ICONS.bbFwd }),
+    el('button', { class: 'browser-toolbar-btn', html: ICONS.bbShare }),
+    el('button', { class: 'browser-toolbar-btn', html: ICONS.bbReload }),
+    el('button', { class: 'browser-toolbar-btn', html: ICONS.bbHistory }),
+  ));
+
+  return wrap;
+}
+
+/* ── Flow 0: real product page rendered as a scrollable screenshot ──
+   Most Shopify-hosted sites (including bigboldhealth.com) block iframe
+   embedding via X-Frame-Options / CSP frame-ancestors. Instead, we use
+   image.thum.io — a free screenshot-as-a-service that captures the full
+   mobile-rendered page as a single tall PNG. We then make it scrollable
+   inside the phone frame so it looks/feels like browsing the real site. */
+function renderBrandProductPage(brand, onClose) {
+  const wrap = el('div', { class: 'product-page-screen' });
+  wrap.appendChild(StatusBarDark());
+
+  wrap.appendChild(el('div', { class: 'browser-bar' },
+    el('button', { class: 'browser-bar-btn', html: ICONS.browserClose, onclick: onClose }),
+    el('div', { class: 'browser-bar-center' },
+      el('div', { class: 'browser-bar-domain' },
+        el('span', { html: ICONS.lock }),
+        el('span', {}, brand.domain),
+      ),
+      el('div', { class: 'browser-bar-source' }, 'Instagram'),
+    ),
+    el('button', { class: 'browser-bar-btn', html: ICONS.browserMore }),
+  ));
+
+  const url = brand.productPageUrl || ('https://' + brand.domain);
+  // Prefer a hand-saved screenshot if the brand has one — gives us a clean,
+  // pixel-perfect image and avoids any screenshot-service rate-limiting.
+  // Falls back to thum.io if the local file isn't present yet.
+  const screenshotUrl = brand.screenshotImage
+    ? './' + brand.screenshotImage
+    : 'https://image.thum.io/get/fullpage/viewportWidth/420/width/750/maxAge/24/' + url;
+
+  const scroll = el('div', { class: 'product-page-scroll' });
+
+  const loading = el('div', { class: 'product-page-loading' },
+    el('div', { class: 'product-page-spinner' }),
+    'Loading ' + brand.domain + '…',
+  );
+  scroll.appendChild(loading);
+
+  const img = el('img', {
+    class: 'product-page-screenshot',
+    src: screenshotUrl,
+    alt: brand.name + ' product page',
+  });
+  img.addEventListener('load', () => {
+    img.classList.add('loaded');
+    loading.remove();
+  });
+  img.addEventListener('error', () => {
+    loading.replaceWith(el('div', { class: 'product-page-fallback' },
+      el('p', {}, "Couldn't generate a screenshot of " + brand.domain + "."),
+      el('p', {}, "Tap below to open the real product page in a new tab."),
+      el('a', { href: url, target: '_blank', rel: 'noreferrer' }, 'Open product page →'),
+    ));
+  });
+  scroll.appendChild(img);
+
+  wrap.appendChild(scroll);
+
+  wrap.appendChild(el('div', { class: 'browser-toolbar' },
+    el('button', { class: 'browser-toolbar-btn disabled', html: ICONS.bbBack }),
+    el('button', { class: 'browser-toolbar-btn disabled', html: ICONS.bbFwd }),
+    el('button', { class: 'browser-toolbar-btn', html: ICONS.bbShare }),
+    el('button', { class: 'browser-toolbar-btn', html: ICONS.bbReload, onclick: () => {
+      // bust cache and reload
+      img.src = screenshotUrl + (screenshotUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+      img.classList.remove('loaded');
+    } }),
+    el('button', { class: 'browser-toolbar-btn', html: ICONS.bbHistory }),
+  ));
+
+  return wrap;
+}
+
+/* ── Discovery 1.0: half-sheet chat (sits over the IG ad) ──
+   Behavior: tapping any chip OR focusing the input expands the sheet
+   to a full-screen chat (state.discovery1 = 'chat-full'). */
+function renderHalfSheetChat(brand, onClose) {
+  const flowKey = 'discovery1';
+  const flow = getFlowConfig(flowKey);
+  const chat = getChat(flowKey);
+
+  const expandToFull = () => {
+    state.discovery1 = 'chat-full';
+    render();
+  };
+
+  const sheet = el('div', { class: 'discovery-half-sheet' });
+
+  // Drag handle row + close
+  sheet.appendChild(el('div', { class: 'discovery-half-head' },
+    el('div', { class: 'discovery-half-handle' }),
+    el('button', { class: 'discovery-half-close', html: ICONS.pdpClose, onclick: onClose }),
+  ));
+
+  // AI disclaimer (concise, same as full chat)
+  sheet.appendChild(el('div', { class: 'ai-disclosure' },
+    'This chat is powered by AI assistance.',
+  ));
+
+  // Body
+  const body = el('div', { class: 'chat-body' });
+
+  // Product card — clicking opens PDP as a screen takeover; closing PDP
+  // returns to this half-sheet so the user can continue chatting.
+  const productLabel = (flow.productLabel || brand.product.shortName || brand.product.name.replace(/\n/g, ' '));
+  body.appendChild(el('div', { class: 'in-chat-product' },
+    el('button', {
+      class: 'in-chat-product-btn',
+      onclick: () => {
+        state.discovery1ReturnTo = 'chat-half';
+        state.discovery1 = 'pdp';
+        render();
+      },
+    },
+      el('span', { class: 'in-chat-product-img', style: 'background-image: url(' + JSON.stringify(brand.product.images[0]) + ')' }),
+      el('span', { class: 'in-chat-product-name' }, productLabel),
+    ),
+  ));
+
+  // AI welcome + first turn
+  const t0 = flow.turns[0];
+  const aiText = (flow.welcome ? flow.welcome + '\n' : '') + t0.prompt;
+  body.appendChild(el('div', { class: 'chat-msg-ai' }, aiText));
+
+  // Quick-reply chips — click expands AND advances the chat
+  const replies = el('div', { class: 'chat-replies' });
+  t0.options.forEach(opt => {
+    replies.appendChild(el('button', {
+      class: 'chat-reply',
+      onclick: () => {
+        // Switch to full mode first, then process the chip in the now-full chat
+        state.discovery1 = 'chat-full';
+        // Make sure the chat is initialized so handleChipClick has something to advance
+        if (chat.messages.length === 0) openChat(flowKey);
+        handleChipClick(flowKey, opt.label);
+      },
+    }, opt.label));
+  });
+  body.appendChild(replies);
+
+  sheet.appendChild(body);
+
+  // Reply input — focusing or typing expands to full
+  const inputBar = el('div', { class: 'chat-reply-input' });
+  const pill = el('div', { class: 'chat-reply-input-pill' });
+  const input = el('input', {
+    type: 'text',
+    placeholder: 'Type a question or reply…',
+    onfocus: expandToFull,
+    onmousedown: expandToFull,
+  });
+  pill.appendChild(input);
+  pill.appendChild(el('button', { class: 'send-btn inactive', html: ICONS.sendUp, onclick: expandToFull }));
+  inputBar.appendChild(pill);
+  sheet.appendChild(inputBar);
+
+  return sheet;
+}
+
+/* ── Phone ── */
+function renderPhone(flowKey) {
+  const brand = getBrand();
+  const phone = el('div', { class: 'phone' });
+  phone.appendChild(el('div', { class: 'phone-side-l1' }));
+  phone.appendChild(el('div', { class: 'phone-side-l2' }));
+  phone.appendChild(el('div', { class: 'phone-side-l3' }));
+  phone.appendChild(el('div', { class: 'phone-side-r1' }));
+
+  const screen = el('div', { class: 'phone-screen' });
+
+  if (flowKey === 'flow0') {
+    // Flow 0 (BBH only) — IG ad → real product page on the brand's website
+    if (state.flow0 === 'ad') {
+      screen.appendChild(renderInstagramFeed(brand, () => {
+        state.flow0 = 'page';
+        render();
+      }));
+    } else {
+      screen.appendChild(renderBrandProductPage(brand,
+        () => { state.flow0 = 'ad'; render(); }
+      ));
+    }
+  } else if (flowKey === 'flowA') {
+    if (state.flowA === 'ad') {
+      screen.appendChild(renderInstagramFeed(brand, () => {
+        // Tapping CTA: PDP slides up over the brand's listing page
+        state.flowAReturnTo = 'listing';
+        state.flowA = 'pdp';
+        render();
+      }));
+    } else if (state.flowA === 'listing') {
+      screen.appendChild(renderListingPage('flowA', brand,
+        () => { state.flowA = 'ad'; render(); }
+      ));
+    } else if (state.flowA === 'pdp') {
+      // Render the appropriate background based on returnTo
+      if (state.flowAReturnTo === 'chat') {
+        screen.appendChild(renderChat('flowA', brand, () => {}));
+      } else {
+        // Default: layer the listing/product page behind PDP
+        screen.appendChild(renderListingPage('flowA', brand, () => {}));
+      }
+      screen.appendChild(renderPdp(brand,
+        () => {
+          // Close PDP → reveal whatever's behind (listing / chat)
+          state.flowA = state.flowAReturnTo || 'listing';
+          render();
+        },
+        (chipText) => {
+          state.flowAClickedChip = chipText;
+          state.flowA = 'chat';
+          state.flowAReturnTo = 'listing';
+          openChat('flowA', { starter: chipText });
+          render();
+        }
+      ));
+    } else if (state.flowA === 'chat') {
+      if (state.chatA.messages.length === 0) {
+        const chip = state.flowAClickedChip || getBrand().flowA.starterChip;
+        state.flowAClickedChip = chip;
+        openChat('flowA', { starter: chip });
+      }
+      screen.appendChild(renderChat('flowA', brand,
+        () => { state.flowA = 'ad'; state.flowAClickedChip = null; state.chatA = freshChatState(); render(); }
+      ));
+    }
+  } else if (flowKey === 'flowC1') {
+    if (state.flowC1 === 'ad') {
+      screen.appendChild(renderInstagramFeed(brand, () => {
+        state.flowC1 = 'chat';
+        openChat('flowC1');
+        render();
+      }));
+    } else if (state.flowC1 === 'pdp') {
+      // PDP reached from chat or rec card — return to chat
+      if (state.chatC1.messages.length === 0) openChat('flowC1');
+      screen.appendChild(renderChat('flowC1', brand, () => {}));
+      screen.appendChild(renderPdp(brand,
+        () => {
+          state.flowC1 = state.flowC1ReturnTo || 'chat';
+          render();
+        },
+        (chipText) => {
+          state.flowC1 = 'chat';
+          render();
+        }
+      ));
+    } else {
+      // chat
+      if (state.chatC1.messages.length === 0) openChat('flowC1');
+      screen.appendChild(renderChat('flowC1', brand,
+        () => { state.flowC1 = 'ad'; state.chatC1 = freshChatState(); render(); }
+      ));
+    }
+  } else if (flowKey === 'discovery1') {
+    // Discovery 1.0 — half-sheet → full chat (Big Bold Health only)
+    if (state.discovery1 === 'ad') {
+      screen.appendChild(renderInstagramFeed(brand, () => {
+        state.discovery1 = 'chat-half';
+        openChat('discovery1');
+        render();
+      }));
+    } else if (state.discovery1 === 'chat-half') {
+      // IG ad behind, half-sheet chat overlay on top
+      screen.appendChild(renderInstagramFeed(brand, () => {}));
+      screen.appendChild(renderHalfSheetChat(brand,
+        () => {
+          state.discovery1 = 'ad';
+          state.chatDiscovery1 = freshChatState();
+          render();
+        }
+      ));
+    } else if (state.discovery1 === 'chat-full') {
+      if (state.chatDiscovery1.messages.length === 0) openChat('discovery1');
+      screen.appendChild(renderChat('discovery1', brand,
+        () => {
+          state.discovery1 = 'ad';
+          state.chatDiscovery1 = freshChatState();
+          render();
+        }
+      ));
+    } else if (state.discovery1 === 'pdp') {
+      // PDP as screen takeover. Background depends on where we came from:
+      // - from the half-sheet (product card tap) → IG ad behind
+      // - from full chat (rec card / in-chat product card) → chat behind
+      if (state.discovery1ReturnTo === 'chat-half') {
+        screen.appendChild(renderInstagramFeed(brand, () => {}));
+      } else {
+        if (state.chatDiscovery1.messages.length === 0) openChat('discovery1');
+        screen.appendChild(renderChat('discovery1', brand, () => {}));
+      }
+      screen.appendChild(renderPdp(brand,
+        () => {
+          // Close PDP → return to whatever spawned it (chat-half or chat-full)
+          state.discovery1 = state.discovery1ReturnTo || 'chat-full';
+          render();
+        },
+        () => {
+          // Tapping a PDP chip → land in full chat
+          state.discovery1 = 'chat-full';
+          render();
+        }
+      ));
+    }
+  }
+
+  // Toast (shows briefly when "Add to cart" clicked)
+  const chat = getChat(flowKey);
+  if (chat.toast && chat.toast.message) {
+    screen.appendChild(el('div', { class: 'toast' }, chat.toast.message));
+  }
+
+  phone.appendChild(screen);
+  return phone;
+}
+
+/* ── Stage ── */
+function renderStage() {
+  // Cancel any pending debounced render (we're rendering now)
+  if (_stageRenderTimer) { clearTimeout(_stageRenderTimer); _stageRenderTimer = null; }
+
+  const stage = document.getElementById('stage');
+
+  // Capture scroll positions of any scrollable inner views so they survive
+  // the rebuild. Without this, the IG feed / PDP / chat / listing all reset
+  // to scrollTop=0 on every keystroke and the screen visibly bounces.
+  const SCROLL_SELECTORS = ['.ig-feed', '.pdp-body', '.chat-body', '.listing-body'];
+  const savedScrolls = SCROLL_SELECTORS.map(sel => {
+    const node = stage.querySelector(sel);
+    return node ? node.scrollTop : 0;
+  });
+  // Lock the stage's height during the swap so the page doesn't reflow shorter
+  // for a frame and pull the rest of the doc upward.
+  const lockedHeight = stage.getBoundingClientRect().height;
+  if (lockedHeight) stage.style.minHeight = lockedHeight + 'px';
+
+  stage.innerHTML = '';
+
+  const col = el('div', { class: 'flow-col' });
+
+  // Top-level flow toggle.
+  // Big Bold Health gets 4 numbered flows: 0, 1, 2, 3 (in this order).
+  // Other brands get the default Flow A / Flow C1 labels.
+  const toggle = el('div', { class: 'flow-toggle' });
+  const flowOptions = getBrand().hasDiscovery1
+    ? [
+        ['flow0', '0'],
+        ['flowA', '1'],
+        ['discovery1', '2'],
+        ['flowC1', '3'],
+      ]
+    : [
+        ['flowA', 'Flow A'],
+        ['flowC1', 'Flow C1'],
+      ];
+  // Safety: if active flow disappears for this brand, fall back to the first
+  if (!flowOptions.find(([k]) => k === state.activeFlow)) state.activeFlow = flowOptions[0][0];
+  flowOptions.forEach(([key, label]) => {
+    const b = el('button', { class: state.activeFlow === key ? 'active' : '' }, label);
+    b.addEventListener('click', () => {
+      state.activeFlow = key;
+      render();
+    });
+    toggle.appendChild(b);
+  });
+  col.appendChild(toggle);
+  col.appendChild(renderPhone(state.activeFlow));
+  stage.appendChild(col);
+
+  // Restore scroll positions and release the height lock on the next frame.
+  requestAnimationFrame(() => {
+    SCROLL_SELECTORS.forEach((sel, i) => {
+      const node = stage.querySelector(sel);
+      if (node && savedScrolls[i]) node.scrollTop = savedScrolls[i];
+    });
+    stage.style.minHeight = '';
+  });
+}
+
+/* ── Brand Selector ── */
+function renderBrandSelector() {
+  const brand = getBrand();
+  document.getElementById('brandTriggerName').textContent = brand.name;
+  document.getElementById('brandTriggerMeta').textContent =
+    (brand.category === 'prospective' ? 'Prospective' : 'Current') + ' · ' + brand.industry;
+  document.getElementById('brandTriggerAvatar').setAttribute('style',
+    `background-image:url(${JSON.stringify(brand.avatar)}); background-color:${brand.brandHex}`);
+
+  const menu = document.getElementById('brandMenu');
+  menu.style.display = state.brandMenuOpen ? 'block' : 'none';
+  menu.innerHTML = '';
+  if (!state.brandMenuOpen) return;
+
+  const renderGroup = (category, label) => {
+    const list = BRANDS.filter(b => b.category === category);
+    if (!list.length) return;
+    menu.appendChild(el('div', { class: 'brand-select-section' }, label));
+    const industries = [...new Set(list.map(b => b.industry))];
+    industries.forEach(ind => {
+      menu.appendChild(el('div', { class: 'brand-select-industry' }, ind));
+      list.filter(b => b.industry === ind).forEach(b => {
+        const opt = el('div', {
+          class: 'brand-option' + (b.id === state.selectedBrandId ? ' selected' : ''),
+          onclick: () => selectBrand(b.id),
+        },
+          el('div', { class: 'brand-option-avatar', style: `background-image: url(${JSON.stringify(b.avatar)}); background-color: ${b.brandHex}` }),
+          el('div', { style: 'flex:1' },
+            el('div', { class: 'brand-option-name' }, b.name),
+            el('div', { class: 'brand-option-domain' }, b.domain),
+          ),
+        );
+        menu.appendChild(opt);
+      });
+    });
+  };
+  renderGroup('prospective', 'Prospective (Leads)');
+  renderGroup('current', 'Current Customers');
+}
+
+/* ── Edit Panel ── */
+function renderEditPanel() {
+  const brand = getBrand();
+  const panel = document.getElementById('editPanel');
+  const overlay = document.getElementById('editOverlay');
+  panel.classList.toggle('open', state.editOpen);
+  overlay.classList.toggle('open', state.editOpen);
+
+  document.getElementById('editPanelTitle').textContent = 'Edit · ' + brand.name;
+  document.getElementById('editPanelSub').textContent =
+    (brand.category === 'prospective' ? 'Prospective' : 'Current') + ' · ' + brand.industry +
+    (state.overrides[brand.id] ? '   · edited' : '');
+
+  document.querySelectorAll('.edit-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === state.editTab);
+  });
+
+  const body = document.getElementById('editBody');
+  // Preserve scroll position across re-renders (for add/remove of chips/turns)
+  const savedScroll = body.scrollTop;
+  body.innerHTML = '';
+
+  if (state.editTab === 'notes') {
+    body.appendChild(el('div', { class: 'edit-section' },
+      el('h4', {}, 'Notes for ' + brand.name),
+      (() => {
+        const t = el('textarea', {
+          class: 'edit-textarea',
+          style: 'min-height:300px',
+          placeholder: 'Notes for this brand — talking points, what they cared about, what to demo first…',
+          oninput: (e) => setOverride('notes', e.target.value),
+        });
+        t.value = brand.notes || '';
+        return t;
+      })(),
+    ));
+    return;
+  }
+
+  const section = (title, ...fields) => {
+    const sec = el('div', { class: 'edit-section' }, el('h4', {}, title));
+    fields.forEach(f => sec.appendChild(f));
+    return sec;
+  };
+  const inputField = (label, path, value, multiline = false) => {
+    const f = el('div', { class: 'edit-field' }, el('label', {}, label));
+    if (multiline) {
+      const t = el('textarea', { class: 'edit-textarea', oninput: (e) => setOverride(path, e.target.value) });
+      t.value = value || '';
+      f.appendChild(t);
+    } else {
+      const i = el('input', { class: 'edit-input', type: 'text', oninput: (e) => setOverride(path, e.target.value) });
+      i.value = value || '';
+      f.appendChild(i);
+    }
+    return f;
+  };
+  const chipsField = (label, path, items) => {
+    const f = el('div', { class: 'edit-field' }, el('label', {}, label));
+    const list = el('div', { class: 'edit-chip-list' });
+    items.forEach((item, idx) => {
+      const ci = el('div', { class: 'edit-chip-item' });
+      const inp = el('input', { type: 'text', oninput: (e) => {
+        const next = [...items]; next[idx] = e.target.value;
+        setOverride(path, next);
+      }});
+      inp.value = item;
+      const del = el('button', { onclick: () => {
+        const next = items.filter((_, i) => i !== idx);
+        setOverride(path, next);
+        renderEditPanel();
+      }}, '×');
+      ci.appendChild(inp); ci.appendChild(del);
+      list.appendChild(ci);
+    });
+    list.appendChild(el('button', { class: 'edit-add-chip', onclick: () => {
+      setOverride(path, [...items, 'New option']);
+      renderEditPanel();
+    }}, '+ Add'));
+    f.appendChild(list);
+    return f;
+  };
+
+  // Per-flow turns editor
+  const turnsEditor = (flowKey) => {
+    const flow = brand[flowKey];
+    const turns = flow.turns || [];
+    const wrap = document.createElement('div');
+    turns.forEach((turn, ti) => {
+      const heading = el('h5', {}, `Turn ${ti + 1}`);
+      wrap.appendChild(heading);
+
+      const promptField = inputField('Prompt', `${flowKey}.turns.${ti}.prompt`, turn.prompt, true);
+      wrap.appendChild(promptField);
+
+      // Options (label + ack pairs)
+      const optsLabel = el('label', {}, 'Options (label / acknowledgement)');
+      wrap.appendChild(optsLabel);
+      turn.options.forEach((opt, oi) => {
+        const row = el('div', { class: 'edit-option-row' });
+        const lab = el('input', { class: 'edit-input opt-label', type: 'text', placeholder: 'Label' });
+        lab.value = opt.label;
+        lab.addEventListener('input', (e) => {
+          const next = JSON.parse(JSON.stringify(turns));
+          next[ti].options[oi].label = e.target.value;
+          setOverride(`${flowKey}.turns`, next);
+        });
+        const ack = el('input', { class: 'edit-input', type: 'text', placeholder: 'Ack reply' });
+        ack.value = opt.ack || '';
+        ack.addEventListener('input', (e) => {
+          const next = JSON.parse(JSON.stringify(turns));
+          next[ti].options[oi].ack = e.target.value;
+          setOverride(`${flowKey}.turns`, next);
+        });
+        const rm = el('button', { class: 'opt-remove', onclick: () => {
+          const next = JSON.parse(JSON.stringify(turns));
+          next[ti].options.splice(oi, 1);
+          setOverride(`${flowKey}.turns`, next);
+          renderEditPanel();
+        }}, '×');
+        row.appendChild(lab); row.appendChild(ack); row.appendChild(rm);
+        wrap.appendChild(row);
+      });
+      const addOpt = el('button', { class: 'edit-add-chip', onclick: () => {
+        const next = JSON.parse(JSON.stringify(turns));
+        next[ti].options.push({ label: 'New option', ack: '' });
+        setOverride(`${flowKey}.turns`, next);
+        renderEditPanel();
+      }}, '+ Add option');
+      wrap.appendChild(addOpt);
+
+      // Remove turn
+      const removeTurn = el('button', { class: 'edit-add-chip', style: 'margin-left:6px; color:#aaa', onclick: () => {
+        if (!confirm('Remove this turn?')) return;
+        const next = turns.filter((_, i) => i !== ti);
+        setOverride(`${flowKey}.turns`, next);
+        renderEditPanel();
+      }}, '× Remove turn');
+      wrap.appendChild(removeTurn);
+    });
+
+    const addTurn = el('button', { class: 'edit-add-chip', style: 'margin-top:8px', onclick: () => {
+      const next = [...turns, { prompt: 'New question?', options: [{ label: 'Option A', ack: '' }] }];
+      setOverride(`${flowKey}.turns`, next);
+      renderEditPanel();
+    }}, '+ Add turn');
+    wrap.appendChild(addTurn);
+
+    return wrap;
+  };
+
+  // Helper: section with an emoji icon for quick scanning
+  const iconSection = (icon, title, ...fields) => {
+    const sec = el('div', { class: 'edit-section' },
+      el('h4', {},
+        el('span', { class: 'icon' }, icon),
+        el('span', {}, title),
+      ),
+    );
+    fields.forEach(f => sec.appendChild(f));
+    return sec;
+  };
+
+  // Helper: per-flow section with colored badge + subtitle for distinctness
+  const flowSection = (badge, subtitle) => {
+    const sec = el('div', { class: 'edit-section flow-section' });
+    sec.appendChild(el('h4', {},
+      el('span', { class: 'flow-badge' }, badge),
+      el('span', {}, subtitle),
+    ));
+    return sec;
+  };
+
+  const isBbh = !!brand.hasDiscovery1;
+
+  // ── Shared sections (apply to all flows) ──────────────────────────
+  body.appendChild(iconSection('📢', 'Ad creative',
+    inputField('Caption', 'caption', brand.caption, true),
+    inputField('CTA button label', 'ctaLabel', brand.ctaLabel),
+    inputField('Likes (display)', 'likes', brand.likes),
+  ));
+
+  body.appendChild(iconSection('🛍️', 'Product (PDP)',
+    inputField('Product name (use \\n for line break)', 'product.name', brand.product.name, true),
+    inputField('Description', 'product.description', brand.product.description, true),
+    chipsField('Feature bullets', 'product.features', brand.product.features || []),
+  ));
+
+  body.appendChild(iconSection('⭐', 'Recommendation card (end of chat)',
+    inputField('Title', 'recommendation.title', brand.recommendation.title, true),
+    inputField('Subtitle', 'recommendation.sub', brand.recommendation.sub),
+    inputField('Blurb', 'recommendation.blurb', brand.recommendation.blurb, true),
+  ));
+
+  // ── Per-flow sections ─────────────────────────────────────────────
+  // Labels and order depend on the brand: BBH has 4 numbered flows; everyone
+  // else has the original Flow A / Flow C1.
+
+  if (isBbh) {
+    // Flow 0 — Real product page (link out)
+    const s0 = flowSection('Flow 0', 'Real product page (link out, no chat)');
+    s0.appendChild(el('p', { class: 'flow-section-sub' }, 'Tapping the ad CTA loads this URL inside the in-app browser.'));
+    s0.appendChild(inputField('Product page URL', 'productPageUrl', brand.productPageUrl));
+    s0.appendChild(inputField('Screenshot filename (in project root)', 'screenshotImage', brand.screenshotImage));
+    body.appendChild(s0);
+  }
+
+  // Flow 1 (BBH) / Flow A (everyone else) — Ad → PDP → Chat
+  const sA = flowSection(isBbh ? 'Flow 1' : 'Flow A', 'Ad → PDP → Chat');
+  sA.appendChild(el('p', { class: 'flow-section-sub' }, 'PDP slides up over a product listing. Chips on the PDP launch the chat with that question pre-filled.'));
+  sA.appendChild(inputField('PDP input placeholder', 'flowA.pdpInputPlaceholder', brand.flowA.pdpInputPlaceholder));
+  sA.appendChild(chipsField('PDP suggestion chips', 'flowA.pdpChips', brand.flowA.pdpChips || []));
+  sA.appendChild(inputField('Chip user clicks (preview)', 'flowA.starterChip', brand.flowA.starterChip));
+  sA.appendChild(inputField('AI welcome message', 'flowA.welcome', brand.flowA.welcome, true));
+  sA.appendChild(turnsEditor('flowA'));
+  body.appendChild(sA);
+
+  // Flow 2 — Discovery 1.0 (BBH only)
+  if (isBbh && brand.discovery1) {
+    const s2 = flowSection('Flow 2', 'Discovery 1.0 · Half-sheet → Full chat');
+    s2.appendChild(el('p', { class: 'flow-section-sub' }, 'Half-sheet over the ad on CTA tap; expands to full chat on any interaction.'));
+    s2.appendChild(inputField('Product card label', 'discovery1.productLabel', brand.discovery1.productLabel));
+    s2.appendChild(inputField('AI welcome message', 'discovery1.welcome', brand.discovery1.welcome, true));
+    s2.appendChild(turnsEditor('discovery1'));
+    body.appendChild(s2);
+  }
+
+  // Flow 3 (BBH) / Flow C1 (everyone else) — Direct to chat
+  const sC = flowSection(isBbh ? 'Flow 3' : 'Flow C1', 'Ad → Chat directly');
+  sC.appendChild(el('p', { class: 'flow-section-sub' }, 'Ad CTA opens the chat full-screen, no PDP step.'));
+  sC.appendChild(inputField('Product card label', 'flowC1.productLabel', brand.flowC1.productLabel));
+  sC.appendChild(inputField('AI welcome message', 'flowC1.welcome', brand.flowC1.welcome, true));
+  sC.appendChild(turnsEditor('flowC1'));
+  body.appendChild(sC);
+
+  // Restore scroll so add/remove of chips/turns doesn't jump back to top
+  body.scrollTop = savedScroll;
+}
+
+function render() {
+  renderBrandSelector();
+  renderStage();
+  renderEditPanel();
+}
+
+document.addEventListener('click', (e) => {
+  if (!state.brandMenuOpen) return;
+  const wrap = document.querySelector('.brand-select-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    state.brandMenuOpen = false;
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>

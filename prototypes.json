@@ -6,5 +6,13 @@
     "description": "Prototype of new chat UI preview in legacy settings, enabling Chat 2.0 as a non-AI agent customer, and the ability to temporarily revery back",
     "file": "chat-migration.html",
     "image": "chat-migration.png"
+  },
+  {
+    "name": "Ads to Convo",
+    "author": "Ava",
+    "date": "2026-05-12",
+    "description": "Brand-switchable demo of ads-to-conversation flows: Instagram ad → PDP / half-sheet / direct chat with multi-turn AI dialogue, recommendation card, and a per-brand live edit panel.",
+    "file": "ads-to-convo.html",
+    "image": "ads-to-convo.png"
   }
 ]
