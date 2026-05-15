@@ -2749,7 +2749,7 @@ BRANDS.push(makeBrand({
   brandHex: '#d4451e',
   brandGrad: 'linear-gradient(135deg, #f4b87a, #d4451e)',
   caption: "Daily immune support + clean energy in a chocolate chew 🍫 Powered by sprouted Himalayan Tartary Buckwheat. #BigBoldHealth",
-  ctaLabel: 'Try the chews',
+  ctaLabel: 'Learn more',
   adImage: 'https://bigboldhealth.com/cdn/shop/files/Immunity_Chews_Nexty_Winner.webp',
   likes: '6,840 likes',
   product: {
@@ -2770,21 +2770,19 @@ BRANDS.push(makeBrand({
   },
   flowA: {
     pdpInputPlaceholder: "What's on your mind?",
-    pdpChips: ['How often should I take it?', 'Vegan or vegetarian?', 'Is it kid-safe?'],
-    starterChip: 'How often should I take it?',
-    welcome: "Hey 👋 Let's get you started with HTB Chews.",
+    pdpChips: ['Tell me about the ingredients', 'How will this help my energy?', 'How do I take it?'],
+    starterChip: 'Tell me about the ingredients',
+    welcome: "Hi 👋",
     turns: [
-      { prompt: "First — what are you mainly looking for?", options: [
-        { label: 'Stronger immune system', ack: "Exactly what these chews are built for — polyphenols + zinc + Vit C & D." },
-        { label: 'Clean daily energy', ack: "HTB gives a stable, non-jittery lift — most people use it AM or pre-workout." },
-        { label: 'Both', ack: "Best answer — that's the whole point. 2 chews a day handles both." },
-        { label: 'Just curious', ack: "Welcome — this is the easiest way to get HTB into your routine." },
+      { prompt: "Are you looking for a cellular refresh?", options: [
+        { label: 'Tell me about the ingredients', ack: "1,000mg sprouted Himalayan Tartary Buckwheat — 100+ polyphenols including quercetin and rutin (clinically studied). Delivered as a chew with zinc, magnesium, and Vit C & D for better absorption. Non-GMO, traceable sourcing." },
+        { label: 'How will this help my energy?', ack: "Caffeine-free, so no jitters or crash. The polyphenols support mitochondrial energy production at the cellular level — most people feel a steadier, more sustained focus within ~30 minutes." },
+        { label: 'How do I take it?', ack: "2 chews a day — morning routine or as a 3pm coffee replacement. Pairs really well with our HTB Reset Powder if you want to go deeper on cellular support." },
       ]},
-      { prompt: "And when would you take them?", options: [
-        { label: 'Morning routine', ack: "Pairs great with coffee — no jitters, clean energy." },
-        { label: 'Pre-workout', ack: "20 minutes before training is the sweet spot." },
-        { label: 'Afternoon slump', ack: "Beats a 3pm coffee — no crash." },
-        { label: 'On-the-go', ack: "That's why we made them chews — no pills to forget." },
+      { prompt: "Want to give them a try?", options: [
+        { label: 'Show me the chews', ack: "Here's our most-loved option →" },
+        { label: 'What about a bundle?', ack: "2-jar saves $14, 3-jar saves $27 + free shipping. Most people start with the 2-jar." },
+        { label: 'Still thinking', ack: "No worries — we'll be here when you're ready." },
       ]},
     ],
   },
@@ -2806,17 +2804,17 @@ BRANDS.push(makeBrand({
   },
   discovery1: {
     productLabel: 'HTB Immune Energy Chews',
-    welcome: "Welcome to Big Bold Health. Immune + clean energy in a chew.",
+    welcome: "Hi 👋",
     turns: [
-      { prompt: "What's your main goal?", options: [
-        { label: 'Immune support', ack: "Polyphenols + Vit C & D + zinc." },
-        { label: 'Clean energy', ack: "No caffeine crash, real-food lift." },
-        { label: 'Both', ack: "Most people take it for both." },
+      { prompt: "Are you needing a midday bump?", options: [
+        { label: 'Tell me about the ingredients', ack: "1,000mg sprouted Himalayan Tartary Buckwheat — 100+ polyphenols (quercetin, rutin) that have been clinically studied. The chew form combines them with zinc, magnesium, and Vit C & D for better absorption. Non-GMO, traceable sourcing." },
+        { label: 'How will this boost my immune system?', ack: "Zinc + Vit C & D cover the immune fundamentals most multivitamins miss. The polyphenols (quercetin, rutin) also support a healthy inflammation response. Most people notice fewer sick days within 2–3 weeks." },
+        { label: 'Dosing and usage', ack: "2 chews a day — anytime, but most people take them as a clean replacement for a 2pm coffee. For deeper support, pair with our HTB Reset Powder or the 2-jar bundle." },
       ]},
-      { prompt: "How often do you want to take them?", options: [
-        { label: 'Daily', ack: "Subscribe & Save: 15% off + free ship." },
-        { label: 'A few times a week', ack: "A single jar is 30 servings — plenty." },
-        { label: 'When I need a boost', ack: "Works on-demand too." },
+      { prompt: "Ready to give it a try?", options: [
+        { label: 'Show me the chews', ack: "Here's the popular pick →" },
+        { label: 'What about bundles?', ack: "2-jar saves $14, 3-jar saves $27 + free shipping." },
+        { label: 'Still thinking', ack: "Totally fine — we'll be here." },
       ]},
     ],
   },
