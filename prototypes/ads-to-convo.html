@@ -912,18 +912,23 @@
   }
   .chat-reply {
     display: inline-flex;
-    padding: 11px 16px;
+    padding: 8px 14px;
     justify-content: center; align-items: center;
-    border-radius: 24px;
+    border-radius: 18px;
     background: rgba(255,255,255,0.20);
     box-shadow: 0 2px 3px rgba(0,0,0,0.10);
     border: none;
-    font-size: 14px; font-weight: 500; line-height: 20px;
+    font-size: 12.5px; font-weight: 500; line-height: 16px;
     color: var(--ink);
     cursor: pointer;
-    white-space: nowrap;
     font-family: inherit;
     transition: transform 0.15s ease;
+    /* Cap chip width so long labels wrap inside the bubble instead of
+       overflowing the chat column. */
+    max-width: 100%;
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
   }
   .chat-reply:hover { transform: translateY(-1px); }
 
@@ -2788,17 +2793,17 @@ BRANDS.push(makeBrand({
   },
   flowC1: {
     productLabel: 'HTB Immune Energy Chews',
-    welcome: "Welcome to Big Bold Health. Immune + clean energy in a chew.",
+    welcome: "Hi 👋",
     turns: [
-      { prompt: "What's your main goal?", options: [
-        { label: 'Immune support', ack: "Polyphenols + Vit C & D + zinc." },
-        { label: 'Clean energy', ack: "No caffeine crash, real-food lift." },
-        { label: 'Both', ack: "Most people take it for both." },
+      { prompt: "Are you needing a midday bump?", options: [
+        { label: 'Tell me about the ingredients', ack: "1,000mg sprouted Himalayan Tartary Buckwheat — 100+ polyphenols (quercetin, rutin) that have been clinically studied. The chew form combines them with zinc, magnesium, and Vit C & D for better absorption. Non-GMO, traceable sourcing." },
+        { label: 'How will this boost my immune system?', ack: "Zinc + Vit C & D cover the immune fundamentals most multivitamins miss. The polyphenols (quercetin, rutin) also support a healthy inflammation response. Most people notice fewer sick days within 2–3 weeks." },
+        { label: 'Dosing and usage', ack: "2 chews a day — anytime, but most people take them as a clean replacement for a 2pm coffee. For deeper support, pair with our HTB Reset Powder or the 2-jar bundle." },
       ]},
-      { prompt: "How often do you want to take them?", options: [
-        { label: 'Daily', ack: "Subscribe & Save: 15% off + free ship." },
-        { label: 'A few times a week', ack: "A single jar is 30 servings — plenty." },
-        { label: 'When I need a boost', ack: "Works on-demand too." },
+      { prompt: "Ready to give it a try?", options: [
+        { label: 'Show me the chews', ack: "Here's the popular pick →" },
+        { label: 'What about bundles?', ack: "2-jar saves $14, 3-jar saves $27 + free shipping." },
+        { label: 'Still thinking', ack: "Totally fine — we'll be here." },
       ]},
     ],
   },
