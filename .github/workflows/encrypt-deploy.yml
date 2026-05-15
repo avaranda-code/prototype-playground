@@ -37,6 +37,13 @@ jobs:
         env:
           STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
         run: |
+          # Use a fixed salt across every encrypted file so they all share
+          # the same cached decryption key in localStorage. Without this,
+          # StatiCrypt generates a fresh per-file salt and the user is
+          # prompted once per page (e.g. once for viewer.html, again for the
+          # prototype iframe). The salt is not a secret — its only job is to
+          # prevent rainbow-table attacks; security comes from the password.
+          SALT="f7c8a2b91d4e6a5c3b8d7e2f9a1c4b6d"
           find . -name "*.html" \
             -not -path "./.git/*" \
             -not -path "./node_modules/*" \
@@ -45,6 +52,7 @@ jobs:
               tmpdir=$(mktemp -d)
               staticrypt "$file" \
                 --password "$STATICRYPT_PASSWORD" \
+                --salt "$SALT" \
                 --remember 1 \
                 --short \
                 --template password_template.html \
