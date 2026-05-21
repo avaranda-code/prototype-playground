@@ -561,7 +561,7 @@
     border-bottom: 1px solid #ebecef;
   }
   .biz-toggle-section {
-    padding: 0 16px 12px;
+    padding: 0 24px 12px;
     flex-shrink: 0;
   }
   .preview-header .title { font-size: 16px; font-weight: 600; }
@@ -599,10 +599,9 @@
     overflow-y: auto;
   }
 
-  /* Business hours tab toggle (matches chat width) */
+  /* Business hours tab toggle (fills the container width) */
   .biz-toggle {
-    width: 400px;
-    margin: 0 auto;
+    width: 100%;
     height: 32px;
     border: 1px solid #00000014;
     border-radius: 8px;
@@ -1294,7 +1293,7 @@
   }
   /* Biz + view toggle row below the header */
   .legacy-toggle-row-section {
-    padding: 0 16px 12px;
+    padding: 0 24px 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1658,7 +1657,7 @@
       </div>
       <div class="top-banner-text">
         <span class="top-banner-title">A fresh look for Chat</span>
-        <span class="top-banner-desc">Compare or update now. Switch back anytime before June 15.</span>
+        <span class="top-banner-desc">Compare or update now. Switch back anytime before July 27.</span>
       </div>
       <button class="top-banner-btn" id="update-btn">Update</button>
     </div>
@@ -2070,7 +2069,7 @@
       </div>
       <div class="top-banner-text">
         <span class="top-banner-title">You're on the updated Chat</span>
-        <span class="top-banner-desc">Switch back to the old chat anytime before June 15.</span>
+        <span class="top-banner-desc">Switch back to the old chat anytime before July 27.</span>
       </div>
       <button class="top-banner-btn secondary" id="revert-btn">Revert</button>
     </div>
@@ -2447,13 +2446,27 @@
       <div class="preview-top">
         <div class="preview-header">
           <div class="title">Chat preview</div>
-          <div class="view-toggle">
-            <button class="icon-btn active" data-view="home" title="Home view">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 8L10 3L17 8V16C17 16.55 16.55 17 16 17H4C3.45 17 3 16.55 3 16V8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <div class="variant-dropdown" id="view-dropdown">
+            <button class="variant-dropdown-trigger" id="view-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span>Viewing: <span id="view-dropdown-label">Home</span></span>
+              <span class="chev" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
             </button>
-            <button class="icon-btn" data-view="chat" title="Chat view">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 5C3 4 4 3 5 3H13C14 3 15 4 15 5V11C15 12 14 13 13 13H8L4 16V13C3.4 13 3 12.5 3 12V5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-            </button>
+            <div class="variant-dropdown-menu" id="view-dropdown-menu" role="listbox">
+              <button class="variant-dropdown-item selected" data-view="home" role="option" aria-selected="true">
+                <span class="check" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span>Home</span>
+              </button>
+              <button class="variant-dropdown-item" data-view="chat" role="option" aria-selected="false">
+                <span class="check" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span>Conversation thread</span>
+              </button>
+            </div>
           </div>
         </div>
         <!-- Business hours toggle (above the divider) -->
@@ -2551,11 +2564,27 @@
         <div class="modal-title">Switch back to the old chat?</div>
       </div>
       <div class="modal-body">
-        Can take up to 30 minutes to take effect on your store. You can switch to the new chat anytime before June 15.
+        Switch anytime before July 27. Changes can take up to 30 minutes to appear across your store.
       </div>
       <div class="modal-footer">
         <button class="modal-btn tertiary" id="switch-back-cancel">Cancel</button>
         <button class="modal-btn destructive" id="switch-back-confirm">Switch back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal for updating to the new chat -->
+  <div class="modal-overlay" id="update-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Update to the new chat?</div>
+      </div>
+      <div class="modal-body">
+        Changes can take up to 30 minutes to appear across your store.
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn tertiary" id="update-cancel">Cancel</button>
+        <button class="modal-btn destructive" id="update-confirm">Update</button>
       </div>
     </div>
   </div>
@@ -2760,8 +2789,16 @@
     renderPhone('lp-');
     renderLegacyCurrent();
 
-    // View toggle visual (both new + legacy)
-    $$('.view-toggle .icon-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
+    // View dropdown (new view) — update label + selected state
+    const viewDropdownLabel = $('#view-dropdown-label');
+    if (viewDropdownLabel) {
+      viewDropdownLabel.textContent = state.view === 'home' ? 'Home' : 'Conversation thread';
+    }
+    $$('#view-dropdown-menu .variant-dropdown-item').forEach(item => {
+      const isSelected = item.dataset.view === state.view;
+      item.classList.toggle('selected', isSelected);
+      item.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+    });
 
     // Biz toggle visual (both new + legacy)
     $$('.biz-toggle button').forEach(b => b.classList.toggle('active', b.dataset.biz === state.bizMode));
@@ -2873,13 +2910,31 @@
     }
   });
 
-  // View toggle (home/chat)
-  $$('.view-toggle .icon-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.view = btn.dataset.view;
-      render();
+  // View dropdown (Home / Conversation thread) — new prototype
+  const viewDropdownTrigger = document.getElementById('view-dropdown-trigger');
+  const viewDropdownMenu = document.getElementById('view-dropdown-menu');
+  if (viewDropdownTrigger && viewDropdownMenu) {
+    viewDropdownTrigger.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = viewDropdownMenu.classList.toggle('open');
+      viewDropdownTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
-  });
+    viewDropdownMenu.querySelectorAll('.variant-dropdown-item').forEach(item => {
+      item.addEventListener('click', e => {
+        e.stopPropagation();
+        state.view = item.dataset.view;
+        viewDropdownMenu.classList.remove('open');
+        viewDropdownTrigger.setAttribute('aria-expanded', 'false');
+        render();
+      });
+    });
+    document.addEventListener('click', e => {
+      if (!viewDropdownMenu.contains(e.target) && e.target !== viewDropdownTrigger) {
+        viewDropdownMenu.classList.remove('open');
+        viewDropdownTrigger.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
 
   // Biz toggle
   $$('.biz-toggle button').forEach(btn => {
@@ -2977,20 +3032,32 @@
   const legacyEl = document.getElementById('legacy-version');
   const newEl = document.getElementById('new-version');
 
-  // Update button → switch to new prototype
-  const updateBtn = document.getElementById('update-btn');
-  if (updateBtn) {
-    updateBtn.addEventListener('click', () => {
-      legacyEl.style.display = 'none';
-      newEl.style.display = 'flex';
-    });
+  // ===== Switch helpers =====
+  function switchToNew() {
+    legacyEl.style.display = 'none';
+    newEl.style.display = 'flex';
   }
-
-  // ===== Switch back to legacy with confirmation Modal =====
   function switchBackToLegacy() {
     legacyEl.style.display = 'flex';
     newEl.style.display = 'none';
   }
+
+  // Update button → opens confirmation modal (does NOT switch immediately)
+  const updateBtn = document.getElementById('update-btn');
+  const updateModal = document.getElementById('update-modal');
+  const updateCancel = document.getElementById('update-cancel');
+  const updateConfirm = document.getElementById('update-confirm');
+  function openUpdateModal() { if (updateModal) updateModal.classList.add('open'); }
+  function closeUpdateModal() { if (updateModal) updateModal.classList.remove('open'); }
+  if (updateBtn) updateBtn.addEventListener('click', openUpdateModal);
+  if (updateCancel) updateCancel.addEventListener('click', closeUpdateModal);
+  if (updateConfirm) updateConfirm.addEventListener('click', () => {
+    closeUpdateModal();
+    switchToNew();
+  });
+  if (updateModal) updateModal.addEventListener('click', e => {
+    if (e.target === updateModal) closeUpdateModal();
+  });
 
   // Revert button (top banner in the new UI) → opens confirmation modal.
   const revertBtn = document.getElementById('revert-btn');
