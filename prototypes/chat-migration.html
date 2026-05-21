@@ -900,11 +900,25 @@
   /* ============ Legacy (current product) ============ */
   .legacy-version {
     display: flex;
+    flex-direction: column;
     flex-grow: 1;
     min-width: 0;
     height: 100%;
     padding: 8px 8px 8px 0;
     gap: 8px;
+  }
+  .legacy-content-row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    min-height: 0;
+  }
+  .new-content-row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    min-height: 0;
   }
   .legacy-page-area {
     flex-grow: 1;
@@ -1109,74 +1123,191 @@
   .legacy-preview {
     width: 480px;
     flex-shrink: 0;
-    background: #ffffff;
-    border: 1px solid #ebecef;
-    border-radius: 16px;
-    padding: 16px;
-    overflow-y: auto;
+    /* No top padding — keeps the preview frame top-aligned with .legacy-page-area */
+    padding: 0 8px 8px 0;
+    background: #f9f9f9;
     display: flex; flex-direction: column;
-    gap: 12px;
+    overflow: hidden;
   }
-  .legacy-banner {
+  /* Top banner — full-width, sits above both the settings panel and chat preview */
+  .top-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px 10px 16px;
     background: #f1ecff;
     border: 1px solid #e2d6ff;
-    border-radius: 8px;
-    padding: 16px;
-    position: relative;
+    border-radius: 12px;
+    flex-shrink: 0;
   }
-  .legacy-banner-close {
-    position: absolute; top: 12px; right: 12px;
-    color: #5c6370; cursor: pointer;
-    width: 18px; height: 18px;
-    display: flex; align-items: center; justify-content: center;
+  .top-banner-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #683FCF; /* Axiom accent/purple-700 */
   }
-  .legacy-banner-title {
-    font-size: 14px; font-weight: 600; color: #1e242e;
-    margin-bottom: 4px;
-    padding-right: 24px;
+  .top-banner-icon svg { width: 100%; height: 100%; display: block; }
+  .top-banner-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 12px;
   }
-  .legacy-banner-desc {
-    font-size: 13px; color: #1e242e;
-    line-height: 1.45;
-    margin-bottom: 12px;
+  .top-banner-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    color: #1e242e;
   }
-  .legacy-banner-btn {
-    background: #1e242e; color: #fff;
+  .top-banner-desc {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #1e242e;
+  }
+  /* Primary CTA (dark fill) */
+  .top-banner-btn {
+    background: #1e242e;
+    color: #fdfdfd;
     border-radius: 6px;
-    padding: 6px 14px;
-    font-size: 13px; font-weight: 600;
+    box-shadow: 0px 2px 3px 0px #0000000d;
+    height: 28px;
+    padding: 0 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
-  .legacy-variant-toggle {
-    display: flex; gap: 4px;
+  /* Secondary CTA (white with border — used for Revert) */
+  .top-banner-btn.secondary {
+    background: #ffffff;
+    color: #1e242e;
+    border: 1px solid rgba(103, 113, 131, 0.5);
+  }
+  .top-banner-btn.secondary:hover { background: #fafafa; }
+  /* "Chat preview" header in the legacy view (mirrors the new prototype's preview header) */
+  .legacy-preview-frame {
+    flex-grow: 1;
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    min-height: 0;
+  }
+  .legacy-preview-top {
+    flex-shrink: 0;
+    display: flex; flex-direction: column;
+    border-bottom: 1px solid #ebecef;
+  }
+  .legacy-preview-header {
+    padding: 16px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-shrink: 0;
+    gap: 12px;
+  }
+  .legacy-preview-header .title-group {
+    display: flex; align-items: baseline; gap: 8px;
+    min-width: 0;
+  }
+  .legacy-preview-header .title {
+    font-size: 16px; font-weight: 600; color: #1e242e;
+  }
+  .legacy-preview-header .title-suffix {
+    font-size: 13px; font-weight: 400; color: #5c6370;
+  }
+  /* Variant dropdown (Current / New (2.0)) — replaces the old pill toggle */
+  .variant-dropdown { position: relative; }
+  .variant-dropdown-trigger {
+    height: 28px;
+    padding: 0 8px 0 12px;
     background: #fff;
     border: 1px solid #ebecef;
     border-radius: 8px;
-    padding: 4px;
-    width: 400px;
-    margin: 0 auto;
-    box-sizing: border-box;
-  }
-  .legacy-variant-toggle button {
-    flex: 1;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 13px; font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
     color: #1e242e;
-    background: none;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
   }
-  .legacy-variant-toggle button.active { background: #ebecef; }
-  .legacy-variant-toggle .new-dot {
+  .variant-dropdown-trigger:hover { background: #fafafa; }
+  .variant-dropdown-trigger .chev {
+    width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: #5c6370;
+  }
+  .variant-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 180px;
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    padding: 4px;
+    display: none;
+    z-index: 30;
+  }
+  .variant-dropdown-menu.open { display: block; }
+  .variant-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #1e242e;
+    text-align: left;
+  }
+  .variant-dropdown-item:hover { background: #f3f4f6; }
+  .variant-dropdown-item .check {
+    width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: #1e242e;
+    flex-shrink: 0;
+  }
+  .variant-dropdown-item:not(.selected) .check { visibility: hidden; }
+  .variant-dropdown-item .new-dot {
     width: 6px; height: 6px;
     background: #d600ff;
     border-radius: 50%;
   }
-  .legacy-variant-caption {
-    font-size: 12px; color: #5c6370;
-    text-align: center;
-    margin-top: -8px;
+  /* Biz + view toggle row below the header */
+  .legacy-toggle-row-section {
+    padding: 0 16px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .legacy-preview-inner {
+    flex-grow: 1;
+    padding: 16px;
+    display: flex; flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    overflow-y: auto;
   }
 
   /* Legacy phone (current chat UI) */
@@ -1271,7 +1402,18 @@
   .legacy-input-bar input:focus { outline: none; }
 
   /* Wrapper to swap between legacy and new versions */
-  .new-version { display: flex; flex-grow: 1; min-width: 0; }
+  .new-version {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0;
+    height: 100%;
+    /* Top + right padding give the banner the same inset as the legacy banner.
+       The inner .page and .preview keep their own right/bottom padding for the
+       white card area, so we don't double up. */
+    padding: 8px 8px 0 0;
+    gap: 8px;
+  }
 
   /* ============ Option 2 (Axiom-native): NEW Tag + Popover ============ */
   /* Tag — uses Axiom Green color (surface-success-default / content-success-default) */
@@ -1503,6 +1645,25 @@
 
   <!-- ============ Legacy (current product) version ============ -->
   <div class="legacy-version" id="legacy-version">
+
+    <!-- Top banner — full-width, above both settings panel and chat preview -->
+    <div class="top-banner" id="legacy-update-banner">
+      <div class="top-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6.5076 16.0681C7.53542 16.6609 8.72797 17 9.99972 17C13.8657 17 17 13.866 17 10C17 6.13402 13.866 3 10 3C6.13401 3 3 6.13402 3 10C3 11.2718 3.33915 12.4643 3.93193 13.4922L3.93422 13.4961C3.99126 13.595 4.02002 13.6449 4.03305 13.692C4.04534 13.7365 4.04877 13.7764 4.04562 13.8225C4.04224 13.8719 4.02558 13.9232 3.99142 14.0256L3.39345 15.8196L3.39269 15.8219C3.26653 16.2004 3.20344 16.3897 3.24841 16.5158C3.28762 16.6257 3.37464 16.7125 3.48459 16.7517C3.61041 16.7966 3.79881 16.7338 4.17565 16.6082L4.18034 16.6064L5.97426 16.0084C6.0764 15.9744 6.12833 15.9571 6.17768 15.9538C6.22369 15.9506 6.26338 15.9548 6.30783 15.967C6.35509 15.9801 6.40498 16.0089 6.50438 16.0662L6.5076 16.0681Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="7" cy="10" r="0.85" fill="currentColor"/>
+          <circle cx="10" cy="10" r="0.85" fill="currentColor"/>
+          <circle cx="13" cy="10" r="0.85" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="top-banner-text">
+        <span class="top-banner-title">A fresh look for Chat</span>
+        <span class="top-banner-desc">Compare or update now. Switch back anytime before June 15.</span>
+      </div>
+      <button class="top-banner-btn" id="update-btn">Update</button>
+    </div>
+
+    <div class="legacy-content-row">
     <div class="legacy-page-area">
       <div class="legacy-page-header">
         <button class="legacy-back-btn" title="Back">
@@ -1510,6 +1671,7 @@
         </button>
         <h1>Glossier</h1>
       </div>
+
       <div class="legacy-tabs">
         <button class="legacy-tab" data-legacy-tab="quick-replies">Quick replies</button>
         <button class="legacy-tab active" data-legacy-tab="appearance">Appearance</button>
@@ -1534,11 +1696,11 @@
           <h2>Intro message</h2>
           <div class="legacy-field">
             <label class="legacy-field-label">During business hours</label>
-            <input class="legacy-input" value="How can we help?" />
+            <input class="legacy-input" id="legacy-greeting-during" value="How can we help?" />
           </div>
           <div class="legacy-field">
             <label class="legacy-field-label">Outside business hours</label>
-            <input class="legacy-input" value="We're offline -- email us at gteam@glossier.com" />
+            <input class="legacy-input" id="legacy-greeting-outside" value="We're offline -- email us at gteam@glossier.com" />
           </div>
         </div>
 
@@ -1548,8 +1710,8 @@
             <div class="legacy-field">
               <label class="legacy-field-label">Main color</label>
               <div class="legacy-color-input">
-                <div class="swatch" style="background:#000"></div>
-                <input value="#000" />
+                <div class="swatch" id="legacy-brand-swatch" style="background:#FFDFE2"></div>
+                <input id="legacy-brand-hex" value="#FFDFE2" />
               </div>
             </div>
             <div class="legacy-field">
@@ -1677,7 +1839,7 @@
         <div class="legacy-section">
           <h2>Require automated interaction</h2>
           <div class="legacy-section-desc">Hide "Send us a message" so customers must start with an automation button before they can send a message.</div>
-          <div class="legacy-toggle-row"><div class="toggle"></div><div class="text-block"><div class="title">Remove "Send us a message" button</div></div></div>
+          <div class="legacy-toggle-row"><div class="toggle" id="legacy-start-automation-toggle"></div><div class="text-block"><div class="title">Remove "Send us a message" button</div></div></div>
         </div>
 
         <div class="legacy-section">
@@ -1690,24 +1852,24 @@
         <div class="legacy-section">
           <h2>Email capture</h2>
           <div class="legacy-section-desc">Collecting customer emails helps grow your email list and send follow-up messages. However, only around 30% of customers will send a message if they must provide an email.</div>
-          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle on"></div><div class="text-block"><div class="title">Enable email capture</div></div></div>
-          <label class="legacy-radio-row"><input type="radio" name="legacy-email" /> <span class="legacy-radio-text">Optional</span></label>
-          <label class="legacy-radio-row"><input type="radio" name="legacy-email" checked /> <span class="legacy-radio-text">Required</span></label>
+          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle" id="legacy-collect-emails-toggle"></div><div class="text-block"><div class="title">Enable email capture</div></div></div>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-email" value="optional" checked /> <span class="legacy-radio-text">Optional</span></label>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-email" value="required" /> <span class="legacy-radio-text">Required</span></label>
         </div>
 
         <div class="legacy-section">
           <h2>Auto-reply with wait time</h2>
           <div class="legacy-section-desc">During <a class="legacy-link">business hours</a>, let customers know how fast they can expect a response with an auto-reply. A message is sent in new chat tickets after 30 seconds without replies from an agent.</div>
-          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle on"></div><div class="text-block"><div class="title">Send auto-reply with wait time</div></div></div>
-          <label class="legacy-radio-row"><input type="radio" name="legacy-wait" checked /> <span class="legacy-radio-text">Dynamic wait time (recommended)</span></label>
-          <label class="legacy-radio-row"><input type="radio" name="legacy-wait" /> <span class="legacy-radio-text">In a few minutes</span></label>
-          <label class="legacy-radio-row"><input type="radio" name="legacy-wait" /> <span class="legacy-radio-text">In a few hours</span></label>
+          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle" id="legacy-share-wait-toggle"></div><div class="text-block"><div class="title">Send auto-reply with wait time</div></div></div>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-wait" value="dynamic" checked /> <span class="legacy-radio-text">Dynamic wait time (recommended)</span></label>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-wait" value="few-minutes" /> <span class="legacy-radio-text">In a few minutes</span></label>
+          <label class="legacy-radio-row"><input type="radio" name="legacy-wait" value="few-hours" /> <span class="legacy-radio-text">In a few hours</span></label>
         </div>
 
         <div class="legacy-section">
           <h2>Privacy policy disclaimer</h2>
-          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle on"></div><div class="text-block"><div class="title">Display privacy policy disclaimer</div></div></div>
-          <textarea class="legacy-textarea">Before we begin, you should know that Glossier will store and use the information in this chat in accordance with its Privacy Policy, and by continuing, you consent to this storage and usage.</textarea>
+          <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle" id="legacy-privacy-toggle"></div><div class="text-block"><div class="title">Display privacy policy disclaimer</div></div></div>
+          <textarea class="legacy-textarea" id="legacy-privacy-text">Before we begin, you should know that Glossier will store and use the information in this chat in accordance with its Privacy Policy, and by continuing, you consent to this storage and usage.</textarea>
           <div class="legacy-help-text" style="margin-top:8px">Gorgias is not responsible for ensuring compliance with applicable privacy laws. It is your responsibility to implement privacy policies.</div>
         </div>
 
@@ -1735,94 +1897,185 @@
     </div>
 
     <aside class="legacy-preview">
-      <div class="legacy-banner">
-        <div class="legacy-banner-close">×</div>
-        <div class="legacy-banner-title">A fresh new look for your chat</div>
-        <div class="legacy-banner-desc">Redesigned settings and chat with new order management, clearer entry points, and faster mobile load. Preview below or update now — revert anytime before June 15.</div>
-        <button class="legacy-banner-btn" id="update-btn">Update</button>
-      </div>
-
-      <div class="legacy-variant-toggle" id="legacy-variant-toggle">
-        <button class="active" data-variant="current">Current</button>
-        <button data-variant="new"><span class="new-dot"></span>New (2.0)</button>
-      </div>
-
-      <!-- Current chat UI -->
-      <div class="legacy-phone" id="legacy-phone-current">
-        <div class="legacy-phone-header">
-          <div class="legacy-phone-title">Glossier</div>
-          <div class="legacy-phone-status">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5V8L10 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            We will reply in a few moments
+      <div class="legacy-preview-frame">
+        <div class="legacy-preview-top">
+          <div class="legacy-preview-header">
+            <div class="title">Chat preview</div>
+            <div class="variant-dropdown" id="legacy-variant-dropdown">
+              <button class="variant-dropdown-trigger" id="legacy-variant-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span>Viewing: <span id="legacy-variant-label">Current</span></span>
+                <span class="chev" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              </button>
+              <div class="variant-dropdown-menu" id="legacy-variant-menu" role="listbox">
+                <button class="variant-dropdown-item selected" data-variant="current" role="option" aria-selected="true">
+                  <span class="check" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span>Current</span>
+                </button>
+                <button class="variant-dropdown-item" data-variant="new" role="option" aria-selected="false">
+                  <span class="check" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span>New (2.0)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="legacy-toggle-row-section">
+            <div class="biz-toggle" id="legacy-biz-toggle">
+              <button class="active" data-biz="during">During Business Hours</button>
+              <button data-biz="outside">Outside business hours</button>
+            </div>
           </div>
         </div>
-        <div class="legacy-phone-body">
-          <div style="text-align:center;font-size:11px;color:#9aa0a8;font-weight:600">MAY 13</div>
-          <div class="legacy-customer-msg">
-            <div class="bubble">Hi, could you give me an update on my order status?</div>
-          </div>
-          <div class="legacy-bot-row">
-            <div class="legacy-bot-avatar">G</div>
-            <div class="legacy-bot-content">
-              <div class="legacy-bot-name">Glossier Bot</div>
-              <div class="legacy-bot-msg">Thanks for reaching out! We will get back to you in about 5 minutes.</div>
-              <div class="legacy-email-card">
-                <div class="label">Email <span style="color:#d90b28">*</span></div>
-                <div class="legacy-email-input-row">
-                  <input placeholder="your@email.com" />
-                  <button class="legacy-email-send-btn">
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </button>
+
+        <div class="legacy-preview-inner">
+
+          <!-- Current chat UI (Gorgias legacy chat) -->
+          <div class="legacy-phone" id="legacy-phone-current">
+            <div class="legacy-phone-header">
+              <div class="legacy-phone-title">Glossier</div>
+              <div class="legacy-phone-status" id="lp-current-status">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5V8L10 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                <span id="lp-current-status-text">We will reply in a few moments</span>
+              </div>
+            </div>
+            <div class="legacy-phone-body">
+              <div style="text-align:center;font-size:11px;color:#9aa0a8;font-weight:600">MAY 13</div>
+              <div class="legacy-customer-msg">
+                <div class="bubble">Hi, could you give me an update on my order status?</div>
+              </div>
+              <div class="legacy-bot-row">
+                <div class="legacy-bot-avatar">G</div>
+                <div class="legacy-bot-content">
+                  <div class="legacy-bot-name">Glossier Bot</div>
+                  <div class="legacy-bot-msg" id="lp-current-auto-reply">Thanks for reaching out! We will get back to you in about 5 minutes.</div>
+                  <div class="legacy-bot-msg" id="lp-current-privacy" style="display:none;font-size:11px;color:#5c6370">Before we begin, you should know that Glossier will store and use the information in this chat in accordance with its Privacy Policy.</div>
+                  <div class="legacy-email-card" id="lp-current-email-card">
+                    <div class="label">Email <span id="lp-current-email-required" style="color:#d90b28">*</span></div>
+                    <div class="legacy-email-input-row">
+                      <input placeholder="your@email.com" />
+                      <button class="legacy-email-send-btn">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="legacy-automated">Automated</div>
                 </div>
               </div>
-              <div class="legacy-automated">Automated</div>
+              <div class="legacy-bot-row">
+                <div class="legacy-bot-avatar">G</div>
+                <div class="legacy-bot-content">
+                  <div class="legacy-bot-name">Gorgias</div>
+                  <div class="legacy-bot-msg">Hi there, thanks for your patience! Sure, let me check. What's your order…</div>
+                </div>
+              </div>
+            </div>
+            <div class="legacy-input-bar" id="lp-current-input-bar">
+              <input placeholder="Type a message…" />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12L21 4L13 21L11 13L3 12Z" stroke="#1e242e" stroke-width="1.6" stroke-linejoin="round"/></svg>
             </div>
           </div>
-          <div class="legacy-bot-row">
-            <div class="legacy-bot-avatar">G</div>
-            <div class="legacy-bot-content">
-              <div class="legacy-bot-name">Gorgias</div>
-              <div class="legacy-bot-msg">Hi there, thanks for your patience! Sure, let me check. What's your order…</div>
-            </div>
-          </div>
-        </div>
-        <div class="legacy-input-bar">
-          <input placeholder="Type a message…" />
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12L21 4L13 21L11 13L3 12Z" stroke="#1e242e" stroke-width="1.6" stroke-linejoin="round"/></svg>
-        </div>
-      </div>
 
-      <!-- New chat UI preview (smaller — wraps the new prototype's phone) -->
-      <div class="legacy-phone" id="legacy-phone-new" style="display:none;background:linear-gradient(180deg,#fafafa 0%,#f3f4f6 100%);padding:0">
-        <div style="background:radial-gradient(circle at 0% 0%, #ffdfe2 0%, transparent 65%),radial-gradient(circle at 100% 100%, #ffdfe2 0%, transparent 65%),linear-gradient(180deg,#fafafa 0%,#f3f4f6 100%);padding:64px 20px 20px;display:flex;flex-direction:column;gap:12px;flex:1;position:relative">
-          <div style="display:flex;justify-content:flex-end;gap:8px;position:absolute;top:16px;right:16px">
-            <span style="background:#ffffff66;border-radius:24px;padding:6px 12px;font-size:11px;font-weight:500">Track Orders</span>
-            <span style="background:#ffffff66;width:28px;height:28px;border-radius:24px;display:flex;align-items:center;justify-content:center">×</span>
-          </div>
-          <div style="font-family:Inter;font-weight:800;font-style:italic;font-size:32px;color:#1e242e;text-align:center;margin-top:24px">Glossier.</div>
-          <div style="font-size:18px;font-weight:600;text-align:center">How can we help?</div>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-top:auto">
-            <div style="background:#ffffff66;border-radius:24px;padding:8px 14px;font-size:12px;align-self:flex-start">What's new in the collection?</div>
-            <div style="background:#ffffff66;border-radius:24px;padding:8px 14px;font-size:12px;align-self:flex-start">How can I get 10% off my first order?</div>
-            <div style="height:44px;background:rgba(255,255,255,0.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:24px;box-shadow:0 1px 2px rgba(0,0,0,0.04),0 4px 12px rgba(0,0,0,0.06);padding:0 12px;display:flex;justify-content:space-between;align-items:center;margin-top:6px;box-sizing:border-box">
-              <span style="display:flex;align-items:center;gap:8px">
-                <span style="position:relative;width:24px;height:24px;flex-shrink:0">
-                  <span style="width:24px;height:24px;border-radius:50%;background:#ffdfe2;display:flex;align-items:center;justify-content:center;font-family:Inter;font-style:italic;font-weight:800;font-size:14px;color:#e89a9f">G</span>
-                  <span style="position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;background:#24D69D;border:1.5px solid #fff;border-radius:50%;box-sizing:content-box"></span>
+          <!-- New (2.0) chat UI — full functional clone of the new prototype's phone -->
+          <div class="phone" id="lp-phone" style="display:none">
+            <div class="phone-header">
+              <span></span>
+              <div style="display:flex;gap:8px;align-items:center">
+                <span class="glass-btn" id="lp-track-orders-pill">Track Orders</span>
+                <span class="glass-btn icon-only">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 5L10 10L5 5M5 15L10 10L15 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
-                <span style="font-size:14px;font-weight:500;color:#1c1d1f">Chat with us</span>
-              </span>
-              <span style="color:#1e242e;font-size:14px">›</span>
+              </div>
+            </div>
+
+            <div class="phone-top">
+              <div class="brand-logo">Glossier.</div>
+              <div class="privacy-text" id="lp-privacy-preview" style="display:none">
+                <span id="lp-privacy-preview-text">Before we begin, you should know that Glossier will store and use the information in...</span>
+                <span class="more">Read more</span>
+              </div>
+              <div class="greeting" id="lp-greeting-preview">How can we help?</div>
+            </div>
+
+            <!-- Home view actions -->
+            <div class="phone-bottom" id="lp-view-home">
+              <div class="quick-actions">
+                <div class="quick-action">What's new in the collection?</div>
+                <div class="quick-action">How can I get 10% off my first order?</div>
+                <div class="quick-action">Help me find the right size</div>
+                <div class="quick-action">How do I use my gift card?</div>
+              </div>
+              <div class="live-chat" id="lp-live-chat-pill">
+                <div class="left">
+                  <div class="brand-avatar" id="lp-live-chat-avatar">
+                    <div class="mark">G</div>
+                    <div class="status-dot"></div>
+                  </div>
+                  <span class="label" id="lp-live-chat-label">Chat with us</span>
+                </div>
+                <div class="chev">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8.25 5.5L12.75 10L8.25 14.5" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat view -->
+            <div class="phone-bottom hidden" id="lp-view-chat">
+              <div class="chat-msg"><div class="bubble" id="lp-chat-bubble-customer">I need a new light foundation</div></div>
+              <div class="agent-msg hidden" id="lp-agent-msg">
+                <p class="text" id="lp-agent-msg-text"></p>
+              </div>
+              <div class="email-capture hidden" id="lp-email-capture">
+                <div>
+                  <p class="email-capture-label">Your email</p>
+                  <div class="email-capture-input" style="margin-top:12px">you@email.com</div>
+                </div>
+                <button class="email-capture-cta">Continue</button>
+              </div>
+              <div id="lp-offline-status-wrap">
+                <div class="offline-status" id="lp-offline-status">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 6V10H14M10 17C6 17 3 14 3 10C3 6 6 3 10 3C14 3 17 6 17 10C17 14 14 17 10 17Z" stroke="#5C6370" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span id="lp-status-text">Back online at 9:00 AM EST</span>
+                </div>
+              </div>
+              <div class="input-field" id="lp-chat-input-field">
+                <span class="placeholder" id="lp-chat-input-placeholder">Leave a message</span>
+                <button class="icon-btn">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2.9H6c-1.4 0-2.1 0-2.6.3a2 2 0 00-1 1.1c-.3.5-.3 1.2-.3 2.6V14c0 1.4 0 2.1.3 2.6.2.5.6.9 1 1.1.6.3 1.3.3 2.7.3h7.6c.8 0 1.2 0 1.5-.1.9-.2 1.5-.9 1.8-1.8.1-.3.1-.7.1-1.5M15.4 7.1V2.1M12.9 4.6h5M8.3 7.5a1.7 1.7 0 11-3.3 0 1.7 1.7 0 013.3 0zm3.8 2.8L5 16.8c-.4.4-.6.5-.6.7 0 .1 0 .3.2.4.1.1.4.1.9.1h7.8c1.2 0 1.8 0 2.3-.2a3 3 0 001.5-1.5c.2-.5.2-1.1.2-2.3v-.2c0-.4 0-.6-.04-.8a1.5 1.5 0 00-.3-.6c-.1-.2-.3-.3-.6-.6L13.8 10c-.3-.2-.4-.4-.6-.4-.2 0-.3 0-.5 0-.2 0-.3.2-.6.4z" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
-
     </aside>
+    </div>
   </div>
 
   <!-- ============ NEW prototype version ============ -->
   <div class="new-version" id="new-version" style="display:none">
+
+    <!-- Top banner — full-width, above both settings panel and chat preview -->
+    <div class="top-banner" id="new-switch-back-banner">
+      <div class="top-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.5 10a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" stroke="currentColor" stroke-width="1.5"/>
+          <path d="m7 10 2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="top-banner-text">
+        <span class="top-banner-title">You're on the updated Chat</span>
+        <span class="top-banner-desc">Switch back to the old chat anytime before June 15.</span>
+      </div>
+      <button class="top-banner-btn secondary" id="revert-btn">Revert</button>
+    </div>
+
+    <div class="new-content-row">
 
   <!-- ============ Center page ============ -->
   <main class="page">
@@ -2193,23 +2446,7 @@
     <div class="preview-frame">
       <div class="preview-top">
         <div class="preview-header">
-          <div class="title">
-            Chat preview
-            <span class="tag-popover-anchor">
-              <span class="axiom-tag" id="new-tag" role="button" tabindex="0" aria-label="New chat is enabled">New</span>
-              <div class="axiom-popover" id="new-popover" role="dialog">
-                <div class="axiom-popover-header">
-                  <div class="axiom-popover-title">This is the UI visitors see today.</div>
-                </div>
-                <div class="axiom-popover-body">
-                  Switch back to the old chat UI anytime before June 15.
-                </div>
-                <div class="axiom-popover-footer">
-                  <button class="axiom-popover-btn" id="popover-switch-back-btn">Switch back</button>
-                </div>
-              </div>
-            </span>
-          </div>
+          <div class="title">Chat preview</div>
           <div class="view-toggle">
             <button class="icon-btn active" data-view="home" title="Home view">
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 8L10 3L17 8V16C17 16.55 16.55 17 16 17H4C3.45 17 3 16.55 3 16V8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
@@ -2303,6 +2540,7 @@
     </div>
   </aside>
 
+    </div>
   </div>
   <!-- /new-version -->
 
@@ -2310,10 +2548,10 @@
   <div class="modal-overlay" id="switch-back-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title">Switch back to the old chat UI?</div>
+        <div class="modal-title">Switch back to the old chat?</div>
       </div>
       <div class="modal-body">
-        Customers on your store will see the old chat. You can switch to the new chat anytime before June 15.
+        Can take up to 30 minutes to take effect on your store. You can switch to the new chat anytime before June 15.
       </div>
       <div class="modal-footer">
         <button class="modal-btn tertiary" id="switch-back-cancel">Cancel</button>
@@ -2347,79 +2585,17 @@
   function $(sel, root = document) { return root.querySelector(sel); }
   function $$(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
 
-  // ===== Render =====
-  function render() {
-    // Greeting in preview (only shown on home view)
-    const greeting = state.bizMode === 'during' ? state.greetingDuring : state.greetingOutside;
-    const greetingEl = $('#greeting-preview');
-    greetingEl.textContent = greeting;
-    const showGreeting = state.view === 'home' && greeting.trim() !== '';
-    greetingEl.style.display = showGreeting ? '' : 'none';
-
-    // Privacy in preview
-    const privacyEl = $('#privacy-preview');
-    const privacyTextEl = $('#privacy-preview-text');
-    const showPrivacy =
-      state.privacyEnabled &&
-      (state.view === 'chat' || (state.view === 'home' && state.privacyOnHome));
-    if (showPrivacy) {
-      const text = (state.privacyText || '').trim();
-      if (text === '') {
-        // Toggle on but no text → show default placeholder text
-        privacyTextEl.textContent = 'Before we begin, you should know that Glossier will store and use the information in...';
-        privacyEl.querySelector('.more').style.display = '';
-      } else {
-        privacyTextEl.textContent = text + ' ';
-        privacyEl.querySelector('.more').style.display = '';
-      }
-      privacyEl.style.display = '';
-    } else {
-      privacyEl.style.display = 'none';
-    }
-
-    // View toggle
-    $('#view-home').classList.toggle('hidden', state.view !== 'home');
-    $('#view-chat').classList.toggle('hidden', state.view !== 'chat');
-    $$('.view-toggle .icon-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
-
-    // Biz toggle visual
-    $$('.biz-toggle button').forEach(b => b.classList.toggle('active', b.dataset.biz === state.bizMode));
-
-    // Biz-toggle is only meaningful on the Appearance tab (drives greeting preview).
-    // Use visibility (not display) on other tabs so the phone position stays fixed.
-    const bizSection = document.querySelector('.biz-toggle-section');
-    if (bizSection) bizSection.style.visibility = state.panel === 'appearance' ? '' : 'hidden';
-
-    // Track Orders pill visibility (toggled via Order management on Automation tab)
-    const trackOrdersPill = $('#track-orders-pill');
-    if (trackOrdersPill) trackOrdersPill.style.display = state.orderManagement ? '' : 'none';
-
-    // "Chat with us" pill on home view: hidden when Start with automation is on
-    const liveChatPill = $('#live-chat-pill');
-    if (liveChatPill) liveChatPill.style.display = state.startWithAutomation ? 'none' : '';
-    const startAutoToggle = $('#start-automation-toggle');
-    if (startAutoToggle) startAutoToggle.classList.toggle('on', state.startWithAutomation);
-
-    // Home view live-chat pill: "Chat with us" (during) / "Leave us a message" (outside)
-    const liveChatLabel = $('#live-chat-label');
-    if (liveChatLabel) {
-      liveChatLabel.textContent = state.bizMode === 'during' ? 'Chat with us' : 'Leave us a message';
-    }
-    // Online/offline status dot on the brand avatar
-    const liveChatAvatar = $('#live-chat-avatar');
-    if (liveChatAvatar) {
-      liveChatAvatar.classList.toggle('offline', state.bizMode === 'outside');
-    }
-
-    // ===== Consolidated chat view content =====
-    // On Preferences, ignore bizMode (always preview as during-business-hours)
-    const effectiveBiz = state.panel === 'preferences' ? 'during' : state.bizMode;
-
-    let customerBubbleText, agentMsgText, statusText;
-    let showEmailCapture, showInput;
+  // ===== Per-phone renderer (used by both #phone and #lp-phone) =====
+  // Returns the chat content derived from current state — pure function.
+  // forLegacy=true means we're rendering the legacy view's preview, which always
+  // respects bizMode (the new prototype's panel-based override doesn't apply).
+  function deriveChatContent(forLegacy) {
+    const effectiveBiz = (!forLegacy && state.panel === 'preferences') ? 'during' : state.bizMode;
+    let customerBubbleText = 'I need a new light foundation';
+    let agentMsgText = null, statusText = null;
+    let showEmailCapture = false, showInput = true;
 
     if (state.shareWaitTime) {
-      customerBubbleText = 'I need a new light foundation';
       if (state.waitTimeMode === 'few-hours') {
         agentMsgText = 'Hi! Thanks for reaching out. We will be with you in a few hours.';
         statusText = 'We will reply in a few hours';
@@ -2433,54 +2609,171 @@
       showEmailCapture = state.collectEmails;
       showInput = !(state.collectEmails && state.emailMode === 'required');
     } else if (state.collectEmails) {
-      customerBubbleText = 'I need a new light foundation';
-      if (state.emailMode === 'required') {
-        agentMsgText = 'Welcome! Please enter your email then send us a message to connect with our team.';
-      } else {
-        agentMsgText = 'Welcome! Someone from our team will be with you soon.';
-      }
-      statusText = null;
+      agentMsgText = state.emailMode === 'required'
+        ? 'Welcome! Please enter your email then send us a message to connect with our team.'
+        : 'Welcome! Someone from our team will be with you soon.';
       showEmailCapture = true;
       showInput = state.emailMode !== 'required';
     } else {
-      customerBubbleText = 'I need a new light foundation';
-      agentMsgText = null;
       statusText = effectiveBiz === 'outside' ? 'Back online at 9:00 AM EST' : null;
-      showEmailCapture = false;
-      showInput = true;
+    }
+    return { customerBubbleText, agentMsgText, statusText, showEmailCapture, showInput, effectiveBiz };
+  }
+
+  // Render a phone (new prototype's chat preview) — works for both #phone and #lp-phone.
+  // prefix: '' for the live new prototype, 'lp-' for the legacy view's New (2.0) preview.
+  function renderPhone(prefix) {
+    const p = sel => $('#' + prefix + sel);
+    const phoneRoot = p('phone'); // #phone or #lp-phone
+    if (!phoneRoot) return;
+
+    const greeting = state.bizMode === 'during' ? state.greetingDuring : state.greetingOutside;
+    const greetingEl = p('greeting-preview');
+    if (greetingEl) {
+      greetingEl.textContent = greeting;
+      greetingEl.style.display = (state.view === 'home' && greeting.trim() !== '') ? '' : 'none';
     }
 
-    // Apply chat view content
-    $('#chat-bubble-customer').textContent = customerBubbleText;
-
-    const agentMsgEl = $('#agent-msg');
-    if (agentMsgText) {
-      agentMsgEl.classList.remove('hidden');
-      $('#agent-msg-text').textContent = agentMsgText;
-    } else {
-      agentMsgEl.classList.add('hidden');
+    // Privacy in preview
+    const privacyEl = p('privacy-preview');
+    const privacyTextEl = p('privacy-preview-text');
+    if (privacyEl && privacyTextEl) {
+      const showPrivacy = state.privacyEnabled &&
+        (state.view === 'chat' || (state.view === 'home' && state.privacyOnHome));
+      if (showPrivacy) {
+        const text = (state.privacyText || '').trim();
+        privacyTextEl.textContent = text === ''
+          ? 'Before we begin, you should know that Glossier will store and use the information in...'
+          : text + ' ';
+        const more = privacyEl.querySelector('.more');
+        if (more) more.style.display = '';
+        privacyEl.style.display = '';
+      } else {
+        privacyEl.style.display = 'none';
+      }
     }
 
-    const offlineWrap = $('#offline-status-wrap');
-    if (statusText) {
-      offlineWrap.style.display = '';
-      $('#status-text').textContent = statusText;
-    } else {
-      offlineWrap.style.display = 'none';
+    // View toggle (Home/Chat) — show/hide sections inside this phone
+    const viewHome = p('view-home');
+    const viewChat = p('view-chat');
+    if (viewHome) viewHome.classList.toggle('hidden', state.view !== 'home');
+    if (viewChat) viewChat.classList.toggle('hidden', state.view !== 'chat');
+
+    // Track Orders pill visibility
+    const trackOrdersPill = p('track-orders-pill');
+    if (trackOrdersPill) trackOrdersPill.style.display = state.orderManagement ? '' : 'none';
+
+    // Chat-with-us pill visibility + label + avatar status
+    const liveChatPill = p('live-chat-pill');
+    if (liveChatPill) liveChatPill.style.display = state.startWithAutomation ? 'none' : '';
+    const liveChatLabel = p('live-chat-label');
+    if (liveChatLabel) liveChatLabel.textContent = state.bizMode === 'during' ? 'Chat with us' : 'Leave us a message';
+    const liveChatAvatar = p('live-chat-avatar');
+    if (liveChatAvatar) liveChatAvatar.classList.toggle('offline', state.bizMode === 'outside');
+
+    // Chat view content
+    const c = deriveChatContent(prefix === 'lp-');
+    const customerBubble = p('chat-bubble-customer');
+    if (customerBubble) customerBubble.textContent = c.customerBubbleText;
+
+    const agentMsgEl = p('agent-msg');
+    if (agentMsgEl) {
+      if (c.agentMsgText) {
+        agentMsgEl.classList.remove('hidden');
+        const tEl = p('agent-msg-text');
+        if (tEl) tEl.textContent = c.agentMsgText;
+      } else {
+        agentMsgEl.classList.add('hidden');
+      }
     }
 
-    $('#email-capture').classList.toggle('hidden', !showEmailCapture);
-    $('#chat-input-field').classList.toggle('hidden', !showInput);
+    const offlineWrap = p('offline-status-wrap');
+    if (offlineWrap) {
+      if (c.statusText) {
+        offlineWrap.style.display = '';
+        const st = p('status-text');
+        if (st) st.textContent = c.statusText;
+      } else {
+        offlineWrap.style.display = 'none';
+      }
+    }
 
-    // Chat input placeholder: "Reply" when no wait time is shared and during business hours;
-    // "Leave a message" when wait time is shared or outside business hours
-    const chatInputPlaceholder = $('#chat-input-placeholder');
+    const emailCaptureEl = p('email-capture');
+    if (emailCaptureEl) emailCaptureEl.classList.toggle('hidden', !c.showEmailCapture);
+
+    const chatInput = p('chat-input-field');
+    if (chatInput) chatInput.classList.toggle('hidden', !c.showInput);
+
+    const chatInputPlaceholder = p('chat-input-placeholder');
     if (chatInputPlaceholder) {
-      const isReplyMode = !state.shareWaitTime && effectiveBiz === 'during';
+      const isReplyMode = !state.shareWaitTime && c.effectiveBiz === 'during';
       chatInputPlaceholder.textContent = isReplyMode ? 'Reply' : 'Leave a message';
     }
+  }
 
-    // Collect-emails radio panel visual enable/disable
+  // Render the legacy (current Gorgias) chat — reflects a subset of settings.
+  function renderLegacyCurrent() {
+    const c = deriveChatContent(true);
+
+    // Auto-reply line in the bot bubble
+    const autoReplyEl = $('#lp-current-auto-reply');
+    if (autoReplyEl) {
+      if (state.shareWaitTime) {
+        autoReplyEl.textContent = c.agentMsgText;
+      } else {
+        autoReplyEl.textContent = 'Thanks for reaching out! We will get back to you in about 5 minutes.';
+      }
+    }
+    // Status pill at top of phone
+    const statusTextEl = $('#lp-current-status-text');
+    if (statusTextEl) statusTextEl.textContent = c.statusText || 'We will reply in a few moments';
+
+    // Privacy disclaimer above the bot bubble
+    const privacyEl = $('#lp-current-privacy');
+    if (privacyEl) {
+      if (state.privacyEnabled) {
+        const text = (state.privacyText || '').trim();
+        privacyEl.textContent = text === ''
+          ? 'Before we begin, you should know that Glossier will store and use the information in this chat in accordance with its Privacy Policy.'
+          : text;
+        privacyEl.style.display = '';
+      } else {
+        privacyEl.style.display = 'none';
+      }
+    }
+
+    // Email capture card show/hide + required asterisk
+    const emailCard = $('#lp-current-email-card');
+    if (emailCard) emailCard.style.display = state.collectEmails ? '' : 'none';
+    const emailRequiredMark = $('#lp-current-email-required');
+    if (emailRequiredMark) emailRequiredMark.style.display = (state.collectEmails && state.emailMode === 'required') ? '' : 'none';
+
+    // Input bar hidden if email is required (matches new-chat behavior)
+    const inputBar = $('#lp-current-input-bar');
+    if (inputBar) inputBar.style.display = (state.collectEmails && state.emailMode === 'required') ? 'none' : '';
+  }
+
+  // ===== Render (orchestrator) =====
+  function render() {
+    // Update both phones with shared state
+    renderPhone('');
+    renderPhone('lp-');
+    renderLegacyCurrent();
+
+    // View toggle visual (both new + legacy)
+    $$('.view-toggle .icon-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
+
+    // Biz toggle visual (both new + legacy)
+    $$('.biz-toggle button').forEach(b => b.classList.toggle('active', b.dataset.biz === state.bizMode));
+
+    // Biz-toggle (NEW prototype) only visible on Appearance tab
+    const bizSection = document.querySelector('.biz-toggle-section');
+    if (bizSection) bizSection.style.visibility = state.panel === 'appearance' ? '' : 'hidden';
+
+    // NEW prototype settings UI feedback (these elements don't exist in the legacy form)
+    const startAutoToggle = $('#start-automation-toggle');
+    if (startAutoToggle) startAutoToggle.classList.toggle('on', state.startWithAutomation);
+
     const optsEl = $('#collect-emails-options');
     if (optsEl) {
       optsEl.style.opacity = state.collectEmails ? '1' : '0.5';
@@ -2489,7 +2782,6 @@
     const collectToggle = $('#collect-emails-toggle');
     if (collectToggle) collectToggle.classList.toggle('on', state.collectEmails);
 
-    // Share-wait radio panel visual enable/disable
     const waitOptsEl = $('#share-wait-options');
     if (waitOptsEl) {
       waitOptsEl.style.opacity = state.shareWaitTime ? '1' : '0.5';
@@ -2498,21 +2790,45 @@
     const waitToggle = $('#share-wait-toggle');
     if (waitToggle) waitToggle.classList.toggle('on', state.shareWaitTime);
 
-    // Privacy controls enable/disable visual
     const ctrls = $('#privacy-controls');
-    if (state.privacyEnabled) {
-      ctrls.style.opacity = '1';
-      ctrls.style.pointerEvents = '';
-    } else {
-      ctrls.style.opacity = '0.5';
-      ctrls.style.pointerEvents = 'none';
+    if (ctrls) {
+      ctrls.style.opacity = state.privacyEnabled ? '1' : '0.5';
+      ctrls.style.pointerEvents = state.privacyEnabled ? '' : 'none';
     }
-    $('#privacy-toggle').classList.toggle('on', state.privacyEnabled);
+    const privacyToggleEl = $('#privacy-toggle');
+    if (privacyToggleEl) privacyToggleEl.classList.toggle('on', state.privacyEnabled);
+
+    // ===== Legacy form visual sync (so toggling in the new view shows in legacy and vice versa) =====
+    const lc = $('#legacy-collect-emails-toggle');
+    if (lc) lc.classList.toggle('on', state.collectEmails);
+    const lw = $('#legacy-share-wait-toggle');
+    if (lw) lw.classList.toggle('on', state.shareWaitTime);
+    const lp = $('#legacy-privacy-toggle');
+    if (lp) lp.classList.toggle('on', state.privacyEnabled);
+    const lsa = $('#legacy-start-automation-toggle');
+    if (lsa) lsa.classList.toggle('on', state.startWithAutomation);
+    // Reflect radio states
+    $$('input[name="legacy-email"]').forEach(r => { r.checked = r.value === state.emailMode; });
+    $$('input[name="legacy-wait"]').forEach(r => { r.checked = r.value === state.waitTimeMode; });
+    // Reflect text inputs
+    const lgD = $('#legacy-greeting-during');
+    if (lgD && document.activeElement !== lgD) lgD.value = state.greetingDuring;
+    const lgO = $('#legacy-greeting-outside');
+    if (lgO && document.activeElement !== lgO) lgO.value = state.greetingOutside;
+    const lpt = $('#legacy-privacy-text');
+    if (lpt && document.activeElement !== lpt) lpt.value = state.privacyText || '';
+    const lbh = $('#legacy-brand-hex');
+    if (lbh && document.activeElement !== lbh) lbh.value = state.brandHex;
+    const lbs = $('#legacy-brand-swatch');
+    if (lbs) lbs.style.background = state.brandHex;
 
     // Brand color
     document.documentElement.style.setProperty('--brand', state.brandHex);
     document.documentElement.style.setProperty('--brand-glow', state.brandHex);
-    $('#brand-chip').style.background = state.brandHex;
+    const brandChip = $('#brand-chip');
+    if (brandChip) brandChip.style.background = state.brandHex;
+    const brandHexEl = $('#brand-hex');
+    if (brandHexEl && document.activeElement !== brandHexEl) brandHexEl.value = state.brandHex;
 
     // Label char counter
     const labelInput = $('#launcher-label');
@@ -2670,50 +2986,20 @@
     });
   }
 
-  // Legacy banner close (just hides the banner)
-  document.querySelectorAll('.legacy-banner-close').forEach(btn => {
-    btn.addEventListener('click', () => btn.closest('.legacy-banner').style.display = 'none');
-  });
-
   // ===== Switch back to legacy with confirmation Modal =====
   function switchBackToLegacy() {
     legacyEl.style.display = 'flex';
     newEl.style.display = 'none';
   }
 
-  // NEW Tag → Popover (Option 2 — Axiom Tag + Popover composition)
-  const newTag = document.getElementById('new-tag');
-  const newPopover = document.getElementById('new-popover');
-  const popoverSwitchBtn = document.getElementById('popover-switch-back-btn');
-  function closePopover() { if (newPopover) newPopover.classList.remove('open'); }
-  if (newTag) {
-    newTag.addEventListener('click', e => {
-      e.stopPropagation();
-      newPopover.classList.toggle('open');
-    });
-    newTag.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        newPopover.classList.toggle('open');
-      }
-    });
-    document.addEventListener('click', e => {
-      if (newPopover && !newPopover.contains(e.target) && e.target !== newTag) {
-        closePopover();
-      }
-    });
-  }
-
-  // Confirmation Modal (triggered from popover's Switch back button)
+  // Revert button (top banner in the new UI) → opens confirmation modal.
+  const revertBtn = document.getElementById('revert-btn');
   const switchModal = document.getElementById('switch-back-modal');
   const switchCancel = document.getElementById('switch-back-cancel');
   const switchConfirm = document.getElementById('switch-back-confirm');
   function openSwitchModal() { switchModal.classList.add('open'); }
   function closeSwitchModal() { switchModal.classList.remove('open'); }
-  if (popoverSwitchBtn) popoverSwitchBtn.addEventListener('click', () => {
-    closePopover();
-    openSwitchModal();
-  });
+  if (revertBtn) revertBtn.addEventListener('click', openSwitchModal);
   if (switchCancel) switchCancel.addEventListener('click', closeSwitchModal);
   if (switchConfirm) switchConfirm.addEventListener('click', () => {
     closeSwitchModal();
@@ -2723,19 +3009,115 @@
     if (e.target === switchModal) closeSwitchModal();
   });
 
-  // Current / New (2.0) variant toggle in legacy preview
-  const variantToggle = document.getElementById('legacy-variant-toggle');
-  if (variantToggle) {
-    variantToggle.querySelectorAll('button').forEach(btn => {
+  // Current / New (2.0) variant dropdown in legacy preview
+  const variantTrigger = document.getElementById('legacy-variant-trigger');
+  const variantMenu = document.getElementById('legacy-variant-menu');
+  const variantLabel = document.getElementById('legacy-variant-label');
+  function setVariant(variant) {
+    // Switch phones
+    document.getElementById('legacy-phone-current').style.display = variant === 'current' ? '' : 'none';
+    document.getElementById('lp-phone').style.display = variant === 'new' ? '' : 'none';
+    // Update trigger label
+    if (variantLabel) variantLabel.textContent = variant === 'current' ? 'Current' : 'New (2.0)';
+    // Update selected state on menu items
+    if (variantMenu) {
+      variantMenu.querySelectorAll('.variant-dropdown-item').forEach(item => {
+        const isSelected = item.dataset.variant === variant;
+        item.classList.toggle('selected', isSelected);
+        item.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      });
+    }
+  }
+  if (variantTrigger && variantMenu) {
+    variantTrigger.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = variantMenu.classList.toggle('open');
+      variantTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    variantMenu.querySelectorAll('.variant-dropdown-item').forEach(item => {
+      item.addEventListener('click', e => {
+        e.stopPropagation();
+        setVariant(item.dataset.variant);
+        variantMenu.classList.remove('open');
+        variantTrigger.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', e => {
+      if (!variantMenu.contains(e.target) && e.target !== variantTrigger) {
+        variantMenu.classList.remove('open');
+        variantTrigger.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  // Legacy biz toggle (During / Outside business hours) — drives shared state.bizMode
+  const legacyBizToggle = document.getElementById('legacy-biz-toggle');
+  if (legacyBizToggle) {
+    legacyBizToggle.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', () => {
-        variantToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const variant = btn.dataset.variant;
-        document.getElementById('legacy-phone-current').style.display = variant === 'current' ? '' : 'none';
-        document.getElementById('legacy-phone-new').style.display = variant === 'new' ? '' : 'none';
+        state.bizMode = btn.dataset.biz;
+        render();
       });
     });
   }
+
+  // Legacy view toggle (Home / Chat) — drives shared state.view
+  const legacyViewToggle = document.getElementById('legacy-view-toggle');
+  if (legacyViewToggle) {
+    legacyViewToggle.querySelectorAll('.icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.view = btn.dataset.view;
+        render();
+      });
+    });
+  }
+
+  // ===== Legacy form bindings (mutate shared state, re-render both phones) =====
+  const lGreetD = $('#legacy-greeting-during');
+  if (lGreetD) lGreetD.addEventListener('input', e => { state.greetingDuring = e.target.value; render(); });
+  const lGreetO = $('#legacy-greeting-outside');
+  if (lGreetO) lGreetO.addEventListener('input', e => { state.greetingOutside = e.target.value; render(); });
+
+  const lBrand = $('#legacy-brand-hex');
+  if (lBrand) lBrand.addEventListener('input', e => {
+    const v = e.target.value.trim();
+    if (/^#?[0-9a-fA-F]{3,6}$/.test(v)) {
+      state.brandHex = v.startsWith('#') ? v : '#' + v;
+      render();
+    }
+  });
+
+  const lCollect = $('#legacy-collect-emails-toggle');
+  if (lCollect) lCollect.addEventListener('click', () => {
+    state.collectEmails = !state.collectEmails;
+    render();
+  });
+  document.querySelectorAll('input[name="legacy-email"]').forEach(r => {
+    r.addEventListener('change', e => { state.emailMode = e.target.value; render(); });
+  });
+
+  const lWait = $('#legacy-share-wait-toggle');
+  if (lWait) lWait.addEventListener('click', () => {
+    state.shareWaitTime = !state.shareWaitTime;
+    render();
+  });
+  document.querySelectorAll('input[name="legacy-wait"]').forEach(r => {
+    r.addEventListener('change', e => { state.waitTimeMode = e.target.value; render(); });
+  });
+
+  const lPrivacy = $('#legacy-privacy-toggle');
+  if (lPrivacy) lPrivacy.addEventListener('click', () => {
+    state.privacyEnabled = !state.privacyEnabled;
+    render();
+  });
+  const lPrivText = $('#legacy-privacy-text');
+  if (lPrivText) lPrivText.addEventListener('input', e => { state.privacyText = e.target.value; render(); });
+
+  const lStartAuto = $('#legacy-start-automation-toggle');
+  if (lStartAuto) lStartAuto.addEventListener('click', () => {
+    state.startWithAutomation = !state.startWithAutomation;
+    render();
+  });
 
   // Legacy tab switching (Appearance / Preferences / others)
   document.querySelectorAll('.legacy-tab').forEach(tab => {
@@ -2748,6 +3130,11 @@
       document.getElementById('legacy-form-other').style.display = (target !== 'appearance' && target !== 'preferences') ? '' : 'none';
     });
   });
+
+  // Seed shared state from the legacy form's initial defaults
+  // (Privacy text starts with a default value in the legacy textarea, so capture it.)
+  if (lPrivText) state.privacyText = lPrivText.value;
+  if (lBrand) state.brandHex = lBrand.value;
 
   // Initial render
   render();
