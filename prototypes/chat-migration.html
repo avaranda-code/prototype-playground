@@ -1244,6 +1244,12 @@
     white-space: nowrap;
   }
   .variant-dropdown-trigger:hover { background: #fafafa; }
+  /* Legacy variant dropdown: fixed width so it doesn't resize when switching
+     between "Current" and the wider "Redesigned chat" — sized to the widest. */
+  #legacy-variant-trigger {
+    width: 188px;
+    justify-content: space-between;
+  }
   .variant-dropdown-trigger .chev {
     width: 16px; height: 16px;
     display: flex; align-items: center; justify-content: center;
@@ -1918,7 +1924,7 @@
                   <span class="check" aria-hidden="true">
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </span>
-                  <span>New (2.0)</span>
+                  <span>Redesigned chat</span>
                 </button>
               </div>
             </div>
@@ -2656,11 +2662,20 @@
     const phoneRoot = p('phone'); // #phone or #lp-phone
     if (!phoneRoot) return;
 
+    // Which screen this phone shows. The new view (prefix '') is driven by its
+    // Home/Conversation dropdown (state.view). The legacy Redesigned preview
+    // (prefix 'lp-') has no view control, so auto-pick the conversation thread
+    // whenever a chat-view-only setting (email capture / wait time) is on, so
+    // those settings are visible in the preview. Otherwise show Home.
+    const view = prefix === 'lp-'
+      ? ((state.collectEmails || state.shareWaitTime) ? 'chat' : 'home')
+      : state.view;
+
     const greeting = state.bizMode === 'during' ? state.greetingDuring : state.greetingOutside;
     const greetingEl = p('greeting-preview');
     if (greetingEl) {
       greetingEl.textContent = greeting;
-      greetingEl.style.display = (state.view === 'home' && greeting.trim() !== '') ? '' : 'none';
+      greetingEl.style.display = (view === 'home' && greeting.trim() !== '') ? '' : 'none';
     }
 
     // Privacy in preview
@@ -2668,7 +2683,7 @@
     const privacyTextEl = p('privacy-preview-text');
     if (privacyEl && privacyTextEl) {
       const showPrivacy = state.privacyEnabled &&
-        (state.view === 'chat' || (state.view === 'home' && state.privacyOnHome));
+        (view === 'chat' || (view === 'home' && state.privacyOnHome));
       if (showPrivacy) {
         const text = (state.privacyText || '').trim();
         privacyTextEl.textContent = text === ''
@@ -2685,8 +2700,8 @@
     // View toggle (Home/Chat) — show/hide sections inside this phone
     const viewHome = p('view-home');
     const viewChat = p('view-chat');
-    if (viewHome) viewHome.classList.toggle('hidden', state.view !== 'home');
-    if (viewChat) viewChat.classList.toggle('hidden', state.view !== 'chat');
+    if (viewHome) viewHome.classList.toggle('hidden', view !== 'home');
+    if (viewChat) viewChat.classList.toggle('hidden', view !== 'chat');
 
     // Track Orders pill visibility
     const trackOrdersPill = p('track-orders-pill');
@@ -3085,7 +3100,7 @@
     document.getElementById('legacy-phone-current').style.display = variant === 'current' ? '' : 'none';
     document.getElementById('lp-phone').style.display = variant === 'new' ? '' : 'none';
     // Update trigger label
-    if (variantLabel) variantLabel.textContent = variant === 'current' ? 'Current' : 'New (2.0)';
+    if (variantLabel) variantLabel.textContent = variant === 'current' ? 'Current' : 'Redesigned chat';
     // Update selected state on menu items
     if (variantMenu) {
       variantMenu.querySelectorAll('.variant-dropdown-item').forEach(item => {
