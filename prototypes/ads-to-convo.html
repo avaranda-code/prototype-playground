@@ -541,6 +541,377 @@
     font-family: inherit;
   }
 
+  /* ── PDP minimal variant (Kollo) — carousel + glass buttons + qty stepper ── */
+  .pdp-min-screen {
+    position: absolute; inset: 0;
+    background: #fff;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    z-index: 10;
+    animation: pdpMinSlideUp 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @keyframes pdpMinSlideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  /* Slides the PDP off-screen before the chat takes over. */
+  .pdp-min-screen.dismissing {
+    animation: pdpMinSlideDown 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+  }
+  @keyframes pdpMinSlideDown {
+    from { transform: translateY(0);    opacity: 1; }
+    to   { transform: translateY(100%); opacity: 0.92; }
+  }
+  .pdp-min-head {
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 10px 12px 4px;
+    flex-shrink: 0;
+  }
+  /* Glass button — used for close X, carousel arrows, and qty stepper */
+  .pdp-min-glass-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.10);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #1e242e;
+    padding: 0;
+    transition: background 0.15s ease;
+  }
+  .pdp-min-glass-btn:hover { background: rgba(255,255,255,0.75); }
+  .pdp-min-body {
+    flex: 1; overflow-y: auto;
+    padding: 0 12px 96px;
+    scrollbar-width: none;
+  }
+  .pdp-min-body::-webkit-scrollbar { display: none; }
+  .pdp-min-gallery {
+    position: relative;
+    background: #f6f6f6;
+    border-radius: 14px;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .pdp-min-gallery-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    background: #f6f6f6;
+    transition: opacity 0.18s ease;
+  }
+  .pdp-min-arrow {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    z-index: 2;
+  }
+  .pdp-min-arrow.prev { left: 8px; }
+  .pdp-min-arrow.next { right: 8px; }
+  .pdp-min-dots {
+    position: absolute;
+    bottom: 8px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 4px;
+    z-index: 2;
+  }
+  .pdp-min-dots span {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(30,36,46,0.25);
+    transition: background 0.15s ease;
+  }
+  .pdp-min-dots span.active { background: #1e242e; }
+
+  /* Name + price row */
+  .pdp-min-info {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .pdp-min-name {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1e242e;
+    line-height: 19px;
+    margin: 0;
+    white-space: pre-line;
+    flex: 1;
+  }
+  .pdp-min-price {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1e242e;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  /* Ask-a-question row with chips, horizontally scrollable */
+  .pdp-min-ask-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 14px;
+    scrollbar-width: none;
+  }
+  .pdp-min-ask-row::-webkit-scrollbar { display: none; }
+  .pdp-min-ask {
+    display: flex; align-items: center; gap: 4px;
+    flex-shrink: 0;
+    padding: 0 4px 0 12px;
+    height: 36px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.66);
+    border: 0.5px solid #ebecef;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.06);
+  }
+  .pdp-min-ask input {
+    border: none; outline: none;
+    background: transparent;
+    font-size: 12.5px;
+    color: #1e242e;
+    font-family: inherit;
+    width: 92px;
+    padding: 0;
+  }
+  .pdp-min-ask input::placeholder { color: #5c6370; }
+  .pdp-min-ask-send {
+    width: 24px; height: 24px;
+    border: none; background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    color: #5c6370;
+    cursor: pointer;
+    padding: 0;
+  }
+  .pdp-min-chip {
+    flex-shrink: 0;
+    display: flex; align-items: center;
+    padding: 0 14px;
+    height: 36px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.66);
+    border: 0.5px solid #ebecef;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.06);
+    font-size: 12px;
+    font-weight: 500;
+    color: #1e242e;
+    white-space: nowrap;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* Inline image banner between chips and description */
+  .pdp-min-banner {
+    width: 100%;
+    aspect-ratio: 398 / 148;
+    background-size: cover;
+    background-position: center;
+    background-color: #f6f6f6;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Description + read more */
+  .pdp-min-desc {
+    font-size: 12.5px;
+    line-height: 19px;
+    color: #1e242e;
+    margin: 0 0 4px;
+  }
+  .pdp-min-desc.collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pdp-min-readmore {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #2a3341;
+    font-family: inherit;
+  }
+  .pdp-min-readmore svg { transition: transform 0.18s ease; }
+  .pdp-min-readmore.expanded svg { transform: rotate(180deg); }
+
+  /* Sticky footer with qty stepper + Add to cart */
+  .pdp-min-footer {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 12px 12px 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 60%);
+    display: flex;
+    gap: 8px;
+    z-index: 5;
+  }
+  .pdp-min-qty {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+    width: 100px;
+    height: 42px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.66);
+    border: 0.5px solid #ebecef;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.06);
+  }
+  .pdp-min-qty button {
+    width: 22px; height: 22px;
+    border: none; background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #1e242e;
+    padding: 0;
+  }
+  .pdp-min-qty .value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e242e;
+  }
+  .pdp-min-add {
+    flex: 1;
+    height: 42px;
+    border-radius: 999px;
+    border: none;
+    background: #1e242e;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.06);
+  }
+
+  /* Purchase mode card — One-time vs Subscribe with nested tier rows. */
+  .pdp-min-purchase {
+    border: 1px solid #ebecef;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .pdp-min-purchase-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px;
+    cursor: pointer;
+    border-top: 1px solid #ebecef;
+    transition: background 0.15s ease;
+  }
+  .pdp-min-purchase-option:first-child { border-top: none; }
+  .pdp-min-purchase-option:hover { background: #fafafa; }
+  .pdp-min-purchase-radio {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid #b3b8c1;
+    flex-shrink: 0;
+    background: #fff;
+    position: relative;
+    transition: border-color 0.15s ease;
+  }
+  .pdp-min-purchase-option.selected .pdp-min-purchase-radio {
+    border-color: #1e242e;
+  }
+  .pdp-min-purchase-option.selected .pdp-min-purchase-radio::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: #1e242e;
+  }
+  .pdp-min-purchase-label {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #1e242e;
+    flex: 1;
+  }
+  /* Tier list collapses/expands when Subscribe is toggled. */
+  .pdp-min-sub-options {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+    background: #fafafa;
+  }
+  .pdp-min-sub-options.open {
+    max-height: 600px;
+  }
+  .pdp-min-sub-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px 10px 36px;
+    cursor: pointer;
+    border-top: 1px solid #f3f4f6;
+    transition: background 0.15s ease;
+  }
+  .pdp-min-sub-option:hover { background: #f3f4f6; }
+  .pdp-min-sub-radio {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid #b3b8c1;
+    flex-shrink: 0;
+    background: #fff;
+    position: relative;
+    transition: border-color 0.15s ease;
+  }
+  .pdp-min-sub-option.selected .pdp-min-sub-radio {
+    border-color: #1e242e;
+  }
+  .pdp-min-sub-option.selected .pdp-min-sub-radio::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: #1e242e;
+  }
+  .pdp-min-sub-text {
+    flex: 1;
+    display: flex; flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+  .pdp-min-sub-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #1e242e;
+    line-height: 14px;
+  }
+  .pdp-min-sub-subtitle {
+    font-size: 9.5px;
+    color: #6b7280;
+    line-height: 12px;
+  }
+  .pdp-min-sub-pricing {
+    display: flex; flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .pdp-min-sub-discount {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--brand-hex, #dc2626);
+    letter-spacing: 0.02em;
+  }
+  .pdp-min-sub-was {
+    font-size: 10px;
+    color: #9ca3af;
+    text-decoration: line-through;
+    line-height: 12px;
+  }
+  .pdp-min-sub-price {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1e242e;
+    line-height: 15px;
+  }
+
   /* ── Listing / Product page ── */
   .listing-screen {
     display: flex; flex-direction: column;
@@ -884,31 +1255,49 @@
     line-height: 22px;
   }
 
+  /* Typing indicator — sits in a soft chat bubble. Dots breathe with a
+     smooth scale+opacity pulse so it feels alive without being noisy. */
   .typing-dots {
-    display: flex; gap: 5px;
-    padding: 8px 0 14px;
-    animation: fadeInUp 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(20,24,32,0.05);
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(20,24,32,0.04), 0 6px 14px -10px rgba(20,24,32,0.18);
+    animation: typingBubbleIn 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+    transform-origin: bottom left;
   }
   .typing-dots span {
-    width: 6px; height: 6px;
+    width: 7px; height: 7px;
     border-radius: 50%;
-    background: rgba(30, 36, 46, 0.3);
-    animation: bounce 1s ease-in-out infinite;
+    background: var(--ink);
+    opacity: 0.25;
+    animation: typingPulse 1.3s ease-in-out infinite;
   }
-  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
-  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
-  @keyframes bounce {
-    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-    40% { transform: translateY(-4px); opacity: 1; }
+  .typing-dots span:nth-child(2) { animation-delay: 0.18s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes typingBubbleIn {
+    from { opacity: 0; transform: translateY(6px) scale(0.92); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes typingPulse {
+    0%, 60%, 100% { opacity: 0.22; transform: scale(0.85); }
+    30%           { opacity: 1;    transform: scale(1.1); }
   }
 
+  /* Chat replies — stagger their entrance so chips land after the AI
+     message has settled, then fade up one beat later. */
   .chat-replies {
     display: flex; flex-wrap: wrap;
     justify-content: flex-end;
     gap: 8px;
     padding: 4px 0 8px;
     margin-top: 8px;
-    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+    animation: fadeInUp 0.36s cubic-bezier(0.2,1.1,0.4,1) both;
+    animation-delay: 0.18s;
   }
   .chat-reply {
     display: inline-flex;
@@ -932,50 +1321,109 @@
   }
   .chat-reply:hover { transform: translateY(-1px); }
 
+  /* ── Kollo-scoped chat sizing ──
+     All chat font sizes step down to 12px across every Kollo flow. */
+  .chat-screen[data-brand="kollohealth"] .chat-msg-ai,
+  .discovery-half-sheet[data-brand="kollohealth"] .chat-msg-ai {
+    font-size: 12px; line-height: 18px;
+  }
+  .chat-screen[data-brand="kollohealth"] .chat-msg-user-bubble,
+  .discovery-half-sheet[data-brand="kollohealth"] .chat-msg-user-bubble {
+    font-size: 12px; line-height: 18px;
+    padding: 7px 14px;
+  }
+  .chat-screen[data-brand="kollohealth"] .chat-pdp-question span,
+  .discovery-half-sheet[data-brand="kollohealth"] .chat-pdp-question span {
+    font-size: 11.5px;
+  }
+  .chat-screen[data-brand="kollohealth"] .chat-reply,
+  .discovery-half-sheet[data-brand="kollohealth"] .chat-reply {
+    font-size: 11.5px; line-height: 15px;
+    padding: 7px 13px;
+  }
+  .chat-screen[data-brand="kollohealth"] .in-chat-product-name,
+  .discovery-half-sheet[data-brand="kollohealth"] .in-chat-product-name {
+    font-size: 12px; line-height: 16px;
+  }
+  .chat-screen[data-brand="kollohealth"] .ai-disclosure,
+  .discovery-half-sheet[data-brand="kollohealth"] .ai-disclosure {
+    font-size: 10.5px;
+  }
+
+  /* Recommendation card — vertical product tile shown at the end of the
+     conversation. Image on top with a floating glass cart button, name +
+     price below. */
   .rec-card {
-    display: flex; align-items: center; gap: 12px;
+    display: flex; flex-direction: column;
     width: 100%;
-    padding: 12px;
-    border-radius: 18px;
-    background: linear-gradient(180deg, #ffffff, #f7f3ec);
-    border: 1px solid rgba(20,24,32,0.06);
-    box-shadow: 0 1px 2px rgba(20,24,32,0.04), 0 16px 40px -24px rgba(30,36,46,0.4);
+    max-width: 220px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(20,24,32,0.05);
+    box-shadow: 0 1px 2px rgba(20,24,32,0.04), 0 12px 28px -18px rgba(30,36,46,0.25);
     margin-bottom: 12px;
+    margin-left: auto;
     cursor: pointer;
     font-family: inherit;
     text-align: left;
+    overflow: hidden;
     animation: fadeInUp 0.35s cubic-bezier(0.2,1.1,0.4,1);
+    transition: transform 0.15s ease;
+  }
+  .rec-card:hover { transform: translateY(-1px); }
+  .rec-card-img-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #f4f4f4;
+    overflow: hidden;
   }
   .rec-card-img {
-    width: 60px; height: 60px;
-    border-radius: 12px;
-    background-size: cover; background-position: center;
-    flex-shrink: 0;
+    position: absolute; inset: 0;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
   }
-  .rec-card-info { flex: 1; min-width: 0; }
-  .rec-card-eyebrow {
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--brand-hex);
-    margin: 0;
+  /* Glass cart button overlaid on the lower-right of the image */
+  .rec-card-cta {
+    position: absolute;
+    right: 10px; bottom: 10px;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10), 0 0 0 1px rgba(255,255,255,0.4) inset;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #1e242e;
+    padding: 0;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .rec-card-cta:hover {
+    background: rgba(255,255,255,0.95);
+    transform: scale(1.04);
+  }
+  .rec-card-info {
+    padding: 12px 14px 14px;
+    background: #fff;
+    display: flex; flex-direction: column;
+    gap: 2px;
   }
   .rec-card-title {
-    font-size: 14px; font-weight: 700;
-    color: var(--ink);
-    margin: 2px 0 0;
-    white-space: pre-line;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e242e;
+    margin: 0;
     line-height: 18px;
   }
-  .rec-card-sub {
-    font-size: 12px; color: #6b7280;
-    margin: 2px 0 0;
-  }
-  .rec-card-cta {
-    font-size: 11px; font-weight: 700;
-    color: var(--brand-hex);
-    padding: 6px 12px; border-radius: 999px;
-    background: var(--brand-soft);
-    flex-shrink: 0;
+  .rec-card-price {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e242e;
+    margin: 0;
+    line-height: 18px;
   }
 
   .chat-reply-input {
@@ -2838,6 +3286,169 @@ BRANDS.push(makeBrand({
   ],
 }));
 
+// ── CURRENT — Health, Wellness & Supplements (Kollo Health) ─────────────────
+BRANDS.push(makeBrand({
+  id: 'kollohealth', name: 'Kollo Health', handle: 'kollohealth', domain: 'us.kollohealth.com',
+  category: 'current', industry: 'Health, Wellness & Supplements', initial: 'K',
+  // Use the new minimal PDP layout (carousel + glass buttons + qty stepper).
+  pdpVariant: 'minimal',
+  // Enable the BBH-style 4-flow toggle (Flow 0 + Discovery 1.0).
+  // Flow 0's CTA loads the real Kollo product page in the in-app browser.
+  hasDiscovery1: true,
+  productPageUrl: 'https://us.kollohealth.com/products/10-000mg-kollo-premium-liquid-marine-collagen-1',
+  // Override the default 0/1/2/3 pill labels with Kollo-specific names.
+  flowLabels: {
+    flow0: 'OG',
+    flowA: 'PDP',
+    discovery1: 'Halfsheet',
+    flowC1: 'Direct to chat',
+  },
+  // Reveal AI replies character-by-character (Kollo-only).
+  chatTypewriter: true,
+  brandHex: '#dc2626',
+  brandGrad: 'linear-gradient(135deg, #fca5a5, #dc2626)',
+  caption: "Liquid marine collagen, sip-and-go ✨ 10,000mg + Vit C & B vitamins for skin, hair, and nails. #KolloHealth",
+  ctaLabel: 'Try Kollo',
+  adImage: 'https://cdn.shopify.com/s/files/1/0604/2402/8309/files/Kollo_Liquid_Collagen1.png?v=1774863709',
+  likes: '4,820 likes',
+  product: {
+    name: 'Premium Liquid\nMarine Collagen',
+    rating: 5, reviewCount: '3,029', priceLow: 55, priceHigh: 55,
+    description: '10,000mg of hydrolyzed marine collagen per sachet, plus Vitamin C, B5, B6, B12 and B1. Light citrus, sip straight or mix with water or juice.',
+    // 4-image gallery sourced from Kollo's own Shopify CDN — these populate
+    // the new PDP carousel.
+    images: [
+      'https://cdn.shopify.com/s/files/1/0604/2402/8309/files/Kollo_Liquid_Collagen1.png?v=1774863709',
+      'https://cdn.shopify.com/s/files/1/0604/2402/8309/files/Julia__Kollo_liquid-01.png?v=1774863709',
+      'https://cdn.shopify.com/s/files/1/0604/2402/8309/files/Kollo_Liquid_Collagen5.png?v=1774863709',
+      'https://cdn.shopify.com/s/files/1/0604/2402/8309/files/Julia__Kollo_liquid-08.png?v=1774863709',
+    ],
+    // Inline image banner shown between chips and the description.
+    bannerImage: 'https://cdn.shopify.com/s/files/1/0604/2402/8309/files/Kollo_Liquid_Collagen5.png?v=1774863709',
+    features: [
+      '10,000mg marine collagen + B & C',
+      '14 sachets · 2-week supply',
+      '90-day money-back guarantee',
+    ],
+    // Subscribe-and-save tiers (renders inside the One-time / Subscribe card
+    // on the PDP). Sourced from Kollo's actual subscription options.
+    subscriptionTiers: [
+      { title: '14 Days Supply',  subtitle: '1 box every 14 days',     discount: '15%', wasPrice: 55,  price: 46.75 },
+      { title: '28 Days Supply',  subtitle: '2 boxes every 28 days',   discount: '17%', wasPrice: 110, price: 91.30 },
+      { title: '56 Days Supply',  subtitle: '4 boxes every 56 days',   discount: '20%', wasPrice: 220, price: 176 },
+      { title: '84 Days Supply',  subtitle: '6 boxes every 84 days',   discount: '25%', wasPrice: 330, price: 247.50 },
+      { title: '165 Days Supply', subtitle: '12 boxes every 165 days', discount: '30%', wasPrice: 660, price: 462 },
+    ],
+  },
+  listing: {
+    eyebrow: 'COLLAGEN', title: 'Best Sellers',
+    description: 'Award-winning liquid collagen, made for daily use.',
+    products: [
+      { name: 'Premium Liquid Collagen', variant: '14 sachets · 1 box', price: 55 },
+      { name: 'Collagen + Balance+', variant: 'Bundle', price: 95 },
+      { name: 'Balance+', variant: 'Menopause support', price: 40 },
+      { name: 'Subscribe & Save', variant: 'Monthly · 30% off', price: 46 },
+    ],
+  },
+  flowA: {
+    pdpInputPlaceholder: "Ask a question",
+    // Three chips mirror the three themes shoppers ask about most:
+    // Results · Taste · How to use.
+    pdpChips: ['Will I notice results?', 'What does it taste like?', 'How do I take it?'],
+    starterChip: 'Will I notice results?',
+    welcome: "Hey 👋",
+    // Tailored AI responses for each PDP chip. They acknowledge the
+    // question, answer it briefly with bullets, and then bridge into the
+    // turn-0 goal-finding question so the conversation continues smoothly.
+    pdpChipResponses: {
+      'Will I notice results?':
+        "Most people see shifts a few weeks in:\n\n• Nails — week 3\n• Skin — weeks 4–8\n• Joints — 6+ weeks\n\nDaily use is the main thing.\n\nWhat are you hoping to feel a difference in?",
+      'What does it taste like?':
+        "A neutral, pleasant tropical flavor 🙂\n\n• Dissolves well\n• Sip straight or mix into any drink\n• Can be mixed into coffee without affecting the taste\n\nWhat are you hoping to feel a difference in?",
+      'How do I take it?':
+        "One sachet a day:\n\n• Sip straight, or\n• Mix into ~200ml of any cold drink\n• Stir to dissolve\n\nAnytime works.\n\nWhat are you hoping to feel a difference in?",
+    },
+    turns: [
+      // Turn 1 — Results theme. Responses tie a benefit to a timeline and add
+      // a light safety nudge where appropriate. No medical-treatment claims.
+      { prompt: "What are you hoping to feel a difference in?", options: [
+        { label: 'Joint comfort & mobility', ack: "Type I peptides support the connective tissue around joints. Most people feel the shift within a few weeks. If you take prescription meds, check with your doctor first." },
+        { label: 'Skin glow & firmness', ack: "Daily collagen + Vit C supports skin's structural matrix. Visible shifts in firmness, hydration, and glow show up around weeks 4–8." },
+        { label: 'Hair & nails', ack: "Collagen feeds keratin production. Nails strengthen around week 3, hair density follows." },
+        { label: 'Long-term wellness', ack: "Common reason people stick with it — daily support that builds over time." },
+      ]},
+      // Turn 2 — How-to-use theme. Practical usage with a quick stack-safety
+      // note for prescription meds.
+      { prompt: "And how are you most likely to take it?", options: [
+        { label: 'Straight from the sachet', ack: "Easiest — squeeze, sip, done. Great for travel." },
+        { label: 'Mixed in water', ack: "About 200ml cold water, stirred well." },
+        { label: 'In juice or a smoothie', ack: "Works well — just skip hot liquids." },
+        { label: 'With other supplements', ack: "Plays well with most daily supplements. If you take prescription meds or anticoagulants, check with your doctor first." },
+      ]},
+    ],
+  },
+  flowC1: {
+    productLabel: 'Premium Liquid Marine Collagen',
+    welcome: "Hi 👋",
+    // Halfsheet and Direct-to-chat both open here. Turn 0 invites the user
+    // to pick a topic (the 3 themes Cortex surfaced); turn 1 narrows to a
+    // goal so the recommendation feels personalized.
+    turns: [
+      { prompt: "What do you want to learn more about?", options: [
+        { label: 'What does this help with?', ack: "Marine collagen supports the structural matrix in skin, hair, nails, and joints.\n\n• Nails — week 3\n• Skin — weeks 4–8\n• Joints — 6+ weeks" },
+        { label: "What's the taste like?",     ack: "A neutral, pleasant tropical flavor. Dissolves well, and can be mixed into coffee without affecting the taste." },
+        { label: 'How do I take this?',        ack: "One sachet a day. Sip straight or mix into ~200ml of any cold drink. Anytime works." },
+      ]},
+      { prompt: "What's most important to you?", options: [
+        { label: 'Skin & glow',      ack: "Our #1 use case. Visible shifts in 4–8 weeks." },
+        { label: 'Hair & nails',     ack: "Nails first (around week 3), hair density follows." },
+        { label: 'Joints & comfort', ack: "Type I supports the connective tissue around joints." },
+        { label: 'Just curious',     ack: "10,000mg liquid collagen + Vit C and B vitamins. Light citrus, sip-and-go." },
+      ]},
+    ],
+  },
+  recommendation: {
+    title: 'Premium Liquid\nMarine Collagen',
+    sub: '$55 · 14 sachets · 90-day guarantee',
+    blurb: "Our most-loved — 10,000mg marine collagen, light citrus, sip-and-go. Subscribe to save up to 30%.",
+  },
+  freeText: [
+    // ── THEME 1 · RESULTS ──────────────────────────────────────────
+    // Pattern: link to a health benefit, add a light safety nudge, avoid
+    // direct medical-treatment claims.
+    { match: '(joint|knee|hip|stiff|mobil|achy|sore)', reply: "Marine collagen provides Type I peptides that support the connective tissue around joints. People taking it specifically for joint comfort usually feel a shift within a few weeks of daily use. If you take prescription medication or have a diagnosed joint condition, worth a quick check with your doctor first.", followUps: ['When will I notice results?', 'How do I take it?', 'Show me the collagen'] },
+    { match: '(osteopen|osteoporo|bone)', reply: "Collagen contributes to bone matrix support, which is one reason people use it alongside other bone-health basics. It's not a treatment for any specific condition — for a diagnosis, please check in with your doctor on the right plan for you.", followUps: ['When will I notice results?', 'Show me the collagen'] },
+    { match: '(skin|wrinkle|firm|glow|elastic|hydrat|fine line)', reply: "Daily marine collagen + Vitamin C supports the skin's structural matrix. Visible shifts — firmness, hydration, glow — typically show up around weeks 4–8 of consistent use.", followUps: ['How do I take it?', 'Show me the collagen'] },
+    { match: '(hair|nail|keratin|brittle|breakage|grow)', reply: "Collagen provides amino acids your body uses to build keratin. Most people notice nail strength first (around week 3), then hair density follows over the next few weeks.", followUps: ['How do I take it?', 'Show me the collagen'] },
+    { match: '(result|how long|notice|see|feel.*work|timeline|kick.in|long.term)', reply: "Most people see nail changes around week 3, then skin firmness and hydration by weeks 4–8. Joint comfort builds over a similar window. Daily consistency matters more than the time of day.", followUps: ['Show me the collagen'] },
+    { match: '(side effect|safe|allerg|react|stomach)', reply: "Marine collagen is generally well tolerated. Mild digestive adjustment can happen in the first few days for some people. Contains fish — check ingredients if you have allergies. Always check with your doctor during pregnancy, while nursing, or if you take prescription medication.", followUps: ['Show me the collagen'] },
+    { match: '(right product|work for me|help me|need|good for)', reply: "Happy to point you in the right direction — what are you hoping to feel a difference in? Skin, hair & nails, joints, or general long-term wellness?", followUps: ['Skin & glow', 'Hair & nails', 'Joints & mobility', 'General wellness'] },
+
+    // ── THEME 2 · TASTE ────────────────────────────────────────────
+    // Pre-purchase reassurance flow.
+    { match: '(taste|flavor|fishy|sweet|stevia)', reply: "A neutral, pleasant tropical flavor. It dissolves well and can be mixed into coffee without affecting the taste — sip straight or mix into any drink.", followUps: ['Can I mix it in coffee?', 'How do I take it?', 'Show me the collagen'] },
+    { match: '(coffee|tea|hot|warm)', reply: "Skip hot liquids — heat changes the texture. It mixes well into anything cold: water, juice, smoothies, iced coffee, sparkling water.", followUps: ['How do I take it?', 'Show me the collagen'] },
+    // Quality escalation flow (if the taste sounds off, route to support).
+    { match: '(metallic|bitter|chemical|off.*taste|funny taste|tastes bad|tastes weird|spoil)', reply: "That doesn't sound right — and we'd love to make it right. Can you share the batch code on the box, the rough date you received it, and how many sachets were affected? Our team will jump in to investigate and sort it for you.", followUps: ['Contact support', 'Show me the collagen'] },
+
+    // ── THEME 3 · HOW TO USE ───────────────────────────────────────
+    // Practical, specific guidance: dosage, mixing, timing, combining.
+    { match: '(how.*take|how.*mix|water amount|how much|dilut|ml|millilit|dissolv|lumpy|stir|shake)', reply: "One sachet daily. Most people sip it straight from the sachet OR mix it into about 200ml of cold water, juice, or a smoothie. Give it a stir or quick shake to dissolve fully.", followUps: ['When should I take it?', 'Can I combine it with other supplements?', 'Show me the collagen'] },
+    { match: '(when|time of day|morning|night|empty stomach|with food|before bed)', reply: "Anytime that fits your routine. Most people take it in the morning, but with or without food is fine — consistency over time of day.", followUps: ['How do I take it?', 'Show me the collagen'] },
+    { match: '(combine|together|stack|alongside|along with|same time|with my|other supplement|creatine|electrolyte|protein|hrt|vitamin|multivitamin|fish oil)', reply: "It plays well with most daily supplements — electrolytes, creatine, your multivitamin, etc. If you're on prescription medication, anticoagulants, or have a diagnosed condition, run combinations past your doctor first.", followUps: ['How do I take it?', 'Show me the collagen'] },
+    { match: '(daily|every day|miss|skip|forget|consistent)', reply: "Daily consistency is what drives the results — a missed day here and there is no big deal, just pick back up the next day.", followUps: ['When will I notice results?', 'Show me the collagen'] },
+
+    // ── OTHER (still useful) ───────────────────────────────────────
+    { match: '(source|sustain|where.*from|wild|farm)', reply: "Hydrolyzed marine collagen sourced from sustainably caught fish. Informed-Choice certified — independently tested for banned substances.", followUps: ['Show me the collagen'] },
+    { match: '(powder|tablet|pill|capsule|absorb|bioavail)', reply: "Liquid hydrolyzed peptides have a smaller molecular size than tablets or powders, so they tend to absorb faster and more completely.", followUps: ['Show me the collagen'] },
+    { match: '(price|cost|subscribe|sub|deal|bundle)', reply: "$55 for a 14-sachet box (2-week supply). Subscribe & Save: 15–30% off plus free shipping. Bundles with Balance+ save more.", followUps: ['Show me the collagen'] },
+    { match: '(pregnan|nursing|breastfeed)', reply: "Please check with your doctor during pregnancy or while nursing before adding any new supplement. Our formula is gluten-, dairy-, and lactose-free with no artificial colors.", followUps: ['Show me the collagen'] },
+    { match: '(vegan|vegetarian|fish allerg|shellfish)', reply: "Not vegetarian — our collagen is derived from fish. Contains fish as an allergen. We don't currently make a plant-based version.", followUps: ['Show me the collagen'] },
+    { match: '(return|guarantee|refund|money back|trial)', reply: "90-day money-back guarantee. Try a full 2 months — if you don't notice changes, send it back.", followUps: ['Show me the collagen'] },
+    { match: '(bovine|cow|beef|type ii|type 2)', reply: "We're marine-only. Marine collagen is primarily Type I, which is the main type used by skin, hair, nails, and connective tissue. Bovine sources tend to include more Type II.", followUps: ['Show me the collagen'] },
+  ],
+}));
+
 /* ============================================================
    STORAGE
    ============================================================ */
@@ -2994,6 +3605,41 @@ function switchEditTab(tab) {
 let msgIdSeq = 1;
 function nextId() { return ++msgIdSeq; }
 
+// Add an AI message to a chat. If the current brand has `chatTypewriter`,
+// mark the message as pending typewriter reveal so renderChat reveals it
+// character-by-character (and holds chips back until it's done).
+function pushAiMessage(chat, text) {
+  const useTypewriter = !!getBrand().chatTypewriter;
+  const msg = { id: nextId(), role: 'ai', text };
+  if (useTypewriter) {
+    msg.typewriter = 'pending';
+    chat.typewriterPending = true;
+  }
+  chat.messages.push(msg);
+}
+
+// Reveal `fullText` into an element character-by-character, auto-scrolling
+// the chat body as the text grows. Aborts silently if the element is
+// removed from the DOM (e.g. a re-render replaced it).
+function startMessageTypewriter(element, fullText, onComplete) {
+  let pos = 0;
+  const speed = 12; // ms per character (~80 chars/second)
+  element.textContent = '';
+  const tick = () => {
+    if (!document.body.contains(element)) return;
+    element.textContent = fullText.slice(0, pos);
+    pos++;
+    const bodyEl = element.closest('.chat-body');
+    if (bodyEl) bodyEl.scrollTop = bodyEl.scrollHeight;
+    if (pos <= fullText.length) {
+      setTimeout(tick, speed);
+    } else if (onComplete) {
+      onComplete();
+    }
+  };
+  setTimeout(tick, 40);
+}
+
 function getChat(flowKey) {
   if (flowKey === 'flowA') return state.chatA;
   if (flowKey === 'discovery1') return state.chatDiscovery1;
@@ -3016,17 +3662,44 @@ function openChat(flowKey, opts = {}) {
     chat.messages.push({ id: nextId(), role: 'user', text: opts.starter, fromPdp: true });
   }
 
-  // Initial AI message: welcome + first turn
   const t0 = flow.turns[0];
-  const aiText = (flow.welcome ? flow.welcome + '\n' : '') + t0.prompt;
-  chat.messages.push({ id: nextId(), role: 'ai', text: aiText });
+  // If the brand provides a tailored response for the chip the user clicked
+  // on the PDP, use that — it acknowledges the question with a brief answer
+  // and then bridges into the goal-finding flow. Otherwise fall back to the
+  // generic welcome + turn-0 prompt.
+  const chipResponses = flow.pdpChipResponses || {};
+  const aiText = (opts.starter && chipResponses[opts.starter])
+    ? chipResponses[opts.starter]
+    : (flow.welcome ? flow.welcome + '\n' : '') + t0.prompt;
 
-  chat.phase = 'asking';
-  chat.turnIdx = 0;
+  const writeBack = (c) => {
+    if (flowKey === 'flowA') state.chatA = c;
+    else if (flowKey === 'discovery1') state.chatDiscovery1 = c;
+    else state.chatC1 = c;
+  };
 
-  if (flowKey === 'flowA') state.chatA = chat;
-  else if (flowKey === 'discovery1') state.chatDiscovery1 = chat;
-  else state.chatC1 = chat;
+  if (opts.delayedWelcome) {
+    // Open the chat in a "thinking" state — the AI message is held back
+    // and a typing indicator shows first, then the welcome fades in.
+    chat.phase = 'typing';
+    chat.isTyping = true;
+    chat.turnIdx = 0;
+    writeBack(chat);
+
+    setTimeout(() => {
+      const target = getChat(flowKey);
+      if (target !== chat) return; // user navigated away
+      target.isTyping = false;
+      pushAiMessage(target, aiText);
+      target.phase = 'asking';
+      render();
+    }, 450);
+  } else {
+    pushAiMessage(chat, aiText);
+    chat.phase = 'asking';
+    chat.turnIdx = 0;
+    writeBack(chat);
+  }
 }
 
 function pickChipAck(turn, label) {
@@ -3059,17 +3732,17 @@ function handleChipClick(flowKey, label) {
 
     if (isLast) {
       // ack + recommendation card
-      target.messages.push({ id: nextId(), role: 'ai', text: ack });
+      pushAiMessage(target, ack);
       target.messages.push({ id: nextId(), role: 'rec' });
       target.phase = 'done';
     } else {
       // ack + next prompt
-      target.messages.push({ id: nextId(), role: 'ai', text: ack + '\n\n' + nextTurn.prompt });
+      pushAiMessage(target, ack + '\n\n' + nextTurn.prompt);
       target.phase = 'asking';
       target.turnIdx = nextTurnIdx;
     }
     render();
-  }, 800);
+  }, 450);
 }
 
 function handleFollowUpFreeChip(flowKey, chip) {
@@ -3126,11 +3799,11 @@ function handleFreeText(flowKey, raw) {
     if (target !== chat) return;
     const { reply, followUps } = findFreeTextResponse(brand, text);
     target.isTyping = false;
-    target.messages.push({ id: nextId(), role: 'ai', text: reply });
+    pushAiMessage(target, reply);
     target.freeFollowUps = followUps && followUps.length ? followUps : [];
     target.phase = target.freeFollowUps.length ? 'free' : 'idle';
     render();
-  }, 700);
+  }, 400);
 }
 
 function handleSendDraft(flowKey) {
@@ -3199,6 +3872,13 @@ const ICONS = {
   statusSignalLight: '<svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="4" width="3" height="7" rx="1" fill="white"/><rect x="4" y="2.5" width="3" height="8.5" rx="1" fill="white"/><rect x="8" y="1" width="3" height="10" rx="1" fill="white"/><rect x="12" y="0" width="3" height="11" rx="1" fill="white"/></svg>',
   statusBatteryLight: '<svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="white" stroke-opacity="0.35"/><rect x="2" y="2" width="18" height="9" rx="2" fill="white"/></svg>',
   pdpClose: '<svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M1 1L11 11M11 1L1 11" stroke="#1e242e" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  chevronLeft: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M9.23 11.47L5.77 8L9.23 4.54" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chevronRight: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6.77 4.54L10.23 8L6.77 11.47" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chevronDown: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4.54 6.27L8 9.73L11.47 6.27" stroke="#2A3341" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  qtyMinus: '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M4 10H16" stroke="#1E242E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  qtyPlus: '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M4 10H16M10 4V16" stroke="#1E242E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cartDark: '<svg width="16" height="14" viewBox="0 0 20 18" fill="none"><path d="M10.77 6.18H4.44" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.65 3.68h2.1l2.3 8.27a1 1 0 00.96.75h6.18a1 1 0 00.96-.75l.6-2.15" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.25" cy="15.18" r="1" fill="#fff"/><circle cx="12.75" cy="15.18" r="1" fill="#fff"/><path d="M16.02 1.82v4.65M18.34 4.14h-4.64" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  askSend: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M9 11l4-3.8M16.72 4.85l-3.22 10.47c-.29.94-.43 1.4-.68 1.56a.78.78 0 01-.72.06c-.27-.11-.49-.55-.93-1.43L9.13 11.43a.97.97 0 00-.16-.27.7.7 0 00-.13-.14.96.96 0 00-.26-.13L4.49 8.83c-.88-.44-1.32-.66-1.43-.93a.71.71 0 01-.06-.72c.16-.25.62-.39 1.56-.68L15.04 3.28c.74-.23 1.1-.34 1.36-.25.22.08.39.25.47.47.09.25-.02.62-.25 1.36z" stroke="#5C6370" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   send: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 12L20 4L13 20L11 13L4 12Z" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   sendUp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   cart: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h9.2a2 2 0 0 0 2-1.6L23 6H6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.5" fill="#fff"/><circle cx="18" cy="20" r="1.5" fill="#fff"/><path d="M14 8v4M12 10h4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
@@ -3326,7 +4006,214 @@ function renderInstagramFeed(brand, onCta) {
 }
 
 /* ── PDP ── */
+/* ── PDP minimal variant — full-screen takeover with image carousel,
+   glass-button chrome, ask-a-question + chip row, banner image,
+   read-more description, and a sticky qty-stepper + Add-to-cart footer.
+   Used when brand.pdpVariant === 'minimal'. */
+function renderPdpMinimal(brand, onClose, onChipClick) {
+  const images = (brand.product.images && brand.product.images.length)
+    ? brand.product.images
+    : [brand.adImage];
+  let idx = 0;
+
+  const wrap = el('div', { class: 'pdp-min-screen', style: '--brand-hex:' + brand.brandHex });
+
+  // Top: close X glass button
+  wrap.appendChild(el('div', { class: 'pdp-min-head' },
+    el('button', { class: 'pdp-min-glass-btn', html: ICONS.pdpClose, onclick: onClose }),
+  ));
+
+  const body = el('div', { class: 'pdp-min-body' });
+
+  // ── Gallery with arrow buttons + dots ────────────────────────────
+  const gallery = el('div', { class: 'pdp-min-gallery' });
+  const img = el('img', {
+    class: 'pdp-min-gallery-img',
+    src: images[0],
+    alt: (brand.product.shortName || brand.name),
+  });
+  gallery.appendChild(img);
+
+  const dotsEl = el('div', { class: 'pdp-min-dots' });
+  images.forEach((_, i) => {
+    dotsEl.appendChild(el('span', { class: i === 0 ? 'active' : '' }));
+  });
+
+  const setIdx = (next) => {
+    idx = ((next % images.length) + images.length) % images.length;
+    img.src = images[idx];
+    Array.from(dotsEl.children).forEach((d, i) => {
+      d.className = i === idx ? 'active' : '';
+    });
+  };
+
+  if (images.length > 1) {
+    gallery.appendChild(el('button', {
+      class: 'pdp-min-glass-btn pdp-min-arrow prev',
+      html: ICONS.chevronLeft,
+      onclick: () => setIdx(idx - 1),
+    }));
+    gallery.appendChild(el('button', {
+      class: 'pdp-min-glass-btn pdp-min-arrow next',
+      html: ICONS.chevronRight,
+      onclick: () => setIdx(idx + 1),
+    }));
+    gallery.appendChild(dotsEl);
+  }
+  body.appendChild(gallery);
+
+  // ── Name + price row ─────────────────────────────────────────────
+  const priceText = brand.product.currency + brand.product.priceLow;
+  body.appendChild(el('div', { class: 'pdp-min-info' },
+    el('p', { class: 'pdp-min-name' }, (brand.product.shortName || brand.product.name.replace(/\n/g, ' '))),
+    el('p', { class: 'pdp-min-price' }, priceText),
+  ));
+
+  // ── Ask-a-question pill + horizontally scrollable chips ──────────
+  // Wrap any chip/input action so we play the PDP slide-down animation
+  // before handing control to the chat. We also fade the underlying
+  // listing/collection page out so the user doesn't see it flash through
+  // as the PDP slides away. The chat's own renderer takes over once the
+  // timeout fires.
+  const dismissAndChat = (text) => {
+    if (!text) return;
+    const parent = wrap.parentElement;
+    if (parent) {
+      Array.from(parent.children).forEach(child => {
+        if (child !== wrap) {
+          child.style.transition = 'opacity 0.18s ease';
+          child.style.opacity = '0';
+        }
+      });
+    }
+    wrap.classList.add('dismissing');
+    setTimeout(() => onChipClick(text), 280);
+  };
+
+  const askRow = el('div', { class: 'pdp-min-ask-row' });
+  const askWrap = el('div', { class: 'pdp-min-ask' });
+  const askInput = el('input', { type: 'text', placeholder: 'Ask a question' });
+  const askSend = el('button', { class: 'pdp-min-ask-send', html: ICONS.askSend });
+  const submitAsk = () => {
+    const v = askInput.value.trim();
+    if (v) dismissAndChat(v);
+  };
+  askInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAsk(); });
+  askSend.addEventListener('click', submitAsk);
+  askWrap.appendChild(askInput);
+  askWrap.appendChild(askSend);
+  askRow.appendChild(askWrap);
+
+  (brand.flowA.pdpChips || []).forEach(chip => {
+    askRow.appendChild(el('button', {
+      class: 'pdp-min-chip',
+      onclick: () => dismissAndChat(chip),
+    }, chip));
+  });
+  body.appendChild(askRow);
+
+  // ── Purchase mode card: One-time vs Subscribe (with tier rows) ───
+  const tiers = brand.product.subscriptionTiers || [];
+  if (tiers.length) {
+    const fmtMoney = (n) => brand.product.currency + n.toFixed(2);
+    let tierIdx = 0;
+
+    const purchaseCard = el('div', { class: 'pdp-min-purchase' });
+
+    const oneTimeOpt = el('div', { class: 'pdp-min-purchase-option selected' },
+      el('div', { class: 'pdp-min-purchase-radio' }),
+      el('div', { class: 'pdp-min-purchase-label' }, 'One-time purchase'),
+    );
+    const subscribeOpt = el('div', { class: 'pdp-min-purchase-option' },
+      el('div', { class: 'pdp-min-purchase-radio' }),
+      el('div', { class: 'pdp-min-purchase-label' }, 'Subscribe and save'),
+    );
+
+    const subOptions = el('div', { class: 'pdp-min-sub-options' });
+    tiers.forEach((tier, i) => {
+      const tierEl = el('div', {
+        class: 'pdp-min-sub-option' + (i === 0 ? ' selected' : ''),
+      },
+        el('div', { class: 'pdp-min-sub-radio' }),
+        el('div', { class: 'pdp-min-sub-text' },
+          el('span', { class: 'pdp-min-sub-title' }, tier.title),
+          el('span', { class: 'pdp-min-sub-subtitle' }, tier.subtitle),
+        ),
+        el('div', { class: 'pdp-min-sub-pricing' },
+          el('span', { class: 'pdp-min-sub-was' }, fmtMoney(tier.wasPrice)),
+          el('span', { class: 'pdp-min-sub-price' }, fmtMoney(tier.price)),
+        ),
+      );
+      tierEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tierIdx = i;
+        Array.from(subOptions.children).forEach((child, j) => {
+          child.classList.toggle('selected', j === i);
+        });
+      });
+      subOptions.appendChild(tierEl);
+    });
+
+    const setPurchaseMode = (mode) => {
+      oneTimeOpt.classList.toggle('selected', mode === 'one-time');
+      subscribeOpt.classList.toggle('selected', mode === 'subscribe');
+      subOptions.classList.toggle('open', mode === 'subscribe');
+    };
+    oneTimeOpt.addEventListener('click', () => setPurchaseMode('one-time'));
+    subscribeOpt.addEventListener('click', () => setPurchaseMode('subscribe'));
+
+    purchaseCard.appendChild(oneTimeOpt);
+    purchaseCard.appendChild(subscribeOpt);
+    purchaseCard.appendChild(subOptions);
+    body.appendChild(purchaseCard);
+  }
+
+  // ── Description + Read more toggle ───────────────────────────────
+  const desc = el('p', { class: 'pdp-min-desc collapsed' }, brand.product.description);
+  const readMore = el('button', { class: 'pdp-min-readmore' },
+    el('span', { class: 'label' }, 'Read more'),
+    el('span', { html: ICONS.chevronDown }),
+  );
+  let expanded = false;
+  readMore.addEventListener('click', () => {
+    expanded = !expanded;
+    desc.classList.toggle('collapsed', !expanded);
+    readMore.classList.toggle('expanded', expanded);
+    readMore.querySelector('.label').textContent = expanded ? 'Read less' : 'Read more';
+  });
+  body.appendChild(desc);
+  body.appendChild(readMore);
+
+  wrap.appendChild(body);
+
+  // ── Sticky footer: qty stepper (glass) + Add to cart pill ────────
+  let qty = 1;
+  const qtyValue = el('span', { class: 'value' }, '1');
+  const qtyWrap = el('div', { class: 'pdp-min-qty' });
+  qtyWrap.appendChild(el('button', { html: ICONS.qtyMinus, onclick: () => {
+    if (qty > 1) { qty -= 1; qtyValue.textContent = String(qty); }
+  }}));
+  qtyWrap.appendChild(qtyValue);
+  qtyWrap.appendChild(el('button', { html: ICONS.qtyPlus, onclick: () => {
+    qty += 1; qtyValue.textContent = String(qty);
+  }}));
+
+  const footer = el('div', { class: 'pdp-min-footer' });
+  footer.appendChild(qtyWrap);
+  footer.appendChild(el('button', { class: 'pdp-min-add' },
+    el('span', { html: ICONS.cartDark }),
+    'Add to cart',
+  ));
+  wrap.appendChild(footer);
+
+  return wrap;
+}
+
 function renderPdp(brand, onClose, onChipClick) {
+  // Dispatch to the minimal variant if the brand opts into it
+  if (brand.pdpVariant === 'minimal') {
+    return renderPdpMinimal(brand, onClose, onChipClick);
+  }
   const wrap = el('div', { class: 'pdp-screen', style: '--brand-hex:' + brand.brandHex + '; --brand-soft:' + brand.brandSoft });
   wrap.appendChild(el('div', { class: 'pdp-backdrop', onclick: onClose }));
 
@@ -3429,14 +4316,23 @@ function renderPdp(brand, onClose, onChipClick) {
   return wrap;
 }
 
-/* ── Recommendation card ── */
+/* ── Recommendation card ──
+   Vertical tile: square product image with a floating glass Add-to-cart
+   button in the bottom-right corner, name + price below. Tapping the card
+   opens the PDP; tapping the cart button shows the "added" toast. */
 function renderRecCard(flowKey, brand) {
   const rec = brand.recommendation || {};
+  const productImage = (brand.product.images && brand.product.images[0]) || brand.adImage;
+  // Use the recommendation title if provided; flatten line breaks so it
+  // reads naturally in the smaller vertical tile.
+  const title = (rec.title || brand.product.shortName || brand.product.name || '').replace(/\n/g, ' ');
+  const price = brand.product.currency + brand.product.priceLow;
+
   const card = el('div', {
     class: 'rec-card',
     style: '--brand-hex: ' + brand.brandHex + '; --brand-soft: ' + brand.brandSoft,
     onclick: (e) => {
-      // Don't open PDP if user clicked the Add-to-cart button
+      // Tapping the cart button shouldn't open the PDP
       if (e.target.closest('.rec-card-cta')) return;
       if (flowKey === 'flowA') {
         state.flowAReturnTo = 'chat';
@@ -3451,19 +4347,30 @@ function renderRecCard(flowKey, brand) {
       render();
     },
   });
-  card.appendChild(el('div', { class: 'rec-card-img', style: 'background-image: url(' + JSON.stringify(brand.product.images[0]) + ')' }));
-  card.appendChild(el('div', { class: 'rec-card-info' },
-    el('p', { class: 'rec-card-eyebrow' }, brand.product.brandEyebrow || brand.name.toUpperCase()),
-    el('p', { class: 'rec-card-title' }, rec.title || brand.product.name),
-    el('p', { class: 'rec-card-sub' }, rec.sub || (brand.product.currency + brand.product.priceLow)),
-  ));
-  card.appendChild(el('button', {
+
+  // Image with floating glass cart button
+  const imgWrap = el('div', { class: 'rec-card-img-wrap' });
+  imgWrap.appendChild(el('div', {
+    class: 'rec-card-img',
+    style: 'background-image: url(' + JSON.stringify(productImage) + ')',
+  }));
+  imgWrap.appendChild(el('button', {
     class: 'rec-card-cta',
+    html: ICONS.cartHeader,
+    'aria-label': 'Add to cart',
     onclick: (e) => {
       e.stopPropagation();
       showToast(flowKey, 'Added to cart 🛒');
     },
-  }, 'Add to cart'));
+  }));
+  card.appendChild(imgWrap);
+
+  // Title + price below the image
+  card.appendChild(el('div', { class: 'rec-card-info' },
+    el('p', { class: 'rec-card-title' }, title),
+    el('p', { class: 'rec-card-price' }, price),
+  ));
+
   return card;
 }
 
@@ -3515,6 +4422,9 @@ function renderListingPage(flowKey, brand, onClose) {
         if (flowKey === 'flowA') {
           state.flowAReturnTo = 'listing';
           state.flowA = 'pdp';
+        } else if (flowKey === 'discovery1') {
+          state.discovery1ReturnTo = 'listing';
+          state.discovery1 = 'pdp';
         } else {
           state.flowC1ReturnTo = 'listing';
           state.flowC1 = 'pdp';
@@ -3551,10 +4461,10 @@ function renderTypingDots() {
 }
 
 /* ── Chat Screen ── */
-function renderChat(flowKey, brand, onClose) {
+function renderChat(flowKey, brand, onClose, onBack) {
   const chat = getChat(flowKey);
   const flow = getFlowConfig(flowKey);
-  const wrap = el('div', { class: 'chat-screen' });
+  const wrap = el('div', { class: 'chat-screen', 'data-brand': brand.id });
 
   wrap.appendChild(StatusBarDark());
   wrap.appendChild(el('div', { class: 'browser-bar' },
@@ -3569,7 +4479,13 @@ function renderChat(flowKey, brand, onClose) {
     el('button', { class: 'browser-bar-btn', html: ICONS.browserMore }),
   ));
   wrap.appendChild(el('div', { class: 'chat-header' },
-    el('button', { class: 'chat-circle-btn', html: ICONS.back }),
+    // Back button navigates to whatever the caller passed (e.g. Flow A
+    // returns to the PDP). Falls back to closing the chat if no handler.
+    el('button', {
+      class: 'chat-circle-btn',
+      html: ICONS.back,
+      onclick: onBack || onClose,
+    }),
     el('div', { class: 'chat-header-right' },
       el('button', { class: 'chat-circle-btn', html: ICONS.cartHeader }),
       el('button', { class: 'chat-track-pill' }, 'Track orders'),
@@ -3622,21 +4538,38 @@ function renderChat(flowKey, brand, onClose) {
   chat.messages.forEach(m => {
     if (m.role === 'user' && m.fromPdp) return;
     if (m.role === 'ai') {
-      body.appendChild(el('div', { class: 'chat-msg-ai' }, m.text));
+      const aiEl = el('div', { class: 'chat-msg-ai' });
+      body.appendChild(aiEl);
+      if (m.typewriter === 'pending') {
+        // Start the reveal animation. Mark as 'running' so subsequent
+        // re-renders don't restart the typewriter on a stale element.
+        m.typewriter = 'running';
+        startMessageTypewriter(aiEl, m.text, () => {
+          m.typewriter = 'done';
+          chat.typewriterPending = false;
+          render();
+        });
+      } else {
+        aiEl.textContent = m.text;
+      }
     } else if (m.role === 'user') {
       body.appendChild(el('div', { class: 'chat-msg-user' },
         el('div', { class: 'chat-msg-user-bubble' }, m.text),
       ));
     } else if (m.role === 'rec') {
-      body.appendChild(renderRecCard(flowKey, brand));
+      // Hold the rec card back until the typewriter has finished —
+      // otherwise it pops in while the AI is still typing.
+      if (!chat.typewriterPending) {
+        body.appendChild(renderRecCard(flowKey, brand));
+      }
     }
   });
 
   // Typing indicator
   if (chat.isTyping) body.appendChild(renderTypingDots());
 
-  // Active chips
-  if (!chat.isTyping && chat.phase === 'asking' && !chat.skippedToFree) {
+  // Active chips — also held back until any typewriter completes
+  if (!chat.isTyping && chat.phase === 'asking' && !chat.skippedToFree && !chat.typewriterPending) {
     const turn = flow.turns[chat.turnIdx];
     if (turn && turn.options) {
       const replies = el('div', { class: 'chat-replies' });
@@ -3650,7 +4583,7 @@ function renderChat(flowKey, brand, onClose) {
     }
   }
   // Free-text follow-up chips
-  if (!chat.isTyping && chat.freeFollowUps && chat.freeFollowUps.length) {
+  if (!chat.isTyping && chat.freeFollowUps && chat.freeFollowUps.length && !chat.typewriterPending) {
     const replies = el('div', { class: 'chat-replies' });
     chat.freeFollowUps.forEach(chip => {
       replies.appendChild(el('button', {
@@ -3794,7 +4727,7 @@ function renderHalfSheetChat(brand, onClose) {
     render();
   };
 
-  const sheet = el('div', { class: 'discovery-half-sheet' });
+  const sheet = el('div', { class: 'discovery-half-sheet', 'data-brand': brand.id });
 
   // Drag handle row + close
   sheet.appendChild(el('div', { class: 'discovery-half-head' },
@@ -3920,7 +4853,9 @@ function renderPhone(flowKey) {
           state.flowAClickedChip = chipText;
           state.flowA = 'chat';
           state.flowAReturnTo = 'listing';
-          openChat('flowA', { starter: chipText });
+          // Brands using the minimal PDP get a "thinking" beat — the AI
+          // welcome lands after the typing animation runs.
+          openChat('flowA', { starter: chipText, delayedWelcome: brand.pdpVariant === 'minimal' });
           render();
         }
       ));
@@ -3928,10 +4863,13 @@ function renderPhone(flowKey) {
       if (state.chatA.messages.length === 0) {
         const chip = state.flowAClickedChip || getBrand().flowA.starterChip;
         state.flowAClickedChip = chip;
-        openChat('flowA', { starter: chip });
+        openChat('flowA', { starter: chip, delayedWelcome: brand.pdpVariant === 'minimal' });
       }
       screen.appendChild(renderChat('flowA', brand,
-        () => { state.flowA = 'ad'; state.flowAClickedChip = null; state.chatA = freshChatState(); render(); }
+        // onClose — exit chat lands on the brand's collection / listing page
+        () => { state.flowA = 'listing'; state.flowAClickedChip = null; state.chatA = freshChatState(); render(); },
+        // onBack — return to the PDP that spawned the chat
+        () => { state.flowAReturnTo = 'listing'; state.flowA = 'pdp'; render(); }
       ));
     }
   } else if (flowKey === 'flowC1') {
@@ -3941,10 +4879,19 @@ function renderPhone(flowKey) {
         openChat('flowC1');
         render();
       }));
+    } else if (state.flowC1 === 'listing') {
+      // Brand collection page — exit drops back to the IG ad
+      screen.appendChild(renderListingPage('flowC1', brand,
+        () => { state.flowC1 = 'ad'; render(); }
+      ));
     } else if (state.flowC1 === 'pdp') {
-      // PDP reached from chat or rec card — return to chat
-      if (state.chatC1.messages.length === 0) openChat('flowC1');
-      screen.appendChild(renderChat('flowC1', brand, () => {}));
+      // PDP background depends on where the user came from
+      if (state.flowC1ReturnTo === 'listing') {
+        screen.appendChild(renderListingPage('flowC1', brand, () => {}));
+      } else {
+        if (state.chatC1.messages.length === 0) openChat('flowC1');
+        screen.appendChild(renderChat('flowC1', brand, () => {}));
+      }
       screen.appendChild(renderPdp(brand,
         () => {
           state.flowC1 = state.flowC1ReturnTo || 'chat';
@@ -3959,7 +4906,8 @@ function renderPhone(flowKey) {
       // chat
       if (state.chatC1.messages.length === 0) openChat('flowC1');
       screen.appendChild(renderChat('flowC1', brand,
-        () => { state.flowC1 = 'ad'; state.chatC1 = freshChatState(); render(); }
+        // onClose — exit chat lands on the brand's collection page
+        () => { state.flowC1 = 'listing'; state.chatC1 = freshChatState(); render(); }
       ));
     }
   } else if (flowKey === 'discovery1') {
@@ -3970,12 +4918,18 @@ function renderPhone(flowKey) {
         openChat('discovery1');
         render();
       }));
+    } else if (state.discovery1 === 'listing') {
+      // Brand collection page — exit drops back to the IG ad
+      screen.appendChild(renderListingPage('discovery1', brand,
+        () => { state.discovery1 = 'ad'; render(); }
+      ));
     } else if (state.discovery1 === 'chat-half') {
       // IG ad behind, half-sheet chat overlay on top
       screen.appendChild(renderInstagramFeed(brand, () => {}));
       screen.appendChild(renderHalfSheetChat(brand,
+        // onClose — exit half-sheet chat lands on the collection page
         () => {
-          state.discovery1 = 'ad';
+          state.discovery1 = 'listing';
           state.chatDiscovery1 = freshChatState();
           render();
         }
@@ -3983,8 +4937,9 @@ function renderPhone(flowKey) {
     } else if (state.discovery1 === 'chat-full') {
       if (state.chatDiscovery1.messages.length === 0) openChat('discovery1');
       screen.appendChild(renderChat('discovery1', brand,
+        // onClose — exit full chat lands on the collection page
         () => {
-          state.discovery1 = 'ad';
+          state.discovery1 = 'listing';
           state.chatDiscovery1 = freshChatState();
           render();
         }
@@ -3992,16 +4947,19 @@ function renderPhone(flowKey) {
     } else if (state.discovery1 === 'pdp') {
       // PDP as screen takeover. Background depends on where we came from:
       // - from the half-sheet (product card tap) → IG ad behind
+      // - from listing card → listing behind
       // - from full chat (rec card / in-chat product card) → chat behind
       if (state.discovery1ReturnTo === 'chat-half') {
         screen.appendChild(renderInstagramFeed(brand, () => {}));
+      } else if (state.discovery1ReturnTo === 'listing') {
+        screen.appendChild(renderListingPage('discovery1', brand, () => {}));
       } else {
         if (state.chatDiscovery1.messages.length === 0) openChat('discovery1');
         screen.appendChild(renderChat('discovery1', brand, () => {}));
       }
       screen.appendChild(renderPdp(brand,
         () => {
-          // Close PDP → return to whatever spawned it (chat-half or chat-full)
+          // Close PDP → return to whatever spawned it (chat-half / chat-full / listing)
           state.discovery1 = state.discovery1ReturnTo || 'chat-full';
           render();
         },
@@ -4049,19 +5007,22 @@ function renderStage() {
   const col = el('div', { class: 'flow-col' });
 
   // Top-level flow toggle.
-  // Big Bold Health gets 4 numbered flows: 0, 1, 2, 3 (in this order).
-  // Other brands get the default Flow A / Flow C1 labels.
+  // Brands with `hasDiscovery1` get the 4-flow toggle. Default labels are
+  // BBH's 0/1/2/3; any brand can override with `flowLabels` (e.g. Kollo
+  // uses OG / PDP / Halfsheet / Direct to chat).
   const toggle = el('div', { class: 'flow-toggle' });
-  const flowOptions = getBrand().hasDiscovery1
+  const _brand = getBrand();
+  const labels = _brand.flowLabels || {};
+  const flowOptions = _brand.hasDiscovery1
     ? [
-        ['flow0', '0'],
-        ['flowA', '1'],
-        ['discovery1', '2'],
-        ['flowC1', '3'],
+        ['flow0',      labels.flow0      || '0'],
+        ['flowA',      labels.flowA      || '1'],
+        ['discovery1', labels.discovery1 || '2'],
+        ['flowC1',     labels.flowC1     || '3'],
       ]
     : [
-        ['flowA', 'Flow A'],
-        ['flowC1', 'Flow C1'],
+        ['flowA',  labels.flowA  || 'Flow A'],
+        ['flowC1', labels.flowC1 || 'Flow C1'],
       ];
   // Safety: if active flow disappears for this brand, fall back to the first
   if (!flowOptions.find(([k]) => k === state.activeFlow)) state.activeFlow = flowOptions[0][0];
