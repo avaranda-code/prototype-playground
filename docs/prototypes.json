@@ -1,0 +1,39 @@
+[
+  {
+    "name": "Non AI Agent Migration to Chat 2.0",
+    "author": "Ava",
+    "date": "2026-05-12",
+    "description": "Prototype of new chat UI preview in legacy settings, enabling Chat 2.0 as a non-AI agent customer, and the ability to temporarily revery back",
+    "file": "chat-migration.html",
+    "image": "chat-migration.png"
+  },
+  {
+    "name": "Ads to Convo",
+    "author": "Ava",
+    "date": "2026-05-12",
+    "description": "Brand-switchable demo of ads-to-conversation flows: Instagram ad → PDP / half-sheet / direct chat with multi-turn AI dialogue, recommendation card, and a per-brand live edit panel.",
+    "file": "ads-to-convo.html",
+    "image": "ads-to-convo.png"
+  },
+  {
+    "name": "Kollo · Ads to Messaging (user testing)",
+    "author": "Ava",
+    "date": "2026-05-29",
+    "description": "Kollo-only build of the ads-to-messaging prototype for user testing. Locked to the Kollo brand, no top nav (brand selector, reset, edit panel, title all stripped), and the OG flow is hidden — toggle shows only PDP / Halfsheet / Direct to chat.",
+    "file": "kollo_gorgias_ads_to_messaging.html"
+  },
+  {
+    "name": "Farmacy · Cart Recovery Chat",
+    "author": "Ava",
+    "date": "2026-05-20",
+    "description": "Mobile prototype of a post-SMS cart-recovery chat on Farmacy's Honey Skincare collection. Tapping the floating chat icon opens a full-page Farmacy skincare-expert chat with Claude-style SPQs stacked above the input. Tapping the product card opens a Honey Halo PDP with subscribe/one-time, SPQs, and Add-to-cart. Live edit panel for chat copy, SPQs, and a regex-keyed response library — all persisted to localStorage.",
+    "file": "farmacy-cart-recovery.html"
+  },
+  {
+    "name": "SPQs — Shopping Assistant (3 flows)",
+    "author": "Ava",
+    "date": "2026-05-26",
+    "description": "Suggested Prompted Questions on a Hotel Lobby Candle storefront with a topbar flow switcher: ASAP (floating SPQ pills above the chat launcher), Medium term (centered bottom 'Chat to shop' bar that slides right to open the chat), and Longer term (no floating SPQs — header search opens an AI-suggestions overlay). Shared chat: SPQ → answer → scent quick-replies (warm/fresh/moody) → 3 matching products → PDP bottom drawer + Add to Cart. SPQs appear on Home and all collection pages. Includes the Gorgias admin (Axiom) Shopping Assistant page with the SPQ configuration drawer.",
+    "file": "spqs-home-collection.html"
+  }
+]
