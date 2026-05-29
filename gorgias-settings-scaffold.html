@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent > SA > Conversation starters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      font-family: sans-serif;
+    }
+    .frame-wrapper {
+      position: relative;
+      width: 1440px;
+      height: 900px;
+      background-color: #f9f9f9;
+
+      display: flex;
+      flex-direction: row;
+      gap: 0px;
+      justify-content: flex-start;
+      align-items: flex-start;
+
+    }
+    /* Element Styles */
+.layer-navigation-main-1 {
+  width: 298px;
+  height: 900px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border: 1px solid #ebecef;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  position: relative;
+  align-self: stretch;
+}
+.layer-second-nav-3 {
+  width: 250px;
+  height: 900px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background-color: #fafafa;
+  border-radius: 0px 4px 4px 0px;
+  box-shadow: 4px 4px 16px 0px #1616161a;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  position: relative;
+  align-self: stretch;
+}
+.layer-navigation-header-4 {
+  width: 250px;
+  height: 40px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 12px 8px 4px 16px;
+  position: relative;
+  align-self: stretch;
+}
+.text-1 {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: 0px;
+  text-align: left;
+  text-transform: none;
+  white-space: nowrap;
+  color: #1e242e;
+}
+.layer-section-list-5 {
+  width: 250px;
+  height: 860px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 16px 0px 16px 0px;
+  position: relative;
+  align-self: stretch;
+  flex-grow: 1;
+}
+.layer-dropdown-6 {
+  width: 250px;
+  height: 48px;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 8px 12px 8px 12px;
+  position: relative;
+  align-self: stretch;
+}
+.layer-button-7 {
+  width: 226px;
+  height: 32px;
+  overflow: hidden;
+  background-color: #ffffff;
+  border-radius: 8px 8px 8px 8px;
+  border: 1px solid #ebecef;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 6px 12px 6px 12px;
+  position: relative;
+  flex-grow: 1;
+}
+.layer-lead-icon-8 {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+.text-7 {
+  width: 154px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0em;
+  text-align: left;
+  text-transform: none;
+  color: #1e242e;
+  flex-grow: 1;
+}
+.layer-trail-icon-35 {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+.layer-navigation-item-48,
+.layer-navigation-item-52,
+.layer-navigation-item-81,
+.layer-navigation-item-100 {
+  width: 250px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0px 8px 0px 8px;
+  position: relative;
+  align-self: stretch;
+}
+.layer-entry-49,
+.layer-entry-53,
+.layer-entry-82,
+.layer-entry-101 {
+  width: 234px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 4px 8px;
+  position: relative;
+  flex-grow: 1;
+}
+.layer-label-50,
+.layer-label-54,
+.layer-label-83,
+.layer-label-102 {
+  width: 198px;
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  flex-grow: 1;
+}
+.text-10, .text-11, .text-18, .text-22 {
+  width: 198px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: #1e242e;
+  flex-grow: 1;
+}
+.layer-keyboard-arrow-down-51,
+.layer-keyboard-arrow-up-55,
+.layer-keyboard-arrow-down-84,
+.layer-keyboard-arrow-down-103 {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+.layer-navigation-item-68,
+.layer-navigation-item-71,
+.layer-navigation-item-74 {
+  width: 250px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0px 8px 0px 24px;
+  position: relative;
+  align-self: stretch;
+}
+.layer-entry-69,
+.layer-entry-72,
+.layer-entry-75 {
+  width: 218px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 4px 8px;
+  position: relative;
+  flex-grow: 1;
+}
+.layer-label-70,
+.layer-label-73,
+.layer-label-76 {
+  width: 202px;
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  flex-grow: 1;
+}
+.text-14, .text-15, .text-16 {
+  width: 202px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: #1e242e;
+  flex-grow: 1;
+}
+.layer-navigation-item-77 {
+  width: 250px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0px 8px 0px 16px;
+  position: relative;
+  align-self: stretch;
+}
+.layer-entry-78 {
+  width: 226px;
+  height: 28px;
+  overflow: hidden;
+  background-color: #eeeeee;
+  border-radius: 8px;
+  border: 1px solid #dddddd;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 4px 10px 4px 2px;
+  position: relative;
+  flex-grow: 1;
+}
+.layer-frame-2147257303-79 {
+  width: 186px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+}
+.layer-label-80 {
+  width: 186px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+}
+.text-17 {
+  width: 186px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: #222222;
+}
+.layer-navigation-item-97,
+.layer-navigation-item-104 {
+  width: 250px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0px 8px;
+  position: relative;
+  align-self: stretch;
+}
+.layer-entry-98,
+.layer-entry-105 {
+  width: 234px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 4px 8px;
+  position: relative;
+  flex-grow: 1;
+}
+.layer-label-99,
+.layer-label-106 {
+  width: 218px;
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  flex-grow: 1;
+}
+.text-21, .text-23 {
+  width: 218px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: #1e242e;
+  flex-grow: 1;
+}
+.layer-page-107 {
+  width: 1142px;
+  height: 900px;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 8px 0px 8px 8px;
+  position: relative;
+  flex-grow: 1;
+  align-self: stretch;
+}
+.layer-content-108 {
+  width: 1134px;
+  height: 884px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #ebecef;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0px 0px 24px 0px;
+  position: relative;
+  align-self: stretch;
+  flex-grow: 1;
+}
+.layer-page-header-109 {
+  width: 1134px;
+  height: 80px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 156px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 24px;
+  position: relative;
+  align-self: stretch;
+}
+.layer-frame-6-110 {
+  width: 1086px;
+  height: 32px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  flex-grow: 1;
+}
+.layer-frame-2-111 {
+  width: 941px;
+  height: 32px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  flex-grow: 1;
+}
+.layer-frame-1-112 {
+  width: 189px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+}
+.text-24 {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 32px;
+  letter-spacing: 0em;
+  text-align: center;
+  white-space: nowrap;
+  color: #1e242e;
+}
+.layer-frame-3-113 {
+  width: 145px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+}
+.layer-button-sbok-114 {
+  width: 79px;
+  height: 32px;
+  flex-shrink: 0;
+  background-color: #ffffff03;
+  border-radius: 8px;
+  border: 0.5px solid #b3b8c1;
+  box-shadow: 0px 2px 3px 0px #0000000d;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 12px;
+  position: relative;
+}
+.text-25 {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0em;
+  text-align: left;
+  white-space: nowrap;
+  color: #1e242e;
+}
+.layer-button-sbok-115 {
+  width: 58px;
+  height: 32px;
+  flex-shrink: 0;
+  background-color: #1e242e;
+  border-radius: 8px;
+  box-shadow: 0px 2px 3px 0px #0000000d;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 12px;
+  position: relative;
+}
+.text-26 {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0em;
+  text-align: left;
+  white-space: nowrap;
+  color: #ffffff;
+}
+.layer-frame-2147257268-117 {
+  width: 1134px;
+  height: 496px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 16px 24px;
+  position: relative;
+  align-self: stretch;
+}
+.layer-feature-activation-card-118,
+.layer-feature-activation-card-130,
+.layer-feature-activation-card-142,
+.layer-feature-activation-card-154 {
+  width: 1086px;
+  height: 104px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #ebecef;
+  box-shadow: 0px 2px 20px 0px #0000000a;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 16px;
+  position: relative;
+  align-self: stretch;
+}
+.layer-frame-2147257368-119,
+.layer-frame-2147257368-131,
+.layer-frame-2147257368-143,
+.layer-frame-2147257368-155 {
+  width: 1054px;
+  height: 72px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  position: relative;
+  align-self: stretch;
+}
+.layer-frame-2147257318-120,
+.layer-frame-2147257318-132,
+.layer-frame-2147257318-144,
+.layer-frame-2147257318-156 {
+  width: 1054px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  align-self: stretch;
+}
+.text-27, .text-30, .text-32, .text-34 {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: 0em;
+  text-align: left;
+  white-space: nowrap;
+  color: #1e242e;
+}
+.layer-toggle-126,
+.layer-toggle-138,
+.layer-toggle-150,
+.layer-toggle-162 {
+  width: 28px;
+  height: 16px;
+  flex-shrink: 0;
+  background-color: #7e55f6;
+  border-radius: 32px;
+  box-shadow: inset 1px 2px 3px 0px #0000000f;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 2px;
+  position: relative;
+  align-self: stretch;
+}
+.layer-toggle-input-127,
+.layer-toggle-input-139,
+.layer-toggle-input-151,
+.layer-toggle-input-163 {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+  border-radius: 32px;
+}
+.text-29, .text-31, .text-33, .text-35 {
+  width: 500px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: #1e242e;
+}
+  </style>
+</head>
+<body>
+  <!-- NOTE: this scaffold contains the structural skeleton and Axiom-style tokens for the Gorgias admin Shopping Assistant page.
+       Copy text and some elements (e.g. notification badge, Beta/New tags, "Ask Gaia" pill, gradient AI orb, gear icons,
+       per-card description copy, "Track Performance" links, "Set Up" button on the Embedded card) are NOT yet present here —
+       refer to the screenshot and the prompt for the canonical content. -->
+  <div class="frame-wrapper">
+    <!-- Sidebar -->
+    <div class="layer-navigation-main-1">
+      <div class="layer-second-nav-3">
+        <div class="layer-navigation-header-4">
+          <p class="text-1">AI Agent</p>
+        </div>
+        <div class="layer-section-list-5">
+          <div class="layer-dropdown-6">
+            <div class="layer-button-7">
+              <p class="text-7">ariagroult</p>
+            </div>
+          </div>
+          <div class="layer-navigation-item-48"><div class="layer-entry-49"><div class="layer-label-50"><p class="text-10">Analyze</p></div></div></div>
+          <div class="layer-navigation-item-52"><div class="layer-entry-53"><div class="layer-label-54"><p class="text-11">Train</p></div></div></div>
+          <div class="layer-navigation-item-68"><div class="layer-entry-69"><div class="layer-label-70"><p class="text-14">Skills</p></div></div></div>
+          <div class="layer-navigation-item-68"><div class="layer-entry-69"><div class="layer-label-70"><p class="text-14">Knowledge</p></div></div></div>
+          <div class="layer-navigation-item-71"><div class="layer-entry-72"><div class="layer-label-73"><p class="text-15">Tone of Voice</p></div></div></div>
+          <div class="layer-navigation-item-71"><div class="layer-entry-72"><div class="layer-label-73"><p class="text-15">Support Actions</p></div></div></div>
+          <div class="layer-navigation-item-74"><div class="layer-entry-75"><div class="layer-label-76"><p class="text-16">Products</p></div></div></div>
+          <div class="layer-navigation-item-77">
+            <div class="layer-entry-78">
+              <div class="layer-frame-2147257303-79">
+                <div class="layer-label-80">
+                  <p class="text-17">Shopping Assistant</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-navigation-item-81"><div class="layer-entry-82"><div class="layer-label-83"><p class="text-18">Test</p></div></div></div>
+          <div class="layer-navigation-item-100"><div class="layer-entry-101"><div class="layer-label-102"><p class="text-22">Deploy</p></div></div></div>
+          <div class="layer-navigation-item-97"><div class="layer-entry-98"><div class="layer-label-99"><p class="text-21">Chat</p></div></div></div>
+          <div class="layer-navigation-item-97"><div class="layer-entry-98"><div class="layer-label-99"><p class="text-21">Email</p></div></div></div>
+          <div class="layer-navigation-item-97"><div class="layer-entry-98"><div class="layer-label-99"><p class="text-21">SMS</p></div></div></div>
+          <div class="layer-navigation-item-97"><div class="layer-entry-98"><div class="layer-label-99"><p class="text-21">Socials</p></div></div></div>
+          <div class="layer-navigation-item-104"><div class="layer-entry-105"><div class="layer-label-106"><p class="text-23">Settings</p></div></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Main -->
+    <div class="layer-page-107">
+      <div class="layer-content-108">
+        <div class="layer-page-header-109">
+          <div class="layer-frame-6-110">
+            <div class="layer-frame-2-111">
+              <div class="layer-frame-1-112">
+                <p class="text-24">Shopping Assistant</p>
+              </div>
+            </div>
+            <div class="layer-frame-3-113">
+              <div class="layer-button-sbok-114"><p class="text-25">Save Changes</p></div>
+              <div class="layer-button-sbok-115"><p class="text-26">Test</p></div>
+            </div>
+          </div>
+        </div>
+        <!-- Tabs placeholder (Strategy / Customer Engagement / Product Recommendations) -->
+        <div class="layer-frame-2147257268-117">
+          <!-- Card 1: AI FAQs: Embedded in page → Set Up button -->
+          <div class="layer-feature-activation-card-118">
+            <div class="layer-frame-2147257368-119">
+              <div class="layer-frame-2147257318-120">
+                <p class="text-27">AI FAQs: Embedded in page</p>
+                <div class="layer-button-sbok-114"><p class="text-25">Set Up</p></div>
+              </div>
+              <p class="text-29">Show up to 3 dynamic, AI-generated questions embedded directly in product pages to resolve pre-sales questions and drive conversion. On pages where this is installed, the Floating AI FAQs are automatically hidden to avoid duplicates.</p>
+            </div>
+          </div>
+          <!-- Card 2: AI FAQs: Floating above chat → gear + toggle + Track Performance -->
+          <div class="layer-feature-activation-card-130">
+            <div class="layer-frame-2147257368-131">
+              <div class="layer-frame-2147257318-132">
+                <p class="text-30">AI FAQs: Floating above chat</p>
+                <div class="layer-toggle-138"><div class="layer-toggle-input-139"></div></div>
+              </div>
+              <p class="text-31">Show up to 3 AI-generated questions above chat to answer common shopper questions and start conversations. Automatically hidden on product pages where Embedded AI FAQs are installed.</p>
+            </div>
+          </div>
+          <!-- Card 3: Search assist → toggle + Track Performance -->
+          <div class="layer-feature-activation-card-142">
+            <div class="layer-frame-2147257368-143">
+              <div class="layer-frame-2147257318-144">
+                <p class="text-32">Search assist</p>
+                <div class="layer-toggle-150"><div class="layer-toggle-input-151"></div></div>
+              </div>
+              <p class="text-33">Send a personalized message right after a shopper searches to guide them to the right product and drive more conversions.</p>
+            </div>
+          </div>
+          <!-- Card 4: Ask anything input → gear + toggle -->
+          <div class="layer-feature-activation-card-154">
+            <div class="layer-frame-2147257368-155">
+              <div class="layer-frame-2147257318-156">
+                <p class="text-34">Ask anything input</p>
+                <div class="layer-toggle-162"><div class="layer-toggle-input-163"></div></div>
+              </div>
+              <p class="text-35">Drive more sales by adding an always-on input field that encourages shoppers to start a conversation.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

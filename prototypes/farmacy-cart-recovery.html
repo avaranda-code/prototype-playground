@@ -1,0 +1,2313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Farmacy · Cart Recovery Chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #14171f;
+    --border: #232733;
+    --muted: #8b909c;
+    --text: #e7e9ee;
+    --accent: #ff7a59;
+    --ink: #1a1a1a;
+    --ink-soft: #5c6370;
+    --honey: #8c5a3c;
+    --honey-border: #8c5a3c80;
+    --honey-border-soft: #8c5a3c1a;
+    --grad-top: #fafafa;
+    --grad-bot: #f4efe7;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { scrollbar-width: none; }
+
+  /* ── Topbar (playground chrome) ────────────────────────────────────── */
+  .topbar {
+    position: relative; z-index: 50;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px;
+    background: rgba(11,13,18,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar h1 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .topbar h1 .accent { color: #f5c842; }
+  .topbar .sub { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: #1a1e28; border-color: #2e3340; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #ff8d70; border-color: #ff8d70; }
+
+  /* ── Stage ─────────────────────────────────────────────────────────── */
+  .stage {
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 24px 24px 32px;
+    min-height: calc(100vh - 56px);
+  }
+  .flow-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .flow-toggle {
+    display: inline-flex;
+    padding: 4px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+  }
+  .flow-toggle button {
+    padding: 7px 16px;
+    font-size: 12px; font-weight: 600;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .flow-toggle button:hover { color: #fff; }
+  .flow-toggle button.active { background: #fff; color: #1a1a1a; }
+  .flow-toggle .edited-dot {
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* ── Phone frame ───────────────────────────────────────────────────── */
+  .phone {
+    width: 320px; height: 660px;
+    background: #1a1a1a;
+    border-radius: 46px;
+    padding: 10px;
+    position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(255,255,255,0.04);
+  }
+  .phone-side-l1 { left: -3px; top: 110px; width: 3px; height: 28px; border-radius: 3px 0 0 3px; background: #2a2a2a; position: absolute; }
+  .phone-side-l2 { left: -3px; top: 150px; width: 3px; height: 54px; border-radius: 3px 0 0 3px; background: #2a2a2a; position: absolute; }
+  .phone-side-l3 { left: -3px; top: 215px; width: 3px; height: 54px; border-radius: 3px 0 0 3px; background: #2a2a2a; position: absolute; }
+  .phone-side-r1 { right: -3px; top: 156px; width: 3px; height: 70px; border-radius: 0 3px 3px 0; background: #2a2a2a; position: absolute; }
+  .phone-screen {
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg, var(--grad-top) 0%, var(--grad-bot) 100%);
+    border-radius: 40px;
+    overflow: hidden;
+    position: relative;
+    color: var(--ink);
+  }
+
+  .status-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px 4px;
+    font-size: 11px; font-weight: 600;
+    flex-shrink: 0;
+    color: #161616;
+  }
+  .status-bar-icons { display: flex; align-items: center; gap: 4px; }
+
+  /* ── iMessage entry screen ─────────────────────────────────────────── */
+  .imsg-screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    background: #fff;
+    z-index: 5;
+  }
+  .imsg-statusbar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 12px 18px 2px;
+    flex-shrink: 0;
+    color: #161616;
+  }
+  .imsg-time { font-size: 13px; font-weight: 600; }
+  .imsg-bell { display: inline-flex; opacity: 0.85; }
+  .imsg-status-icons { display: flex; align-items: center; gap: 5px; }
+  .imsg-toprow {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 2px 12px 0;
+    flex-shrink: 0;
+  }
+  .imsg-back {
+    display: inline-flex; align-items: center; gap: 2px;
+    background: none; border: none; cursor: pointer; padding: 4px;
+  }
+  .imsg-badge {
+    background: #0a84ff; color: #fff;
+    font-size: 13px; font-weight: 600;
+    border-radius: 999px;
+    padding: 1px 9px;
+    min-width: 22px; text-align: center;
+  }
+  .imsg-identity {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 2px 0 14px;
+    flex-shrink: 0;
+  }
+  .imsg-logo {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 6px 0;
+  }
+  .imsg-logo-name { font-size: 19px; font-weight: 400; letter-spacing: 0.2em; color: #1a1a1a; }
+  .imsg-logo-sub { font-size: 8.5px; letter-spacing: 0.42em; color: #1a1a1a; margin-top: 2px; }
+  .imsg-contact {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 13px; font-weight: 600; color: #3c3c43;
+  }
+  .imsg-contact-chev { display: inline-flex; }
+  .imsg-body {
+    flex: 1; overflow-y: auto;
+    padding: 0 16px 18px;
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: 6px;
+  }
+  .imsg-timestamp {
+    align-self: center;
+    text-align: center;
+    font-size: 11px; color: #8e8e93;
+    margin: 4px 0 12px;
+    line-height: 1.5;
+  }
+  .imsg-channel { font-weight: 600; color: #8e8e93; }
+  .imsg-card {
+    padding: 4px;
+    border: 1.5px solid #c79a6d;
+    border-radius: 16px;
+    background: #fff;
+    cursor: pointer;
+    width: 74%;
+    overflow: hidden;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .imsg-card-img {
+    width: 100%;
+    aspect-ratio: 1 / 1.08;
+    background: #fff;
+    background-size: contain; background-position: center; background-repeat: no-repeat;
+    border-radius: 12px;
+  }
+  .imsg-caption {
+    display: flex; align-items: center; gap: 8px;
+    max-width: 80%;
+    background: #e9e9eb; color: #000;
+    border-radius: 20px;
+    padding: 10px 12px 10px 16px;
+    font-size: 14.5px; line-height: 19px;
+    text-align: left;
+    border: none; cursor: pointer;
+    font-family: inherit;
+  }
+  .imsg-caption-text { flex: 1; }
+  .imsg-caption-chev { display: inline-flex; flex-shrink: 0; }
+  .imsg-reply {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #e9e9eb; color: #000;
+    border-radius: 20px;
+    padding: 9px 9px 9px 16px;
+    font-size: 14.5px; line-height: 19px;
+    border: none; cursor: pointer;
+    font-family: inherit;
+    margin-top: 2px;
+  }
+  .imsg-reply-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── Chat (the primary view) ───────────────────────────────────────── */
+  .chat-screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    background: linear-gradient(180deg, var(--grad-top) 0%, var(--grad-bot) 100%);
+    z-index: 5;
+  }
+  /* App-open animation when launched from the iMessage screen. */
+  .chat-screen.entering {
+    animation: chatOpen 0.42s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @keyframes chatOpen {
+    from { transform: scale(0.92) translateY(6%); opacity: 0; border-radius: 40px; }
+    to   { transform: scale(1) translateY(0); opacity: 1; border-radius: 0; }
+  }
+  .chat-topbar {
+    position: relative;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 14px 8px;
+    z-index: 2;
+  }
+  .glass-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 3px rgba(0,0,0,0.10);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .glass-btn.faint { background: rgba(255,255,255,0.35); }
+  .glass-btn:hover { background: rgba(255,255,255,0.75); }
+  .farmacy-wordmark {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  .chat-body {
+    flex: 1; overflow-y: auto;
+    padding: 4px 16px 18px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* AI brief intro line */
+  .chat-intro {
+    font-size: 12.5px;
+    color: #6b7280;
+    line-height: 18px;
+    margin: 6px 2px 14px;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+
+  /* "Picked for you" title (initial-screen header) */
+  .picked-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px; font-weight: 500;
+    color: #000;
+    margin: 2px 0 14px;
+    line-height: 24px;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+
+  /* Product grid in chat (Picked for you layout) */
+  .picked-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 10px;
+    margin: 0 0 22px;
+    animation: fadeInUp 0.35s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .picked-card {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .picked-card-imgwrap {
+    position: relative;
+    aspect-ratio: 1/1.27;
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 4px 4px rgba(0,0,0,0.03);
+    overflow: hidden;
+  }
+  .picked-card-img {
+    width: 100%; height: 100%;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #fff;
+  }
+  .picked-card-cart {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #1f1f1f;
+    color: #fff;
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .picked-card-info {
+    display: flex; flex-direction: column;
+    padding: 0 2px;
+  }
+  .picked-card-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 4px;
+  }
+  .picked-card-name {
+    font-size: 11px; font-weight: 500;
+    color: #000;
+    line-height: 15px;
+    margin: 0;
+  }
+  .picked-card-price {
+    font-size: 11px; font-weight: 500;
+    color: #000;
+    flex-shrink: 0;
+  }
+  .picked-card-sub {
+    font-size: 11px; font-weight: 400;
+    color: #5c6370;
+    line-height: 16px;
+    margin: 2px 0 0;
+  }
+
+  /* AI / user bubbles */
+  .chat-msg-ai {
+    margin: 6px 0 14px;
+    font-size: 13.5px; line-height: 20px;
+    color: var(--ink);
+    white-space: pre-line;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .chat-msg-ai strong { font-weight: 600; }
+  .chat-msg-user {
+    display: flex; justify-content: flex-end;
+    margin-bottom: 12px;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .chat-msg-user-bubble {
+    background: rgba(255,255,255,0.72);
+    color: var(--ink);
+    border-radius: 22px;
+    padding: 8px 14px;
+    max-width: calc(100% - 32px);
+    font-size: 13px;
+    line-height: 19px;
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+
+  /* Social-proof review quotes */
+  .chat-reviews {
+    display: flex; flex-direction: column;
+    gap: 8px;
+    margin: -4px 0 14px;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .chat-review {
+    font-size: 12px; line-height: 17px;
+    color: #50535a;
+    padding-left: 10px;
+    border-left: 2px solid rgba(140,90,60,0.28);
+  }
+  .chat-review .who { color: #9aa0aa; }
+
+  /* Comparison "bottom line" card */
+  .chat-bottomline {
+    margin: -2px 0 14px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(140,90,60,0.07);
+    border: 1px solid rgba(140,90,60,0.16);
+    font-size: 13px; line-height: 19px;
+    color: var(--ink);
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .chat-bottomline strong {
+    display: block;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--honey);
+    margin-bottom: 5px;
+  }
+
+  /* Skin-quiz answer options — full-width stacked pills in the hood */
+  .quiz-hood {
+    display: flex; flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .quiz-hood-btn {
+    width: 100%;
+    text-align: left;
+    padding: 13px 18px;
+    border-radius: 999px;
+    border: 1px solid #ececec;
+    background: rgba(255,255,255,0.7);
+    color: var(--ink);
+    font-size: 13px; font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.14s;
+  }
+  .quiz-hood-btn:hover {
+    border-color: rgba(140,90,60,0.5);
+    background: #fff;
+  }
+  .quiz-hood-btn.photo {
+    background: #2b2b2b; color: #fff; border-color: #2b2b2b;
+    text-align: center;
+  }
+  .quiz-hood-btn.photo:hover { background: #000; }
+  .quiz-hood-btn.ghost { text-align: center; color: #8a8f99; }
+
+  /* Featured "your match" product card */
+  .match-card {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%;
+    padding: 12px;
+    margin: 2px 0 16px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(140,90,60,0.18);
+    box-shadow: 0 10px 28px -18px rgba(20,24,32,0.4);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    animation: fadeInUp 0.35s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .match-card-img {
+    width: 64px; height: 64px;
+    border-radius: 12px;
+    background: #fafafa;
+    background-size: contain; background-position: center; background-repeat: no-repeat;
+    flex-shrink: 0;
+  }
+  .match-card-info { flex: 1; min-width: 0; }
+  .match-card-row { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+  .match-card-name { font-size: 13px; font-weight: 600; color: var(--ink); margin: 0; }
+  .match-card-price { font-size: 13px; font-weight: 600; color: var(--ink); flex-shrink: 0; }
+  .match-card-sub { font-size: 11px; color: #6b7280; margin: 2px 0 6px; }
+  .match-card-cta { font-size: 11px; font-weight: 700; color: var(--honey); }
+
+  /* Typing bubble */
+  .typing-wrap {
+    display: inline-flex;
+    margin: 4px 0 14px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(0,0,0,0.04);
+    border-radius: 20px 20px 20px 6px;
+    animation: typingWrapIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  /* When the bubble carries contextual "thinking" copy, lay it out as a row:
+     brand-moment text + the springy dots. */
+  .typing-wrap.has-text {
+    align-items: center;
+    gap: 10px;
+    border-radius: 20px;
+  }
+  .typing-text {
+    font-size: 12px; font-style: italic;
+    color: #6b7280;
+  }
+  @keyframes typingWrapIn {
+    from { opacity: 0; transform: scale(0.7) translateY(6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .typing-dots {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .typing-dots span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #4a503e;
+    animation: typingSpring 1.3s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    will-change: transform;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.18s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes typingSpring {
+    0%, 65%, 100% { transform: translateY(0) scale(1); opacity: 0.45; }
+    18% { transform: translateY(-5px) scale(1.55, 0.85); opacity: 1; }
+    32% { transform: translateY(2px) scale(0.85, 1.2); opacity: 0.85; }
+    48% { transform: translateY(-1px) scale(1.05, 0.98); opacity: 0.7; }
+  }
+
+  /* ── Bottom sheet (SPQs + Ask anything) ────────────────────────────── */
+  .chat-input-zone {
+    flex-shrink: 0;
+    background: var(--grad-top);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.06);
+    padding: 8px 14px 14px;
+    position: relative;
+    z-index: 6;
+  }
+  .chat-input-handle {
+    width: 44px; height: 5px;
+    border-radius: 999px;
+    background: #c6c6c6;
+    margin: 0 auto 10px;
+  }
+  .spq-stack {
+    display: flex; flex-wrap: nowrap;
+    gap: 8px;
+    margin: 0 -14px 10px;
+    padding: 0 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    animation: fadeInUp 0.3s cubic-bezier(0.2,1.1,0.4,1);
+  }
+  .spq-stack::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  .spq-btn {
+    flex-shrink: 0;
+    display: inline-flex; align-items: center;
+    padding: 10px 14px;
+    border-radius: 32px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--honey-border-soft);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    line-height: 16px;
+    white-space: nowrap;
+  }
+  .spq-btn:hover { background: #fff; border-color: rgba(140,90,60,0.32); }
+
+  .chat-input-pill {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 14px;
+    background: rgba(255,255,255,0.55);
+    border-radius: 40px;
+    border: 1px solid var(--honey-border);
+    box-shadow: 0 4px 4px rgba(0,0,0,0.04);
+  }
+  .chat-input-pill input {
+    flex: 1;
+    border: none; outline: none;
+    background: transparent;
+    font-size: 12px;
+    color: #363636;
+    font-family: inherit;
+    min-width: 0;
+  }
+  .chat-input-pill input::placeholder { color: #9aa0aa; }
+  .chat-input-pill .pill-action {
+    width: 24px; height: 24px;
+    border: none; background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+    color: var(--ink);
+  }
+  .chat-input-pill .pill-action.disabled { cursor: default; }
+
+  /* ── PDP (full takeover) ───────────────────────────────────────────── */
+  /* PDP opens with a maximize-from-card effect: scales up from the clicked
+     product's position. Closing reverses to a minimize. transform-origin is
+     set inline based on where the user tapped. */
+  .pdp-screen {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, var(--grad-top) 0%, var(--grad-bot) 100%);
+    z-index: 20;
+    display: flex; flex-direction: column;
+    will-change: transform, opacity, border-radius;
+  }
+  .pdp-screen.entering {
+    /* Slower out-curve so the maximize reads as a deliberate scale-up
+       rather than a snap, matching a desktop minimize/maximize feel. */
+    animation: pdpMaximize 0.46s cubic-bezier(0.32, 0.72, 0.2, 1) backwards;
+  }
+  .pdp-screen.closing {
+    /* Ease-in for close — slow start, accelerating dive back to the card. */
+    animation: pdpMinimize 0.36s cubic-bezier(0.6, 0.04, 0.86, 0.18) forwards;
+    pointer-events: none;
+  }
+  @keyframes pdpMaximize {
+    0% {
+      transform: scale(0.18);
+      opacity: 0;
+      border-radius: 14px;
+      filter: blur(2px);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+      border-radius: 0;
+      filter: blur(0);
+    }
+  }
+  @keyframes pdpMinimize {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+      border-radius: 0;
+      filter: blur(0);
+    }
+    100% {
+      transform: scale(0.18);
+      opacity: 0;
+      border-radius: 14px;
+      filter: blur(2px);
+    }
+  }
+  .pdp-floating-buttons {
+    position: absolute; top: 8px; left: 0; right: 0;
+    padding: 0 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 4;
+  }
+  .pdp-body {
+    flex: 1; overflow-y: auto;
+    padding: 0 0 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pdp-status { background: transparent; }
+  .pdp-hero {
+    width: 100%;
+    aspect-ratio: 1/1;
+    margin: 24px auto 0;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .pdp-dots {
+    display: flex; justify-content: center; align-items: center;
+    gap: 4px;
+    margin: 8px 0 16px;
+  }
+  .pdp-dots .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #d9d9d9;
+  }
+  .pdp-dots .dot:nth-child(1) { background: #2b2b2b; }
+  .pdp-dots .dot:nth-child(4) { width: 5px; height: 5px; }
+  .pdp-dots .dot:nth-child(5) { width: 3px; height: 3px; }
+  .pdp-info {
+    padding: 0 18px 0;
+  }
+  .pdp-name-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .pdp-name {
+    font-size: 15px; font-weight: 500;
+    color: #000;
+    margin: 0;
+    line-height: 20px;
+  }
+  .pdp-price {
+    font-size: 15px; font-weight: 500;
+    color: #000;
+    flex-shrink: 0;
+  }
+  .pdp-variant {
+    font-size: 12px; font-weight: 400;
+    color: #5c6370;
+    line-height: 18px;
+    margin: 0 0 14px;
+  }
+  .pdp-cta {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 40px;
+    background: #2b2b2b;
+    color: #fff;
+    border: none;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    margin-bottom: 14px;
+  }
+  .pdp-cta:hover { background: #000; }
+  .pdp-bullets {
+    font-size: 12.5px;
+    line-height: 19px;
+    color: #1e242e;
+    white-space: pre-line;
+    margin: 0 0 4px;
+  }
+
+  /* ── Toast ─────────────────────────────────────────────────────────── */
+  .toast {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e242e;
+    color: #fff;
+    padding: 9px 14px;
+    border-radius: 12px;
+    font-size: 12px; font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    z-index: 50;
+    animation: toastIn 0.3s, toastOut 0.3s 1.7s forwards;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translate(-50%, 10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  @keyframes toastOut {
+    to { opacity: 0; transform: translate(-50%, -8px); }
+  }
+
+  /* ── Edit panel ────────────────────────────────────────────────────── */
+  .edit-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 80;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .edit-overlay.open { opacity: 1; pointer-events: auto; }
+  .edit-panel {
+    position: fixed; top: 0; right: 0;
+    height: 100vh;
+    width: 480px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    box-shadow: -16px 0 48px rgba(0,0,0,0.5);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(.2,.8,.2,1);
+    z-index: 90;
+    display: flex; flex-direction: column;
+  }
+  .edit-panel.open { transform: translateX(0); }
+  .edit-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .edit-head h3 { font-size: 14px; font-weight: 700; margin: 0; color: var(--text); }
+  .edit-head .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .edit-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 22px; line-height: 1; }
+  .edit-close:hover { color: var(--text); }
+  .edit-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .edit-tab {
+    flex: 1;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-family: inherit;
+  }
+  .edit-tab.active { color: var(--text); border-bottom-color: #f5c842; }
+  .edit-body { flex: 1; overflow-y: auto; padding: 18px 20px; }
+  .edit-section { margin-bottom: 22px; }
+  .edit-section h4 {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .edit-section h4 .icon { font-size: 14px; line-height: 1; }
+  .edit-field { margin-bottom: 12px; }
+  .edit-field label {
+    display: block;
+    font-size: 11px; color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .edit-input, .edit-textarea {
+    width: 100%;
+    padding: 8px 10px;
+    background: #0b0d12;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+  }
+  .edit-input:focus, .edit-textarea:focus { border-color: #f5c842; }
+  .edit-textarea { min-height: 64px; line-height: 1.4; }
+  .edit-spq-list { display: flex; flex-direction: column; gap: 6px; }
+  .edit-spq-row { display: flex; gap: 6px; align-items: stretch; }
+  .edit-spq-row .edit-input { flex: 1; }
+  .edit-spq-rm {
+    width: 28px;
+    border: 1px solid var(--border); background: transparent; color: #aaa;
+    border-radius: 6px; cursor: pointer;
+    font-size: 14px;
+  }
+  .edit-spq-rm:hover { color: var(--accent); border-color: var(--accent); }
+  .edit-add {
+    margin-top: 4px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    align-self: flex-start;
+  }
+  .edit-add:hover { color: var(--text); border-color: var(--muted); }
+  .edit-response-card {
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.02);
+  }
+  .edit-response-card .edit-field { margin-bottom: 8px; }
+  .edit-response-card .edit-response-rm {
+    background: none; border: none; color: #aaa; cursor: pointer;
+    font-size: 11px; padding: 0;
+  }
+  .edit-response-card .edit-response-rm:hover { color: var(--accent); }
+  .edit-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px;
+  }
+  .edit-footer .btn { flex: 1; justify-content: center; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Responsive ────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .phone { transform: scale(0.92); transform-origin: top center; }
+    .edit-panel { width: min(460px, 100%); }
+  }
+  @media (max-width: 640px) {
+    .topbar { padding: 10px 12px; gap: 6px; }
+    .topbar h1 { font-size: 13px; }
+    .topbar > div:first-of-type { display: none; }
+    .stage { padding: 14px 0 28px; }
+    .phone { transform: none; }
+    .edit-panel { width: 100%; max-width: 100vw; }
+  }
+  @media (max-width: 380px) {
+    .topbar h1 .sub { display: none; }
+    .phone { width: 300px; height: 620px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Farmacy<span class="accent"> · </span><span class="sub">Cart recovery chat</span></h1>
+  <div style="flex:1"></div>
+  <button class="btn" onclick="resetItem()" title="Wipe local overrides">↺ Reset</button>
+  <button class="btn primary" onclick="toggleEdit()">✎ Edit panel</button>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<div class="edit-overlay" id="editOverlay" onclick="toggleEdit()"></div>
+<div class="edit-panel" id="editPanel">
+  <div class="edit-head">
+    <div>
+      <h3 id="editPanelTitle">Edit</h3>
+      <div class="sub" id="editPanelSub"></div>
+    </div>
+    <button class="edit-close" onclick="toggleEdit()">×</button>
+  </div>
+  <div class="edit-tabs">
+    <button class="edit-tab active" data-tab="content" onclick="switchEditTab('content')">Content</button>
+    <button class="edit-tab" data-tab="notes" onclick="switchEditTab('notes')">Notes</button>
+  </div>
+  <div class="edit-body" id="editBody"></div>
+  <div class="edit-footer">
+    <button class="btn" onclick="resetItem()">Reset</button>
+    <button class="btn primary" onclick="toggleEdit()">Done</button>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   1. PRODUCT DATA
+   Each product has the chat-grid fields (name, sub, price, img) and the
+   PDP fields (desc shown below Add-to-bag + bullets).
+   ════════════════════════════════════════════════════════════════════════ */
+const PRODUCTS = [
+  {
+    id: 'halo', name: 'Honey Halo', sub: 'ultra-hydrating ceramide moisturizer',
+    price: '$48', priceLow: 'From $48',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/Farmacy_HoneyHalo_50ml_Hero_balanced_2000x2000_24db588f-fbca-47ca-80cb-174e73387796.jpg?v=1762201121&width=900',
+    pdpDesc: "Hypoallergenic\nCeramide-rich · 8× hydration after 1 use\n100% Vegan + Cruelty-Free",
+    inCart: true,
+  },
+  {
+    id: 'cloud', name: 'Honey Cloud', sub: 'lightweight cloud moisturizer',
+    price: '$32', priceLow: 'From $20',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/Farmacy_HoneyCloud_50ml_Hero_NEAseal_Top_a81d94ca-95bc-4fbf-846b-98ca4f32a993.jpg?v=1770309951&width=900',
+    pdpDesc: "Fragrance-free + non-comedogenic\nEctoin + hyaluronic acid + PGA peptides\nUpcycled chamomile + calendula soothe",
+    eczema: true,
+  },
+  {
+    id: 'milk', name: 'Honey Milk', sub: 'calming + soothing essence',
+    price: '$34', priceLow: 'From $17',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/Farmacy_HoneyMilkHydratingEssence20ml_Hero_NEASeal_Top_15d00932-8bf6-4108-86f8-8bd61a8bf3fa.jpg?v=1770310115&width=900',
+    pdpDesc: "Eczema Association accepted\nHawaiian white honey + chamomile + ceramides\nCalms visible redness + strengthens barrier",
+    eczema: true,
+  },
+  {
+    id: 'filling', name: 'Filling Good', sub: 'hyaluronic acid plumping serum',
+    price: '$52',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/Farmacy_FillingGood_30ml_Hero_1.jpg?v=1738091319&width=900',
+    pdpDesc: "Plumps fine lines on contact\nMulti-weight HA + buckwheat honey\nLayer under moisturizer or makeup",
+  },
+  {
+    id: 'glow17', name: 'Honey Glow 17%', sub: 'AHA/BHA exfoliating night serum',
+    price: '$60',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/Farmacy_HoneyGlow17_ResurfacingAcidSerum_30ml_Hero_555b0905-74a5-4879-bebf-e9a8f309df7a.jpg?v=1762804741&width=900',
+    pdpDesc: "17% AHA + BHA blend, honey-buffered\nResurfaces overnight, brightens + smooths\nUse 2–3 nights/week",
+  },
+  {
+    id: 'grail', name: 'Honey Grail', sub: 'antioxidant face oil',
+    price: '$52',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/Farmacy_HoneyGrail_30ml_Hero.jpg?v=1738784494&width=900',
+    pdpDesc: "Antioxidant-rich, ultra-hydrating face oil\nBuckwheat honey + sea buckthorn berry\nAdds dewy glow, locks in moisture",
+  },
+  {
+    id: 'potion', name: 'Honey Potion Plus', sub: 'ceramide hydration mask',
+    price: '$48', priceLow: 'From $45',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/HoneyPotionPlus117g.jpg?v=1715116967&width=900',
+    pdpDesc: "Self-warming plumping mask\nCeramides + Manuka honey\nInstant hydration boost in 8 minutes",
+  },
+  {
+    id: 'vanilla', name: 'Honey Vanilla Clean', sub: 'limited-edition cleansing balm',
+    price: '$36',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/Farmacy_HoneyVanillaClean_Hero.jpg?v=1715716453&width=900',
+    pdpDesc: "Limited-edition vanilla scent\nMelts away makeup + SPF\nHoney-rich balm-to-oil",
+  },
+  {
+    id: 'lipsmooth', name: 'Honey Vanilla Lip Smoothie', sub: 'vitamin C + peptide lip balm',
+    price: '$22',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/Farmacy_LipSmoothie_10g_HoneyVanilla_Hero_c34926c6-4e7d-4be4-bdf0-7557c0001bd9.jpg?v=1738100106&width=900',
+    pdpDesc: "Plumps lips, smooths fine lines\nVitamin C + peptide complex\nHoney vanilla scent",
+  },
+  {
+    id: 'lipbutter', name: 'Honey Butter Lip', sub: 'beeswax lip balm',
+    price: '$15',
+    img: 'https://www.farmacybeauty.com/cdn/shop/files/Farmacy_HoneyButterLipBalm_HeroOpen.jpg?v=1763673608&width=900',
+    pdpDesc: "Beeswax-rich, satin finish\nSoft, satisfying coat of moisture\nLightly honey-scented",
+  },
+];
+const PRODUCT_BY_ID = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
+
+/* ════════════════════════════════════════════════════════════════════════
+   2. ITEM CONFIG — editable via the panel
+   ════════════════════════════════════════════════════════════════════════ */
+const ITEMS = [
+  {
+    id: 'honey-halo-cart-recovery',
+    name: 'Honey Halo · Cart Recovery',
+    config: {
+      // Chat opener
+      intro: "honey halo's still in your cart 🍯 here's what pairs well from our skincare team:",
+      pickedTitle: "Picked for you",
+
+      // SPQs in bottom sheet
+      spqs: [
+        "Is it waterproof?",
+        "Is it lightweight enough for summer?",
+        "Does it soften fine lines?",
+        "Can I wear it under makeup?",
+        "Is it safe for sensitive skin?",
+        "What size should I get?",
+      ],
+
+      // SPQ → response library
+      responses: [
+        {
+          trigger: 'lightweight|summer|breathable|heavy|greasy',
+          reply: "yes ☁️ whipped, fast-absorbing texture that melts into skin. layers under SPF in summer heat ~ no greasy finish, never smothered.",
+          followUps: ["Can I wear it under makeup?", "What size should I get?", "Got a discount code?"],
+        },
+        {
+          trigger: 'waterproof|sweat|water',
+          reply: "it's moisture-lock, not literally waterproof ~ but holds up under SPF, light sweat, and humid air. reapply moisturizer after swimming 💧",
+          followUps: ["Is it lightweight enough for summer?", "Can I wear it under makeup?", "What size should I get?"],
+        },
+        {
+          trigger: 'fine lines|wrinkle|plump|aging|age',
+          reply: "yes ✨ buckwheat honey + ceramides plump the look of fine lines and replenish dry, distressed skin. results build with daily use 🌱",
+          followUps: ["Is it safe for sensitive skin?", "What's in it?", "What pairs well with it?"],
+        },
+        {
+          trigger: 'makeup|foundation|primer|under|base',
+          reply: "absolutely 🤍 smooth, grippy base for foundation + SPF, no pilling. give it 30s to absorb, then layer over.",
+          followUps: ["Is it lightweight enough for summer?", "Does it soften fine lines?", "What size should I get?"],
+        },
+        {
+          trigger: 'sensitive|reactive|eczema|rosacea|redness',
+          reply: "yep 🌱 formulated without essential oils + fragrance-light ~ supports reactive, sensitive skin types. gentle enough for daily use on normal-to-dry skin.",
+          followUps: ["Does it soften fine lines?", "Can I wear it under makeup?", "What size should I get?"],
+        },
+        {
+          trigger: 'size|how big|ml|oz|how long|last',
+          reply: "the 50 ml ($48) is our most-loved ~ about 2 months of daily use 🍯 there's a 15 ml mini ($20) to try first, plus 25 ml + 100 ml sizes.",
+          followUps: ["Got a discount code?", "Does it soften fine lines?", "Is it safe for sensitive skin?"],
+        },
+        {
+          trigger: 'discount|code|deal|sale|coupon|promo|off',
+          reply: "for you 💛 use **COMEBACK10** for 10% off honey halo ~ drops the 50 ml to about $43. free shipping over $50 too 🐝",
+          followUps: ["Show me other honey products", "Can I wear it under makeup?", "What size should I get?"],
+        },
+        {
+          trigger: 'ingredient|formula|contain|what.*in',
+          reply: "key ingredients ~\n💧 buckwheat honey: antioxidant-rich, hydrating\n🌿 ceramides: restores + strengthens the skin barrier\n☁️ squalane: soft, dewy finish\n\nno essential oils, vegan + cruelty-free 🤍",
+          followUps: ["Is it safe for sensitive skin?", "Does it soften fine lines?", "Got a discount code?"],
+        },
+        {
+          trigger: 'other|recommend|show.*products|honey products|else',
+          reply: "happy to show you more honey hydrators ~ here are the fan favorites in our honey lineup 🍯🐝",
+          followUps: ["Back to Honey Halo", "What pairs well with it?", "Got a discount code?"],
+          showGrid: true,
+        },
+        {
+          trigger: 'pair|routine|with|combine|use with',
+          reply: "full glow routine ~ honey milk essence first (drenches skin), then honey halo to lock it in 🍯💧 add filling good if plumping fine lines is the priority.",
+          followUps: ["Show me other honey products", "Got a discount code?", "Is it safe for sensitive skin?"],
+        },
+      ],
+
+      defaultReply: "great q ☁️ let me grab our skincare lead ~ meanwhile, here are a few quick picks people ask about:",
+      defaultFollowUps: ["Is it lightweight enough for summer?", "Does it soften fine lines?", "Got a discount code?"],
+    },
+  },
+  // ──────────────────────────────────────────────────────────────────────
+  // Flow 2 — scaffold for a second flow. Rename + edit copy in the panel.
+  // ──────────────────────────────────────────────────────────────────────
+  {
+    id: 'flow-2',
+    name: 'Find your match',
+    config: {
+      intro: "welcome to farmacy 🐝 tell me what your skin's after and i'll find your honey match ~",
+      pickedTitle: "Bestsellers to start",
+
+      // ── Text-message entry point ──────────────────────────────────────
+      // When a flow has `textMessage`, it opens on an iMessage-style screen.
+      // Tapping the rich card or the reply launches the chat/quiz.
+      textMessage: {
+        contact: "Farmacy Beauty",
+        unread: "66",
+        channel: "Text Message · RCS",
+        timestamp: "Thu, Mar 5 at 9:21 PM",
+        productImg: PRODUCT_BY_ID.halo.img,
+        caption: "You left the Honey Halo Ultra Hydrating Moisturizer in your cart",
+        replyLabel: "Talk to a skincare expert",
+      },
+
+      // ── Skin quiz (entry step) ────────────────────────────────────────
+      // When a flow has a `quiz`, the chat opens in quiz mode: a card walks
+      // through the questions, an optional photo "skin read", a brand-moment
+      // analysis, then a personalized product match. Honey Halo has no quiz,
+      // so it opens straight into its product grid.
+      quiz: {
+        intro: "let's find your honey match 🍯\n3 quick questions + an optional skin read ~",
+        analyzing: "reading your skin…",
+        resultKey: 'concern',   // the answer that decides the match
+        questions: [
+          {
+            key: 'skinType',
+            prompt: "how does your skin feel most days?",
+            options: [
+              { label: "Dry + tight", value: 'dry' },
+              { label: "Oily / shiny", value: 'oily' },
+              { label: "Combination", value: 'combo' },
+              { label: "Sensitive + reactive", value: 'sensitive' },
+            ],
+          },
+          {
+            key: 'concern',
+            prompt: "what's your #1 goal right now?",
+            options: [
+              { label: "Deep hydration", value: 'hydration' },
+              { label: "Soften fine lines", value: 'fineLines' },
+              { label: "Calm redness", value: 'calm' },
+              { label: "Bring back glow", value: 'glow' },
+            ],
+          },
+          {
+            key: 'texture',
+            prompt: "pick a finish you love",
+            options: [
+              { label: "Rich + cushiony", value: 'rich' },
+              { label: "Featherlight", value: 'light' },
+              { label: "Dewy oil", value: 'oil' },
+              { label: "Watery essence", value: 'essence' },
+            ],
+          },
+        ],
+        photoStep: {
+          prompt: "last thing — want a quick skin read? 📷\nsnap a selfie and i'll factor it in (optional)",
+          takeLabel: "📷 Take a selfie",
+          skipLabel: "Skip for now",
+          reading: "skin read ✨ slightly dehydrated cheeks, healthy T-zone, a touch of dullness around the eyes ~ factoring that in:",
+        },
+        results: {
+          hydration: {
+            productId: 'halo',
+            reply: "your match: honey halo 🍯\nyour skin's craving ceramides + lasting moisture. honey halo drenches and seals it in for 8 hrs — our dry-skin hero.",
+            reviews: ["my dry winter skin drinks this up — wake up dewy every time. — Sarah K."],
+            followUps: ["Can I sleep in it?", "Build me a routine", "Add to bag • $48", "Retake quiz"],
+          },
+          fineLines: {
+            productId: 'filling',
+            reply: "your match: filling good 💧\nfor smoothing + plumping the look of fine lines ~ multi-weight hyaluronic acid + buckwheat honey for instant and lasting bounce.",
+            reviews: ["my laugh lines look softer after two weeks. — Priya R."],
+            followUps: ["Build me a routine", "Compare your moisturizers", "Add to bag • $52", "Retake quiz"],
+          },
+          calm: {
+            productId: 'milk',
+            reply: "your match: honey milk essence ☁️\ngentle, calming hydration for reactive skin ~ Hawaiian white honey + chamomile soothe visible redness while ceramides repair the barrier. (NEA accepted)",
+            reviews: ["my redness calms down within minutes. — Aria M."],
+            followUps: ["Build me a routine", "Is it fragrance-free?", "Add to bag • $34", "Retake quiz"],
+          },
+          glow: {
+            productId: 'potion',
+            reply: "your match: honey potion plus 🍯\nfor a weekly glow boost ~ a self-warming ceramide mask that floods skin with moisture and leaves it lit-from-within.",
+            reviews: ["instant glow before any event. obsessed. — Dana W."],
+            followUps: ["Build me a routine", "How often do I use it?", "Add to bag • $48", "Retake quiz"],
+          },
+          default: {
+            productId: 'halo',
+            reply: "your match: honey halo 🍯\nour cult-favorite ceramide moisturizer ~ the safest place to start your honey routine.",
+            followUps: ["Build me a routine", "Compare your moisturizers", "Add to bag • $48", "Retake quiz"],
+          },
+        },
+      },
+
+      spqs: [
+        "My skin feels dry + tight",
+        "I want to soften fine lines",
+        "Build me a routine",
+        "What's the cult favorite?",
+        "Compare your moisturizers",
+      ],
+      responses: [
+        {
+          trigger: 'dry|tight|dehydrated|parched|flak',
+          thinking: "matching you to the right hydrator…",
+          reply: "meet honey halo 🍯 our ceramide moisturizer ~ the one people reach for when skin feels parched. buckwheat honey + ceramides drench skin and lock it in for 8 hrs.",
+          reviews: [
+            "my dry winter skin drinks this up — wake up dewy every time. — Sarah K.",
+            "the only moisturizer that stops my cheeks flaking. — Mia T.",
+          ],
+          followUps: ["Can I sleep in it?", "Build me a routine", "Compare your moisturizers", "Add to bag • $48"],
+        },
+        {
+          trigger: 'fine lines|wrinkle|plump|aging|firm',
+          thinking: "scanning for plumping heroes…",
+          reply: "you'll want filling good 💧 our hyaluronic acid plumping serum ~ multi-weight HA + buckwheat honey for an instant + lasting plump. layers right under honey halo.",
+          reviews: [
+            "my laugh lines look softer after two weeks. — Priya R.",
+          ],
+          followUps: ["Build me a routine", "Compare your moisturizers", "Add to bag • $52"],
+        },
+        {
+          trigger: 'routine|steps|regimen|build|order|trio',
+          thinking: "building your honey routine…",
+          reply: "here's the 3-step honey glow routine ~\n☁️ honey milk essence — drench\n💧 filling good — plump\n🍯 honey halo — seal it in\n\nlayer them morning + night for a dewy finish.",
+          showGrid: true,
+          followUps: ["Add the trio • $134", "Compare your moisturizers", "Can I sleep in it?"],
+        },
+        {
+          trigger: 'cult|favorite|favourite|bestseller|popular|best|iconic',
+          thinking: "pulling the fan favorite…",
+          reply: "honey halo, no contest 🍯 it's the hero that started the honey obsession ~ ceramide-rich, 8× hydration after one use, 100% saw improved hydration.",
+          reviews: [
+            "i've repurchased this 6 times. holy grail. — Jess L.",
+            "gifted it to my whole family — everyone's hooked. — Dana W.",
+          ],
+          followUps: ["Can I sleep in it?", "Compare your moisturizers", "Add to bag • $48"],
+        },
+        {
+          trigger: 'compare|vs|versus|difference|which.*(better|one)|halo.*cloud',
+          thinking: "lining up the moisturizers…",
+          reply: "comparing our three hydrators side by side ~ they all lead with honey, but the finish + the job differ:",
+          showGrid: true,
+          bottomLine: "honey halo if your skin's dry + wants ceramides. honey cloud if you want featherlight + fragrance-free. potion plus for a weekly glow-boost mask. dry skin → halo, every time.",
+          followUps: ["Add Honey Halo • $48", "Tell me about Honey Cloud", "Build me a routine"],
+        },
+        {
+          trigger: 'sleep|overnight|night|bed',
+          thinking: "checking the overnight wear…",
+          reply: "yes ~ honey halo is your overnight move 🌙 seal it in as the last step and it works while you sleep. wake up plump + dewy, no pillow transfer.",
+          followUps: ["Build me a routine", "Compare your moisturizers", "Add to bag • $48"],
+        },
+        {
+          trigger: 'cloud|featherlight|lightweight|fragrance',
+          thinking: "pulling honey cloud…",
+          reply: "honey cloud ☁️ our featherlight, fragrance-free moisturizer ~ ectoin + PGA peptides + upcycled chamomile. melts in weightless, never smothered ~ perfect for sensitive or blemish-prone skin.",
+          reviews: [
+            "finally a moisturizer that doesn't break me out. — Aria M.",
+          ],
+          followUps: ["Compare your moisturizers", "Build me a routine", "Add to bag • $32"],
+        },
+        {
+          trigger: 'safe|pregnan|allerg|sensiti|react|retinol|acid.*night|mix',
+          thinking: "checking the formula details…",
+          reply: "good q ~ i'll share the formula so you can decide with your derm 💛 honey halo is fragrance-light, no essential oils, vegan + cruelty-free. for specific concerns (pregnancy, allergies, layering actives) it's best to confirm with a professional before adding anything new.",
+          followUps: ["See full ingredients", "Build me a routine", "Compare your moisturizers"],
+        },
+        {
+          trigger: 'add|bag|cart|checkout|buy|trio',
+          thinking: "adding to your bag…",
+          reply: "added 🛍️ want to make it a ritual? the honey milk essence layers underneath honey halo for an extra drench ~ or check out whenever you're ready.",
+          followUps: ["Add the trio • $134", "Compare your moisturizers", "Checkout"],
+        },
+        {
+          trigger: 'discount|code|deal|sale|promo|off|coupon',
+          thinking: "finding you a treat…",
+          reply: "first order? 💛 use **HELLO15** for 15% off your honey match ~ free shipping over $50 too 🐝",
+          followUps: ["Add to bag • $48", "Build me a routine", "Compare your moisturizers"],
+        },
+      ],
+      defaultReply: "tell me what your skin's craving — hydration, plumping, calm, or glow — and i'll match you to a honey hero ☁️",
+      defaultFollowUps: ["My skin feels dry + tight", "Build me a routine", "Compare your moisturizers"],
+    },
+  },
+];
+
+/* ════════════════════════════════════════════════════════════════════════
+   3. STATE + STORAGE
+   ════════════════════════════════════════════════════════════════════════ */
+const LS_KEY = 'farmacy_chat_overrides_v2';
+const LS_SEL_KEY = 'farmacy_chat_selected_v2';
+
+function loadOverrides() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
+  catch { return {}; }
+}
+function saveOverrides() { localStorage.setItem(LS_KEY, JSON.stringify(state.overrides)); }
+
+function freshChat() {
+  const cfg = getItem ? getItem().config : ITEMS[0].config;
+  const base = {
+    messages: [],
+    spqs: [],
+    isTyping: false,
+    thinkingText: '',
+    inputDraft: '',
+    asked: new Set(),
+    quizActive: false,
+    quizStep: 0,
+    quizAnswers: {},
+  };
+  if (cfg.quiz) {
+    // Quiz-led flow: the question shows as an AI message, the answer options
+    // live in the bottom sheet (the "hood") like SPQs. SPQs stay hidden until
+    // the quiz produces a result.
+    base.quizActive = true;
+    base.quizStep = 0;
+    const q0 = cfg.quiz.questions[0];
+    base.messages = [{ role: 'ai', text: (cfg.quiz.intro ? cfg.quiz.intro + '\n\n' : '') + q0.prompt }];
+  } else {
+    base.messages = [{ role: 'intro' }, { role: 'pickedGrid' }];
+    base.spqs = cfg.spqs.slice();
+  }
+  return base;
+}
+
+const state = {
+  selectedId: localStorage.getItem(LS_SEL_KEY) || ITEMS[0].id,
+  overrides: loadOverrides(),
+  view: 'chat',            // 'imessage' | 'chat' | 'pdp'
+  pdpProductId: 'halo',    // which product the PDP is showing
+  chat: null,              // initialized below after getItem is defined
+  editOpen: false,
+  editTab: 'content',
+  toast: null,
+  chatEntering: false,     // one-shot app-open animation (iMessage → chat)
+  pdpEntering: false,
+  pdpClosing: false,
+  // transform-origin for the PDP maximize/minimize animation. Set to the
+  // center of the clicked product card so the PDP "grows out of" the card.
+  pdpOriginX: '50%',
+  pdpOriginY: '50%',
+  shouldScrollChat: false,
+};
+
+function getItem() {
+  const base = ITEMS.find(i => i.id === state.selectedId) || ITEMS[0];
+  const ov = state.overrides[base.id] || {};
+  return {
+    ...base,
+    ...ov,
+    config: { ...base.config, ...(ov.config || {}) },
+    notes: ov.notes || '',
+  };
+}
+state.chat = freshChat();
+// Flows with a text-message config open on the iMessage screen first.
+state.view = getItem().config.textMessage ? 'imessage' : 'chat';
+
+function entryViewFor(cfg) { return cfg.textMessage ? 'imessage' : 'chat'; }
+
+let _stageRenderTimer = null;
+function scheduleStageRender(delay = 120) {
+  if (_stageRenderTimer) clearTimeout(_stageRenderTimer);
+  _stageRenderTimer = setTimeout(() => {
+    _stageRenderTimer = null;
+    renderStage();
+  }, delay);
+}
+
+function setOverride(path, value) {
+  const id = state.selectedId;
+  if (!state.overrides[id]) state.overrides[id] = {};
+  const parts = path.split('.');
+  let cur = state.overrides[id];
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (cur[parts[i]] == null || typeof cur[parts[i]] !== 'object') cur[parts[i]] = {};
+    cur = cur[parts[i]];
+  }
+  cur[parts[parts.length - 1]] = value;
+  saveOverrides();
+  scheduleStageRender();
+}
+
+function resetItem() {
+  if (!confirm('Reset all edits for ' + getItem().name + '?')) return;
+  delete state.overrides[state.selectedId];
+  saveOverrides();
+  state.chat = freshChat();
+  state.view = entryViewFor(getItem().config);
+  state.pdpProductId = 'halo';
+  render();
+}
+
+function toggleEdit() { state.editOpen = !state.editOpen; render(); }
+function switchEditTab(tab) { state.editTab = tab; render(); }
+
+function selectItem(id) {
+  if (state.selectedId === id) return;
+  state.selectedId = id;
+  localStorage.setItem(LS_SEL_KEY, id);
+  state.pdpClosing = false;
+  state.chat = freshChat();
+  state.view = entryViewFor(getItem().config);
+  render();
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   4. CHAT ENGINE
+   ════════════════════════════════════════════════════════════════════════ */
+function findResponse(cfg, text) {
+  const t = text.toLowerCase().trim();
+  for (const r of cfg.responses || []) {
+    try { if (new RegExp(r.trigger, 'i').test(t)) return r; }
+    catch { /* invalid regex */ }
+  }
+  return { reply: cfg.defaultReply, followUps: cfg.defaultFollowUps || [] };
+}
+
+/* ── Skin quiz ─────────────────────────────────────────────────────────
+   The quiz walks through cfg.quiz.questions, an optional photo step, then a
+   brand-moment analysis, then pushes a personalized product match and hands
+   off to the normal chat (SPQs + response library). */
+function quizSelect(value, label) {
+  const cfg = getItem().config;
+  const quiz = cfg.quiz;
+  const chat = state.chat;
+  const totalQuestions = quiz.questions.length;
+  const hasPhoto = !!quiz.photoStep;
+
+  // Record the answer for the current step.
+  if (chat.quizStep < totalQuestions) {
+    chat.quizAnswers[quiz.questions[chat.quizStep].key] = value;
+  } else {
+    chat.quizAnswers.photo = value;   // 'photo' | 'skip'
+  }
+  // The user's choice shows as a chat bubble.
+  chat.messages.push({ role: 'user', text: label });
+  chat.quizStep++;
+
+  if (chat.quizStep < totalQuestions) {
+    chat.messages.push({ role: 'ai', text: quiz.questions[chat.quizStep].prompt });
+    state.shouldScrollChat = true;
+    render();
+  } else if (hasPhoto && chat.quizStep === totalQuestions) {
+    chat.messages.push({ role: 'ai', text: quiz.photoStep.prompt });
+    state.shouldScrollChat = true;
+    render();
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz() {
+  const cfg = getItem().config;
+  const quiz = cfg.quiz;
+  const chat = state.chat;
+
+  chat.quizActive = false;
+  chat.isTyping = true;
+  chat.thinkingText = quiz.analyzing || 'reading your skin…';
+  state.shouldScrollChat = true;
+  render();
+
+  setTimeout(() => {
+    chat.isTyping = false;
+    chat.thinkingText = '';
+    // Optional photo "skin read" line
+    if (chat.quizAnswers.photo === 'photo' && quiz.photoStep && quiz.photoStep.reading) {
+      chat.messages.push({ role: 'ai', text: quiz.photoStep.reading });
+    }
+    const decideVal = chat.quizAnswers[quiz.resultKey];
+    const res = (quiz.results && (quiz.results[decideVal] || quiz.results.default)) || {};
+    chat.messages.push({ role: 'ai', text: res.reply || "here's your match ~", reviews: res.reviews, bottomLine: res.bottomLine });
+    if (res.productId) chat.messages.push({ role: 'product', productId: res.productId });
+    chat.spqs = (res.followUps && res.followUps.length) ? res.followUps : (cfg.defaultFollowUps || []);
+    state.shouldScrollChat = true;
+    render();
+  }, 1600);
+}
+
+function handleUserMessage(text) {
+  const cfg = getItem().config;
+  const chat = state.chat;
+  const clean = text.trim();
+  if (!clean) return;
+  // While the quiz is active the only interaction is the quiz card.
+  if (chat.quizActive) return;
+
+  // "Retake quiz" restarts the quiz-led flow from the top.
+  if (cfg.quiz && /retake|start over|redo.*quiz/i.test(clean)) {
+    state.chat = freshChat();
+    state.shouldScrollChat = true;
+    render();
+    return;
+  }
+
+  // Compute the response up front so the typing bubble can show this
+  // response's contextual "thinking" copy (a brand moment, not "analyzing…").
+  const r = findResponse(cfg, clean);
+  chat.messages.push({ role: 'user', text: clean });
+  chat.asked.add(clean);
+  chat.inputDraft = '';
+  chat.isTyping = true;
+  chat.thinkingText = r.thinking || '';
+  chat.spqs = [];
+  state.shouldScrollChat = true;
+  render();
+
+  setTimeout(() => {
+    chat.isTyping = false;
+    chat.thinkingText = '';
+    chat.messages.push({ role: 'ai', text: r.reply, reviews: r.reviews, bottomLine: r.bottomLine });
+    if (r.showGrid) chat.messages.push({ role: 'pickedGrid' });
+    const next = (r.followUps || []).filter(f => !chat.asked.has(f));
+    chat.spqs = next.length ? next : (cfg.defaultFollowUps || cfg.spqs.slice(0, 3));
+    state.shouldScrollChat = true;
+    render();
+  }, r.thinking ? 1400 : 1100);
+}
+
+function setDraft(value) {
+  state.chat.inputDraft = value;
+  const btn = document.querySelector('[data-send]');
+  if (btn) {
+    const active = value.trim().length > 0;
+    btn.classList.toggle('disabled', !active);
+    btn.innerHTML = active ? ICONS.sendUpDark : ICONS.soundwave;
+  }
+}
+
+function sendDraft() {
+  const text = state.chat.inputDraft.trim();
+  if (!text) return;
+  handleUserMessage(text);
+}
+
+function showToast(msg) {
+  state.toast = { msg, ts: Date.now() };
+  render();
+  setTimeout(() => {
+    if (state.toast) { state.toast = null; render(); }
+  }, 1900);
+}
+
+function openChatFromMessage() {
+  state.view = 'chat';
+  state.chatEntering = true;   // one-shot app-open animation
+  render();
+}
+
+function backToMessage() {
+  state.view = 'imessage';
+  render();
+}
+
+function openPdp(productId, originEl) {
+  // Capture the origin point of the clicked card so the PDP can scale
+  // up FROM that position — a maximize effect rather than a slide-up.
+  if (originEl) {
+    const phoneScreen = originEl.closest('.phone-screen');
+    if (phoneScreen) {
+      const cardRect = originEl.getBoundingClientRect();
+      const screenRect = phoneScreen.getBoundingClientRect();
+      state.pdpOriginX = (cardRect.left + cardRect.width / 2 - screenRect.left) + 'px';
+      state.pdpOriginY = (cardRect.top + cardRect.height / 2 - screenRect.top) + 'px';
+    }
+  }
+  state.pdpProductId = productId;
+  state.view = 'pdp';
+  state.pdpEntering = true;
+  state.pdpClosing = false;
+  render();
+}
+
+function closePdp() {
+  // Play the minimize animation, then remove the PDP from the DOM.
+  state.pdpClosing = true;
+  state.pdpEntering = false;
+  render();
+  setTimeout(() => {
+    state.view = 'chat';
+    state.pdpClosing = false;
+    render();
+  }, 340);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   5. DOM HELPERS + ICONS
+   ════════════════════════════════════════════════════════════════════════ */
+const el = (tag, attrs = {}, ...children) => {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') node.className = v;
+    else if (k === 'style') node.setAttribute('style', v);
+    else if (k === 'html') node.innerHTML = v;
+    else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (v != null && v !== false) node.setAttribute(k, v);
+  }
+  for (const c of children.flat()) {
+    if (c == null || c === false) continue;
+    node.appendChild(typeof c === 'string' || typeof c === 'number'
+      ? document.createTextNode(String(c))
+      : c);
+  }
+  return node;
+};
+
+const ICONS = {
+  statusSignal: '<svg width="15" height="11" viewBox="0 0 15 11"><rect x="0" y="4" width="3" height="7" rx="1" fill="#161616"/><rect x="4" y="2.5" width="3" height="8.5" rx="1" fill="#161616"/><rect x="8" y="1" width="3" height="10" rx="1" fill="#161616"/><rect x="12" y="0" width="3" height="11" rx="1" fill="#161616"/></svg>',
+  statusBattery: '<svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#161616" stroke-opacity="0.35" fill="none"/><rect x="2" y="2" width="17" height="8" rx="2" fill="#161616"/></svg>',
+  closeX:  '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#1E242E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.2 16.2L10 10M10 10L3.8 3.8M10 10L16.2 3.8M10 10L3.8 16.2"/></svg>',
+  chevLeft:'<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#1E242E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.35 15.7L6.65 10L12.35 4.3"/></svg>',
+  chevLeftBlue:'<svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="#0a84ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12.35 15.7L6.65 10L12.35 4.3"/></svg>',
+  chevRightGrey:'<svg width="9" height="14" viewBox="0 0 9 14" fill="none" stroke="#b0b0b5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1l6 6-6 6"/></svg>',
+  imsgSend:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
+  bell:'<svg width="13" height="13" viewBox="0 0 24 24" fill="#161616"><path d="M12 2a6 6 0 0 0-6 6c0 4-1.5 5.5-2 6h16c-.5-.5-2-2-2-6a6 6 0 0 0-6-6zm0 20a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22z"/><path d="M3 3l18 18" stroke="#161616" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  wifi:'<svg width="16" height="11" viewBox="0 0 16 12" fill="#161616"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l-1.3 1.4A6.7 6.7 0 0 0 8 4.1c-1.8 0-3.5.7-4.7 1.9L2 4.6A8.6 8.6 0 0 1 8 2.2zm0 3.3c1.4 0 2.7.5 3.6 1.5l-1.3 1.3A2.9 2.9 0 0 0 8 7.4c-.9 0-1.7.3-2.3.9L4.4 7A4.8 4.8 0 0 1 8 5.5zm0 3.2c.6 0 1.1.2 1.5.6L8 10.5 6.5 9.3c.4-.4.9-.6 1.5-.6z"/></svg>',
+  cart:    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E242E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.4 3.75h2.85L8.38 14.86c.08.28.24.54.49.72.23.17.53.27.82.27h8.41c.3 0 .59-.09.83-.27.23-.17.41-.43.49-.72L21.6 7.11H6.2"/><circle cx="9.93" cy="19.5" r="1"/><circle cx="18.18" cy="19.5" r="1"/></svg>',
+  cartAddSmall: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M0.84 4.57h2.37l2.61 9.27c.06.19.17.36.33.47.16.12.36.18.55.18h6.95c.2 0 .39-.06.55-.18.16-.12.27-.28.33-.47l.9-3.23M16.26 1.34v4.65M19.16 3.66h-4.64M11.25 7.37H4M7.11 17.7a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1zM13.99 17.7a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/></svg>',
+  cartAddBag: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M0.67 3.66h1.9l2.09 7.41c.05.19.16.36.33.48.15.12.35.18.54.18h5.61c.2 0 .39-.06.55-.18.15-.12.27-.29.32-.48l.73-2.58M13.01 1.34V6M15.33 3.66h-4.64M9 5.9H3.2M5.69 14.66a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1zM11.19 14.66a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/></svg>',
+  soundwave: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E242E" stroke-width="2" stroke-linecap="round"><path d="M3.6 8.58V16.08M12 5.25V18.75M20.4 7.5V16.5M7.8 3V21M16.2 3.75V20.25"/></svg>',
+  sendUpDark: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+};
+
+function StatusBar() {
+  return el('div', { class: 'status-bar' },
+    el('span', {}, '9:41'),
+    el('div', { class: 'status-bar-icons' },
+      el('span', { html: ICONS.statusSignal }),
+      el('span', { html: ICONS.statusBattery }),
+    ),
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   6. CHAT SCREEN
+   ════════════════════════════════════════════════════════════════════════ */
+function renderProductGrid() {
+  const grid = el('div', { class: 'picked-grid' });
+  PRODUCTS.forEach(p => {
+    const card = el('button', {
+      class: 'picked-card',
+      onclick: (e) => openPdp(p.id, e.currentTarget),
+    });
+    const imgwrap = el('div', { class: 'picked-card-imgwrap' });
+    imgwrap.appendChild(el('div', {
+      class: 'picked-card-img',
+      style: 'background-image: url(' + JSON.stringify(p.img) + ')',
+    }));
+    imgwrap.appendChild(el('button', {
+      class: 'picked-card-cart',
+      onclick: (e) => { e.stopPropagation(); showToast('Added ' + p.name); },
+      html: ICONS.cartAddSmall,
+    }));
+    card.appendChild(imgwrap);
+
+    const info = el('div', { class: 'picked-card-info' });
+    info.appendChild(el('div', { class: 'picked-card-row' },
+      el('p', { class: 'picked-card-name' }, p.name),
+      el('span', { class: 'picked-card-price' }, p.price),
+    ));
+    info.appendChild(el('p', { class: 'picked-card-sub' }, p.sub));
+    card.appendChild(info);
+    grid.appendChild(card);
+  });
+  return grid;
+}
+
+// Quiz answer options for the current step — rendered in the bottom sheet
+// (the "hood") as full-width stacked pills, above the Ask-anything input.
+function renderQuizHoodOptions() {
+  const quiz = getItem().config.quiz;
+  const chat = state.chat;
+  const step = chat.quizStep;
+  const stack = el('div', { class: 'quiz-hood' });
+  if (step < quiz.questions.length) {
+    quiz.questions[step].options.forEach(o => {
+      stack.appendChild(el('button', {
+        class: 'quiz-hood-btn',
+        onclick: () => quizSelect(o.value, o.label),
+      }, o.label));
+    });
+  } else {
+    const ps = quiz.photoStep;
+    stack.appendChild(el('button', { class: 'quiz-hood-btn photo', onclick: () => quizSelect('photo', ps.takeLabel) }, ps.takeLabel));
+    stack.appendChild(el('button', { class: 'quiz-hood-btn ghost', onclick: () => quizSelect('skip', ps.skipLabel) }, ps.skipLabel));
+  }
+  return stack;
+}
+
+function renderFeaturedProduct(productId) {
+  const p = PRODUCT_BY_ID[productId];
+  if (!p) return null;
+  const card = el('button', {
+    class: 'match-card',
+    onclick: (e) => openPdp(p.id, e.currentTarget),
+  });
+  card.appendChild(el('div', {
+    class: 'match-card-img',
+    style: 'background-image: url(' + JSON.stringify(p.img) + ')',
+  }));
+  const info = el('div', { class: 'match-card-info' });
+  info.appendChild(el('div', { class: 'match-card-row' },
+    el('p', { class: 'match-card-name' }, p.name),
+    el('span', { class: 'match-card-price' }, p.price),
+  ));
+  info.appendChild(el('p', { class: 'match-card-sub' }, p.sub));
+  info.appendChild(el('span', { class: 'match-card-cta' }, 'View product →'));
+  card.appendChild(info);
+  return card;
+}
+
+/* ── iMessage entry screen ─────────────────────────────────────────────
+   Renders an iOS-Messages-style thread from the brand. Tapping the rich
+   product card or the "Talk to a skincare expert" reply opens the chat/quiz
+   with an app-opening animation. */
+function renderIMessage() {
+  const tm = getItem().config.textMessage;
+  const wrap = el('div', { class: 'imsg-screen' });
+
+  // Status bar (light, with bell + wifi for realism)
+  wrap.appendChild(el('div', { class: 'imsg-statusbar' },
+    el('span', { class: 'imsg-time' }, '9:11'),
+    el('span', { class: 'imsg-bell', html: ICONS.bell }),
+    el('div', { style: 'flex:1' }),
+    el('div', { class: 'imsg-status-icons' },
+      el('span', { html: ICONS.statusSignal }),
+      el('span', { html: ICONS.wifi }),
+      el('span', { html: ICONS.statusBattery }),
+    ),
+  ));
+
+  // Top row: back button with unread badge
+  wrap.appendChild(el('div', { class: 'imsg-toprow' },
+    el('button', { class: 'imsg-back', onclick: () => showToast('(Demo) back to inbox') },
+      el('span', { html: ICONS.chevLeftBlue }),
+      el('span', { class: 'imsg-badge' }, tm.unread),
+    ),
+    el('div', { style: 'width:40px' }),
+  ));
+
+  // Identity: brand wordmark avatar + contact name
+  wrap.appendChild(el('div', { class: 'imsg-identity' },
+    el('div', { class: 'imsg-logo' },
+      el('div', { class: 'imsg-logo-name' }, 'FARMACY'),
+      el('div', { class: 'imsg-logo-sub' }, 'BEAUTY'),
+    ),
+    el('div', { class: 'imsg-contact' }, tm.contact,
+      el('span', { class: 'imsg-contact-chev', html: ICONS.chevRightGrey }),
+    ),
+  ));
+
+  // Thread
+  const body = el('div', { class: 'imsg-body' });
+  body.appendChild(el('div', { class: 'imsg-timestamp' },
+    el('span', { class: 'imsg-channel' }, tm.channel),
+    el('br'),
+    tm.timestamp,
+  ));
+
+  // Rich product card (tappable)
+  body.appendChild(el('button', { class: 'imsg-card', onclick: openChatFromMessage },
+    el('div', { class: 'imsg-card-img', style: 'background-image: url(' + JSON.stringify(tm.productImg) + ')' }),
+  ));
+  // Caption bubble (tappable)
+  body.appendChild(el('button', { class: 'imsg-caption', onclick: openChatFromMessage },
+    el('span', { class: 'imsg-caption-text' }, tm.caption),
+    el('span', { class: 'imsg-caption-chev', html: ICONS.chevRightGrey }),
+  ));
+  // Reply suggestion (tappable)
+  body.appendChild(el('button', { class: 'imsg-reply', onclick: openChatFromMessage },
+    el('span', {}, tm.replyLabel),
+    el('span', { class: 'imsg-reply-icon', html: ICONS.imsgSend }),
+  ));
+
+  wrap.appendChild(body);
+  return wrap;
+}
+
+function renderChatScreen() {
+  const cfg = getItem().config;
+  const chat = state.chat;
+  const wrap = el('div', { class: 'chat-screen' + (state.chatEntering ? ' entering' : '') });
+  state.chatEntering = false;
+
+  wrap.appendChild(StatusBar());
+
+  // Top bar: glass close (left), wordmark (center), glass cart (right)
+  wrap.appendChild(el('div', { class: 'chat-topbar' },
+    el('button', {
+      class: 'glass-btn',
+      html: cfg.textMessage ? ICONS.chevLeft : ICONS.closeX,
+      onclick: cfg.textMessage ? backToMessage : () => showToast('(Demo) chat would close'),
+    }),
+    el('div', { class: 'farmacy-wordmark' }, 'FARMACY'),
+    el('button', { class: 'glass-btn faint', html: ICONS.cart, onclick: () => showToast('Cart: Honey Halo · $48') }),
+  ));
+
+  // Scrollable chat body
+  const body = el('div', { class: 'chat-body' });
+
+  chat.messages.forEach(m => {
+    if (m.role === 'intro') {
+      body.appendChild(el('p', { class: 'chat-intro' }, cfg.intro));
+      body.appendChild(el('h2', { class: 'picked-title' }, cfg.pickedTitle));
+    } else if (m.role === 'pickedGrid') {
+      body.appendChild(renderProductGrid());
+    } else if (m.role === 'product') {
+      const fc = renderFeaturedProduct(m.productId);
+      if (fc) body.appendChild(fc);
+    } else if (m.role === 'ai') {
+      body.appendChild(el('div', { class: 'chat-msg-ai', html: formatAiText(m.text) }));
+      // Social-proof review quotes (opt-in per response)
+      if (m.reviews && m.reviews.length) {
+        const rv = el('div', { class: 'chat-reviews' });
+        m.reviews.forEach(raw => {
+          const i = raw.lastIndexOf(' — ');
+          const quote = i >= 0 ? raw.slice(0, i) : raw;
+          const who = i >= 0 ? raw.slice(i + 3) : '';
+          rv.appendChild(el('div', { class: 'chat-review' },
+            el('span', { class: 'q' }, '“' + quote + '”'),
+            who ? el('span', { class: 'who' }, ' — ' + who) : null,
+          ));
+        });
+        body.appendChild(rv);
+      }
+      // Comparison "bottom line" card (opt-in per response)
+      if (m.bottomLine) {
+        body.appendChild(el('div', { class: 'chat-bottomline' },
+          el('strong', {}, 'Bottom line'),
+          el('span', {}, m.bottomLine),
+        ));
+      }
+    } else if (m.role === 'user') {
+      body.appendChild(el('div', { class: 'chat-msg-user' },
+        el('div', { class: 'chat-msg-user-bubble' }, m.text),
+      ));
+    }
+  });
+
+  if (chat.isTyping) {
+    const tw = el('div', { class: 'typing-wrap' + (chat.thinkingText ? ' has-text' : '') });
+    if (chat.thinkingText) tw.appendChild(el('span', { class: 'typing-text' }, chat.thinkingText));
+    tw.appendChild(el('div', { class: 'typing-dots' },
+      el('span', {}), el('span', {}), el('span', {}),
+    ));
+    body.appendChild(tw);
+  }
+
+  wrap.appendChild(body);
+
+  // Bottom sheet (SPQs + Ask anything)
+  wrap.appendChild(renderInputZone());
+
+  // Auto-scroll only when the user just sent a message; otherwise leave
+  // scroll where it was so the "Picked for you" header is visible on open.
+  if (state.shouldScrollChat) {
+    state.shouldScrollChat = false;
+    setTimeout(() => { body.scrollTop = body.scrollHeight; }, 0);
+  }
+  return wrap;
+}
+
+function renderInputZone() {
+  const chat = state.chat;
+  const zone = el('div', { class: 'chat-input-zone' });
+  zone.appendChild(el('div', { class: 'chat-input-handle' }));
+
+  if (chat.quizActive && !chat.isTyping) {
+    // Quiz options sit in the hood as full-width stacked pills.
+    zone.appendChild(renderQuizHoodOptions());
+  } else if (!chat.isTyping && chat.spqs && chat.spqs.length) {
+    const stack = el('div', { class: 'spq-stack' });
+    chat.spqs.forEach(q => {
+      stack.appendChild(el('button', {
+        class: 'spq-btn',
+        onclick: () => handleUserMessage(q),
+      }, q));
+    });
+    zone.appendChild(stack);
+  }
+
+  const pill = el('div', { class: 'chat-input-pill' });
+  const input = el('input', {
+    type: 'text',
+    placeholder: chat.isTyping ? 'One sec…' : 'Ask anything',
+    'data-input': 'chat',
+  });
+  input.value = chat.inputDraft;
+  input.addEventListener('input', (e) => setDraft(e.target.value));
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); sendDraft(); }
+  });
+  pill.appendChild(input);
+  const active = chat.inputDraft.trim().length > 0;
+  pill.appendChild(el('button', {
+    class: 'pill-action ' + (active ? '' : 'disabled'),
+    'data-send': true,
+    html: active ? ICONS.sendUpDark : ICONS.soundwave,
+    onclick: () => { if (active) sendDraft(); },
+  }));
+  zone.appendChild(pill);
+  return zone;
+}
+
+function formatAiText(s) {
+  const esc = String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  return esc.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   7. PDP (full-page takeover)
+   ════════════════════════════════════════════════════════════════════════ */
+function renderPdp() {
+  const cfg = getItem().config;
+  const p = PRODUCT_BY_ID[state.pdpProductId] || PRODUCT_BY_ID.halo;
+  const wrap = el('div', {
+    class: 'pdp-screen'
+      + (state.pdpEntering ? ' entering' : '')
+      + (state.pdpClosing ? ' closing' : ''),
+    style: 'transform-origin: ' + state.pdpOriginX + ' ' + state.pdpOriginY,
+  });
+  state.pdpEntering = false;
+
+  // Floating glass buttons (back + cart)
+  wrap.appendChild(el('div', { class: 'pdp-floating-buttons' },
+    el('button', { class: 'glass-btn', html: ICONS.chevLeft, onclick: closePdp }),
+    el('button', { class: 'glass-btn faint', html: ICONS.cart, onclick: () => showToast('Cart updated') }),
+  ));
+
+  // Status bar + scrollable body
+  const body = el('div', { class: 'pdp-body' });
+  body.appendChild(el('div', { class: 'pdp-status' }, StatusBar()));
+
+  body.appendChild(el('div', {
+    class: 'pdp-hero',
+    style: 'background-image: url(' + JSON.stringify(p.img) + ')',
+  }));
+
+  // Carousel dots (decorative — 5 dots fading right)
+  body.appendChild(el('div', { class: 'pdp-dots' },
+    el('span', { class: 'dot' }),
+    el('span', { class: 'dot' }),
+    el('span', { class: 'dot' }),
+    el('span', { class: 'dot' }),
+    el('span', { class: 'dot' }),
+  ));
+
+  // Product info
+  const info = el('div', { class: 'pdp-info' });
+  info.appendChild(el('div', { class: 'pdp-name-row' },
+    el('p', { class: 'pdp-name' }, p.name),
+    el('span', { class: 'pdp-price' }, p.price),
+  ));
+  info.appendChild(el('p', { class: 'pdp-variant' }, p.sub));
+
+  info.appendChild(el('button', {
+    class: 'pdp-cta',
+    onclick: () => showToast('Added ' + p.name + ' to bag 🛍️'),
+  },
+    el('span', { html: ICONS.cartAddBag }),
+    el('span', {}, 'Add to bag'),
+  ));
+
+  info.appendChild(el('p', { class: 'pdp-bullets' }, p.pdpDesc));
+
+  body.appendChild(info);
+  wrap.appendChild(body);
+
+  // Bottom sheet — same SPQs + Ask anything as chat
+  wrap.appendChild(renderInputZone());
+
+  return wrap;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   8. PHONE + STAGE
+   ════════════════════════════════════════════════════════════════════════ */
+function renderPhone() {
+  const phone = el('div', { class: 'phone' });
+  phone.appendChild(el('div', { class: 'phone-side-l1' }));
+  phone.appendChild(el('div', { class: 'phone-side-l2' }));
+  phone.appendChild(el('div', { class: 'phone-side-l3' }));
+  phone.appendChild(el('div', { class: 'phone-side-r1' }));
+
+  const screen = el('div', { class: 'phone-screen' });
+  if (state.view === 'imessage') {
+    screen.appendChild(renderIMessage());
+  } else {
+    screen.appendChild(renderChatScreen());
+    // PDP stays mounted during its close animation so the minimize plays out
+    if (state.view === 'pdp' || state.pdpClosing) screen.appendChild(renderPdp());
+  }
+
+  if (state.toast) screen.appendChild(el('div', { class: 'toast' }, state.toast.msg));
+
+  phone.appendChild(screen);
+  return phone;
+}
+
+function renderFlowPicker() {
+  const toggle = el('div', { class: 'flow-toggle' });
+  ITEMS.forEach(base => {
+    const item = { ...base, ...(state.overrides[base.id] || {}) };
+    const isEdited = !!state.overrides[base.id];
+    const btn = el('button', {
+      class: state.selectedId === base.id ? 'active' : '',
+      onclick: () => selectItem(base.id),
+    }, item.name);
+    if (isEdited && state.selectedId !== base.id) {
+      btn.appendChild(el('span', { class: 'edited-dot' }));
+    }
+    toggle.appendChild(btn);
+  });
+  return toggle;
+}
+
+function renderStage() {
+  if (_stageRenderTimer) { clearTimeout(_stageRenderTimer); _stageRenderTimer = null; }
+  const stage = document.getElementById('stage');
+
+  // Preserve scroll positions of scrollable inner views across rebuilds
+  const SCROLL_SELECTORS = ['.chat-body', '.pdp-body'];
+  const savedScrolls = SCROLL_SELECTORS.map(sel => {
+    const n = stage.querySelector(sel);
+    return n ? n.scrollTop : 0;
+  });
+  const lockedHeight = stage.getBoundingClientRect().height;
+  if (lockedHeight) stage.style.minHeight = lockedHeight + 'px';
+
+  stage.innerHTML = '';
+  const col = el('div', { class: 'flow-col' });
+  col.appendChild(renderFlowPicker());
+  col.appendChild(renderPhone());
+  stage.appendChild(col);
+
+  requestAnimationFrame(() => {
+    SCROLL_SELECTORS.forEach((sel, i) => {
+      const n = stage.querySelector(sel);
+      if (n && savedScrolls[i]) n.scrollTop = savedScrolls[i];
+    });
+    stage.style.minHeight = '';
+  });
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   9. EDIT PANEL
+   ════════════════════════════════════════════════════════════════════════ */
+function renderEditPanel() {
+  const item = getItem();
+  const cfg = item.config;
+  const panel = document.getElementById('editPanel');
+  const overlay = document.getElementById('editOverlay');
+  panel.classList.toggle('open', state.editOpen);
+  overlay.classList.toggle('open', state.editOpen);
+
+  document.getElementById('editPanelTitle').textContent = 'Edit · ' + item.name;
+  document.getElementById('editPanelSub').textContent =
+    state.overrides[item.id] ? 'edited' : 'unedited · live preview updates as you type';
+
+  document.querySelectorAll('.edit-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === state.editTab);
+  });
+
+  const body = document.getElementById('editBody');
+  const savedScroll = body.scrollTop;
+  body.innerHTML = '';
+
+  if (state.editTab === 'notes') {
+    body.appendChild(el('div', { class: 'edit-section' },
+      el('h4', {}, 'Notes'),
+      (() => {
+        const t = el('textarea', {
+          class: 'edit-textarea',
+          style: 'min-height:300px',
+          placeholder: 'Free-text notes for this prototype…',
+          oninput: (e) => setOverride('notes', e.target.value),
+        });
+        t.value = item.notes || '';
+        return t;
+      })(),
+    ));
+    body.scrollTop = savedScroll;
+    return;
+  }
+
+  const section = (icon, title, ...fields) => {
+    const sec = el('div', { class: 'edit-section' },
+      el('h4', {},
+        el('span', { class: 'icon' }, icon),
+        el('span', {}, title),
+      ),
+    );
+    fields.forEach(f => sec.appendChild(f));
+    return sec;
+  };
+  const inputField = (label, path, value, multiline = false) => {
+    const f = el('div', { class: 'edit-field' }, el('label', {}, label));
+    if (multiline) {
+      const t = el('textarea', { class: 'edit-textarea', oninput: (e) => setOverride(path, e.target.value) });
+      t.value = value || '';
+      f.appendChild(t);
+    } else {
+      const i = el('input', { class: 'edit-input', type: 'text', oninput: (e) => setOverride(path, e.target.value) });
+      i.value = value || '';
+      f.appendChild(i);
+    }
+    return f;
+  };
+  const spqListField = (label, path, items) => {
+    const f = el('div', { class: 'edit-field' }, el('label', {}, label));
+    const list = el('div', { class: 'edit-spq-list' });
+    items.forEach((q, idx) => {
+      const row = el('div', { class: 'edit-spq-row' });
+      const inp = el('input', {
+        class: 'edit-input', type: 'text',
+        oninput: (e) => {
+          const next = [...items]; next[idx] = e.target.value;
+          setOverride(path, next);
+        },
+      });
+      inp.value = q;
+      const rm = el('button', { class: 'edit-spq-rm', onclick: () => {
+        const next = items.filter((_, i) => i !== idx);
+        setOverride(path, next);
+        renderEditPanel();
+      }}, '×');
+      row.appendChild(inp); row.appendChild(rm);
+      list.appendChild(row);
+    });
+    f.appendChild(list);
+    f.appendChild(el('button', {
+      class: 'edit-add',
+      onclick: () => {
+        setOverride(path, [...items, 'New question?']);
+        renderEditPanel();
+      },
+    }, '+ Add SPQ'));
+    return f;
+  };
+  const responsesField = (responses) => {
+    const f = el('div', { class: 'edit-field' });
+    responses.forEach((r, idx) => {
+      const card = el('div', { class: 'edit-response-card' });
+      card.appendChild((() => {
+        const ff = el('div', { class: 'edit-field' }, el('label', {}, 'Trigger (regex)'));
+        const i = el('input', { class: 'edit-input', type: 'text', oninput: (e) => {
+          const next = JSON.parse(JSON.stringify(responses));
+          next[idx].trigger = e.target.value;
+          setOverride('config.responses', next);
+        }});
+        i.value = r.trigger;
+        ff.appendChild(i);
+        return ff;
+      })());
+      card.appendChild((() => {
+        const ff = el('div', { class: 'edit-field' }, el('label', {}, 'Reply'));
+        const t = el('textarea', { class: 'edit-textarea', oninput: (e) => {
+          const next = JSON.parse(JSON.stringify(responses));
+          next[idx].reply = e.target.value;
+          setOverride('config.responses', next);
+        }});
+        t.value = r.reply;
+        ff.appendChild(t);
+        return ff;
+      })());
+      const fuField = el('div', { class: 'edit-field' }, el('label', {}, 'Follow-up SPQs (comma-separated)'));
+      const fuInp = el('input', { class: 'edit-input', type: 'text', oninput: (e) => {
+        const next = JSON.parse(JSON.stringify(responses));
+        next[idx].followUps = e.target.value.split(/,\s*/).filter(Boolean);
+        setOverride('config.responses', next);
+      }});
+      fuInp.value = (r.followUps || []).join(', ');
+      fuField.appendChild(fuInp);
+      card.appendChild(fuField);
+
+      // Contextual loading copy (brand moment shown in the typing bubble)
+      card.appendChild((() => {
+        const ff = el('div', { class: 'edit-field' }, el('label', {}, 'Thinking copy (loading text)'));
+        const i = el('input', { class: 'edit-input', type: 'text', placeholder: 'e.g. matching you to the right hydrator…', oninput: (e) => {
+          const next = JSON.parse(JSON.stringify(responses));
+          next[idx].thinking = e.target.value;
+          setOverride('config.responses', next);
+        }});
+        i.value = r.thinking || '';
+        ff.appendChild(i);
+        return ff;
+      })());
+
+      // Review quotes — one per line, format: quote — Attribution
+      card.appendChild((() => {
+        const ff = el('div', { class: 'edit-field' }, el('label', {}, 'Review quotes (one per line · "quote — Name")'));
+        const t = el('textarea', { class: 'edit-textarea', placeholder: 'my dry skin drinks this up — Sarah K.', oninput: (e) => {
+          const next = JSON.parse(JSON.stringify(responses));
+          next[idx].reviews = e.target.value.split('\n').map(s => s.trim()).filter(Boolean);
+          setOverride('config.responses', next);
+        }});
+        t.value = (r.reviews || []).join('\n');
+        ff.appendChild(t);
+        return ff;
+      })());
+
+      // Comparison "bottom line" card
+      card.appendChild((() => {
+        const ff = el('div', { class: 'edit-field' }, el('label', {}, 'Bottom-line card (comparison summary)'));
+        const t = el('textarea', { class: 'edit-textarea', placeholder: 'the honest cut: dry skin → halo, every time.', oninput: (e) => {
+          const next = JSON.parse(JSON.stringify(responses));
+          next[idx].bottomLine = e.target.value;
+          setOverride('config.responses', next);
+        }});
+        t.value = r.bottomLine || '';
+        ff.appendChild(t);
+        return ff;
+      })());
+
+      const sgField = el('div', { class: 'edit-field' });
+      const cb = el('label', { style: 'display:flex; align-items:center; gap:6px; color: var(--text); font-size:12px; cursor:pointer' });
+      const cbi = el('input', { type: 'checkbox', oninput: (e) => {
+        const next = JSON.parse(JSON.stringify(responses));
+        next[idx].showGrid = !!e.target.checked;
+        setOverride('config.responses', next);
+      }});
+      if (r.showGrid) cbi.setAttribute('checked', 'checked');
+      cb.appendChild(cbi);
+      cb.appendChild(el('span', {}, 'Show product grid with this reply'));
+      sgField.appendChild(cb);
+      card.appendChild(sgField);
+
+      card.appendChild(el('button', {
+        class: 'edit-response-rm',
+        onclick: () => {
+          if (!confirm('Remove this response?')) return;
+          const next = responses.filter((_, i) => i !== idx);
+          setOverride('config.responses', next);
+          renderEditPanel();
+        },
+      }, '× Remove response'));
+
+      f.appendChild(card);
+    });
+    f.appendChild(el('button', {
+      class: 'edit-add',
+      onclick: () => {
+        const next = [...responses, { trigger: 'new trigger', reply: 'New reply.', followUps: [] }];
+        setOverride('config.responses', next);
+        renderEditPanel();
+      },
+    }, '+ Add response'));
+    return f;
+  };
+
+  body.appendChild(section('🏷️', 'Flow',
+    inputField('Flow name (shown in the picker)', 'name', item.name),
+  ));
+
+  body.appendChild(section('🍯', 'Chat opener',
+    inputField('Intro line (small grey text)', 'config.intro', cfg.intro, true),
+    inputField('Picked-for-you header', 'config.pickedTitle', cfg.pickedTitle),
+  ));
+
+  body.appendChild(section('✨', 'SPQs in bottom sheet',
+    spqListField('Tap to reorder / rename', 'config.spqs', cfg.spqs),
+  ));
+
+  body.appendChild(section('🧠', 'Response library',
+    responsesField(cfg.responses || []),
+  ));
+
+  body.appendChild(section('🌀', 'Fallback (no regex match)',
+    inputField('Default reply', 'config.defaultReply', cfg.defaultReply, true),
+    spqListField('Default follow-ups', 'config.defaultFollowUps', cfg.defaultFollowUps || []),
+  ));
+
+  body.scrollTop = savedScroll;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   10. ROOT
+   ════════════════════════════════════════════════════════════════════════ */
+function render() {
+  renderStage();
+  renderEditPanel();
+}
+render();
+</script>
+</body>
+</html>

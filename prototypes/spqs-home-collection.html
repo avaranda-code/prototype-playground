@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPQs on Home & Collection Pages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ────────────────────────────────────────────────────────────────────
+     SPQ Prototype — Hotel Lobby Candle storefront + Gorgias admin
+     Single-file vanilla prototype. Build order per spq-prototype-brief.md.
+     STEP 1: scaffold + tokens + hash router.
+     STEP 2: storefront base — editorial Home, Shop mega-menu, collections.
+     NOTE: product imagery pulled from hotellobbycandle.com CDN for prototype
+     purposes only.
+     ──────────────────────────────────────────────────────────────────── */
+  :root {
+    /* Pastel gradient palette (launcher / hero / send button) */
+    --peach:    #F8D7C2;
+    --blush:    #F5C6D6;
+    --lavender: #D6C9F0;
+    --mint:     #C9E4D6;
+    --grad-conic: conic-gradient(from 180deg at 50% 50%, #F8D7C2, #F5C6D6, #D6C9F0, #C9E4D6, #F8D7C2);
+    --grad-soft:  linear-gradient(135deg, #F8D7C2 0%, #F5C6D6 35%, #D6C9F0 70%, #C9E4D6 100%);
+
+    /* Axiom tokens (admin surface) */
+    --axiom-purple: #7e55f6;
+    --ink:        #1e242e;
+    --ink-soft:   #5c6370;
+    --ink-muted:  #8a8f99;
+    --border:     #ebecef;
+    --surface:    #fafafa;
+    --white:      #ffffff;
+    --green:      #22c55e;
+
+    /* Storefront (Hotel Lobby Candle) — warm editorial neutrals */
+    --hlc-bg:     #ffffff;
+    --hlc-paper:  #ffffff;
+    --hlc-ink:    #2b2723;
+    --hlc-soft:   #6f675e;
+    --hlc-line:   #ece7e0;
+    --hlc-tile:   #f5efe9;   /* flat product tile — no gradient */
+    --hlc-blush:  #faecea;   /* header bar */
+    --hlc-accent: #1f1c19;
+
+    --radius-pill: 9999px;
+    --shadow-soft: 0 2px 20px rgba(0,0,0,0.06);
+    --shadow-panel: 0 24px 60px rgba(0,0,0,0.20);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--hlc-bg);
+    color: var(--hlc-ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { scrollbar-width: none; }
+  a { color: inherit; }
+
+  /* ── Playground topbar chrome ──────────────────────────────────────── */
+  .topbar {
+    position: relative; z-index: 50;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 18px;
+    background: rgba(20,23,31,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #232733;
+    color: #e7e9ee;
+  }
+  .topbar h1 { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .topbar h1 .accent { color: #b6a0ff; }
+  .topbar .sub { font-size: 12px; color: #8b909c; font-weight: 400; margin-left: 4px; }
+  .topbar .spacer { flex: 1; }
+  .topbar .route-chip {
+    font-size: 11px; color: #8b909c; font-family: ui-monospace, Menlo, monospace;
+    background: #1b1f29; border: 1px solid #2a2f3b; padding: 3px 8px; border-radius: 6px;
+  }
+  .topbar-btn {
+    display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-size: 12px; font-weight: 600;
+    color: #c9b6ff; background: #241f3a; border: 1px solid #4a3d7a; border-radius: 8px;
+    padding: 6px 13px; cursor: pointer; text-decoration: none; transition: background 0.15s; white-space: nowrap;
+  }
+  .topbar-btn:hover { background: #2c2547; }
+  .topbar-btn.store { color: #e7e9ee; background: #2a2f3b; border-color: #3a4150; }
+  .topbar-btn.store:hover { background: #343b49; }
+  .flow-switch { display: inline-flex; background: #1b1f29; border: 1px solid #2a2f3b; border-radius: 8px; padding: 2px; gap: 2px; }
+  .flow-switch button { font-family: inherit; font-size: 11px; font-weight: 600; color: #8b909c; background: transparent; border: 0; border-radius: 6px; padding: 5px 11px; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; }
+  .flow-switch button:hover { color: #c7cbd4; }
+  .flow-switch button.active { background: #4a3d7a; color: #fff; }
+
+  /* ── App shell ─────────────────────────────────────────────────────── */
+  #app { position: relative; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     STOREFRONT — Hotel Lobby Candle
+     ════════════════════════════════════════════════════════════════════ */
+  #storefrontHeader { display: none; }
+  #storefrontHeader.show { display: block; }
+
+  .announce {
+    background: var(--hlc-accent); color: #f3efe8;
+    text-align: center; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 8px 16px; font-weight: 500;
+  }
+  .hdr {
+    position: sticky; top: 0; z-index: 40;
+    background: var(--hlc-blush); border-bottom: 1px solid #f1ded9;
+  }
+  .hdr-row {
+    max-width: 1280px; margin: 0 auto; padding: 18px 28px;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+  }
+  .hdr-nav { display: flex; align-items: center; gap: 30px; }
+  .hdr-right { justify-self: end; display: flex; align-items: center; gap: 28px; }
+  .hdr-link {
+    font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500;
+    color: var(--hlc-ink); text-decoration: none; cursor: pointer; background: none; border: 0;
+    font-family: inherit; padding: 0; display: inline-flex; align-items: center; gap: 5px;
+    transition: opacity 0.15s;
+  }
+  .hdr-link:hover { opacity: 0.55; }
+  .hdr-link .caret { transition: transform 0.2s; font-size: 9px; opacity: 0.6; }
+  .hdr-link[aria-expanded="true"] .caret { transform: rotate(180deg); }
+  .wordmark {
+    grid-column: 2; text-align: center; text-decoration: none;
+    font-family: 'Cormorant Garamond', serif; font-weight: 600;
+    font-size: 22px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--hlc-ink);
+    white-space: nowrap; line-height: 1;
+  }
+  .wordmark small { display: block; font-family: 'Inter'; font-size: 8px; letter-spacing: 0.32em; font-weight: 500; color: var(--hlc-soft); margin-top: 4px; }
+  .hdr-actions { justify-self: end; display: flex; align-items: center; gap: 18px; }
+  .icon-btn { background: none; border: 0; cursor: pointer; color: var(--hlc-ink); padding: 4px; display: inline-flex; position: relative; }
+  .icon-btn:hover { opacity: 0.55; }
+  .cart-badge {
+    position: absolute; top: -4px; right: -6px; min-width: 16px; height: 16px; padding: 0 4px;
+    background: var(--hlc-accent); color: #fff; border-radius: 9999px;
+    font-size: 10px; font-weight: 700; display: none; align-items: center; justify-content: center;
+  }
+  .cart-badge.show { display: inline-flex; }
+  .hamburger { display: none; }
+
+  /* Mega menu — text columns (matches hotellobbycandle.com) */
+  .mega {
+    position: absolute; left: 0; right: 0; top: 100%;
+    background: var(--white); border-bottom: 1px solid var(--hlc-line);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+    overflow: hidden; max-height: 0; transition: max-height 0.3s ease;
+  }
+  .mega.open { max-height: 820px; overflow-y: auto; }
+  .mega-inner { max-width: 1280px; margin: 0 auto; padding: 40px 28px 52px; }
+  .mega-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 44px 24px; }
+  .mega-col h5 { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hlc-soft); margin: 0 0 16px; }
+  .mega-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+  .mega-col a { text-decoration: none; font-size: 14px; color: #4a443d; transition: color 0.12s; }
+  .mega-col a:hover { color: var(--hlc-ink); }
+
+  /* Hero */
+  .hero {
+    max-width: 1280px; margin: 0 auto; padding: 64px 28px 40px;
+    display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 40px;
+  }
+  .hero-copy .eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--hlc-soft); font-weight: 600; }
+  .hero-copy h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 60px; line-height: 1.04; margin: 16px 0 18px; color: var(--hlc-ink); }
+  .hero-copy p { font-size: 16px; line-height: 1.7; color: var(--hlc-soft); max-width: 440px; margin: 0 0 28px; }
+  .hero-art { border-radius: 2px; background: var(--hlc-tile); height: 480px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .hero-art img { max-height: 400px; max-width: 76%; object-fit: contain; filter: drop-shadow(0 24px 34px rgba(0,0,0,0.16)); }
+
+  .btn-dark {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    background: var(--hlc-accent); color: #fff; border: 0; font-family: inherit;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+    padding: 14px 26px; border-radius: var(--radius-pill); text-decoration: none; transition: opacity 0.15s;
+  }
+  .btn-dark:hover { opacity: 0.85; }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    background: transparent; color: var(--hlc-ink); border: 1px solid var(--hlc-ink); font-family: inherit;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+    padding: 13px 24px; border-radius: var(--radius-pill); text-decoration: none; transition: all 0.15s;
+  }
+  .btn-ghost:hover { background: var(--hlc-ink); color: #fff; }
+
+  /* Section scaffolding */
+  .section { max-width: 1280px; margin: 0 auto; padding: 48px 28px; }
+  .section-head { text-align: center; margin-bottom: 32px; }
+  .section-head .eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--hlc-soft); font-weight: 600; }
+  .section-head h3 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 40px; margin: 10px 0 0; color: var(--hlc-ink); }
+
+  /* Category trio */
+  .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .cat-card { text-decoration: none; display: block; }
+  .cat-card .art { height: 320px; display: flex; align-items: center; justify-content: center; background: var(--hlc-tile); border-radius: 2px; overflow: hidden; }
+  .cat-card .art img { max-height: 230px; max-width: 66%; object-fit: contain; filter: drop-shadow(0 18px 26px rgba(0,0,0,0.13)); transition: transform 0.3s; }
+  .cat-card:hover .art img { transform: scale(1.04); }
+  .cat-card .label { padding: 18px 2px 0; display: flex; align-items: baseline; justify-content: space-between; }
+  .cat-card .label b { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 26px; font-weight: 600; }
+  .cat-card .label span { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hlc-soft); }
+
+  /* Product grid + cards — flat tile, no gradient (matches hotellobbycandle.com) */
+  .prod-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 24px; }
+  .prod-card { background: transparent; }
+  .prod-card .art {
+    position: relative; aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center;
+    background: var(--hlc-tile); border-radius: 2px; overflow: hidden;
+  }
+  .prod-card .art img { max-height: 72%; max-width: 68%; object-fit: contain; filter: drop-shadow(0 16px 22px rgba(0,0,0,0.12)); transition: transform 0.3s; }
+  .prod-card:hover .art img { transform: scale(1.04); }
+  .prod-card .tag {
+    position: absolute; top: 14px; left: 14px; background: var(--white);
+    border: 1px solid var(--hlc-line); border-radius: 9999px; padding: 6px 13px;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--hlc-ink);
+  }
+  .prod-card .body { padding: 16px 0 0; text-align: left; }
+  .prod-card .name { font-family: 'Inter'; font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--hlc-ink); line-height: 1.35; }
+  .prod-card .price { font-size: 14px; color: var(--hlc-soft); margin-top: 6px; }
+  .add-to-bag {
+    margin-top: 14px; width: 100%; background: transparent; border: 1px solid var(--hlc-ink);
+    color: var(--hlc-ink); font-family: inherit; font-size: 13px; letter-spacing: 0.02em; padding: 13px;
+    cursor: pointer; border-radius: 2px; transition: background 0.15s, color 0.15s;
+  }
+  .add-to-bag:hover { background: var(--hlc-ink); color: #fff; }
+
+  /* Collection intro */
+  .coll-intro { max-width: 1280px; margin: 0 auto; padding: 52px 28px 8px; text-align: center; }
+  .coll-intro .crumb { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--hlc-soft); }
+  .coll-intro .crumb a { text-decoration: none; }
+  .coll-intro .crumb a:hover { opacity: 0.6; }
+  .coll-intro h2 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 52px; margin: 14px 0 14px; color: var(--hlc-ink); }
+  .coll-intro p { font-size: 15px; line-height: 1.7; color: var(--hlc-soft); max-width: 540px; margin: 0 auto; }
+  .coll-sub { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+  .coll-sub h4 { display: inline-block; font-size: 16px; font-weight: 600; color: var(--hlc-ink); margin: 0; padding-bottom: 12px; border-bottom: 2px solid var(--hlc-ink); }
+
+  /* Editorial quote strip */
+  .quote { background: var(--hlc-tile); }
+  .quote .inner { max-width: 880px; margin: 0 auto; padding: 72px 28px; text-align: center; }
+  .quote blockquote { font-family: 'Cormorant Garamond', serif; font-size: 34px; line-height: 1.3; font-weight: 500; margin: 0; color: var(--hlc-ink); }
+  .quote cite { display: block; margin-top: 22px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--hlc-soft); font-style: normal; }
+
+  /* Footer */
+  .foot { background: var(--hlc-accent); color: #e9e3d8; }
+  .foot-inner { max-width: 1280px; margin: 0 auto; padding: 56px 28px 40px; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 28px; }
+  .foot .brand { font-family: 'Cormorant Garamond', serif; font-size: 22px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .foot .brand p { font-family: 'Inter'; font-size: 13px; letter-spacing: 0; text-transform: none; color: #b3ab9d; line-height: 1.7; margin: 14px 0 0; max-width: 280px; }
+  .foot h5 { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #c9c0b1; margin: 0 0 14px; }
+  .foot ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .foot ul a { font-size: 13px; color: #b3ab9d; text-decoration: none; }
+  .foot ul a:hover { color: #fff; }
+  .foot-base { border-top: 1px solid #3a342c; text-align: center; padding: 18px; font-size: 11px; color: #8d8579; letter-spacing: 0.04em; }
+
+  /* Mobile menu sheet */
+  .msheet { display: none; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     ADMIN placeholder (built in Step 7)
+     ════════════════════════════════════════════════════════════════════ */
+  .ph {
+    min-height: calc(100vh - 44px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; padding: 40px; text-align: center; background: var(--surface);
+  }
+  .ph .badge { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); font-weight: 600; }
+  .ph h2 { font-size: 32px; margin: 0; font-weight: 700; color: var(--ink); }
+  .ph p { margin: 0; color: var(--ink-soft); max-width: 460px; line-height: 1.6; }
+  .ph-nav { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  .ph-nav a { text-decoration: none; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--white); color: var(--ink); transition: all 0.15s; }
+  .ph-nav a:hover { background: var(--surface); border-color: #d9dbe0; }
+  .ph-nav a.purple { background: var(--axiom-purple); border-color: var(--axiom-purple); color: #fff; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CHAT WIDGET — floating Shopping Assistant (storefront only)
+     ════════════════════════════════════════════════════════════════════ */
+  /* Closed-state widget — SPQ preview pills stacked above the launcher */
+  .chat-closed {
+    position: fixed; right: 24px; bottom: 24px; z-index: 50;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+  }
+  .chat-closed.hidden { display: none; }
+  .spq-preview { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .spq-preview-chip {
+    background: #fff; color: var(--hlc-ink); border: 0; border-radius: 9999px;
+    padding: 14px 20px; font-size: 15px; font-family: inherit; cursor: pointer; text-align: left;
+    line-height: 1.3; max-width: 300px; box-shadow: 0 8px 22px rgba(70,58,46,0.16);
+    transition: transform 0.12s, box-shadow 0.12s; animation: spqRise 0.5s cubic-bezier(0.34,1.56,0.64,1) backwards;
+  }
+  .spq-preview-chip:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(70,58,46,0.22); }
+  @keyframes spqRise { 0% { opacity: 0; transform: translateY(16px) scale(0.92); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+  /* ASAP stacked pills — glassy/frosted fill */
+  .spq-preview .spq-preview-chip { background: rgba(255,255,255,0.55); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 8px 22px rgba(70,58,46,0.14); }
+  .spq-preview .spq-preview-chip:hover { background: rgba(255,255,255,0.72); }
+
+  /* Launcher — soft white pearl with dark speech-bubble glyph */
+  .chat-launcher {
+    position: relative;
+    width: 60px; height: 60px; border-radius: 100px; border: 0; padding: 0; cursor: pointer;
+    background: radial-gradient(circle, rgb(255,255,255) 0%, rgb(245,245,245) 50%, rgba(49,38,29,0.3) 100%);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    box-shadow: rgba(22,22,22,0.16) 0px 2px 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: transform 0.15s ease;
+  }
+  .chat-launcher:hover { transform: scale(1.05); }
+  .chat-launcher .glyph { color: var(--hlc-accent); display: inline-flex; }
+  .chat-launcher .glyph-x { display: none; }
+  .chat-closed.preview-open .chat-launcher .glyph-bubble { display: none; }
+  .chat-closed.preview-open .chat-launcher .glyph-x { display: inline-flex; }
+  .chat-launcher .cart-badge { top: 0; right: 0; background: var(--hlc-accent); }
+
+  /* Panel — light-brown gradient */
+  .chat-panel {
+    position: fixed; right: 24px; bottom: 24px; z-index: 51;
+    width: 420px; border-radius: 28px; overflow: hidden;
+    background: linear-gradient(180deg, #f2eae0 0%, #e8dac9 58%, #ddccb7 100%);
+    box-shadow: 0 26px 64px rgba(60,50,40,0.32);
+    display: flex; flex-direction: column;
+    transform-origin: bottom right;
+    opacity: 0; transform: translateY(20px) scale(0.96); pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.24s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  .chat-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+
+  .chat-header { flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 16px 16px 8px; }
+  .chat-header .spacer { flex: 1; }
+  .chat-circ {
+    width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(120,105,90,0.18);
+    background: rgba(255,255,255,0.92); cursor: pointer; color: var(--hlc-ink);
+    display: inline-flex; align-items: center; justify-content: center; position: relative;
+    box-shadow: 0 2px 8px rgba(80,70,60,0.10); transition: background 0.15s;
+  }
+  .chat-circ:hover { background: #fff; }
+  .chat-track {
+    height: 44px; border-radius: 9999px; border: 1px solid rgba(120,105,90,0.18);
+    background: rgba(255,255,255,0.92); cursor: pointer; padding: 0 20px;
+    font-family: inherit; font-size: 15px; font-weight: 500; color: var(--hlc-ink);
+    box-shadow: 0 2px 8px rgba(80,70,60,0.10); transition: background 0.15s;
+  }
+  .chat-track:hover { background: #fff; }
+
+  .chat-breadcrumb {
+    flex-shrink: 0; display: none; align-items: center; gap: 6px;
+    padding: 4px 22px 0; font-size: 12px; color: #8a7d6b; background: transparent;
+  }
+  .chat-breadcrumb.show { display: flex; }
+
+  .chat-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .chat-intro { flex-shrink: 0; padding: 22px 28px 6px; text-align: center; }
+  .chat-intro.collapsed { display: none; }
+  .chat-monogram {
+    font-family: 'Cormorant Garamond', serif; font-size: 66px; line-height: 1; font-weight: 500;
+    color: rgba(95,76,55,0.26); letter-spacing: 0.1em;
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+  }
+  .chat-monogram .spark { font-size: 22px; transform: translateY(-2px); }
+  .chat-intro p { margin: 16px 0 0; color: #7a6e5d; font-size: 15px; line-height: 1.5; }
+
+  .chat-thread { flex: 1; padding: 10px 18px 18px; display: flex; flex-direction: column; }
+  .msg { max-width: 82%; font-size: 15px; line-height: 1.55; margin-bottom: 14px; }
+  .msg.assistant { color: #3a3026; align-self: flex-start; }
+  .msg.user { align-self: flex-end; background: rgba(255,255,255,0.78); color: #3a3026; padding: 12px 18px; border-radius: 20px; box-shadow: 0 1px 4px rgba(80,70,60,0.08); }
+  .typing { align-self: flex-start; display: flex; gap: 5px; padding: 10px 4px 14px; }
+  .typing span { width: 8px; height: 8px; border-radius: 50%; background: #b8aa97; animation: typeBounce 1.2s infinite ease-in-out; }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typeBounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.5; } 40% { transform: translateY(-5px); opacity: 1; } }
+
+  .chat-chips { flex-shrink: 0; }
+  .chat-followups { flex-shrink: 0; display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 8px; scrollbar-width: none; }
+  .chat-followups::-webkit-scrollbar { display: none; }
+  .chat-followups:empty { display: none; }
+  .followup-chip { flex-shrink: 0; white-space: nowrap; cursor: pointer; font-family: inherit; font-size: 13px; border: 1px solid rgba(120,105,90,0.25); background: rgba(255,255,255,0.78); color: var(--hlc-ink); border-radius: 9999px; padding: 9px 15px; box-shadow: 0 2px 8px rgba(70,58,46,0.08); transition: background 0.15s, transform 0.12s; }
+  .followup-chip:hover { background: #fff; transform: translateY(-1px); }
+  .spq-row { display: flex; gap: 8px; overflow-x: auto; padding: 6px 16px 12px; scrollbar-width: none; }
+  .spq-row::-webkit-scrollbar { display: none; }
+  .spq-chip {
+    flex-shrink: 0; white-space: nowrap; cursor: pointer; font-family: inherit; font-size: 13px;
+    border: 1px solid rgba(120,105,90,0.30); background: rgba(255,255,255,0.55); color: #4a4036;
+    border-radius: 9999px; padding: 8px 15px; transition: background 0.15s, border-color 0.15s;
+  }
+  .spq-chip:hover { background: #fff; border-color: rgba(120,105,90,0.55); }
+  .spq-chip.safe { border-style: dashed; background: rgba(255,255,255,0.35); }
+
+  .chat-composer { flex-shrink: 0; padding: 10px 16px 18px; }
+  .chat-inputwrap {
+    display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 9999px;
+    padding: 4px 8px 4px 20px; box-shadow: 0 6px 18px rgba(80,70,60,0.14);
+  }
+  .chat-inputwrap textarea {
+    flex: 1; border: 0; outline: 0; resize: none; background: transparent;
+    font-family: inherit; font-size: 15px; line-height: 1.4; padding: 12px 0; max-height: 90px; color: #3a3026;
+  }
+  .chat-inputwrap textarea::placeholder { color: #9b8f7d; }
+  .chat-inputwrap .attach {
+    flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; border: 0; background: transparent;
+    cursor: pointer; color: #6f6353; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s;
+  }
+  .chat-inputwrap .attach:hover { background: #f1ece4; }
+
+  /* In-chat product recommendation cards */
+  .chat-recs { align-self: stretch; margin: 2px 0 14px; }
+  .chat-recs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rec-card { text-align: left; border: 0; background: #fff; border-radius: 14px; overflow: hidden; cursor: pointer; padding: 0; box-shadow: 0 4px 14px rgba(70,58,46,0.12); transition: transform 0.12s, box-shadow 0.12s; display: flex; flex-direction: column; }
+  .rec-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(70,58,46,0.18); }
+  .rec-img { aspect-ratio: 1 / 1; background: var(--hlc-tile); display: flex; align-items: center; justify-content: center; }
+  .rec-img img { max-height: 78%; max-width: 74%; object-fit: contain; }
+  .rec-meta { padding: 9px 11px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .rec-brand { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: #9b8f7d; }
+  .rec-name { font-size: 12.5px; font-weight: 600; color: var(--hlc-ink); line-height: 1.25; }
+  .rec-price { font-size: 12.5px; color: #6f6353; }
+
+  /* PDP — bottom drawer that slides up within the chat panel */
+  .pdp-scrim { position: absolute; inset: 0; background: rgba(30,24,18,0.45); z-index: 6; display: flex; align-items: flex-end; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s; }
+  .pdp-scrim.open { opacity: 1; visibility: visible; }
+  .pdp { width: 100%; max-height: 92%; background: #fff; border-radius: 22px 22px 0 0; overflow: hidden; position: relative; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.28s cubic-bezier(0.2,0.8,0.2,1); box-shadow: 0 -12px 34px rgba(0,0,0,0.20); }
+  .pdp-scrim.open .pdp { transform: translateY(0); }
+  .pdp-close { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.92); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--hlc-ink); box-shadow: 0 2px 8px rgba(0,0,0,0.12); z-index: 1; }
+  .pdp-img { flex-shrink: 0; aspect-ratio: 1 / 1; background: var(--hlc-tile); display: flex; align-items: center; justify-content: center; border-radius: 22px 22px 0 0; }
+  .pdp-img img { max-height: 80%; max-width: 72%; object-fit: contain; filter: drop-shadow(0 18px 26px rgba(0,0,0,0.16)); }
+  .pdp-body { flex: 1; overflow-y: auto; padding: 22px 24px 18px; }
+  .pdp-foot { flex-shrink: 0; padding: 14px 24px 20px; border-top: 1px solid var(--hlc-line); background: #fff; }
+  .pdp-brand { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hlc-soft); }
+  .pdp-name { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; margin: 6px 0 4px; color: var(--hlc-ink); line-height: 1.1; }
+  .pdp-notes { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hlc-soft); margin-bottom: 10px; }
+  .pdp-price { font-size: 18px; font-weight: 600; color: var(--hlc-ink); margin-bottom: 16px; }
+  .pdp-opts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .pdp-opt { font-family: inherit; font-size: 13px; padding: 9px 16px; border-radius: 9999px; border: 1px solid var(--hlc-line); background: #fff; color: var(--hlc-ink); cursor: pointer; }
+  .pdp-opt.active { border-color: var(--hlc-ink); background: var(--hlc-ink); color: #fff; }
+  .pdp-add { width: 100%; padding: 15px; border: 0; border-radius: 9999px; background: var(--hlc-accent); color: #fff; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s; }
+  .pdp-add:hover { opacity: 0.88; }
+  .pdp-desc { font-size: 14px; line-height: 1.6; color: var(--hlc-soft); margin: 18px 0 0; }
+
+  .chat-toast { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px); background: var(--hlc-ink); color: #fff; padding: 12px 22px; border-radius: 9999px; font-size: 14px; z-index: 70; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+  .chat-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ════════════════════════════════════════════════════════════════════
+     SPQ CONFIGURATION DRAWER (admin) — slides in from the right
+     ════════════════════════════════════════════════════════════════════ */
+  .drawer-scrim { position: fixed; inset: 0; background: rgba(20,23,31,0.4); z-index: 58; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; }
+  .drawer-scrim.open { opacity: 1; visibility: visible; }
+  .drawer { position: absolute; top: 0; right: 0; height: 100%; width: 480px; max-width: 100%; background: #fff; box-shadow: -12px 0 40px rgba(0,0,0,0.18); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.22s ease-out; border-radius: 16px 0 0 16px; overflow: hidden; }
+  .drawer-scrim.open .drawer { transform: translateX(0); }
+  .drawer-head { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+  .drawer-head h2 { font-size: 17px; font-weight: 700; margin: 0; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 18px 22px; }
+  .drawer-desc { font-size: 13px; color: var(--ink-soft); margin: 0 0 6px; line-height: 1.5; }
+  .drawer-section { padding: 18px 0; border-top: 1px solid var(--border); }
+  .drawer-section h4 { font-size: 13px; font-weight: 700; margin: 0 0 12px; }
+  .drawer-foot { flex-shrink: 0; display: flex; justify-content: flex-end; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--border); background: #fff; }
+
+  .surf-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 9px 0; }
+  .surf-row .surf-lbl { font-size: 14px; font-weight: 500; }
+  .surf-row .surf-sub { font-size: 12px; color: var(--ink-muted); margin-top: 1px; }
+
+  .prev-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .prev-tab { font-size: 12px; font-weight: 600; padding: 6px 13px; border-radius: 9999px; border: 1px solid var(--border); background: #fff; color: var(--ink-soft); cursor: pointer; font-family: inherit; }
+  .prev-tab.active { background: #f1ecfe; border-color: #d9d3f0; color: var(--axiom-purple); }
+  .prev-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .prev-pick { font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--ink); }
+  .regen { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--axiom-purple); background: none; border: 0; cursor: pointer; }
+  .prev-mock { background: linear-gradient(180deg, #f2eae0 0%, #e8dac9 100%); border-radius: 16px; padding: 18px 16px; }
+  .prev-mock .pmono { text-align: center; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 30px; letter-spacing: 0.1em; color: rgba(95,76,55,0.3); }
+  .prev-mock .pmsg { text-align: center; font-size: 12px; color: #7a6e5d; margin: 6px 0 14px; }
+  .prev-chips { display: flex; flex-direction: column; gap: 7px; align-items: flex-end; }
+  .prev-chip { background: #fff; border-radius: 9999px; padding: 9px 14px; font-size: 12px; color: var(--hlc-ink); box-shadow: 0 4px 12px rgba(70,58,46,0.12); max-width: 88%; text-align: left; }
+
+  .ovr-table { width: 100%; border-collapse: collapse; }
+  .ovr-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); font-weight: 700; padding: 6px 8px; }
+  .ovr-table td { padding: 11px 8px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  .ovr-status { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; display: inline-block; }
+  .ovr-status.auto { background: #ecfdf5; color: #059669; }
+  .ovr-status.custom { background: #eef2ff; color: #6366f1; }
+  .ovr-status.disabled { background: #f3f4f6; color: #9ca3af; }
+  .ovr-edit { color: var(--axiom-purple); font-weight: 600; cursor: pointer; background: none; border: 0; font-family: inherit; font-size: 13px; }
+  .ovr-edit:hover { text-decoration: underline; }
+
+  .drawer-readonly { display: flex; align-items: center; justify-content: space-between; font-size: 14px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--ink-soft); }
+  .drawer-placeholder { font-size: 13px; color: var(--ink-muted); padding: 12px; border: 1px dashed var(--border); border-radius: 8px; }
+
+  /* Edit-chips modal (nested over the drawer) */
+  .editm-scrim { position: fixed; inset: 0; background: rgba(20,23,31,0.5); z-index: 62; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .editm-scrim.open { display: flex; }
+  .editm { background: #fff; border-radius: 16px; width: 100%; max-width: 440px; max-height: 80%; overflow-y: auto; box-shadow: 0 30px 70px rgba(0,0,0,0.4); }
+  .editm-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: #fff; }
+  .editm-head h3 { font-size: 16px; font-weight: 700; margin: 0; }
+  .editm-body { padding: 12px 20px 18px; }
+  .echip { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-top: 1px solid var(--border); }
+  .echip:first-child { border-top: 0; }
+  .echip.hidden input { opacity: 0.4; text-decoration: line-through; }
+  .echip input { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-family: inherit; font-size: 13px; color: var(--ink); }
+  .echip-btn { background: none; border: 0; cursor: pointer; color: var(--ink-muted); padding: 5px; border-radius: 6px; display: inline-flex; }
+  .echip-btn:hover { background: var(--surface); color: var(--ink); }
+  .echip-btn.on { color: var(--axiom-purple); }
+  .editm-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); position: sticky; bottom: 0; background: #fff; }
+
+  /* ════════ Medium-term flow: centered bottom "Chat to shop" dock ════════ */
+  .chat-dock { position: fixed; left: 0; right: 0; bottom: 24px; z-index: 50; display: flex; justify-content: center; pointer-events: none; }
+  .chat-dock.hidden { display: none; }
+  /* Glassy hood wrapping the SPQ pills + input */
+  .chat-dock-inner {
+    pointer-events: auto; width: min(600px, calc(100% - 28px));
+    display: flex; flex-direction: column; align-items: stretch; gap: 12px;
+    background: rgba(255,255,255,0.42);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
+    border: 1px solid rgba(255,255,255,0.65); border-radius: 26px; padding: 12px 14px 14px;
+    box-shadow: 0 18px 46px rgba(70,58,46,0.20);
+    transition: transform 0.32s cubic-bezier(0.2,0.8,0.2,1), opacity 0.28s ease;
+  }
+  .chat-dock.leaving .chat-dock-inner { transform: translateX(46vw) scale(0.96); opacity: 0; pointer-events: none; }
+  .dock-grip { width: 40px; height: 5px; border-radius: 9999px; background: rgba(70,58,46,0.22); margin: 0 auto 2px; flex-shrink: 0; }
+  .dock-preview { display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; gap: 9px; width: 100%; overflow-x: auto; scrollbar-width: none; padding: 1px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+  .dock-preview::-webkit-scrollbar { display: none; }
+  .dock-preview .spq-preview-chip { flex-shrink: 0; white-space: nowrap; max-width: none; text-align: center; padding: 10px 16px; font-size: 13px; box-shadow: 0 3px 10px rgba(70,58,46,0.10); }
+  .chat-bar-input { width: 100%; display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid rgba(120,105,90,0.18); border-radius: 9999px; padding: 4px 8px 4px 22px; box-shadow: 0 4px 14px rgba(70,58,46,0.10); }
+  .chat-bar-input input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-family: inherit; font-size: 16px; padding: 14px 0; color: var(--hlc-ink); }
+  .chat-bar-input input::placeholder { color: #9b8f7d; }
+  .chat-bar-input .attach { flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; border: 0; background: transparent; cursor: pointer; color: #6f6353; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .chat-bar-input .attach:hover { background: #f1ece4; }
+  /* Hood top row: grip + expand icon */
+  .dock-top { position: relative; display: flex; align-items: center; justify-content: center; min-height: 16px; }
+  .dock-top .dock-grip { margin: 0 auto; }
+  .dock-actions { position: absolute; right: 0; top: -4px; display: flex; gap: 4px; }
+  .hood-btn { width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.65); cursor: pointer; color: #6f6353; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s; padding: 0; }
+  .hood-btn:hover { background: #fff; }
+  .hood-min .ic-plus { display: none; }
+  .chat-dock.minimized .hood-min .ic-min { display: none; }
+  .chat-dock.minimized .hood-min .ic-plus { display: inline-flex; }
+  .chat-dock.minimized #hoodBody { display: none; }
+  /* In-hood conversation */
+  .hood-convo { max-height: 300px; overflow-y: auto; scrollbar-width: none; }
+  .hood-convo::-webkit-scrollbar { display: none; }
+  .hood-convo .typing { display: flex; gap: 5px; padding: 8px 6px 12px; }
+  .hood-convo .typing span { width: 8px; height: 8px; border-radius: 50%; background: #b8aa97; animation: typeBounce 1.2s infinite ease-in-out; }
+  .hood-convo .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .hood-convo .typing span:nth-child(3) { animation-delay: 0.3s; }
+  .hood-msg { font-size: 14px; line-height: 1.5; color: #3a3026; padding: 4px 6px 0; animation: hoodFade 0.3s ease; }
+  @keyframes hoodFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .hood-chips { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 6px 4px; }
+  .hood-carousel { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding: 12px 4px 4px; }
+  .hood-carousel::-webkit-scrollbar { display: none; }
+  .hood-carousel .rec-card { flex: 0 0 132px; }
+  /* Reviews chip (rightmost in the dock pill row) */
+  .dock-reviews { flex-shrink: 0; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; background: #fff; color: var(--hlc-ink); border: 0; border-radius: 9999px; padding: 10px 15px; font-size: 13px; font-family: inherit; cursor: pointer; box-shadow: 0 3px 10px rgba(70,58,46,0.10); animation: spqRise 0.5s cubic-bezier(0.34,1.56,0.64,1) backwards; }
+  .dock-reviews .stars { color: #e0a93b; display: inline-flex; }
+  .dock-reviews:hover { background: #fdfbf7; }
+  /* In-hood review summary (Amazon-style, expandable) */
+  .hood-reviews { padding: 2px 2px; }
+  .rev-overview { font-size: 14px; line-height: 1.5; color: #3a3026; padding: 2px 4px 12px; }
+  .rev-caption { font-size: 11px; color: #9b8f7d; margin-top: 6px; }
+  .rev-section { border-top: 1px solid rgba(120,105,90,0.18); }
+  .rev-head { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; background: none; border: 0; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--hlc-ink); padding: 12px 4px; }
+  .rev-head .chev { transition: transform 0.2s; opacity: 0.55; flex-shrink: 0; }
+  .rev-section.open .rev-head .chev { transform: rotate(180deg); }
+  .rev-body { display: none; padding: 0 4px 12px; }
+  .rev-section.open .rev-body { display: block; }
+  .rev-sum { font-size: 13px; line-height: 1.5; color: #4a4036; margin: 0 0 8px; }
+  .rev-quote { font-size: 13px; line-height: 1.45; color: #6f6353; font-style: italic; margin: 7px 0; padding-left: 10px; border-left: 2px solid rgba(120,105,90,0.25); }
+
+  /* ════════ Longer-term flow: search overlay with AI suggestions ════════ */
+  .search-scrim { position: fixed; inset: 0; background: rgba(30,24,18,0.38); z-index: 60; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; }
+  .search-scrim.open { opacity: 1; visibility: visible; }
+  .search-panel { position: absolute; top: 0; left: 0; right: 0; background: rgba(250,248,245,0.78); -webkit-backdrop-filter: blur(26px) saturate(1.5); backdrop-filter: blur(26px) saturate(1.5); box-shadow: 0 20px 50px rgba(0,0,0,0.18); max-height: 88%; overflow-y: auto; transform: translateY(-16px); opacity: 0; transition: transform 0.26s cubic-bezier(0.2,0.8,0.2,1), opacity 0.26s; border-radius: 0 0 22px 22px; }
+  .search-scrim.open .search-panel { transform: translateY(0); opacity: 1; }
+  .search-inner { max-width: 760px; margin: 0 auto; padding: 22px 24px 28px; }
+  .search-field { display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.75); border-radius: 9999px; padding: 14px 20px; background: rgba(255,255,255,0.55); box-shadow: 0 6px 18px rgba(70,58,46,0.12); }
+  .search-field input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-family: inherit; font-size: 17px; color: var(--hlc-ink); }
+  .search-field input::placeholder { color: #9b8f7d; }
+  .search-close { background: none; border: 0; cursor: pointer; color: var(--hlc-soft); padding: 4px; display: inline-flex; }
+  .search-close:hover { color: var(--hlc-ink); }
+  .ai-block { margin-top: 18px; background: rgba(255,255,255,0.42); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.7); border-radius: 18px; padding: 16px 16px 10px; box-shadow: 0 6px 20px rgba(70,58,46,0.08); }
+  .ai-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--axiom-purple); background: #fff; border: 1px solid #e6dcc9; border-radius: 9999px; padding: 5px 11px; margin-bottom: 6px; }
+  .ai-row { display: flex; align-items: center; gap: 12px; padding: 13px 8px; border-radius: 10px; cursor: pointer; font-size: 16px; color: var(--hlc-ink); transition: background 0.12s; }
+  .ai-row:hover { background: #fff; }
+  .ai-row .spark { color: var(--axiom-purple); flex-shrink: 0; }
+  .ai-row .arrow { margin-left: auto; color: var(--hlc-soft); flex-shrink: 0; }
+  .search-block { margin-top: 22px; }
+  .search-block-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hlc-soft); font-weight: 700; margin-bottom: 8px; }
+  .sug-row { display: flex; align-items: center; gap: 11px; padding: 11px 8px; cursor: pointer; font-size: 15px; color: var(--hlc-ink); border-radius: 8px; transition: background 0.12s; }
+  .sug-row:hover { background: var(--surface); }
+  .sug-row .mag { color: var(--hlc-soft); flex-shrink: 0; }
+  .search-recs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  @media (max-width: 760px) { .search-recs { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ── Cross-surface nav (prototype-only affordance) ─────────────────── */
+  .proto-fab {
+    position: fixed; z-index: 55; display: none; align-items: center; gap: 7px;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+    padding: 10px 15px; border-radius: 9999px; cursor: pointer; text-decoration: none;
+    background: rgba(255,255,255,0.96); backdrop-filter: blur(8px);
+    border: 1px dashed var(--axiom-purple); color: var(--axiom-purple);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.14); transition: all 0.15s;
+  }
+  .proto-fab.show { display: inline-flex; }
+  .proto-fab svg { width: 15px; height: 15px; }
+  #gorgiasFab { left: 18px; bottom: 22px; }
+  #gorgiasFab:hover { background: var(--axiom-purple); color: #fff; border-style: solid; transform: translateY(-1px); }
+  #viewStoreFab { left: 18px; bottom: 22px; background: var(--white); border: 1px solid var(--border); color: var(--ink); }
+  #viewStoreFab:hover { background: var(--surface); border-color: #d9dbe0; transform: translateY(-1px); }
+
+  /* ════════════════════════════════════════════════════════════════════
+     GORGIAS ADMIN — Axiom-styled Shopping Assistant page
+     ════════════════════════════════════════════════════════════════════ */
+  .adm { display: flex; min-height: calc(100vh - 44px); background: var(--surface); position: relative; font-size: 14px; color: var(--ink); }
+
+  /* Sidebar */
+  .adm-side { width: 280px; flex-shrink: 0; background: #fafafa; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  .adm-switcher { display: flex; align-items: center; gap: 8px; padding: 14px 14px 10px; }
+  .adm-switcher .logo { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #7e55f6, #9b7bf8); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; }
+  .adm-switcher .name { font-weight: 700; font-size: 15px; flex: 1; display: flex; align-items: center; gap: 4px; }
+  .adm-switcher .name svg { opacity: 0.5; }
+  .adm-ic { background: none; border: 0; cursor: pointer; color: var(--ink-soft); padding: 5px; border-radius: 6px; display: inline-flex; position: relative; }
+  .adm-ic:hover { background: #f0f0f2; }
+  .adm-bell-badge { position: absolute; top: 0; right: 0; min-width: 14px; height: 14px; padding: 0 3px; background: #ef4444; color: #fff; border-radius: 9999px; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .adm-store { margin: 0 12px 8px; display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .adm-store .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .adm-store .chev { margin-left: auto; opacity: 0.5; }
+
+  .adm-nav { flex: 1; overflow-y: auto; padding: 6px 8px 16px; }
+  .adm-sec-head { display: flex; align-items: center; gap: 6px; padding: 10px 10px 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); cursor: pointer; }
+  .adm-sec-head .chev { transition: transform 0.15s; }
+  .adm-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; margin: 1px 0; border-radius: 8px; color: var(--ink); cursor: pointer; text-decoration: none; font-size: 14px; }
+  .adm-item:hover { background: #f0f0f2; }
+  .adm-item.active { background: #f1ecfe; color: var(--axiom-purple); font-weight: 600; }
+  .adm-item .ico { width: 18px; height: 18px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; opacity: 0.75; }
+  .adm-item.active .ico { opacity: 1; }
+  .adm-item .lbl { flex: 1; }
+  .adm-item .sdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .adm-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.03em; padding: 2px 7px; border-radius: 9999px; }
+  .adm-tag.beta { background: #eef2ff; color: #6366f1; }
+  .adm-tag.new { background: #ecfdf5; color: #059669; }
+
+  .adm-foot { border-top: 1px solid var(--border); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+  .adm-foot .avatar { width: 30px; height: 30px; border-radius: 50%; background: #d8cdfb; color: #5b3fd0; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+  .adm-foot .uname { flex: 1; font-size: 13px; font-weight: 600; }
+
+  /* Main */
+  .adm-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .adm-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px; border-bottom: 1px solid var(--border); background: #fff; }
+  .adm-header h1 { font-size: 22px; font-weight: 700; margin: 0; }
+  .adm-header .actions { display: flex; gap: 10px; }
+  .adm-btn { font-family: inherit; font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--ink); }
+  .adm-btn:hover { background: var(--surface); }
+  .adm-btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .adm-btn.primary:hover { background: #2c333f; }
+
+  .adm-tabs { display: flex; gap: 28px; padding: 0 28px; border-bottom: 1px solid var(--border); background: #fff; }
+  .adm-tab { padding: 14px 2px; font-size: 14px; font-weight: 600; color: var(--ink-soft); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; border-top: 0; border-left: 0; border-right: 0; font-family: inherit; }
+  .adm-tab:hover { color: var(--ink); }
+  .adm-tab.active { color: var(--axiom-purple); border-bottom-color: var(--axiom-purple); }
+
+  .adm-cards { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+  .feature-card { display: flex; align-items: center; gap: 20px; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 20px rgba(0,0,0,0.04); padding: 18px; }
+  .feature-card.clickable { cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+  .feature-card.clickable:hover { border-color: #d9d3f0; box-shadow: 0 4px 24px rgba(126,85,246,0.10); }
+  .fc-thumb { width: 150px; height: 96px; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: var(--grad-soft); position: relative; display: flex; align-items: center; justify-content: center; }
+  .fc-thumb .mini { background: #fff; border-radius: 6px; box-shadow: 0 3px 10px rgba(0,0,0,0.12); padding: 7px; width: 78%; }
+  .fc-thumb .mini .bar { height: 5px; border-radius: 3px; background: #e7e2f7; margin-bottom: 4px; }
+  .fc-thumb .mini .bar.sm { width: 60%; }
+  .fc-thumb .mini .pill { display: inline-block; height: 9px; width: 38px; border-radius: 9999px; background: #efeaff; border: 1px solid #ddd3f7; margin: 3px 3px 0 0; }
+  .fc-body { flex: 1; min-width: 0; }
+  .fc-title { font-size: 16px; font-weight: 600; margin: 0 0 5px; }
+  .fc-desc { font-size: 13px; line-height: 1.5; color: var(--ink-soft); margin: 0; }
+  .fc-track { display: inline-block; margin-top: 9px; font-size: 13px; font-weight: 600; color: var(--axiom-purple); text-decoration: none; }
+  .fc-track:hover { text-decoration: underline; }
+  .fc-control { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+
+  .gear-btn { background: none; border: 0; cursor: pointer; color: var(--ink-soft); padding: 6px; border-radius: 7px; display: inline-flex; }
+  .gear-btn:hover { background: var(--surface); color: var(--ink); }
+
+  .toggle { width: 36px; height: 20px; border-radius: 9999px; background: #d3d5da; cursor: pointer; padding: 2px; display: inline-flex; align-items: center; border: 0; transition: background 0.18s; flex-shrink: 0; }
+  .toggle .knob { width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.18s; }
+  .toggle.on { background: var(--axiom-purple); }
+  .toggle.on .knob { transform: translateX(16px); }
+
+  /* Ask Gaia pill + AI orb */
+  .ask-gaia { position: absolute; left: 296px; bottom: 20px; display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--border); border-radius: 9999px; padding: 9px 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.10); font-size: 13px; font-weight: 600; cursor: pointer; z-index: 5; }
+  .ask-gaia .kbd { font-size: 11px; color: var(--ink-muted); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; }
+  .ai-orb { position: absolute; right: 24px; bottom: 22px; width: 52px; height: 52px; border-radius: 50%; background: var(--grad-conic); box-shadow: 0 10px 26px rgba(126,85,246,0.30); animation: orbSpin 9s linear infinite; z-index: 5; }
+  @keyframes orbSpin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive ────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .hdr-row { grid-template-columns: auto 1fr auto; padding: 14px 18px; }
+    .hdr-nav { display: none; }
+    .hamburger { display: inline-flex; }
+    .wordmark { font-size: 18px; letter-spacing: 0.14em; }
+    .wordmark small { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 36px 20px; gap: 26px; }
+    .hero-copy h2 { font-size: 42px; }
+    .hero-art { height: 320px; order: -1; }
+    .cat-grid { grid-template-columns: 1fr; }
+    .prod-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .section { padding: 36px 18px; }
+    .foot-inner { grid-template-columns: 1fr 1fr; }
+    .coll-intro h2 { font-size: 38px; }
+    .quote blockquote { font-size: 26px; }
+    .mega { display: none; }
+    .chat-panel { right: 0; bottom: 0; width: 100vw; border-radius: 24px 24px 0 0; }
+    .chat-recs-row { display: flex; overflow-x: auto; scrollbar-width: none; }
+    .chat-recs-row::-webkit-scrollbar { display: none; }
+    .rec-card { flex: 0 0 150px; }
+
+    /* Admin — desktop-first, but keep it usable on mobile */
+    .adm-side { display: none; }
+    .adm-header { padding: 16px 18px; }
+    .adm-header h1 { font-size: 19px; }
+    .adm-tabs { padding: 0 18px; gap: 18px; overflow-x: auto; scrollbar-width: none; }
+    .adm-tabs::-webkit-scrollbar { display: none; }
+    .adm-tab { white-space: nowrap; }
+    .adm-cards { padding: 18px; }
+    .feature-card { gap: 14px; padding: 14px; }
+    .fc-thumb { width: 84px; height: 64px; }
+    .fc-title { font-size: 15px; }
+    .ask-gaia { display: none; }
+    .ai-orb { right: 16px; bottom: 16px; }
+    .msheet.open {
+      display: block; position: fixed; inset: 0; top: 0; z-index: 70;
+      background: var(--hlc-paper); padding: 24px;
+    }
+    .msheet .close { position: absolute; top: 18px; right: 20px; background: none; border: 0; font-size: 26px; cursor: pointer; color: var(--hlc-ink); }
+    .msheet h4 { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--hlc-soft); margin: 40px 0 14px; }
+    .msheet a { display: block; text-decoration: none; font-family: 'Cormorant Garamond', serif; font-size: 30px; color: var(--hlc-ink); padding: 8px 0; border-bottom: 1px solid var(--hlc-line); }
+  }
+  @media (max-width: 360px) {
+    .prod-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <!-- Playground chrome -->
+  <div class="topbar">
+    <h1>SPQs on <span class="accent">Home &amp; Collection</span> Pages</h1>
+    <span class="sub">Hotel Lobby Candle × Gorgias Shopping Assistant</span>
+    <span class="spacer"></span>
+    <div class="flow-switch" id="flowSwitch">
+      <button data-flow="asap" class="active">ASAP</button>
+      <button data-flow="medium">Medium term</button>
+      <button data-flow="longer">Longer term</button>
+    </div>
+    <a class="topbar-btn" id="topNavBtn" href="#/admin/shopping-assistant">⚙ Gorgias settings</a>
+    <span class="route-chip" id="routeChip">#/</span>
+  </div>
+
+  <div id="app">
+    <!-- ── Shared storefront header (shown on home + collection) ───────── -->
+    <header id="storefrontHeader">
+      <div class="hdr">
+        <div class="hdr-row">
+          <nav class="hdr-nav">
+            <button class="hdr-link" id="shopTrigger" aria-expanded="false" aria-haspopup="true">Shop <span class="caret">▼</span></button>
+            <a class="hdr-link" href="#/">Scent Quiz</a>
+          </nav>
+          <a class="wordmark" href="#/">Hotel Lobby<small>Candle</small></a>
+          <div class="hdr-right">
+            <nav class="hdr-nav hdr-nav-secondary">
+              <a class="hdr-link" href="#/">About Us</a>
+              <a class="hdr-link" href="#/">Blog</a>
+            </nav>
+            <div class="hdr-actions">
+              <button class="icon-btn ai-search-btn" id="aiSearchBtn" title="AI search" aria-label="AI search" style="display:none">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <defs><linearGradient id="aiSpark" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#7cc3f0"/><stop offset="1" stop-color="#a78bf6"/></linearGradient></defs>
+                  <path d="M12 2.5l1.9 4.9 4.9 1.9-4.9 1.9L12 16.1l-1.9-4.9L5.2 9.3l4.9-1.9L12 2.5Z" fill="url(#aiSpark)"/>
+                  <path d="M18.6 14.2l.85 2.15 2.15.85-2.15.85-.85 2.15-.85-2.15-2.15-.85 2.15-.85.85-2.15Z" fill="url(#aiSpark)"/>
+                </svg>
+              </button>
+              <button class="icon-btn" title="Search" aria-label="Search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+              </button>
+              <button class="icon-btn" title="Account" aria-label="Account">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+              </button>
+              <button class="icon-btn" id="cartBtn" title="Cart" aria-label="Cart">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+                <span class="cart-badge js-cart-badge" id="cartBadge">0</span>
+              </button>
+              <button class="icon-btn hamburger" id="hamburger" aria-label="Menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Mega menu -->
+        <div class="mega" id="shopMega">
+          <div class="mega-inner">
+            <div class="mega-cols">
+              <div class="mega-col">
+                <h5>Shop All</h5>
+                <ul>
+                  <li><a href="#/collections/candles">Best Sellers</a></li>
+                  <li><a href="#/collections/candles">Candles</a></li>
+                  <li><a href="#/collections/reed-diffusers">Diffusers</a></li>
+                  <li><a href="#/collections/hand-wash">Hand Wash</a></li>
+                  <li><a href="#/">Hand Cream</a></li>
+                  <li><a href="#/">Eau de Parfum</a></li>
+                  <li><a href="#/">Gifts and Sets</a></li>
+                  <li><a href="#/">Accessories</a></li>
+                  <li><a href="#/">Apparel</a></li>
+                  <li><a href="#/">Refills</a></li>
+                </ul>
+              </div>
+              <div class="mega-col">
+                <h5>Candles</h5>
+                <ul>
+                  <li><a href="#/collections/candles">All Candles</a></li>
+                  <li><a href="#/collections/candles">Racquet Club Collection</a></li>
+                  <li><a href="#/">Anthropologie Collection</a></li>
+                  <li><a href="#/collections/candles">Best Sellers</a></li>
+                  <li><a href="#/">Five Wick Candles</a></li>
+                  <li><a href="#/">City Collection</a></li>
+                  <li><a href="#/">Core Collection</a></li>
+                </ul>
+              </div>
+              <div class="mega-col">
+                <h5>Diffusers</h5>
+                <ul>
+                  <li><a href="#/collections/reed-diffusers">View All</a></li>
+                  <li><a href="#/">Refills</a></li>
+                </ul>
+              </div>
+              <div class="mega-col">
+                <h5>Hand Wash</h5>
+                <ul>
+                  <li><a href="#/collections/hand-wash">View All</a></li>
+                  <li><a href="#/">Hand Care Duo</a></li>
+                  <li><a href="#/">Refills</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Mobile menu sheet ───────────────────────────────────────────── -->
+    <div class="msheet" id="mobileSheet">
+      <button class="close" id="mobileClose" aria-label="Close">×</button>
+      <h4>Shop</h4>
+      <a href="#/collections/candles">Candles</a>
+      <a href="#/collections/reed-diffusers">Reed Diffusers</a>
+      <a href="#/collections/hand-wash">Hand Wash</a>
+      <h4>Hotel Lobby Candle</h4>
+      <a href="#/">Home</a>
+      <a href="#/admin/shopping-assistant" style="font-family:'Inter';font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:var(--axiom-purple)">⚙ Gorgias settings</a>
+    </div>
+
+    <!-- ── HOME ────────────────────────────────────────────────────────── -->
+    <section class="view" data-route="home">
+      <div class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow">Iconic hotel fragrance, for home</span>
+          <h2>The scent of a thousand welcomes.</h2>
+          <p>Hand-poured candles, reed diffusers, and hand wash that bottle the unmistakable feeling of walking into a grand hotel lobby.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <a class="btn-dark" href="#/collections/candles">Shop candles</a>
+            <a class="btn-ghost" href="#/collections/reed-diffusers">Explore diffusers</a>
+          </div>
+        </div>
+        <div class="hero-art">
+          <img src="https://cdn.shopify.com/s/files/1/0465/1889/4755/files/hlh-ecomm-handwash-signature_1.png?v=1762197968" alt="Signature Candle">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <span class="eyebrow">Find your scent</span>
+          <h3>Shop by category</h3>
+        </div>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+
+      <div class="quote">
+        <div class="inner">
+          <blockquote class="serif">"It smells exactly like checking in somewhere you never want to leave."</blockquote>
+          <cite>— A note left in the guestbook</cite>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <span class="eyebrow">Most welcomed</span>
+          <h3>Bestselling candles</h3>
+        </div>
+        <div class="prod-grid" id="bestGrid"></div>
+        <div style="text-align:center;margin-top:34px">
+          <a class="btn-ghost" href="#/collections/candles">View all candles</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── COLLECTION ──────────────────────────────────────────────────── -->
+    <section class="view" data-route="collection">
+      <div class="coll-intro">
+        <div class="crumb"><a href="#/">Home</a> &nbsp;/&nbsp; <span id="crumbTitle">Collection</span></div>
+        <h2 id="collectionTitle">Collection</h2>
+        <p id="collectionBlurb"></p>
+      </div>
+      <div class="coll-sub" style="margin-top:40px"><h4 id="collectionSub">All</h4></div>
+      <div class="section" style="padding-top:24px">
+        <div class="prod-grid" id="collectionGrid"></div>
+      </div>
+    </section>
+
+    <!-- ── ADMIN (placeholder; Step 7) ─────────────────────────────────── -->
+    <section class="view" data-route="admin">
+      <div class="adm">
+        <!-- Sidebar -->
+        <aside class="adm-side">
+          <div class="adm-switcher">
+            <span class="logo">G</span>
+            <span class="name">AI Agent <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            <button class="adm-ic" aria-label="Notifications">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span class="adm-bell-badge">3</span>
+            </button>
+            <button class="adm-ic" aria-label="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></button>
+            <button class="adm-ic" aria-label="Collapse"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
+          </div>
+          <button class="adm-store"><span class="dot"></span> ariagroult <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+
+          <nav class="adm-nav">
+            <div class="adm-sec-head">Analyze <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            <a class="adm-item"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5M4 19h16M8 16v-5M13 16V8M18 16v-9"/></svg></span><span class="lbl">Overview</span></a>
+            <a class="adm-item"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg></span><span class="lbl">Intents</span></a>
+            <a class="adm-item"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 16.5 7.1 18.2l.9-5.5-4-3.9 5.5-.8z"/></svg></span><span class="lbl">Opportunities</span><span class="adm-tag beta">Beta</span></a>
+
+            <div class="adm-sec-head">Train <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            <a class="adm-item"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/></svg></span><span class="lbl">Skills</span><span class="adm-tag new">New</span></a>
+            <a class="adm-item"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg></span><span class="lbl">Knowledge</span></a>
+            <a class="adm-item"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-7-7 18-2.5-7.5z"/></svg></span><span class="lbl">Tone of Voice</span></a>
+            <a class="adm-item"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l3 3 4 .5 1 4 3 3-3 3-1 4-4 .5-3 3-3-3-4-.5-1-4-3-3 3-3 1-4 4-.5z"/></svg></span><span class="lbl">Support Actions</span></a>
+            <a class="adm-item"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span><span class="lbl">Products</span></a>
+            <a class="adm-item active"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.4l1.5 4 4 1.5-4 1.5L12 13.4l-1.5-4-4-1.5 4-1.5z"/><circle cx="18" cy="17" r="1.5"/></svg></span><span class="lbl">Shopping Assistant</span></a>
+
+            <a class="adm-item" style="margin-top:6px"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l11-7z"/></svg></span><span class="lbl">Test</span></a>
+
+            <div class="adm-sec-head">Deploy <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            <a class="adm-item"><span class="ico"><span class="sdot" style="background:var(--green)"></span></span><span class="lbl">Chat</span></a>
+            <a class="adm-item"><span class="ico"><span class="sdot" style="background:#c7cad1"></span></span><span class="lbl">Email</span></a>
+            <a class="adm-item"><span class="ico"><span class="sdot" style="background:#c7cad1"></span></span><span class="lbl">SMS</span></a>
+            <a class="adm-item"><span class="ico"><span class="sdot" style="background:#c7cad1"></span></span><span class="lbl">Socials</span></a>
+
+            <a class="adm-item" style="margin-top:6px"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></span><span class="lbl">Settings</span></a>
+          </nav>
+
+          <div class="adm-foot">
+            <span class="avatar">AP</span>
+            <span class="uname">Aria Groult</span>
+            <button class="adm-ic" aria-label="Help"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4 1.5c0 1.5-2 2-2 3"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg></button>
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="adm-main">
+          <header class="adm-header">
+            <h1>Shopping Assistant</h1>
+            <div class="actions">
+              <button class="adm-btn">Save Changes</button>
+              <button class="adm-btn primary">Test</button>
+            </div>
+          </header>
+          <div class="adm-tabs">
+            <button class="adm-tab">Strategy</button>
+            <button class="adm-tab active">Customer Engagement</button>
+            <button class="adm-tab">Product Recommendations</button>
+          </div>
+          <div class="adm-cards">
+            <!-- Card 1: Embedded → Set Up -->
+            <div class="feature-card">
+              <div class="fc-thumb"><div class="mini"><div class="bar"></div><div class="bar sm"></div><span class="pill"></span><span class="pill"></span></div></div>
+              <div class="fc-body">
+                <p class="fc-title">AI FAQs: Embedded in page</p>
+                <p class="fc-desc">Show up to 3 dynamic, AI-generated questions embedded directly in product pages to resolve pre-sales questions and drive conversion. On pages where this is installed, the Floating AI FAQs are automatically hidden to avoid duplicates.</p>
+              </div>
+              <div class="fc-control"><button class="adm-btn">Set Up</button></div>
+            </div>
+            <!-- Card 2: Floating above chat → gear + toggle + Track Performance (opens drawer) -->
+            <div class="feature-card clickable" id="floatingCard">
+              <div class="fc-thumb"><div class="mini"><div class="bar"></div><div class="bar sm"></div><span class="pill"></span><span class="pill"></span></div></div>
+              <div class="fc-body">
+                <p class="fc-title">AI FAQs: Floating above chat</p>
+                <p class="fc-desc">Show up to 3 AI-generated questions above chat to answer common shopper questions and start conversations. Automatically hidden on product pages where Embedded AI FAQs are installed.</p>
+                <a class="fc-track" id="floatingTrack">Track Performance</a>
+              </div>
+              <div class="fc-control">
+                <button class="gear-btn" id="floatingGear" aria-label="Configure"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></button>
+                <button class="toggle on" id="toggleFloating" aria-label="Toggle floating FAQs"><span class="knob"></span></button>
+              </div>
+            </div>
+            <!-- Card 3: Search assist → toggle + Track Performance -->
+            <div class="feature-card">
+              <div class="fc-thumb"><div class="mini"><div class="bar"></div><div class="bar sm"></div><span class="pill"></span><span class="pill"></span></div></div>
+              <div class="fc-body">
+                <p class="fc-title">Search assist</p>
+                <p class="fc-desc">Send a personalized message right after a shopper searches to guide them to the right product and drive more conversions.</p>
+                <a class="fc-track">Track Performance</a>
+              </div>
+              <div class="fc-control"><button class="toggle on" aria-label="Toggle search assist"><span class="knob"></span></button></div>
+            </div>
+            <!-- Card 4: Ask anything input → gear + toggle -->
+            <div class="feature-card">
+              <div class="fc-thumb"><div class="mini"><div class="bar"></div><div class="bar sm"></div><span class="pill"></span><span class="pill"></span></div></div>
+              <div class="fc-body">
+                <p class="fc-title">Ask anything input</p>
+                <p class="fc-desc">Drive more sales by adding an always-on input field that encourages shoppers to start a conversation.</p>
+              </div>
+              <div class="fc-control">
+                <button class="gear-btn" aria-label="Configure"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></button>
+                <button class="toggle on" aria-label="Toggle ask anything"><span class="knob"></span></button>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <div class="ask-gaia">Ask Gaia <span class="kbd">⌘ G</span></div>
+        <div class="ai-orb"></div>
+
+        <!-- SPQ configuration drawer -->
+        <div class="drawer-scrim" id="spqDrawerScrim">
+          <aside class="drawer" id="spqDrawer" role="dialog" aria-label="AI FAQs settings">
+            <div class="drawer-head">
+              <h2>AI FAQs: Floating above chat</h2>
+              <button class="adm-ic" id="drawerClose" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            </div>
+            <div class="drawer-body">
+              <p class="drawer-desc">Control the suggested questions that float above the chat launcher on your storefront. Choose where they appear and fine-tune them per collection.</p>
+
+              <div class="drawer-section">
+                <h4>Where it shows</h4>
+                <div class="surf-row">
+                  <div><div class="surf-lbl">Show on Home Page</div><div class="surf-sub">Open-ended exploration prompts</div></div>
+                  <button class="toggle on" data-surf="home" aria-label="Toggle home"><span class="knob"></span></button>
+                </div>
+                <div class="surf-row">
+                  <div><div class="surf-lbl">Show on Collection Pages</div><div class="surf-sub">Category-specific prompts · staged rollout</div></div>
+                  <button class="toggle" data-surf="collection" aria-label="Toggle collection"><span class="knob"></span></button>
+                </div>
+                <div class="surf-row">
+                  <div><div class="surf-lbl">Show on Product Pages</div><div class="surf-sub">Product-specific prompts</div></div>
+                  <button class="toggle on" data-surf="product" aria-label="Toggle product"><span class="knob"></span></button>
+                </div>
+              </div>
+
+              <div class="drawer-section">
+                <h4>Preview</h4>
+                <div class="prev-tabs">
+                  <button class="prev-tab active" data-ptab="home">Home</button>
+                  <button class="prev-tab" data-ptab="collection">Collection</button>
+                  <button class="prev-tab" data-ptab="product">Product</button>
+                </div>
+                <div class="prev-bar">
+                  <select class="prev-pick" id="prevPick" style="display:none">
+                    <option value="candles">Candles</option>
+                    <option value="diffusers">Diffusers</option>
+                    <option value="handwash">Hand Wash</option>
+                  </select>
+                  <button class="regen" id="prevRegen"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg> Regenerate</button>
+                </div>
+                <div class="prev-mock">
+                  <div class="pmono">✦ HLC ✦</div>
+                  <div class="pmsg">How can I help you today?</div>
+                  <div class="prev-chips" id="prevChips"></div>
+                </div>
+              </div>
+
+              <div class="drawer-section">
+                <h4>Per-collection overrides</h4>
+                <table class="ovr-table">
+                  <thead><tr><th>Collection</th><th>Status</th><th>Last generated</th><th></th></tr></thead>
+                  <tbody id="ovrBody"></tbody>
+                </table>
+              </div>
+
+              <div class="drawer-section">
+                <h4>Knowledge sources</h4>
+                <div class="drawer-placeholder">Connected: Product catalog · Help center. Questions are generated from these sources.</div>
+              </div>
+
+              <div class="drawer-section">
+                <h4>Language</h4>
+                <div class="drawer-readonly"><span>English (US)</span><span>Read-only</span></div>
+              </div>
+            </div>
+            <div class="drawer-foot">
+              <button class="adm-btn" id="drawerCancel">Cancel</button>
+              <button class="adm-btn primary" id="drawerSave">Save changes</button>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Edit chips modal (nested over the drawer) -->
+        <div class="editm-scrim" id="editmScrim">
+          <div class="editm" role="dialog" aria-label="Edit chips">
+            <div class="editm-head">
+              <h3 id="editmTitle">Edit chips</h3>
+              <button class="adm-ic" id="editmClose" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            </div>
+            <div class="editm-body" id="editmBody"></div>
+            <div class="editm-foot">
+              <button class="adm-btn" id="editmCancel">Cancel</button>
+              <button class="adm-btn primary" id="editmSave">Save chips</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 404 ─────────────────────────────────────────────────────────── -->
+    <section class="view" data-route="notfound">
+      <div class="ph">
+        <span class="badge">Not found</span>
+        <h2>Lost the scent</h2>
+        <p>That route doesn't exist.</p>
+        <div class="ph-nav"><a href="#/">← Home</a></div>
+      </div>
+    </section>
+
+    <!-- ── Storefront footer (shown on home + collection) ──────────────── -->
+    <footer class="foot" id="storefrontFooter" style="display:none">
+      <div class="foot-inner">
+        <div>
+          <div class="brand">Hotel Lobby Candle</div>
+          <p>Bottling the iconic scent of the world's most welcoming spaces, hand-poured in small batches.</p>
+        </div>
+        <div>
+          <h5>Shop</h5>
+          <ul>
+            <li><a href="#/collections/candles">Candles</a></li>
+            <li><a href="#/collections/reed-diffusers">Reed Diffusers</a></li>
+            <li><a href="#/collections/hand-wash">Hand Wash</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>About</h5>
+          <ul>
+            <li><a href="#/">Our story</a></li>
+            <li><a href="#/">Gifting</a></li>
+            <li><a href="#/">Stockists</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Care</h5>
+          <ul>
+            <li><a href="#/">Contact</a></li>
+            <li><a href="#/">Shipping</a></li>
+            <li><a href="#/">Returns</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-base">Prototype only · Imagery © Hotel Lobby Candle, used for demonstration purposes</div>
+    </footer>
+
+
+    <!-- ── Chat widget (Shopping Assistant) ────────────────────────────── -->
+    <div class="chat-closed" id="chatClosed">
+      <div class="spq-preview" id="spqPreview"></div>
+      <button class="chat-launcher" id="chatLauncher" aria-label="Open Shopping Assistant">
+        <span class="glyph glyph-bubble">
+          <svg width="28" height="28" viewBox="0 0 56 56" fill="none" role="img" aria-hidden="true">
+            <path fill="#31261d" d="M28.0078 0C43.466 0.00017014 55.9969 12.5363 55.9971 28C55.997 43.4638 43.4661 55.9998 28.0078 56C23.5449 56 19.3269 54.9533 15.583 53.0947C10.3065 55.3438 4.6113 56.0976 0.685547 55.9912C-0.0381847 55.9714 -0.247266 55.0569 0.341797 54.6357C3.79883 52.165 5.9927 49.5692 7.26953 46.8047C2.76354 41.8348 0.0175945 35.238 0.0175781 28C0.017732 12.5363 12.5496 0.000153788 28.0078 0Z"/>
+            <ellipse cx="18" cy="28" rx="2.5" ry="2.5" fill="#F4F4F6"/>
+            <ellipse cx="28" cy="28" rx="2.5" ry="2.5" fill="#F4F4F6"/>
+            <ellipse cx="38" cy="28" rx="2.5" ry="2.5" fill="#F4F4F6"/>
+          </svg>
+        </span>
+        <span class="glyph glyph-x">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </span>
+        <span class="cart-badge js-cart-badge" id="launcherCartBadge">0</span>
+      </button>
+    </div>
+
+    <!-- Medium-term flow: centered bottom dock -->
+    <div class="chat-dock hidden" id="chatDock">
+      <div class="chat-dock-inner">
+        <div class="dock-top">
+          <span class="dock-grip"></span>
+          <div class="dock-actions">
+            <button class="hood-btn hood-min" id="hoodMin" aria-label="Minimize" title="Minimize">
+              <span class="glyph ic-min"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+              <span class="glyph ic-plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+            </button>
+            <button class="hood-btn hood-expand" id="hoodExpand" aria-label="Open full chat" title="Open full chat">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="hood-body" id="hoodBody">
+          <div class="dock-preview" id="dockPreview"></div>
+          <div class="hood-convo" id="hoodConvo" hidden></div>
+        </div>
+        <div class="chat-bar-input">
+          <input id="chatBarInput" type="text" placeholder="Chat to shop" aria-label="Chat to shop">
+          <button class="attach" id="chatBarSend" aria-label="Open chat">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Longer-term flow: search overlay with AI suggestions -->
+    <div class="search-scrim" id="searchScrim">
+      <div class="search-panel" id="searchPanel">
+        <div class="search-inner">
+          <div class="search-field">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="color:var(--hlc-soft)"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+            <input id="searchInput" type="text" placeholder="Ask anything or search…" aria-label="AI search">
+            <button class="search-close" id="searchClose" aria-label="Close search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <div class="ai-block">
+            <div class="ai-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg> AI suggestions</div>
+            <div id="aiSugList"></div>
+          </div>
+          <div class="search-block">
+            <div class="search-block-label">Suggestions</div>
+            <div id="searchSugList"></div>
+          </div>
+          <div class="search-block">
+            <div class="search-block-label">Recommended</div>
+            <div class="search-recs" id="searchRecs"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-panel" id="chatPanel" role="dialog" aria-label="Shopping Assistant">
+      <div class="chat-header">
+        <button class="chat-circ chat-back" id="chatBack" aria-label="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <span class="spacer"></span>
+        <button class="chat-circ" id="chatCartBtn" aria-label="Cart">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+          <span class="cart-badge js-cart-badge" id="chatCartBadge">0</span>
+        </button>
+        <button class="chat-track" id="chatTrack">Track orders</button>
+        <button class="chat-circ" id="chatClose" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="chat-breadcrumb" id="chatBreadcrumb">
+        <span>💬</span><span id="chatBreadcrumbText">From collection</span>
+      </div>
+
+      <div class="chat-body" id="chatBody">
+        <div class="chat-intro" id="chatIntro">
+          <div class="chat-monogram"><span class="spark">✦</span>HLC<span class="spark">✦</span></div>
+          <p>This chat is AI-powered for faster assistance.</p>
+        </div>
+        <div class="chat-thread" id="chatThread"></div>
+      </div>
+
+      <div class="chat-chips" id="chatChips"></div>
+      <div class="chat-followups" id="chatFollowups"></div>
+
+      <div class="chat-composer">
+        <div class="chat-inputwrap">
+          <textarea id="chatInput" rows="1" placeholder="Reply"></textarea>
+          <button class="attach" id="chatSend" aria-label="Send message">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/><path d="M17 2.5v5M14.5 5h5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- PDP bottom drawer (slides up within the chat panel) -->
+      <div class="pdp-scrim" id="pdpScrim">
+        <div class="pdp" id="pdp">
+          <button class="pdp-close" id="pdpClose" aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+          <div class="pdp-img"><img id="pdpImg" alt=""></div>
+          <div class="pdp-body">
+            <div class="pdp-brand">Hotel Lobby Candle</div>
+            <h3 class="pdp-name" id="pdpName"></h3>
+            <div class="pdp-notes" id="pdpNotes"></div>
+            <div class="pdp-price" id="pdpPrice"></div>
+            <div class="pdp-opts" id="pdpOpts"></div>
+            <p class="pdp-desc" id="pdpDesc"></p>
+          </div>
+          <div class="pdp-foot"><button class="pdp-add" id="pdpAdd">Add to Cart</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-toast" id="chatToast">Added to cart</div>
+  </div>
+
+  <script>
+  /* ──────────────────────────────────────────────────────────────────
+     DATA — products per collection (real HLC data, prototype use only)
+     ────────────────────────────────────────────────────────────────── */
+  const SCENTS = {
+    'Signature':        'Agarwood · Vetiver · Atlas Cedar · Amber · White Musk',
+    'Nespresso Martini':'Espresso · Vanilla · Roasted Cacao · Tonka Bean',
+    'Racquet Club':     'Green Citrus · Vetiver · Blonde Woods · White Musk',
+    'New York':         'Glowing Amber · Sweet Sage',
+    'London':           'Earl Grey · Creamy Vanilla · Honey',
+    'Miami':            'Coconut · Neroli · Sea Salt',
+    'Hamptons':         'Sea Salt · Linen · Driftwood',
+    'Aspen':            'Fir · Pine · Woodsmoke',
+  };
+
+  const PRODUCTS = {
+    candles: [
+      { id:'nespresso-martini-candle', name:'Nespresso Martini Candle', tag:'New Arrival', scent:SCENTS['Nespresso Martini'], price:'$58', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/hlc-shopify-ecomm-nespresso-martini-lit.png?v=1778541013', desc:"Freshly brewed espresso and silky vanilla, with sweet cream froth and caramelized sugar melting through the center. Roasted cacao and warm tonka bean leave a deep, lingering finish — like the last sip of an espresso martini." },
+      { id:'racquet-club-candle', name:'Racquet Club Candle', scent:SCENTS['Racquet Club'], price:'$58', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/hlc-shopify-ecomm-racquet-club-lit.png?v=1778541616', desc:"Fresh green-citrus-floral with a botanical bite that captures morning-court energy. Vetiver and cool mineral mist give way to blonde woods and creamy white musk — crisp, verdant, and deceptively layered." },
+      { id:'signature-candle', name:'Signature Candle', tag:'Best Seller', scent:SCENTS['Signature'], price:'$58', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/hlh-ecomm-handwash-signature_1.png?v=1762197968', desc:"The scent the whole brand was built around. Agarwood richness meets warm, spicy notes and soft white musk — the unmistakable feeling of a grand hotel lobby. Hand-painted glass, made to repurpose after the 65-hour burn." },
+      { id:'new-york-candle', name:'New York Candle', scent:SCENTS['New York'], price:'$58', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/NYSilo.png?v=1762198378', desc:"A glowing, sophisticated warmth — amber wrapped in sweet sage. Moody and refined, it brings after-dark hotel-bar energy to any room." },
+      { id:'london-candle', name:'London Candle', scent:SCENTS['London'], price:'$58', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/London-Regular.png?v=1762276575', desc:"Afternoon tea, bottled. Frothed vanilla milk over stately earl grey, with dried lavender, wisteria, and a touch of honey for floral finery." },
+      { id:'miami-candle', name:'Miami Candle', scent:SCENTS['Miami'], price:'$58', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/MiamiSilo.png?v=1762198154', desc:"Bright and breezy — coconut and neroli over a clean wash of sea salt. Effortless, sunlit, and fresh." },
+    ],
+    diffusers: [
+      { id:'signature-reed-diffuser', name:'Signature Reed Diffuser', tag:'Award Winner', scent:SCENTS['Signature'], price:'$74', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/SignatureDiffuserTransparent_1.png?v=1762198576', desc:"Our coveted Signature scent in an always-on, flame-free form. Agarwood, vetiver, and atlas cedar with soft white musk, diffused continuously through natural reeds. Refillable 150ml vessel." },
+      { id:'racquet-club-reed-diffuser', name:'Racquet Club Reed Diffuser', scent:SCENTS['Racquet Club'], price:'$74', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/diffuser_png_98029d54-6e11-4daf-ac18-fd79a8845233.png?v=1774976039', desc:"Fresh green-citrus-floral with botanical character — sharp vetiver and mineral mist into blonde woods and creamy white musk. Crisp, layered, and always-on. Refillable 150ml vessel." },
+      { id:'london-reed-diffuser', name:'London Reed Diffuser', scent:SCENTS['London'], price:'$74', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/LondonDiffuser-Regular.png?v=1762276893', desc:"Afternoon-tea tradition, flame-free. Frothed vanilla milk atop earl grey, with dried lavender, wisteria, and honey. Refillable 150ml vessel." },
+      { id:'new-york-reed-diffuser', name:'New York Reed Diffuser', scent:SCENTS['New York'], price:'$74', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/NYDiffuserTransparent_1.png?v=1762198579', desc:"Glowing amber and sweet sage in an always-on diffuser — moody, refined warmth for an entryway or study. Refillable 150ml vessel." },
+      { id:'miami-reed-diffuser', name:'Miami Reed Diffuser', scent:SCENTS['Miami'], price:'$74', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/MiamiDiffuserTransparent_1.png?v=1762198577', desc:"Coconut, neroli, and sea salt diffused continuously — light, airy, and clean. Ideal for a powder room. Refillable 150ml vessel." },
+      { id:'hamptons-reed-diffuser', name:'Hamptons Reed Diffuser', scent:SCENTS['Hamptons'], price:'$74', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/HamptonsDiffuser-Regular.png?v=1762276828', desc:"Sea salt, fresh linen, and driftwood — a breezy coastal calm, always on. Refillable 150ml vessel." },
+    ],
+    handwash: [
+      { id:'signature-hand-wash', name:'Signature Hand Wash', tag:'Best Seller', scent:SCENTS['Signature'], price:'$56', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/hlh-ecomm-handwash-signature53.png?v=1762275007', desc:"Our best-selling Signature scent as a luxurious hand wash. Niacinamide, vitamin B5, and argan oil hydrate and soften while agarwood, vetiver, and white musk linger." },
+      { id:'new-york-hand-wash', name:'New York Hand Wash', scent:SCENTS['New York'], price:'$56', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/hlh-ecomm-handwash-NewYork-55.png?v=1762275009', desc:"The New York scent — glowing amber and sweet sage — in a rich, nourishing hand wash with niacinamide, vitamin B5, and argan oil." },
+      { id:'london-hand-wash', name:'London Hand Wash', scent:SCENTS['London'], price:'$56', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/LondonHandWash-Regular.png?v=1769805616', desc:"The cozy London scent — earl grey, creamy vanilla, and honey — in a hydrating hand wash with niacinamide, vitamin B5, and argan oil." },
+      { id:'miami-hand-wash', name:'Miami Hand Wash', scent:SCENTS['Miami'], price:'$56', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/hlh-ecomm-handwash-Miami-54.png?v=1762275010', desc:"Coconut, neroli, and sea salt in a gentle, hydrating hand wash with niacinamide, vitamin B5, and argan oil. Bright and clean." },
+      { id:'hamptons-hand-wash', name:'Hamptons Hand Wash', scent:SCENTS['Hamptons'], price:'$56', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/hlh-ecomm-handwash-Hampton-56.png?v=1762276481', desc:"Sea salt, linen, and driftwood in a nourishing hand wash with niacinamide, vitamin B5, and argan oil. Fresh and effortless." },
+      { id:'aspen-hand-wash', name:'Aspen Hand Wash', scent:SCENTS['Aspen'], price:'$56', img:'https://cdn.shopify.com/s/files/1/0465/1889/4755/files/AspenHandWash-Regular.png?v=1769805595', desc:"Fir, pine, and woodsmoke in a hydrating hand wash with niacinamide, vitamin B5, and argan oil. Crisp and wintry." },
+    ],
+  };
+
+  // Flatten to a lookup and tag each product with its category + option set.
+  const PRODUCT_BY_ID = {};
+  Object.keys(PRODUCTS).forEach(cat => PRODUCTS[cat].forEach(p => { p.cat = cat; PRODUCT_BY_ID[p.id] = p; }));
+  const OPTIONS_BY_CAT = { candles: ['Single Wick · 9.75oz', 'Five Wick'], diffusers: ['150ml'], handwash: ['10 fl oz'] };
+
+  const COLLECTIONS = {
+    'candles':        { title:'Candles',        category:'candles',   blurb:'Hand-poured in small batches with a 60-hour burn. The full library of hotel-lobby fragrances, captured in glass.' },
+    'reed-diffusers': { title:'Reed Diffusers', category:'diffusers', blurb:'Always-on ambiance. Natural reeds diffuse our signature fragrances continuously — no flame required.' },
+    'hand-wash':      { title:'Hand Wash',       category:'handwash',  blurb:'Turn the powder room into a moment. Gentle, beautifully scented hand wash in a weighty refillable bottle.' },
+  };
+
+  /* ──────────────────────────────────────────────────────────────────
+     SPQ CHIP SETS — adapt to page context.
+     Home = open-ended exploration. Collections = category-specific selection.
+     The contrast is intentional: a collection chip should NOT make sense on Home.
+     ────────────────────────────────────────────────────────────────── */
+  const SPQ_CHIPS = {
+    home: [
+      'Help me find the right candle for my space',
+      'Which scent feels most like a hotel lobby?',
+      "I'm new to luxury candles — where do I start?",
+      "What's the difference between candles and diffusers?",
+      "What's your bestselling scent right now?",
+      { text:"I'm looking for a specific product", safe:true },
+    ],
+    candles: [
+      "What's the difference between your top three scents?",
+      'Which candle is best for a bedroom?',
+      'Which scent works for a dinner party?',
+      "What's your longest-burning candle?",
+      'Which candles come in larger sizes?',
+    ],
+    diffusers: [
+      'Which diffuser scent lasts the longest?',
+      'Which diffuser is best for a small bathroom?',
+      'How long does one reed diffuser last?',
+      'Which scent is the most subtle?',
+      'Do the diffusers come with refills?',
+    ],
+    handwash: [
+      'Which hand wash scent is the most universal?',
+      'Is the hand wash gentle on dry hands?',
+      'Which scent suits a guest bathroom?',
+      'Do you offer hand wash refills?',
+      'Which hand wash pairs best with the candles?',
+    ],
+  };
+
+  /* Canned, brand-voice replies per SPQ + 4 contextual product recommendations. */
+  const GENERIC_REPLY = { text: "Happy to help you find the perfect scent. Tell me the room or the mood you're after, and I'll point you to a few favorites.", recs: ['signature-candle','new-york-candle','signature-reed-diffuser','signature-hand-wash'] };
+  const RESPONSES = {
+    // Home — exploration
+    'Help me find the right candle for my space': { text: "Of course. Tell me the room and the feeling you want — calm and cozy, fresh and bright, or warm and moody — and I'll match you. For a space that should feel like a hotel lobby, Signature is the place to start.", recs: ['signature-candle','racquet-club-candle','new-york-candle','london-candle'] },
+    'Which scent feels most like a hotel lobby?': { text: "That's Signature — the scent the whole brand was built around. Agarwood, vetiver, and atlas cedar with soft amber and white musk: the exact feeling of walking into a grand lobby. It's our most-loved scent across candle, diffuser, and hand wash.", recs: ['signature-candle','signature-reed-diffuser','signature-hand-wash','new-york-candle'] },
+    "I'm new to luxury candles — where do I start?": { text: "Welcome — you're in good hands. I'd start with the Signature candle: universally loved, hand-poured, and a clean 65-hour burn. Once you know what you love, branch into scents like New York or Racquet Club.", recs: ['signature-candle','racquet-club-candle','new-york-candle','nespresso-martini-candle'] },
+    "What's the difference between candles and diffusers?": { text: "Candles give you the ritual — a flame, a glow, and a stronger throw for about 65 hours. Reed diffusers are always-on and flame-free, quietly scenting a room for months. Many people keep a diffuser in the entryway and a candle where they relax.", recs: ['signature-candle','signature-reed-diffuser','racquet-club-candle','racquet-club-reed-diffuser'] },
+    "What's your bestselling scent right now?": { text: "Signature is our perennial number one — the original hotel-lobby scent. New York (glowing amber and sweet sage) is a close second if you like something moodier.", recs: ['signature-candle','new-york-candle','signature-reed-diffuser','signature-hand-wash'] },
+    "I'm looking for a specific product": { text: "Happy to help — which product did you have in mind? Here are a few favorites to get you started, or browse everything under Shop in the top menu.", recs: ['signature-candle','new-york-candle','racquet-club-candle','nespresso-martini-candle'] },
+    // Candles — selection
+    "What's the difference between your top three scents?": { text: "The quick tour: Signature is warm and classic — agarwood, cedar, amber, musk. New York is moodier — glowing amber and sweet sage. Racquet Club is fresh and crisp — green citrus and vetiver. Signature is the safest first pick.", recs: ['signature-candle','new-york-candle','racquet-club-candle','nespresso-martini-candle'] },
+    'Which candle is best for a bedroom?': { text: "For a bedroom I'd reach for Signature or London — both soft, warm, and calming rather than sharp. They settle a room beautifully in the evening without being overpowering.", recs: ['signature-candle','london-candle','new-york-candle','racquet-club-candle'] },
+    'Which scent works for a dinner party?': { text: "For hosting, New York brings a sophisticated, moody warmth, while Nespresso Martini (espresso, vanilla, cocoa) is a fun after-dinner talking point. Both fill a room without competing with the food.", recs: ['new-york-candle','nespresso-martini-candle','signature-candle','london-candle'] },
+    "What's your longest-burning candle?": { text: "Every standard candle burns about 65 hours. For longer, our larger five-wick sizes burn significantly longer and throw scent across a bigger room — ideal for open living spaces.", recs: ['signature-candle','new-york-candle','racquet-club-candle','miami-candle'] },
+    'Which candles come in larger sizes?': { text: "Our hero scents — Signature and New York among them — come in larger and five-wick formats for bigger rooms. Choose these if you want a stronger throw and a longer burn.", recs: ['signature-candle','new-york-candle','racquet-club-candle','london-candle'] },
+    // Diffusers — selection
+    'Which diffuser scent lasts the longest?': { text: "All of our reed diffusers last around 3–4 months, and Signature tends to hold its throw the longest. Flip the reeds once a week to keep it fresh.", recs: ['signature-reed-diffuser','racquet-club-reed-diffuser','london-reed-diffuser','new-york-reed-diffuser'] },
+    'Which diffuser is best for a small bathroom?': { text: "For a small space, Signature or Miami work beautifully — present but never overwhelming. Miami (coconut, neroli, sea salt) is especially light and clean for a powder room.", recs: ['signature-reed-diffuser','miami-reed-diffuser','racquet-club-reed-diffuser','london-reed-diffuser'] },
+    'How long does one reed diffuser last?': { text: "About 3–4 months on average. It lasts longest if you flip the reeds roughly once a week and keep it out of direct sun or a draft. The 150ml vessels are refillable too.", recs: ['signature-reed-diffuser','london-reed-diffuser','racquet-club-reed-diffuser','new-york-reed-diffuser'] },
+    'Which scent is the most subtle?': { text: "Miami is our most understated — coconut, neroli, and sea salt make it light and airy. The one to choose if you want a gentle, barely-there scent.", recs: ['miami-reed-diffuser','signature-reed-diffuser','hamptons-reed-diffuser','racquet-club-reed-diffuser'] },
+    'Do the diffusers come with refills?': { text: "They do — once the bottle's empty you can top it up with a refill and reuse the 150ml vessel and reeds. The low-maintenance, low-waste way to keep a room scented.", recs: ['signature-reed-diffuser','racquet-club-reed-diffuser','london-reed-diffuser','miami-reed-diffuser'] },
+    // Hand wash — selection
+    'Which hand wash scent is the most universal?': { text: "Signature is the crowd-pleaser — warm, clean, and loved by just about everyone. The safe choice for a shared or guest bathroom, with niacinamide, B5, and argan oil to soften hands.", recs: ['signature-hand-wash','new-york-hand-wash','london-hand-wash','miami-hand-wash'] },
+    'Is the hand wash gentle on dry hands?': { text: "Yes — every hand wash is formulated with niacinamide, vitamin B5, and argan oil to hydrate and soften, so it cleans without leaving hands tight or stripped. Lovely for daily use.", recs: ['signature-hand-wash','new-york-hand-wash','london-hand-wash','hamptons-hand-wash'] },
+    'Which scent suits a guest bathroom?': { text: "Signature or Hamptons are both excellent for guests — Signature is warm and classic, while Hamptons (sea salt, linen, driftwood) feels fresh and effortless.", recs: ['signature-hand-wash','hamptons-hand-wash','london-hand-wash','new-york-hand-wash'] },
+    'Do you offer hand wash refills?': { text: "We do. The bottle is weighty and refillable, and refills let you keep it going without buying a new vessel each time.", recs: ['signature-hand-wash','new-york-hand-wash','london-hand-wash','miami-hand-wash'] },
+    'Which hand wash pairs best with the candles?': { text: "Match the scent family — a Signature hand wash beside a Signature candle makes the whole room feel intentional. New York pairs the same way if you prefer something moodier.", recs: ['signature-hand-wash','signature-candle','new-york-hand-wash','new-york-candle'] },
+    // Conversational follow-ups
+    'Which has the strongest scent throw?': { text: "New York and Signature throw the most — and any of them in the five-wick size will fill a large, open room. If you want presence without overwhelming, Racquet Club is a touch lighter.", recs: ['new-york-candle','signature-candle','racquet-club-candle','nespresso-martini-candle'] },
+    'Do you offer candle gift sets?': { text: "We do — our most-gifted pairings are Signature and New York, and they look beautiful boxed together. The hand-painted vessels are made to be kept and repurposed, which makes them feel extra special as a gift.", recs: ['signature-candle','new-york-candle','racquet-club-candle','london-candle'] },
+    'How should I care for my candle?': { text: "Trim the wick to about ¼ inch before each burn, and let that first burn go 2–3 hours so the wax melts edge to edge. That keeps the burn even across all 65 hours.", recs: ['signature-candle','new-york-candle','racquet-club-candle','miami-candle'] },
+    'How often should I flip the reeds?': { text: "About once a week — flipping the reeds refreshes the throw. Keep the diffuser out of direct sun or a draft and it'll last the full 3–4 months.", recs: ['signature-reed-diffuser','london-reed-diffuser','racquet-club-reed-diffuser','new-york-reed-diffuser'] },
+    'Are diffuser refills available?': { text: "Yes — every 150ml diffuser is refillable, so you reuse the vessel and reeds and just top up the oil. It's the low-waste way to keep a room scented year-round.", recs: ['signature-reed-diffuser','racquet-club-reed-diffuser','london-reed-diffuser','miami-reed-diffuser'] },
+    'Which diffuser suits a large room?': { text: "For a larger space, Signature and New York carry the furthest. Place the diffuser somewhere with a little airflow and flip the reeds weekly for the strongest throw.", recs: ['signature-reed-diffuser','new-york-reed-diffuser','racquet-club-reed-diffuser','london-reed-diffuser'] },
+    'Is it gentle for sensitive skin?': { text: "Yes — each hand wash is built around niacinamide, vitamin B5, and argan oil to hydrate and soften, so it's gentle enough for daily use without leaving hands tight.", recs: ['signature-hand-wash','london-hand-wash','new-york-hand-wash','hamptons-hand-wash'] },
+    'Do you sell hand wash refills?': { text: "We do — the weighty bottle is refillable, so you can keep it on the sink and just top it up rather than replacing the whole thing.", recs: ['signature-hand-wash','new-york-hand-wash','london-hand-wash','miami-hand-wash'] },
+    'Which scent pairs with a candle?': { text: "Stay in one family for a layered effect — Signature wash with a Signature candle, or New York with New York. The bathroom and the living room end up speaking the same language.", recs: ['signature-hand-wash','signature-candle','new-york-hand-wash','new-york-candle'] },
+  };
+
+  function replyFor(text) {
+    if (text && RESPONSES[text]) return RESPONSES[text];
+    const t = (text || '').toLowerCase();
+    if (/bedroom/.test(t)) return RESPONSES['Which candle is best for a bedroom?'];
+    if (/dinner|party|host/.test(t)) return RESPONSES['Which scent works for a dinner party?'];
+    if (/refill/.test(t)) return RESPONSES['Do the diffusers come with refills?'];
+    if (/diffuser/.test(t)) return RESPONSES['Which diffuser scent lasts the longest?'];
+    if (/hand ?wash|soap/.test(t)) return RESPONSES['Which hand wash scent is the most universal?'];
+    if (/best ?sell|popular|number one|bestseller/.test(t)) return RESPONSES["What's your bestselling scent right now?"];
+    if (/lobby|signature/.test(t)) return RESPONSES['Which scent feels most like a hotel lobby?'];
+    if (/cozy|cosy|warm|bedroom|relax/.test(t)) return RESPONSES['Which candle is best for a bedroom?'];
+    if (/start|beginner|new to/.test(t)) return RESPONSES["I'm new to luxury candles — where do I start?"];
+    return GENERIC_REPLY;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+     ROUTER
+     ────────────────────────────────────────────────────────────────── */
+  const state = { route:'home', collectionSlug:null, cartCount:0, chatOpen:false, messages:[], spqDismissed:false,
+    spqSettings: { home:true, collection:true, product:true }, spqRevealed:false, flow:'asap', hoodActive:false };
+  let spqRevealTimer = null;
+
+  const SPQ_OVERRIDES = {
+    candles:   { status:'Auto',     last:'2 days ago' },
+    diffusers: { status:'Custom',   last:'5 days ago' },
+    handwash:  { status:'Disabled', last:'—' },
+  };
+  const PRODUCT_PREVIEW_CHIPS = ["What's the burn time?", 'How do I care for this candle?', 'Is the vessel refillable?'];
+
+  function parseHash() {
+    const raw = (location.hash || '#/').replace(/^#/, '');
+    const path = raw.split('?')[0];
+    const parts = path.split('/').filter(Boolean);
+    if (parts.length === 0) return { route:'home' };
+    if (parts[0] === 'collections' && COLLECTIONS[parts[1]]) return { route:'collection', collectionSlug:parts[1] };
+    if (parts[0] === 'admin' && parts[1] === 'shopping-assistant') return { route:'admin' };
+    return { route:'notfound' };
+  }
+
+  function productCard(p) {
+    return `<article class="prod-card">
+      <div class="art">
+        ${p.tag ? `<span class="tag">${p.tag}</span>` : ''}
+        <img src="${p.img}" alt="${p.name}" loading="lazy">
+      </div>
+      <div class="body">
+        <div class="name">${p.name}</div>
+        <div class="price">${p.price}</div>
+        <button class="add-to-bag" data-name="${p.name}">add to bag</button>
+      </div>
+    </article>`;
+  }
+
+  function renderHome() {
+    document.getElementById('catGrid').innerHTML = `
+      <a class="cat-card" href="#/collections/candles">
+        <div class="art"><img src="${PRODUCTS.candles[2].img}" alt="Candles"></div>
+        <div class="label"><b class="serif">Candles</b><span>From $58</span></div>
+      </a>
+      <a class="cat-card" href="#/collections/reed-diffusers">
+        <div class="art"><img src="${PRODUCTS.diffusers[0].img}" alt="Reed Diffusers"></div>
+        <div class="label"><b class="serif">Reed Diffusers</b><span>From $74</span></div>
+      </a>
+      <a class="cat-card" href="#/collections/hand-wash">
+        <div class="art"><img src="${PRODUCTS.handwash[0].img}" alt="Hand Wash"></div>
+        <div class="label"><b class="serif">Hand Wash</b><span>From $56</span></div>
+      </a>`;
+    const best = [PRODUCTS.candles[2], PRODUCTS.candles[3], PRODUCTS.candles[1], PRODUCTS.candles[0]];
+    document.getElementById('bestGrid').innerHTML = best.map(productCard).join('');
+  }
+
+  function renderCollection(slug) {
+    const c = COLLECTIONS[slug];
+    document.getElementById('collectionTitle').textContent = c.title;
+    document.getElementById('crumbTitle').textContent = c.title;
+    document.getElementById('collectionBlurb').textContent = c.blurb;
+    document.getElementById('collectionSub').textContent = 'All ' + c.title;
+    document.getElementById('collectionGrid').innerHTML = PRODUCTS[c.category].map(productCard).join('');
+  }
+
+  function updateCart() {
+    document.querySelectorAll('.js-cart-badge').forEach(b => {
+      b.textContent = state.cartCount;
+      b.classList.toggle('show', state.cartCount > 0);
+    });
+  }
+
+  /* ── Chat widget ───────────────────────────────────────────────────── */
+  function renderChat() {
+    const bc = document.getElementById('chatBreadcrumb');
+    if (state.route === 'collection') {
+      bc.classList.add('show');
+      document.getElementById('chatBreadcrumbText').textContent = 'From ' + COLLECTIONS[state.collectionSlug].title + ' collection';
+    } else {
+      bc.classList.remove('show');
+    }
+    const empty = state.messages.length === 0;
+    document.getElementById('chatIntro').classList.toggle('collapsed', !empty);
+    renderChips();
+  }
+
+  function currentChipSet() {
+    if (state.route === 'collection') return SPQ_CHIPS[COLLECTIONS[state.collectionSlug].category] || [];
+    return SPQ_CHIPS.home;
+  }
+  // Is the floating-SPQ feature enabled for the current storefront surface?
+  function surfaceEnabled() {
+    if (state.route === 'home') return state.spqSettings.home;
+    if (state.route === 'collection') return state.spqSettings.collection;
+    return true;
+  }
+
+  function renderChips() {
+    const wrap = document.getElementById('chatChips');
+    if (state.messages.length > 0 || !surfaceEnabled()) { wrap.innerHTML = ''; return; }
+    const chips = currentChipSet();
+    wrap.innerHTML = '<div class="spq-row">' + chips.map(c => {
+      const text = typeof c === 'string' ? c : c.text;
+      const safe = (typeof c === 'object' && c.safe) ? ' safe' : '';
+      return '<button class="spq-chip' + safe + '">' + text + '</button>';
+    }).join('') + '</div>';
+  }
+  function onChipTap(text) {
+    addUserMessage(text);
+    assistantReply(text);
+  }
+
+  // Closed-state entry point — varies by flow (ASAP launcher / Medium dock / Longer search).
+  function renderClosedWidget() {
+    const isStore = state.route === 'home' || state.route === 'collection';
+    const closed = document.getElementById('chatClosed');
+    const dock = document.getElementById('chatDock');
+
+    // ASAP — floating launcher + stacked pills
+    const showClosed = isStore && state.flow === 'asap' && !state.chatOpen;
+    closed.classList.toggle('hidden', !showClosed);
+    const asapPreview = showClosed && state.messages.length === 0 && !state.spqDismissed && state.spqRevealed && surfaceEnabled();
+    closed.classList.toggle('preview-open', asapPreview);
+    const sp = document.getElementById('spqPreview');
+    if (asapPreview) {
+      const top = currentChipSet().slice(0, 3).map(c => typeof c === 'string' ? c : c.text);
+      sp.innerHTML = top.map((t, i) => '<button class="spq-preview-chip" style="animation-delay:' + (i * 0.09).toFixed(2) + 's">' + t + '</button>').join('') +
+        '<button class="spq-preview-chip spq-more" style="animation-delay:' + (top.length * 0.09).toFixed(2) + 's">Need more help?</button>';
+    } else { sp.innerHTML = ''; }
+
+    // MEDIUM — centered bottom dock (glassy hood)
+    const showDock = isStore && state.flow === 'medium';
+    dock.classList.toggle('hidden', !showDock);
+    dock.classList.toggle('leaving', state.chatOpen);
+    if (showDock) {
+      const dp = document.getElementById('dockPreview');
+      const hc = document.getElementById('hoodConvo');
+      if (state.hoodActive) {
+        dp.style.display = 'none'; hc.hidden = false;        // showing an in-hood conversation
+      } else {
+        dp.style.display = ''; hc.hidden = true; hc.innerHTML = '';
+        const dockPreview = !state.chatOpen && state.messages.length === 0 && state.spqRevealed && surfaceEnabled();
+        if (dockPreview) {
+          const top = currentChipSet().slice(0, 4).map(c => typeof c === 'string' ? c : c.text);
+          const reviewsChip = '<button class="dock-reviews" style="animation-delay:' + (top.length * 0.08).toFixed(2) + 's"><span class="stars"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 21.5l-4.9-2.8.9-5.5-4-3.9 5.5-.8z"/></svg></span>Reviews</button>';
+          dp.innerHTML = top.map((t, i) => '<button class="spq-preview-chip" style="animation-delay:' + (i * 0.08).toFixed(2) + 's">' + t + '</button>').join('') + reviewsChip;
+        } else { dp.innerHTML = ''; }
+      }
+    }
+    // LONGER — both hidden; AI search overlay opens from the sparkle icon in the header.
+    document.getElementById('aiSearchBtn').style.display = (state.flow === 'longer') ? 'inline-flex' : 'none';
+  }
+
+  /* ── Medium flow: in-hood conversation ──────────────────────────────
+     The hood becomes a mini-chat: bot answer → quick replies → product
+     carousel, all inline. The shopper's own taps are NOT echoed in the hood;
+     the expand button opens the full chat with the complete transcript. */
+  /* AI review summary (Amazon-style) shown in the hood from the Reviews chip. */
+  const REVIEW_OVERVIEW = "Customers consistently praise Hotel Lobby Candle for true-to-description, luxurious scents and the beautiful, repurposable glass vessels. The Signature scent is the runaway favorite — warm, clean, and “just like a five-star lobby.” A few note the price is a splurge and wish for an even stronger throw in very large rooms.";
+  const REVIEW_LABELS = { candles:'Candles', diffusers:'Reed Diffusers', handwash:'Hand Wash' };
+  const REVIEWS = {
+    candles: { summary: "Loved for clean 65-hour burns and the iconic Signature scent; reviewers call the throw “just right” for living rooms and bedrooms.", quotes: [
+      "the Signature candle makes my whole apartment smell like a grand hotel lobby.",
+      "burns evenly right to the end, and the jar is gorgeous enough to reuse.",
+      "wish it threw a touch stronger in my open-plan space, but the scent is divine." ] },
+    diffusers: { summary: "Praised as a flameless, always-on option that lasts 3–4 months; Signature and Miami are favorites for entryways and bathrooms.", quotes: [
+      "lasted nearly four months and the entryway always smells incredible.",
+      "subtle but present — perfect for a small powder room.",
+      "refillable, so I'm not buying a whole new bottle every time." ] },
+    handwash: { summary: "Reviewers love the nourishing formula (niacinamide, vitamin B5, argan oil) and that guests always ask what the scent is.", quotes: [
+      "doesn't dry out my hands like other scented washes.",
+      "every guest comments on how good the bathroom smells.",
+      "the weighty bottle looks beautiful next to the sink." ] },
+  };
+  const CHEV_SVG = '<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+  function hoodReviews() {
+    state.hoodActive = true;
+    document.getElementById('chatDock').classList.remove('minimized');
+    document.getElementById('dockPreview').style.display = 'none';
+    const hc = document.getElementById('hoodConvo'); hc.hidden = false;
+    let html = '<div class="hood-reviews"><div class="rev-overview">' + REVIEW_OVERVIEW +
+      '<div class="rev-caption">AI-generated from customer reviews</div></div>';
+    Object.keys(REVIEWS).forEach((cat, i) => {
+      const r = REVIEWS[cat];
+      html += '<div class="rev-section' + (i === 0 ? ' open' : '') + '">' +
+        '<button class="rev-head">' + REVIEW_LABELS[cat] + CHEV_SVG + '</button>' +
+        '<div class="rev-body"><p class="rev-sum">' + r.summary + '</p>' +
+        r.quotes.map(q => '<p class="rev-quote">“' + q + '”</p>').join('') +
+        '<div class="rev-caption">AI-generated from customer reviews</div></div></div>';
+    });
+    html += '</div>';
+    hc.innerHTML = html;
+    hc.scrollTop = 0;
+  }
+
+  function hoodRecCardsHTML(ids) {
+    return '<div class="hood-carousel">' + ids.map(id => {
+      const p = PRODUCT_BY_ID[id];
+      return '<button class="rec-card" data-id="' + id + '"><span class="rec-img"><img src="' + p.img + '" alt="' + p.name + '" loading="lazy"></span>' +
+        '<span class="rec-meta"><span class="rec-brand">Hotel Lobby Candle</span><span class="rec-name">' + p.name + '</span><span class="rec-price">' + p.price + '</span></span></button>';
+    }).join('') + '</div>';
+  }
+  function hoodSend(text) {
+    text = (text || '').trim();
+    if (!text) { expandChat(); return; }
+    document.getElementById('chatDock').classList.remove('minimized');
+    state.messages.push({ role:'user', text });
+    state.hoodActive = true;
+    document.getElementById('dockPreview').style.display = 'none';
+    const hc = document.getElementById('hoodConvo');
+    hc.hidden = false;
+    hc.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    setTimeout(() => {
+      const vibe = matchVibe(text);
+      if (vibe) {
+        const ids = (VIBE_PRODUCTS[chatCategory()] || VIBE_PRODUCTS.candles)[vibe];
+        state.messages.push({ role:'assistant', text: VIBE_INTRO[vibe], recs: ids });
+        hc.innerHTML = '<div class="hood-msg">' + VIBE_INTRO[vibe] + '</div>' + hoodRecCardsHTML(ids);
+      } else {
+        const r = replyFor(text);
+        state.messages.push({ role:'assistant', text: r.text });
+        hc.innerHTML = '<div class="hood-msg">' + r.text + '</div><div class="hood-chips">' +
+          Object.keys(VIBES).map(v => '<button class="followup-chip">' + v + '</button>').join('') + '</div>';
+      }
+      hc.scrollTop = hc.scrollHeight;
+    }, 1000);
+  }
+
+  // Rebuild the full chat thread from the transcript (incl. the shopper's own messages).
+  function renderTranscript() {
+    const t = document.getElementById('chatThread');
+    t.innerHTML = '';
+    state.messages.forEach(m => {
+      if (m.role === 'user') {
+        const el = document.createElement('div'); el.className = 'msg user'; el.textContent = m.text; t.appendChild(el);
+      } else {
+        const el = document.createElement('div'); el.className = 'msg assistant'; el.textContent = m.text; t.appendChild(el);
+        if (m.recs && m.recs.length) {
+          const w = document.createElement('div'); w.className = 'chat-recs';
+          w.innerHTML = '<div class="chat-recs-row">' + m.recs.map(id => {
+            const p = PRODUCT_BY_ID[id];
+            return '<button class="rec-card" data-id="' + id + '"><span class="rec-img"><img src="' + p.img + '" alt="' + p.name + '"></span><span class="rec-meta"><span class="rec-brand">Hotel Lobby Candle</span><span class="rec-name">' + p.name + '</span><span class="rec-price">' + p.price + '</span></span></button>';
+          }).join('') + '</div>';
+          t.appendChild(w);
+        }
+      }
+    });
+    document.getElementById('chatIntro').classList.add('collapsed');
+    const lastA = [...state.messages].reverse().find(m => m.role === 'assistant');
+    if (lastA && lastA.recs) renderFollowups(lastA.recs); else renderVibeChips();
+    scrollThread();
+  }
+
+  function expandChat() {
+    openChat();
+    if (state.messages.length) renderTranscript();
+  }
+
+  /* ── Longer flow: search overlay ───────────────────────────────────── */
+  const CAT_SLUG = { candles:'candles', diffusers:'reed-diffusers', handwash:'hand-wash' };
+  const AI_DEFAULT = [
+    'Help me make my living room feel like a hotel lobby',
+    'Which scent is best for winding down at night?',
+    'Build a cozy scent layering set',
+    "What's your cleanest-burning candle?",
+  ];
+  function aiSuggestionsFor(raw) {
+    const q = (raw || '').trim();
+    if (!q) return AI_DEFAULT;
+    const Q = q.charAt(0).toUpperCase() + q.slice(1);
+    return ['Best ' + Q + ' products for a starter set', 'Layer ' + Q + ' across candle, diffuser & hand wash', Q + ' vs New York: which suits me?', 'Upgrade my space with ' + Q + ' essentials'];
+  }
+  const SEARCH_TERMS = [
+    { label:'Candles', go:'#/collections/candles' }, { label:'Reed Diffusers', go:'#/collections/reed-diffusers' }, { label:'Hand Wash', go:'#/collections/hand-wash' },
+    { label:'Signature Candle', id:'signature-candle' }, { label:'New York Candle', id:'new-york-candle' }, { label:'Signature Reed Diffuser', id:'signature-reed-diffuser' }, { label:'Signature Hand Wash', id:'signature-hand-wash' },
+  ];
+  function searchRecCard(id) {
+    const p = PRODUCT_BY_ID[id];
+    return '<button class="rec-card" data-id="' + id + '"><span class="rec-img"><img src="' + p.img + '" alt="' + p.name + '" loading="lazy"></span>' +
+      '<span class="rec-meta"><span class="rec-brand">Hotel Lobby Candle</span><span class="rec-name">' + p.name + '</span><span class="rec-price">' + p.price + '</span></span></button>';
+  }
+  function renderSearch() {
+    const raw = document.getElementById('searchInput').value, q = raw.trim().toLowerCase();
+    document.getElementById('aiSugList').innerHTML = aiSuggestionsFor(raw).map(t =>
+      '<div class="ai-row" data-ai="' + t.replace(/"/g, '&quot;') + '"><span class="spark"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg></span>' + t + '<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>'
+    ).join('');
+    let terms = SEARCH_TERMS.filter(t => !q || t.label.toLowerCase().includes(q)); if (!terms.length) terms = SEARCH_TERMS;
+    document.getElementById('searchSugList').innerHTML = terms.map(t =>
+      '<div class="sug-row" data-go="' + (t.go || '') + '" data-id="' + (t.id || '') + '"><span class="mag"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg></span>' + t.label + '</div>'
+    ).join('');
+    let recs = Object.keys(PRODUCT_BY_ID).filter(id => !q || PRODUCT_BY_ID[id].name.toLowerCase().includes(q));
+    if (!recs.length) recs = ['signature-candle','new-york-candle','signature-reed-diffuser','signature-hand-wash'];
+    document.getElementById('searchRecs').innerHTML = recs.slice(0, 4).map(searchRecCard).join('');
+  }
+  function openSearch() { renderSearch(); document.getElementById('searchScrim').classList.add('open'); setTimeout(() => document.getElementById('searchInput').focus(), 60); }
+  function closeSearch() { document.getElementById('searchScrim').classList.remove('open'); }
+
+  function setFlow(flow) {
+    if (state.flow === flow) return;
+    state.flow = flow;
+    document.querySelectorAll('#flowSwitch button').forEach(b => b.classList.toggle('active', b.dataset.flow === flow));
+    closeChat(); closeSearch();
+    state.messages = []; document.getElementById('chatThread').innerHTML = '';
+    document.getElementById('chatFollowups').innerHTML = ''; state.spqDismissed = false; state.hoodActive = false;
+    document.getElementById('chatDock').classList.remove('minimized');
+    state.spqRevealed = false; clearTimeout(spqRevealTimer);
+    const isStore = state.route === 'home' || state.route === 'collection';
+    if (isStore) spqRevealTimer = setTimeout(() => { state.spqRevealed = true; renderClosedWidget(); }, 800);
+    renderClosedWidget();
+  }
+
+  function onLauncherClick() {
+    if (document.getElementById('chatClosed').classList.contains('preview-open')) {
+      state.spqDismissed = true;     // X dismisses the preview, leaving the orb
+      renderClosedWidget();
+    } else {
+      openChat();
+    }
+  }
+
+  function sizeChatPanel() {
+    const p = document.getElementById('chatPanel');
+    const mobile = window.innerWidth <= 900;
+    // On mobile, stop short of full height so the page hero stays partly visible behind it.
+    p.style.height = mobile ? Math.round(window.innerHeight * 0.85) + 'px' : Math.min(720, window.innerHeight - 40) + 'px';
+  }
+
+  function openChat() {
+    state.chatOpen = true;
+    sizeChatPanel();
+    document.getElementById('chatPanel').classList.add('open');
+    renderChat();
+    renderClosedWidget();
+  }
+  function closeChat() {
+    state.chatOpen = false;
+    document.getElementById('chatPanel').classList.remove('open');
+    renderClosedWidget();
+  }
+
+  function scrollThread() { const b = document.getElementById('chatBody'); b.scrollTop = b.scrollHeight; }
+
+  function addUserMessage(text) {
+    state.messages.push({ role:'user', text });
+    const el = document.createElement('div');
+    el.className = 'msg user';
+    el.textContent = text;
+    document.getElementById('chatThread').appendChild(el);
+    document.getElementById('chatIntro').classList.add('collapsed');
+    document.getElementById('chatFollowups').innerHTML = '';
+    renderChips();
+    scrollThread();
+  }
+  function addAssistantMessage(text, done) {
+    state.messages.push({ role:'assistant', text });
+    const el = document.createElement('div');
+    el.className = 'msg assistant';
+    document.getElementById('chatThread').appendChild(el);
+    // Type the response out. Time-based so it self-corrects if timers are throttled.
+    const words = text.split(' ');
+    const total = words.length;
+    const DURATION = 900;
+    const start = performance.now();
+    (function tick() {
+      const elapsed = performance.now() - start;
+      const n = Math.max(1, Math.min(total, Math.ceil(total * elapsed / DURATION)));
+      el.textContent = words.slice(0, n).join(' ');
+      scrollThread();
+      if (n < total) setTimeout(tick, 28);
+      else if (done) done();
+    })();
+  }
+  let typingEl = null;
+  function showTyping() {
+    const t = document.getElementById('chatThread');
+    typingEl = document.createElement('div');
+    typingEl.className = 'typing';
+    typingEl.innerHTML = '<span></span><span></span><span></span>';
+    t.appendChild(typingEl);
+    scrollThread();
+  }
+  function hideTyping() { if (typingEl) { typingEl.remove(); typingEl = null; } }
+
+  /* Vibe quick-replies: after an answer we ask the shopper's scent mood, then show 3 matching products. */
+  const VIBES = { 'Warm and cozy':'warm', 'Fresh and bright':'fresh', 'Moody and spicy':'moody' };
+  const VIBE_PROMPT = " To point you to the right pieces — what kind of scent are you drawn to?";
+  const VIBE_INTRO = {
+    warm: "Lovely — warm and cozy it is. Here are three to wrap a room in softness:",
+    fresh: "Fresh and bright, beautiful choice. Here are three crisp, uplifting picks:",
+    moody: "Moody and spicy — my kind of evening. Here are three with real depth:",
+  };
+  const VIBE_PRODUCTS = {
+    candles:   { warm:['signature-candle','london-candle','new-york-candle'], fresh:['racquet-club-candle','miami-candle','signature-candle'], moody:['new-york-candle','nespresso-martini-candle','signature-candle'] },
+    diffusers: { warm:['signature-reed-diffuser','london-reed-diffuser','new-york-reed-diffuser'], fresh:['racquet-club-reed-diffuser','miami-reed-diffuser','hamptons-reed-diffuser'], moody:['new-york-reed-diffuser','signature-reed-diffuser','london-reed-diffuser'] },
+    handwash:  { warm:['signature-hand-wash','london-hand-wash','new-york-hand-wash'], fresh:['miami-hand-wash','hamptons-hand-wash','aspen-hand-wash'], moody:['new-york-hand-wash','signature-hand-wash','london-hand-wash'] },
+  };
+  function chatCategory() {
+    if (state.route === 'collection') return COLLECTIONS[state.collectionSlug].category;
+    return 'candles';
+  }
+  function matchVibe(text) { return VIBES[(text || '').trim()] || null; }
+  function renderVibeChips() {
+    document.getElementById('chatFollowups').innerHTML =
+      Object.keys(VIBES).map(v => '<button class="followup-chip">' + v + '</button>').join('');
+  }
+
+  function assistantReply(userText) {
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      const vibe = matchVibe(userText);
+      if (vibe) {
+        const ids = (VIBE_PRODUCTS[chatCategory()] || VIBE_PRODUCTS.candles)[vibe];
+        addAssistantMessage(VIBE_INTRO[vibe], () => { addRecs(ids); renderFollowups(ids); });
+      } else {
+        const r = replyFor(userText);
+        addAssistantMessage(r.text + VIBE_PROMPT, () => { renderVibeChips(); });
+      }
+    }, 1000);
+  }
+
+  const FOLLOWUPS = {
+    candles:   ['Which has the strongest scent throw?', 'Do you offer candle gift sets?', 'How should I care for my candle?'],
+    diffusers: ['How often should I flip the reeds?', 'Are diffuser refills available?', 'Which diffuser suits a large room?'],
+    handwash:  ['Is it gentle for sensitive skin?', 'Do you sell hand wash refills?', 'Which scent pairs with a candle?'],
+  };
+  function renderFollowups(recs) {
+    const wrap = document.getElementById('chatFollowups');
+    const cat = (recs && recs[0] && PRODUCT_BY_ID[recs[0]]) ? PRODUCT_BY_ID[recs[0]].cat : 'candles';
+    const ups = FOLLOWUPS[cat] || FOLLOWUPS.candles;
+    wrap.innerHTML = ups.map(t => '<button class="followup-chip">' + t + '</button>').join('');
+  }
+
+  function addRecs(ids) {
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-recs';
+    wrap.innerHTML = '<div class="chat-recs-row">' + ids.map(id => {
+      const p = PRODUCT_BY_ID[id];
+      if (!p) return '';
+      return '<button class="rec-card" data-id="' + id + '">' +
+        '<span class="rec-img"><img src="' + p.img + '" alt="' + p.name + '" loading="lazy"></span>' +
+        '<span class="rec-meta"><span class="rec-brand">Hotel Lobby Candle</span>' +
+        '<span class="rec-name">' + p.name + '</span>' +
+        '<span class="rec-price">' + p.price + '</span></span></button>';
+    }).join('') + '</div>';
+    document.getElementById('chatThread').appendChild(wrap);
+    scrollThread();
+  }
+
+  /* ── PDP modal ─────────────────────────────────────────────────────── */
+  let pdpProduct = null;
+  function openPDP(id) {
+    const p = PRODUCT_BY_ID[id];
+    if (!p) return;
+    pdpProduct = p;
+    document.getElementById('pdpImg').src = p.img;
+    document.getElementById('pdpImg').alt = p.name;
+    document.getElementById('pdpName').textContent = p.name;
+    document.getElementById('pdpPrice').textContent = p.price;
+    document.getElementById('pdpNotes').textContent = p.scent;
+    document.getElementById('pdpDesc').textContent = p.desc;
+    const opts = OPTIONS_BY_CAT[p.cat] || [];
+    document.getElementById('pdpOpts').innerHTML = opts.map((o, i) =>
+      '<button class="pdp-opt' + (i === 0 ? ' active' : '') + '">' + o + '</button>'
+    ).join('');
+    document.getElementById('pdp').scrollTop = 0;
+    document.getElementById('pdpScrim').classList.add('open');
+  }
+  function closePDP() { document.getElementById('pdpScrim').classList.remove('open'); }
+
+  function showToast(msg) {
+    const t = document.getElementById('chatToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  function sendComposer() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    addUserMessage(text);
+    input.value = '';
+    input.style.height = 'auto';
+    assistantReply(text);
+  }
+
+  function wireChat() {
+    // ASAP launcher + stacked pills
+    document.getElementById('chatLauncher').addEventListener('click', onLauncherClick);
+    document.getElementById('spqPreview').addEventListener('click', (e) => {
+      const b = e.target.closest('.spq-preview-chip');
+      if (!b) return;
+      if (b.classList.contains('spq-more')) { openChat(); }
+      else { openChat(); onChipTap(b.textContent); }
+    });
+    // Flow switcher
+    document.getElementById('flowSwitch').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-flow]'); if (b) setFlow(b.dataset.flow);
+    });
+    // Medium dock — in-hood conversation
+    document.getElementById('dockPreview').addEventListener('click', (e) => {
+      if (e.target.closest('.dock-reviews')) { hoodReviews(); return; }
+      const b = e.target.closest('.spq-preview-chip'); if (b) hoodSend(b.textContent);
+    });
+    document.getElementById('hoodConvo').addEventListener('click', (e) => {
+      const head = e.target.closest('.rev-head'); if (head) { head.parentElement.classList.toggle('open'); return; }
+      const chip = e.target.closest('.followup-chip'); if (chip) { hoodSend(chip.textContent); return; }
+      const card = e.target.closest('.rec-card'); if (card) { expandChat(); openPDP(card.dataset.id); }
+    });
+    document.getElementById('hoodExpand').addEventListener('click', expandChat);
+    document.getElementById('hoodMin').addEventListener('click', () => document.getElementById('chatDock').classList.toggle('minimized'));
+    const barInput = document.getElementById('chatBarInput');
+    barInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const v = barInput.value; barInput.value = ''; hoodSend(v); } });
+    document.getElementById('chatBarSend').addEventListener('click', () => { const v = barInput.value; barInput.value = ''; hoodSend(v); });
+    // Longer search overlay
+    document.getElementById('aiSearchBtn').addEventListener('click', openSearch);
+    document.getElementById('searchClose').addEventListener('click', closeSearch);
+    document.getElementById('searchScrim').addEventListener('click', (e) => { if (e.target.id === 'searchScrim') closeSearch(); });
+    document.getElementById('searchInput').addEventListener('input', renderSearch);
+    document.getElementById('searchInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { const v = document.getElementById('searchInput').value.trim(); if (v) { closeSearch(); openChat(); onChipTap(v); } } });
+    document.getElementById('aiSugList').addEventListener('click', (e) => { const r = e.target.closest('.ai-row'); if (r) { closeSearch(); openChat(); onChipTap(r.dataset.ai); } });
+    document.getElementById('searchSugList').addEventListener('click', (e) => { const r = e.target.closest('.sug-row'); if (!r) return; closeSearch(); if (r.dataset.go) location.hash = r.dataset.go; else if (r.dataset.id) location.hash = '#/collections/' + CAT_SLUG[PRODUCT_BY_ID[r.dataset.id].cat]; });
+    document.getElementById('searchRecs').addEventListener('click', (e) => { const c = e.target.closest('.rec-card'); if (c) { closeSearch(); location.hash = '#/collections/' + CAT_SLUG[PRODUCT_BY_ID[c.dataset.id].cat]; } });
+    document.getElementById('chatClose').addEventListener('click', closeChat);
+    document.getElementById('chatBack').addEventListener('click', closeChat);
+    document.getElementById('chatSend').addEventListener('click', sendComposer);
+    document.getElementById('chatChips').addEventListener('click', (e) => {
+      const chip = e.target.closest('.spq-chip');
+      if (chip) onChipTap(chip.textContent);
+    });
+    document.getElementById('chatFollowups').addEventListener('click', (e) => {
+      const chip = e.target.closest('.followup-chip');
+      if (chip) onChipTap(chip.textContent);
+    });
+    document.getElementById('chatThread').addEventListener('click', (e) => {
+      const card = e.target.closest('.rec-card');
+      if (card) openPDP(card.dataset.id);
+    });
+    document.getElementById('pdpClose').addEventListener('click', closePDP);
+    document.getElementById('pdpScrim').addEventListener('click', (e) => { if (e.target.id === 'pdpScrim') closePDP(); });
+    document.getElementById('pdpOpts').addEventListener('click', (e) => {
+      const o = e.target.closest('.pdp-opt');
+      if (!o) return;
+      document.querySelectorAll('#pdpOpts .pdp-opt').forEach(x => x.classList.remove('active'));
+      o.classList.add('active');
+    });
+    document.getElementById('pdpAdd').addEventListener('click', () => {
+      state.cartCount++; updateCart(); showToast('Added to cart'); closePDP();
+    });
+    const input = document.getElementById('chatInput');
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendComposer(); } });
+    input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(96, input.scrollHeight) + 'px'; });
+    window.addEventListener('resize', () => { if (state.chatOpen) sizeChatPanel(); });
+  }
+
+  function wireAdmin() {
+    document.querySelectorAll('.adm-cards .toggle').forEach(t =>
+      t.addEventListener('click', (e) => { e.stopPropagation(); t.classList.toggle('on'); })
+    );
+    document.querySelectorAll('.adm-tabs .adm-tab').forEach(tab =>
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.adm-tabs .adm-tab').forEach(x => x.classList.remove('active'));
+        tab.classList.add('active');
+      })
+    );
+  }
+
+  /* ── SPQ configuration drawer ──────────────────────────────────────── */
+  let drawerWorking = {};            // working copy of surface settings
+  let prevState = { tab:'home', cat:'candles' };
+  let editState = { cat:null, chips:[] };
+
+  function syncSurfaceToggles() {
+    document.querySelectorAll('#spqDrawer .toggle[data-surf]').forEach(t =>
+      t.classList.toggle('on', !!drawerWorking[t.dataset.surf])
+    );
+  }
+  function renderPreview() {
+    document.getElementById('prevPick').style.display = prevState.tab === 'collection' ? '' : 'none';
+    let chips;
+    if (prevState.tab === 'home') chips = SPQ_CHIPS.home.map(c => typeof c === 'string' ? c : c.text);
+    else if (prevState.tab === 'collection') chips = SPQ_CHIPS[prevState.cat].slice();
+    else chips = PRODUCT_PREVIEW_CHIPS.slice();
+    document.getElementById('prevChips').innerHTML = chips.slice(0, 3).map(t => '<div class="prev-chip">' + t + '</div>').join('');
+  }
+  function renderOverrides() {
+    const labels = { candles:'Candles', diffusers:'Diffusers', handwash:'Hand Wash' };
+    document.getElementById('ovrBody').innerHTML = Object.keys(SPQ_OVERRIDES).map(cat => {
+      const o = SPQ_OVERRIDES[cat];
+      return '<tr><td>' + labels[cat] + '</td>' +
+        '<td><span class="ovr-status ' + o.status.toLowerCase() + '">' + o.status + '</span></td>' +
+        '<td>' + o.last + '</td>' +
+        '<td style="text-align:right"><button class="ovr-edit" data-cat="' + cat + '">Edit</button></td></tr>';
+    }).join('');
+  }
+  function openDrawer() {
+    drawerWorking = Object.assign({}, state.spqSettings);
+    syncSurfaceToggles();
+    prevState = { tab:'home', cat:'candles' };
+    document.querySelectorAll('.prev-tab').forEach(t => t.classList.toggle('active', t.dataset.ptab === 'home'));
+    renderPreview();
+    renderOverrides();
+    document.getElementById('spqDrawerScrim').classList.add('open');
+  }
+  function closeDrawer() { document.getElementById('spqDrawerScrim').classList.remove('open'); }
+  function saveDrawer() {
+    state.spqSettings = Object.assign({}, drawerWorking);
+    closeDrawer();
+    renderClosedWidget();   // settings affect the storefront SPQ preview (Step 9)
+    if (state.chatOpen || true) renderChips();
+  }
+
+  function openEditModal(cat) {
+    editState.cat = cat;
+    editState.chips = SPQ_CHIPS[cat].map(c => ({ text: typeof c === 'string' ? c : c.text, hidden: false }));
+    document.getElementById('editmTitle').textContent = 'Edit chips · ' + ({candles:'Candles',diffusers:'Diffusers',handwash:'Hand Wash'}[cat]);
+    renderEditChips();
+    document.getElementById('editmScrim').classList.add('open');
+  }
+  function renderEditChips() {
+    document.getElementById('editmBody').innerHTML = editState.chips.map((c, i) =>
+      '<div class="echip' + (c.hidden ? ' hidden' : '') + '">' +
+        '<button class="echip-btn" data-act="pin" data-i="' + i + '" title="Pin to top"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 17v5M9 3h6l-1 7 3 3H7l3-3z"/></svg></button>' +
+        '<input data-i="' + i + '" value="' + c.text.replace(/"/g, '&quot;') + '">' +
+        '<button class="echip-btn" data-act="up" data-i="' + i + '" title="Move up"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>' +
+        '<button class="echip-btn" data-act="down" data-i="' + i + '" title="Move down"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg></button>' +
+        '<button class="echip-btn' + (c.hidden ? '' : ' on') + '" data-act="hide" data-i="' + i + '" title="' + (c.hidden ? 'Show' : 'Hide') + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>' +
+      '</div>'
+    ).join('');
+  }
+  function commitEditInputs() {
+    document.querySelectorAll('#editmBody .echip input').forEach(inp => { editState.chips[+inp.dataset.i].text = inp.value; });
+  }
+  function saveEditModal() {
+    commitEditInputs();
+    const kept = editState.chips.filter(c => !c.hidden && c.text.trim());
+    SPQ_CHIPS[editState.cat] = kept.map(c => c.text.trim());
+    SPQ_OVERRIDES[editState.cat].status = 'Custom';
+    SPQ_OVERRIDES[editState.cat].last = 'just now';
+    document.getElementById('editmScrim').classList.remove('open');
+    renderOverrides();
+    renderPreview();
+    renderClosedWidget();
+    renderChips();
+  }
+
+  function wireDrawer() {
+    const open = () => openDrawer();
+    document.getElementById('floatingCard').addEventListener('click', (e) => { if (!e.target.closest('.toggle')) open(); });
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+    document.getElementById('drawerCancel').addEventListener('click', closeDrawer);
+    document.getElementById('drawerSave').addEventListener('click', saveDrawer);
+    document.getElementById('spqDrawerScrim').addEventListener('click', (e) => { if (e.target.id === 'spqDrawerScrim') closeDrawer(); });
+    document.querySelectorAll('#spqDrawer .toggle[data-surf]').forEach(t =>
+      t.addEventListener('click', (e) => { e.stopPropagation(); drawerWorking[t.dataset.surf] = !drawerWorking[t.dataset.surf]; t.classList.toggle('on', drawerWorking[t.dataset.surf]); })
+    );
+    document.querySelectorAll('.prev-tab').forEach(tab =>
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.prev-tab').forEach(x => x.classList.remove('active'));
+        tab.classList.add('active');
+        prevState.tab = tab.dataset.ptab;
+        renderPreview();
+      })
+    );
+    document.getElementById('prevPick').addEventListener('change', (e) => { prevState.cat = e.target.value; renderPreview(); });
+    document.getElementById('prevRegen').addEventListener('click', () => {
+      const wrap = document.getElementById('prevChips');
+      const chips = [...wrap.children]; for (let i = chips.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); wrap.appendChild(chips[j]); chips.splice(j, 1); }
+    });
+    document.getElementById('ovrBody').addEventListener('click', (e) => { const b = e.target.closest('.ovr-edit'); if (b) openEditModal(b.dataset.cat); });
+    document.getElementById('editmClose').addEventListener('click', () => document.getElementById('editmScrim').classList.remove('open'));
+    document.getElementById('editmCancel').addEventListener('click', () => document.getElementById('editmScrim').classList.remove('open'));
+    document.getElementById('editmScrim').addEventListener('click', (e) => { if (e.target.id === 'editmScrim') document.getElementById('editmScrim').classList.remove('open'); });
+    document.getElementById('editmSave').addEventListener('click', saveEditModal);
+    document.getElementById('editmBody').addEventListener('click', (e) => {
+      const b = e.target.closest('.echip-btn'); if (!b) return;
+      commitEditInputs();
+      const i = +b.dataset.i, act = b.dataset.act, arr = editState.chips;
+      if (act === 'pin' && i > 0) { const [it] = arr.splice(i, 1); arr.unshift(it); }
+      else if (act === 'up' && i > 0) { [arr[i-1], arr[i]] = [arr[i], arr[i-1]]; }
+      else if (act === 'down' && i < arr.length - 1) { [arr[i+1], arr[i]] = [arr[i], arr[i+1]]; }
+      else if (act === 'hide') { arr[i].hidden = !arr[i].hidden; }
+      renderEditChips();
+    });
+  }
+
+  function closeMenus() {
+    document.getElementById('shopMega').classList.remove('open');
+    document.getElementById('shopTrigger').setAttribute('aria-expanded','false');
+    document.getElementById('mobileSheet').classList.remove('open');
+  }
+
+  function render() {
+    const parsed = parseHash();
+    state.route = parsed.route;
+    state.collectionSlug = parsed.collectionSlug || null;
+
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.route === state.route));
+
+    const isStore = state.route === 'home' || state.route === 'collection';
+    document.getElementById('storefrontHeader').classList.toggle('show', isStore);
+    document.getElementById('storefrontFooter').style.display = isStore ? 'block' : 'none';
+    const topBtn = document.getElementById('topNavBtn');
+    if (state.route === 'admin') { topBtn.textContent = '← View store'; topBtn.href = '#/'; topBtn.classList.add('store'); }
+    else { topBtn.innerHTML = '⚙ Gorgias settings'; topBtn.href = '#/admin/shopping-assistant'; topBtn.classList.remove('store'); }
+
+    if (!isStore && state.chatOpen) closeChat();
+    // Fresh conversation per storefront page so each page previews its own SPQs
+    clearTimeout(spqRevealTimer);
+    if (isStore) {
+      state.spqDismissed = false; state.hoodActive = false; document.getElementById('chatDock').classList.remove('minimized'); state.messages = []; document.getElementById('chatThread').innerHTML = '';
+      document.getElementById('chatFollowups').innerHTML = '';
+      state.spqRevealed = false;
+      // Hold the SPQ pills back ~2s, then let them pop in
+      spqRevealTimer = setTimeout(() => { state.spqRevealed = true; renderClosedWidget(); }, 2000);
+    }
+    renderChat();
+    renderClosedWidget();
+
+    if (state.route === 'home') renderHome();
+    if (state.route === 'collection') renderCollection(state.collectionSlug);
+
+    closeMenus();
+    document.getElementById('routeChip').textContent = location.hash || '#/';
+    window.scrollTo(0, 0);
+  }
+
+  /* ── Menu interactions ─────────────────────────────────────────────── */
+  function wireMenus() {
+    const trigger = document.getElementById('shopTrigger');
+    const mega = document.getElementById('shopMega');
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = mega.classList.toggle('open');
+      trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', (e) => {
+      if (!mega.contains(e.target) && e.target !== trigger) {
+        mega.classList.remove('open');
+        trigger.setAttribute('aria-expanded','false');
+      }
+    });
+    mega.addEventListener('click', (e) => { if (e.target.closest('a')) closeMenus(); });
+    document.getElementById('hamburger').addEventListener('click', () => document.getElementById('mobileSheet').classList.add('open'));
+    document.getElementById('mobileClose').addEventListener('click', () => document.getElementById('mobileSheet').classList.remove('open'));
+    document.getElementById('mobileSheet').addEventListener('click', (e) => { if (e.target.tagName === 'A') closeMenus(); });
+
+    // Add-to-bag → bump cart badge (full cart UI arrives with the chat widget, Step 4)
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.add-to-bag');
+      if (btn) { state.cartCount++; updateCart(); }
+    });
+  }
+
+  window.addEventListener('hashchange', render);
+  let wired = false;
+  function init() {
+    if (wired) return;
+    wired = true;
+    wireMenus();
+    wireChat();
+    wireAdmin();
+    wireDrawer();
+    if (!location.hash) location.hash = '#/';
+    render();
+  }
+  window.addEventListener('DOMContentLoaded', init);
+  if (document.readyState !== 'loading') init();
+  </script>
+</body>
+</html>
