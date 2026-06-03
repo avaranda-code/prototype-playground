@@ -1194,6 +1194,137 @@
     border: 1px solid rgba(103, 113, 131, 0.5);
   }
   .top-banner-btn.secondary:hover { background: #fafafa; }
+  /* Flow 2 banner color variants */
+  .top-banner.pink { background: #fdeaf3; border-color: #f7cde1; }
+  .top-banner.pink .top-banner-icon { color: #d6388f; }
+  .top-banner.green { background: #e9fbf5; border-color: #9be7cf; }
+  .top-banner.green .top-banner-icon { color: #147656; }
+  .top-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* Flow 1 / Flow 2 toggle in the sidebar */
+  .flow-toggle {
+    display: flex; gap: 2px;
+    background: #ebecef;
+    border-radius: 8px;
+    padding: 2px;
+    margin: 0 8px 12px;
+  }
+  .flow-toggle button {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 500;
+    padding: 5px 8px;
+    border-radius: 6px;
+    color: #5c6370;
+    cursor: pointer;
+    border: none; background: none;
+  }
+  .flow-toggle button.active {
+    background: #fff; color: #1e242e;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  /* Flow 3 — fields with no new-UI equivalent appear disabled during configure */
+  .f3-disabled { opacity: 0.4; pointer-events: none; }
+
+  /* ============ Flow 1 chat list (entry screen) ============ */
+  .flow1-list-version {
+    display: flex; flex-direction: column;
+    flex-grow: 1; min-width: 0; height: 100%;
+    padding: 8px 8px 8px 0;
+  }
+  .flow1-list-card {
+    flex-grow: 1;
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 16px;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .flow1-list-header {
+    padding: 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .flow1-list-header h1 { font-size: 24px; font-weight: 700; color: #1e242e; }
+  .flow1-new-chat-btn {
+    background: #1e242e; color: #fff;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .flow1-table { padding: 0 8px 24px; }
+  .flow1-thead, .flow1-row {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.6fr) minmax(160px, 1fr) 130px 130px 1fr;
+    gap: 24px;
+    padding: 14px 24px;
+    align-items: center;
+  }
+  /* All cells left-aligned by default; the actions column on each row overrides */
+  .flow1-thead > *, .flow1-row > * { justify-self: start; }
+  .flow1-thead {
+    font-size: 13px; font-weight: 500; color: #5c6370;
+    border-bottom: 1px solid #ebecef;
+  }
+  .flow1-row {
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+    transition: background 0.1s;
+  }
+  .flow1-row:hover { background: #fafafa; cursor: pointer; }
+  .flow1-row .chat-name { color: #1e242e; font-weight: 500; }
+  .flow1-row .store-cell { display: flex; align-items: center; gap: 6px; color: #1e242e; }
+  .flow1-row .store-icon {
+    width: 18px; height: 18px;
+    background: #95bf47;
+    border-radius: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 12px; font-weight: 700; font-style: italic;
+    flex-shrink: 0;
+  }
+  .flow1-status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow1-status-badge.online { background: #e9fbf5; color: #147656; }
+  .flow1-status-badge.online::before { content: '●'; }
+  .flow1-status-badge.not-installed { background: #fde8eb; color: #c1273d; }
+  .flow1-status-badge.not-installed::before { content: '×'; font-weight: 700; }
+  .flow1-status-badge.not-detected { background: #fdecd2; color: #8a5a00; }
+  .flow1-status-badge.not-detected::before { content: 'i'; font-style: normal; font-weight: 700; }
+  .flow1-status-badge.enabled { background: #e9fbf5; color: #147656; }
+  .flow1-status-badge.enabled::before { content: '✓'; font-weight: 700; }
+  .flow1-status-badge.disabled { background: #fde8eb; color: #c1273d; }
+  .flow1-status-badge.disabled::before { content: '×'; font-weight: 700; }
+  .flow1-status-badge.no-store { background: #f3f4f6; color: #5c6370; }
+  .flow1-row .connect-store {
+    background: #fff; border: 1px solid #ebecef;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px; font-weight: 500; color: #1e242e;
+    cursor: pointer;
+  }
+  .flow1-row .row-actions {
+    display: flex; align-items: center; gap: 12px;
+    justify-self: end;
+  }
+  .flow1-update-link {
+    font-size: 13px; font-weight: 500;
+    color: #7e55f6;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .flow1-update-link:hover { text-decoration: underline; }
+  .flow1-row .row-chev {
+    width: 16px; height: 16px;
+    color: #5c6370;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
   /* "Chat preview" header in the legacy view (mirrors the new prototype's preview header) */
   .legacy-preview-frame {
     flex-grow: 1;
@@ -1502,50 +1633,68 @@
   }
   .modal-overlay.open { display: flex; }
   .modal-card {
-    background: #fff;
+    background: #fdfdfc;
     border-radius: 12px;
-    width: 440px;
+    width: 500px;
     max-width: 92vw;
     box-shadow: 0 20px 50px rgba(0,0,0,0.2);
     overflow: hidden;
+    padding: 16px 24px;
+    font-family: 'Inter', sans-serif;
   }
   .modal-header {
-    padding: 20px 20px 0;
+    padding: 0 0 16px;
+    display: flex; align-items: center; justify-content: space-between;
   }
   .modal-title {
     font-size: 18px;
     font-weight: 600;
+    line-height: 28px;
     color: #1e242e;
   }
+  .modal-close-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: transparent;
+    color: #1e242e;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border: none; padding: 0;
+  }
+  .modal-close-btn:hover { background: rgba(0,0,0,0.04); }
+  .modal-close-btn svg { width: 20px; height: 20px; display: block; }
   .modal-body {
-    padding: 12px 20px 20px;
+    padding: 0;
     font-size: 14px;
-    line-height: 1.5;
+    font-weight: 400;
+    line-height: 20px;
     color: #5c6370;
   }
   .modal-footer {
-    padding: 16px 20px;
-    border-top: 1px solid #ebecef;
-    display: flex; justify-content: flex-end; gap: 8px;
-    background: #fafafa;
+    padding: 16px 0 0;
+    display: flex; justify-content: flex-end; align-items: center; gap: 12px;
   }
   .modal-btn {
-    padding: 8px 14px;
+    height: 34px;
+    padding: 0 12px;
     border-radius: 8px;
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: none;
   }
   .modal-btn.tertiary {
-    background: #fff;
-    border: 1px solid #ebecef;
+    background: transparent;
     color: #1e242e;
+    padding: 0 8px;
   }
-  .modal-btn.tertiary:hover { background: #f3f4f6; }
+  .modal-btn.tertiary:hover { background: rgba(0,0,0,0.04); }
   .modal-btn.destructive {
     background: #1e242e;
-    color: #fff;
-    border: 1px solid #1e242e;
+    color: #fdfdfc;
+    box-shadow: 0 2px 3px 0 rgba(0,0,0,0.05);
   }
   .modal-btn.destructive:hover { background: #2d343f; }
 
@@ -1579,6 +1728,12 @@
       </div>
     </div>
     <div class="sidebar-nav">
+      <!-- Flow 1 / Flow 2 prototype toggle -->
+      <div class="flow-toggle" id="flow-toggle">
+        <button class="active" data-flow="1">Flow 1</button>
+        <button data-flow="2">Flow 2</button>
+        <button data-flow="3">Flow 3</button>
+      </div>
       <div class="sidebar-section collapsed">
         <div class="sidebar-section-header">
           <svg class="cat-icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="8" cy="3" r="1.2"/><circle cx="13" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="13" cy="8" r="1.2"/><circle cx="3" cy="13" r="1.2"/><circle cx="8" cy="13" r="1.2"/><circle cx="13" cy="13" r="1.2"/></svg>
@@ -1648,6 +1803,123 @@
     </div>
   </aside>
 
+  <!-- ============ Flow 1 chat list (first screen) ============ -->
+  <div class="flow1-list-version" id="flow1-chat-list" style="display:none">
+    <div class="flow1-list-card">
+      <div class="flow1-list-header">
+        <h1>Chat</h1>
+        <button class="flow1-new-chat-btn">+ New chat</button>
+      </div>
+      <div class="flow1-table">
+        <div class="flow1-thead">
+          <div>Chat Name</div>
+          <div>Store</div>
+          <div>Status</div>
+          <div>AI Agent Status</div>
+          <div></div>
+        </div>
+        <div class="flow1-row" data-chat="atm">
+          <div class="chat-name">atm-by-anthony-thomas-melillo</div>
+          <div class="store-cell"><span class="store-icon">S</span> atm-by-anthony-thomas-melillo</div>
+          <div><span class="flow1-status-badge not-installed">Not installed</span></div>
+          <div><span class="flow1-status-badge disabled">Disabled</span></div>
+          <div class="row-actions"><a class="flow1-update-link" data-update="atm">Update to new chat</a><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="betsey">
+          <div class="chat-name">Betsey Johnson</div>
+          <div class="store-cell"><span class="store-icon">S</span> betseyjohnson</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge enabled">Enabled</span></div>
+          <div class="row-actions"><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="blondo">
+          <div class="chat-name">Blondo</div>
+          <div class="store-cell"><span class="store-icon">S</span> blondo-shop</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge disabled">Disabled</span></div>
+          <div class="row-actions"><a class="flow1-update-link" data-update="blondo">Update to new chat</a><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="blondo-ca-en">
+          <div class="chat-name">Blondo Canada English</div>
+          <div class="store-cell"><span class="store-icon">S</span> blondo-ca</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge disabled">Disabled</span></div>
+          <div class="row-actions"><a class="flow1-update-link" data-update="blondo-ca-en">Update to new chat</a><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="blondo-ca-fr">
+          <div class="chat-name">Blondo Canada French</div>
+          <div class="store-cell"><span class="store-icon">S</span> blondo-ca</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge disabled">Disabled</span></div>
+          <div class="row-actions"><a class="flow1-update-link" data-update="blondo-ca-fr">Update to new chat</a><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="dolce">
+          <div class="chat-name">Dolce Vita</div>
+          <div class="store-cell"><span class="store-icon">S</span> smdolcevita</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge enabled">Enabled</span></div>
+          <div class="row-actions"><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="dolce-ca-en">
+          <div class="chat-name">Dolce Vita Canada English</div>
+          <div class="store-cell"><span class="store-icon">S</span> dolcevita-ca</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge enabled">Enabled</span></div>
+          <div class="row-actions"><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="dolce-ca-fr">
+          <div class="chat-name">Dolce Vita Canada French</div>
+          <div class="store-cell"><span class="store-icon">S</span> dolcevita-ca</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge enabled">Enabled</span></div>
+          <div class="row-actions"><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="dolce-mx">
+          <div class="chat-name">Dolce Vita Mexico</div>
+          <div class="store-cell"><span class="store-icon">S</span> dolcevita-mx</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge disabled">Disabled</span></div>
+          <div class="row-actions"><a class="flow1-update-link" data-update="dolce-mx">Update to new chat</a><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="glossier">
+          <div class="chat-name">Glossier</div>
+          <div class="store-cell"><span class="store-icon">S</span> glossier</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge enabled">Enabled</span></div>
+          <div class="row-actions"><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="steve">
+          <div class="chat-name">Steve Madden</div>
+          <div class="store-cell"><span class="store-icon">S</span> stevemadden</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge enabled">Enabled</span></div>
+          <div class="row-actions"><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="steve-ca-en">
+          <div class="chat-name">Steve Madden Canada English</div>
+          <div class="store-cell"><span class="store-icon">S</span> stevemadden-ca</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge enabled">Enabled</span></div>
+          <div class="row-actions"><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="steve-ca-fr">
+          <div class="chat-name">Steve Madden Canada French</div>
+          <div class="store-cell"><span class="store-icon">S</span> stevemadden-ca</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge enabled">Enabled</span></div>
+          <div class="row-actions"><span class="row-chev">›</span></div>
+        </div>
+        <div class="flow1-row" data-chat="steve-mx">
+          <div class="chat-name">Steve Madden Mexico</div>
+          <div class="store-cell"><span class="store-icon">S</span> stevemadden-mx</div>
+          <div><span class="flow1-status-badge online">Online</span></div>
+          <div><span class="flow1-status-badge disabled">Disabled</span></div>
+          <div class="row-actions"><a class="flow1-update-link" data-update="steve-mx">Update to new chat</a><span class="row-chev">›</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ Legacy (current product) version ============ -->
   <div class="legacy-version" id="legacy-version">
 
@@ -1666,6 +1938,41 @@
         <span class="top-banner-desc">Compare or update now. Switch back anytime before July 27.</span>
       </div>
       <button class="top-banner-btn" id="update-btn">Update</button>
+    </div>
+
+    <!-- Flow 2 · State 1 — Preview banner (pink) -->
+    <div class="top-banner pink" id="flow2-preview-banner" style="display:none">
+      <div class="top-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6.5076 16.0681C7.53542 16.6609 8.72797 17 9.99972 17C13.8657 17 17 13.866 17 10C17 6.13402 13.866 3 10 3C6.13401 3 3 6.13402 3 10C3 11.2718 3.33915 12.4643 3.93193 13.4922L3.93422 13.4961C3.99126 13.595 4.02002 13.6449 4.03305 13.692C4.04534 13.7365 4.04877 13.7764 4.04562 13.8225C4.04224 13.8719 4.02558 13.9232 3.99142 14.0256L3.39345 15.8196L3.39269 15.8219C3.26653 16.2004 3.20344 16.3897 3.24841 16.5158C3.28762 16.6257 3.37464 16.7125 3.48459 16.7517C3.61041 16.7966 3.79881 16.7338 4.17565 16.6082L4.18034 16.6064L5.97426 16.0084C6.0764 15.9744 6.12833 15.9571 6.17768 15.9538C6.22369 15.9506 6.26338 15.9548 6.30783 15.967C6.35509 15.9801 6.40498 16.0089 6.50438 16.0662L6.5076 16.0681Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="7" cy="10" r="0.85" fill="currentColor"/>
+          <circle cx="10" cy="10" r="0.85" fill="currentColor"/>
+          <circle cx="13" cy="10" r="0.85" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="top-banner-text">
+        <span class="top-banner-title">A fresh look for chat</span>
+        <span class="top-banner-desc">Preview and edit the refreshed settings and design before updating. Update now and switch back anytime before July 27th.</span>
+      </div>
+      <button class="top-banner-btn" id="flow2-preview-btn">Preview new chat</button>
+    </div>
+
+    <!-- Flow 3 · State 2 — Configure banner (pink), shown over the legacy form -->
+    <div class="top-banner pink" id="flow3-configure-banner" style="display:none">
+      <div class="top-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.667 10S4.167 4.583 10 4.583 18.333 10 18.333 10 15.833 15.417 10 15.417 1.667 10 1.667 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 12.083a2.083 2.083 0 1 0 0-4.166 2.083 2.083 0 0 0 0 4.166Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="top-banner-text">
+        <span class="top-banner-title">You're viewing the new dashboard</span>
+        <span class="top-banner-desc">Edit your new chat. Either publish now or later.</span>
+      </div>
+      <div class="top-banner-actions">
+        <button class="top-banner-btn" id="flow3-publish-btn">Save and publish</button>
+        <button class="top-banner-btn secondary" id="flow3-exit-btn">Save and exit</button>
+      </div>
     </div>
 
     <div class="legacy-content-row">
@@ -1690,7 +1997,7 @@
 
       <!-- Legacy Appearance form -->
       <div class="legacy-form" id="legacy-form-appearance">
-        <div class="legacy-section">
+        <div class="legacy-section" data-f3-disable>
           <div class="legacy-field">
             <label class="legacy-field-label">Chat title <span class="required">*</span></label>
             <input class="legacy-input" value="Glossier" />
@@ -1719,7 +2026,7 @@
                 <input id="legacy-brand-hex" value="#FFDFE2" />
               </div>
             </div>
-            <div class="legacy-field">
+            <div class="legacy-field" data-f3-disable>
               <label class="legacy-field-label">Conversation color</label>
               <div class="legacy-color-input">
                 <div class="swatch" style="background:#E8E8E8"></div>
@@ -1727,19 +2034,19 @@
               </div>
             </div>
           </div>
-          <label class="legacy-checkbox-row" style="margin-top:8px">
+          <label class="legacy-checkbox-row" style="margin-top:8px" data-f3-disable>
             <input type="checkbox" />
             <span class="text">Keep main color when outside business hours</span>
           </label>
         </div>
 
-        <div class="legacy-section">
+        <div class="legacy-section" data-f3-disable>
           <h2>Background style</h2>
           <label class="legacy-radio-row"><input type="radio" name="legacy-bg" checked /> <span class="legacy-radio-text">Gradient</span></label>
           <label class="legacy-radio-row"><input type="radio" name="legacy-bg" /> <span class="legacy-radio-text">Solid</span></label>
         </div>
 
-        <div class="legacy-section">
+        <div class="legacy-section" data-f3-disable>
           <h2>Font</h2>
           <select class="legacy-select"><option>Arial</option><option>Inter</option></select>
         </div>
@@ -1929,10 +2236,10 @@
               </div>
             </div>
           </div>
-          <div class="legacy-toggle-row-section">
+          <div class="legacy-toggle-row-section" id="legacy-biz-toggle-section">
             <div class="biz-toggle" id="legacy-biz-toggle">
               <button class="active" data-biz="during">During Business Hours</button>
-              <button data-biz="outside">Outside business hours</button>
+              <button data-biz="outside">Outside Business Hours</button>
             </div>
           </div>
         </div>
@@ -2080,6 +2387,52 @@
       <button class="top-banner-btn secondary" id="revert-btn">Switch back</button>
     </div>
 
+    <!-- Flow 2 · State 2 — Configure banner (pink) -->
+    <div class="top-banner pink" id="flow2-configure-banner" style="display:none">
+      <div class="top-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.667 10S4.167 4.583 10 4.583 18.333 10 18.333 10 15.833 15.417 10 15.417 1.667 10 1.667 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 12.083a2.083 2.083 0 1 0 0-4.166 2.083 2.083 0 0 0 0 4.166Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="top-banner-text">
+        <span class="top-banner-title">You're previewing the new chat</span>
+        <span class="top-banner-desc">Edit and enable your new chat for customers</span>
+      </div>
+      <div class="top-banner-actions">
+        <button class="top-banner-btn" id="flow2-publish-btn">Enable new chat</button>
+        <button class="top-banner-btn secondary" id="flow2-exit-btn">Switch later</button>
+      </div>
+    </div>
+
+    <!-- Flow 2 · State 3 — Published confirmation (green, transient) -->
+    <div class="top-banner green" id="flow2-confirm-banner" style="display:none">
+      <div class="top-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.5 10a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" stroke="currentColor" stroke-width="1.5"/>
+          <path d="m7 10 2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="top-banner-text">
+        <span class="top-banner-title">You're on the updated chat</span>
+      </div>
+    </div>
+
+    <!-- Flow 2 · State 4 — Settled banner (lavender) -->
+    <div class="top-banner" id="flow2-settled-banner" style="display:none">
+      <div class="top-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.5 10a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" stroke="currentColor" stroke-width="1.5"/>
+          <path d="m7 10 2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="top-banner-text">
+        <span class="top-banner-title">You're on the updated chat</span>
+        <span class="top-banner-desc">Switch back to the old chat anytime before July 27th.</span>
+      </div>
+      <button class="top-banner-btn secondary" id="flow2-settled-switchback-btn">Switch back</button>
+    </div>
+
     <div class="new-content-row">
 
   <!-- ============ Center page ============ -->
@@ -2135,12 +2488,12 @@
               <div class="field-sublabel">Logo</div>
               <div class="field-help">Upload a horizontal logo (PNG, JPG, or GIF) with a transparent background. You only need an alternative logo if your default isn't visible on white backgrounds.</div>
               <div class="logo-row">
-                <div class="logo-card">
+                <div class="logo-card" id="default-logo-card">
                   <div>
                     <div class="title">Default logo</div>
                     <div class="help">Works on your brand color</div>
                   </div>
-                  <div class="logo-card-row">
+                  <div class="logo-card-row" id="default-logo-card-row">
                     <div class="logo-thumb">Glossier.</div>
                     <button class="icon-x-btn" title="Remove">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -2251,15 +2604,12 @@
 
           <!-- Privacy policy card -->
           <div class="card">
-            <div class="card-header-row">
-              <div>
-                <div class="card-title">Privacy policy</div>
-                <div class="card-subtitle">Add a privacy policy that shoppers will see in chat.</div>
-              </div>
-              <div class="toggle" id="privacy-toggle" role="switch" aria-checked="false"></div>
+            <div>
+              <div class="card-title">Privacy policy</div>
+              <div class="card-subtitle">Add a privacy policy that shoppers will see in chat.</div>
             </div>
 
-            <div class="field" id="privacy-controls" style="opacity:0.5;pointer-events:none">
+            <div class="field" id="privacy-controls">
               <textarea class="textarea" id="privacy-text" rows="3" placeholder="Add your privacy policy here. Shoppers will see this in chat before they begin a conversation."></textarea>
               <div class="char-counter">Gorgias is not responsible for compliance with applicable privacy laws.</div>
               <label class="checkbox-row">
@@ -2452,34 +2802,20 @@
       <div class="preview-top">
         <div class="preview-header">
           <div class="title">Chat preview</div>
-          <div class="variant-dropdown" id="view-dropdown">
-            <button class="variant-dropdown-trigger" id="view-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
-              <span>Viewing: <span id="view-dropdown-label">Home</span></span>
-              <span class="chev" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
+          <div class="view-toggle" id="view-toggle" role="group" aria-label="Preview Home or Conversation thread">
+            <button class="icon-btn active" data-view="home" title="Home" aria-label="Home">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 8L10 3L17 8V16C17 16.55 16.55 17 16 17H4C3.45 17 3 16.55 3 16V8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
             </button>
-            <div class="variant-dropdown-menu" id="view-dropdown-menu" role="listbox">
-              <button class="variant-dropdown-item selected" data-view="home" role="option" aria-selected="true">
-                <span class="check" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <span>Home</span>
-              </button>
-              <button class="variant-dropdown-item" data-view="chat" role="option" aria-selected="false">
-                <span class="check" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <span>Conversation thread</span>
-              </button>
-            </div>
+            <button class="icon-btn" data-view="chat" title="Conversation thread" aria-label="Conversation thread">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 5C3 4 4 3 5 3H13C14 3 15 4 15 5V11C15 12 14 13 13 13H8L4 16V13C3.4 13 3 12.5 3 12V5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            </button>
           </div>
         </div>
         <!-- Business hours toggle (above the divider) -->
         <div class="biz-toggle-section">
           <div class="biz-toggle">
             <button class="active" data-biz="during">During Business Hours</button>
-            <button data-biz="outside">Outside business hours</button>
+            <button data-biz="outside">Outside Business Hours</button>
           </div>
         </div>
       </div>
@@ -2568,6 +2904,9 @@
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title">Switch back to the old chat?</div>
+        <button class="modal-close-btn" id="switch-back-close" aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
       <div class="modal-body">
         Switch anytime before July 27. Changes can take up to 30 minutes to appear across your store.
@@ -2579,11 +2918,14 @@
     </div>
   </div>
 
-  <!-- Confirmation Modal for updating to the new chat -->
+  <!-- Confirmation Modal for updating to the new chat (Flow 1 Update flow) -->
   <div class="modal-overlay" id="update-modal">
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title">Update your chat</div>
+        <button class="modal-close-btn" id="update-close" aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
       <div class="modal-body">
         Changes can take up to 30 minutes to appear across your store.
@@ -2591,6 +2933,25 @@
       <div class="modal-footer">
         <button class="modal-btn tertiary" id="update-cancel">Cancel</button>
         <button class="modal-btn destructive" id="update-confirm">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flow 2 — Confirmation Modal for "Switch to new chat" (from Configure banner) -->
+  <div class="modal-overlay" id="flow2-switch-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Enable new chat</div>
+        <button class="modal-close-btn" id="flow2-switch-close" aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        Changes can take up to 30 minutes to appear across your store.
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn tertiary" id="flow2-switch-cancel">Cancel</button>
+        <button class="modal-btn destructive" id="flow2-switch-confirm">Update</button>
       </div>
     </div>
   </div>
@@ -2602,7 +2963,7 @@
     panel: 'appearance', // 'appearance' | 'preferences' | 'automation' | 'language' | 'installation'
     bizMode: 'during', // 'during' | 'outside'
     view: 'home', // 'home' | 'chat'
-    privacyEnabled: false,
+    privacyEnabled: true, // Privacy section is always-on in the updated UI (no toggle)
     privacyOnHome: false,
     greetingDuring: 'How can we help?',
     greetingOutside: "We'll be back soon",
@@ -2804,16 +3165,8 @@
     renderPhone('lp-');
     renderLegacyCurrent();
 
-    // View dropdown (new view) — update label + selected state
-    const viewDropdownLabel = $('#view-dropdown-label');
-    if (viewDropdownLabel) {
-      viewDropdownLabel.textContent = state.view === 'home' ? 'Home' : 'Conversation thread';
-    }
-    $$('#view-dropdown-menu .variant-dropdown-item').forEach(item => {
-      const isSelected = item.dataset.view === state.view;
-      item.classList.toggle('selected', isSelected);
-      item.setAttribute('aria-selected', isSelected ? 'true' : 'false');
-    });
+    // View toggle (new view) — Home / Conversation thread icon buttons
+    $$('#view-toggle .icon-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
 
     // Biz toggle visual (both new + legacy)
     $$('.biz-toggle button').forEach(b => b.classList.toggle('active', b.dataset.biz === state.bizMode));
@@ -2842,13 +3195,8 @@
     const waitToggle = $('#share-wait-toggle');
     if (waitToggle) waitToggle.classList.toggle('on', state.shareWaitTime);
 
-    const ctrls = $('#privacy-controls');
-    if (ctrls) {
-      ctrls.style.opacity = state.privacyEnabled ? '1' : '0.5';
-      ctrls.style.pointerEvents = state.privacyEnabled ? '' : 'none';
-    }
-    const privacyToggleEl = $('#privacy-toggle');
-    if (privacyToggleEl) privacyToggleEl.classList.toggle('on', state.privacyEnabled);
+    // Privacy controls in the updated UI are always enabled (no toggle).
+    // Legacy toggle (#legacy-privacy-toggle) still reflects state.privacyEnabled below.
 
     // ===== Legacy form visual sync (so toggling in the new view shows in legacy and vice versa) =====
     const lc = $('#legacy-collect-emails-toggle');
@@ -2876,7 +3224,7 @@
 
     // Brand color
     document.documentElement.style.setProperty('--brand', state.brandHex);
-    document.documentElement.style.setProperty('--brand-glow', state.brandHex);
+    document.documentElement.style.setProperty('--brand-glow', state.brandGlow || state.brandHex);
     const brandChip = $('#brand-chip');
     if (brandChip) brandChip.style.background = state.brandHex;
     const brandHexEl = $('#brand-hex');
@@ -2898,11 +3246,8 @@
     render();
   });
 
-  // Privacy toggle
-  $('#privacy-toggle').addEventListener('click', () => {
-    state.privacyEnabled = !state.privacyEnabled;
-    render();
-  });
+  // Privacy toggle removed in the updated UI; legacy toggle still wires
+  // state.privacyEnabled via the existing legacy handler.
 
   // Privacy text
   $('#privacy-text').addEventListener('input', e => {
@@ -2925,29 +3270,14 @@
     }
   });
 
-  // View dropdown (Home / Conversation thread) — new prototype
-  const viewDropdownTrigger = document.getElementById('view-dropdown-trigger');
-  const viewDropdownMenu = document.getElementById('view-dropdown-menu');
-  if (viewDropdownTrigger && viewDropdownMenu) {
-    viewDropdownTrigger.addEventListener('click', e => {
-      e.stopPropagation();
-      const open = viewDropdownMenu.classList.toggle('open');
-      viewDropdownTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-    viewDropdownMenu.querySelectorAll('.variant-dropdown-item').forEach(item => {
-      item.addEventListener('click', e => {
-        e.stopPropagation();
-        state.view = item.dataset.view;
-        viewDropdownMenu.classList.remove('open');
-        viewDropdownTrigger.setAttribute('aria-expanded', 'false');
+  // View toggle (Home / Conversation thread icon buttons) — new prototype
+  const viewToggle = document.getElementById('view-toggle');
+  if (viewToggle) {
+    viewToggle.querySelectorAll('.icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.view = btn.dataset.view;
         render();
       });
-    });
-    document.addEventListener('click', e => {
-      if (!viewDropdownMenu.contains(e.target) && e.target !== viewDropdownTrigger) {
-        viewDropdownMenu.classList.remove('open');
-        viewDropdownTrigger.setAttribute('aria-expanded', 'false');
-      }
     });
   }
 
@@ -3049,10 +3379,15 @@
 
   // ===== Switch helpers =====
   function switchToNew() {
+    // Route through flow1State so applyFlow is the single source of truth
+    if (typeof flow1State !== 'undefined') { flow1State = 'glossier-new'; }
+    if (typeof applyFlow === 'function') { applyFlow(); return; }
     legacyEl.style.display = 'none';
     newEl.style.display = 'flex';
   }
   function switchBackToLegacy() {
+    if (typeof flow1State !== 'undefined') { flow1State = 'legacy'; }
+    if (typeof applyFlow === 'function') { applyFlow(); return; }
     legacyEl.style.display = 'flex';
     newEl.style.display = 'none';
   }
@@ -3062,10 +3397,12 @@
   const updateModal = document.getElementById('update-modal');
   const updateCancel = document.getElementById('update-cancel');
   const updateConfirm = document.getElementById('update-confirm');
+  const updateClose = document.getElementById('update-close');
   function openUpdateModal() { if (updateModal) updateModal.classList.add('open'); }
   function closeUpdateModal() { if (updateModal) updateModal.classList.remove('open'); }
   if (updateBtn) updateBtn.addEventListener('click', openUpdateModal);
   if (updateCancel) updateCancel.addEventListener('click', closeUpdateModal);
+  if (updateClose) updateClose.addEventListener('click', closeUpdateModal);
   if (updateConfirm) updateConfirm.addEventListener('click', () => {
     closeUpdateModal();
     switchToNew();
@@ -3075,17 +3412,23 @@
   });
 
   // Revert button (top banner in the new UI) → opens confirmation modal.
+  // Context tracks WHO opened the modal so confirm routes to the right transition.
+  // 'flow1' = the existing Revert-from-new-version flow; 'flow2' = Flow 2 settled Switch back.
+  var switchModalContext = 'flow1';
   const revertBtn = document.getElementById('revert-btn');
   const switchModal = document.getElementById('switch-back-modal');
   const switchCancel = document.getElementById('switch-back-cancel');
   const switchConfirm = document.getElementById('switch-back-confirm');
+  const switchClose = document.getElementById('switch-back-close');
   function openSwitchModal() { switchModal.classList.add('open'); }
   function closeSwitchModal() { switchModal.classList.remove('open'); }
-  if (revertBtn) revertBtn.addEventListener('click', openSwitchModal);
+  if (revertBtn) revertBtn.addEventListener('click', () => { switchModalContext = 'flow1'; openSwitchModal(); });
   if (switchCancel) switchCancel.addEventListener('click', closeSwitchModal);
+  if (switchClose) switchClose.addEventListener('click', closeSwitchModal);
   if (switchConfirm) switchConfirm.addEventListener('click', () => {
     closeSwitchModal();
-    switchBackToLegacy();
+    if (switchModalContext === 'flow2') { flow2State = 1; applyFlow(); }
+    else { switchBackToLegacy(); }
   });
   if (switchModal) switchModal.addEventListener('click', e => {
     if (e.target === switchModal) closeSwitchModal();
@@ -3210,6 +3553,7 @@
       document.getElementById('legacy-form-appearance').style.display = target === 'appearance' ? '' : 'none';
       document.getElementById('legacy-form-preferences').style.display = target === 'preferences' ? '' : 'none';
       document.getElementById('legacy-form-other').style.display = (target !== 'appearance' && target !== 'preferences') ? '' : 'none';
+      if (typeof updateLegacyBizVisibility === 'function') updateLegacyBizVisibility();
     });
   });
 
@@ -3218,8 +3562,285 @@
   if (lPrivText) state.privacyText = lPrivText.value;
   if (lBrand) state.brandHex = lBrand.value;
 
+  // ===== Flow 1 / Flow 2 / Flow 3 prototype switching =====
+  let currentFlow = 1;
+  // Flow 1 sub-state:
+  //   'list'              — chat list (default entry)
+  //   'legacy'            — Glossier legacy settings
+  //   'glossier-new'      — Glossier on new dashboard (after Update)
+  //   'blondo-configure'  — Blondo on new dashboard, configure banner
+  //   'blondo-confirm'    — Blondo published confirmation (5s green)
+  //   'blondo-settled'    — Blondo settled (lavender Switch back)
+  let flow1State = 'list';
+  let flow2State = 1;
+  let flow3State = 1;
+  let flowConfirmTimer = null;
+
+  const flowToggle = document.getElementById('flow-toggle');
+  const flow1ChatList = document.getElementById('flow1-chat-list');
+  const f1LegacyBanner = document.getElementById('legacy-update-banner');
+  const f1NewBanner = document.getElementById('new-switch-back-banner');
+  const f2PreviewBanner = document.getElementById('flow2-preview-banner');
+  const f2ConfigBanner = document.getElementById('flow2-configure-banner');
+  const f2ConfirmBanner = document.getElementById('flow2-confirm-banner');
+  const f2SettledBanner = document.getElementById('flow2-settled-banner');
+  const f3ConfigBanner = document.getElementById('flow3-configure-banner');
+  const legacyVariantDropdown = document.getElementById('legacy-variant-dropdown');
+  const breadcrumbCurrent = document.querySelector('.breadcrumb .crumb.current');
+  const defaultLogoRow = document.getElementById('default-logo-card-row');
+  const allFlowBanners = [f1LegacyBanner, f1NewBanner, f2PreviewBanner, f2ConfigBanner, f2ConfirmBanner, f2SettledBanner, f3ConfigBanner];
+
+  // ----- Brand swap (Glossier ↔ Blondo) -----
+  const BLONDO_HEART_SVG = '<svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px"><path d="M14 24s-9-5.4-9-13a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 7.6-9 13-9 13z" stroke="#D6201F" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/></svg>';
+
+  const GLOSSIER = {
+    brandHex: '#FFDFE2',
+    brandGlow: '#FFDFE2',   // chat-preview radial-gradient color (separate from chip color)
+    breadcrumb: 'Glossier',
+    brandLogo: 'Glossier.',
+    hideBrandLogo: false,
+    avatarHTML: 'G',
+    avatarBg: '',
+    avatarColor: '#e89a9f',
+    quickActions: ["What's new in the collection?", 'How can I get 10% off my first order?', 'Help me find the right size', 'How do I use my gift card?'],
+    defaultLogoRowHTML: '<div class="logo-thumb">Glossier.</div><button class="icon-x-btn" title="Remove"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>',
+  };
+  const BLONDO = {
+    brandHex: '#000000',
+    brandGlow: '#c8c8c8',   // light grey so the chat preview is a soft grey gradient
+    breadcrumb: 'Blondo',
+    brandLogo: '',
+    hideBrandLogo: true,
+    avatarHTML: BLONDO_HEART_SVG,
+    avatarBg: 'transparent',
+    avatarColor: '',
+    quickActions: ['What is our shipping policy?', 'Interested in a discount?', 'Is it possible to edit or cancel an order?', 'Are Blondo products waterproof?'],
+    defaultLogoRowHTML: '<button class="add-logo-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Add logo</button>',
+  };
+  function applyBranding(brand) {
+    state.brandHex = brand.brandHex;
+    state.brandGlow = brand.brandGlow || brand.brandHex;
+    if (breadcrumbCurrent) breadcrumbCurrent.textContent = brand.breadcrumb;
+    document.querySelectorAll('.brand-logo').forEach(el => {
+      el.style.display = brand.hideBrandLogo ? 'none' : '';
+      el.textContent = brand.brandLogo;
+    });
+    document.querySelectorAll('.brand-avatar .mark').forEach(el => {
+      el.innerHTML = brand.avatarHTML;
+      el.style.background = brand.avatarBg;
+      el.style.color = brand.avatarColor;
+      el.style.display = 'flex';
+      el.style.alignItems = 'center';
+      el.style.justifyContent = 'center';
+    });
+    document.querySelectorAll('.phone-bottom .quick-actions').forEach(group => {
+      const items = group.querySelectorAll('.quick-action');
+      brand.quickActions.forEach((text, i) => { if (items[i]) items[i].textContent = text; });
+    });
+    if (defaultLogoRow) defaultLogoRow.innerHTML = brand.defaultLogoRowHTML;
+    if (typeof render === 'function') render();
+  }
+
+  function setF3Disabled(on) {
+    document.querySelectorAll('[data-f3-disable]').forEach(el => el.classList.toggle('f3-disabled', on));
+  }
+
+  // In Flow 2's legacy preview, the During/Outside Business Hours toggle only
+  // belongs on the Appearance tab — hide it on the Preferences (and other) tabs.
+  function updateLegacyBizVisibility() {
+    const section = document.getElementById('legacy-biz-toggle-section');
+    if (!section) return;
+    const activeTab = document.querySelector('.legacy-tab.active');
+    const tab = activeTab ? activeTab.dataset.legacyTab : 'appearance';
+    const hide = (currentFlow === 2) && (tab !== 'appearance');
+    section.style.display = hide ? 'none' : '';
+  }
+
+  function applyFlow() {
+    // Reset: hide every flow banner, clear Flow-3 disabling, hide chat list
+    allFlowBanners.forEach(b => { if (b) b.style.display = 'none'; });
+    setF3Disabled(false);
+    updateLegacyBizVisibility();
+    if (flow1ChatList) flow1ChatList.style.display = 'none';
+
+    if (currentFlow === 1) {
+      if (legacyVariantDropdown) legacyVariantDropdown.style.display = '';
+
+      if (flow1State === 'list') {
+        applyBranding(GLOSSIER);
+        if (flow1ChatList) flow1ChatList.style.display = 'flex';
+        legacyEl.style.display = 'none';
+        newEl.style.display = 'none';
+      } else if (flow1State === 'legacy') {
+        applyBranding(GLOSSIER);
+        if (f1LegacyBanner) f1LegacyBanner.style.display = '';
+        legacyEl.style.display = 'flex';
+        newEl.style.display = 'none';
+      } else if (flow1State === 'glossier-new') {
+        applyBranding(GLOSSIER);
+        if (f1NewBanner) f1NewBanner.style.display = '';
+        legacyEl.style.display = 'none';
+        newEl.style.display = 'flex';
+      } else if (flow1State === 'blondo-configure') {
+        applyBranding(BLONDO);
+        if (f2ConfigBanner) f2ConfigBanner.style.display = '';
+        legacyEl.style.display = 'none';
+        newEl.style.display = 'flex';
+      } else if (flow1State === 'blondo-confirm') {
+        applyBranding(BLONDO);
+        if (f2ConfirmBanner) f2ConfirmBanner.style.display = '';
+        legacyEl.style.display = 'none';
+        newEl.style.display = 'flex';
+      } else if (flow1State === 'blondo-settled') {
+        applyBranding(BLONDO);
+        if (f2SettledBanner) f2SettledBanner.style.display = '';
+        legacyEl.style.display = 'none';
+        newEl.style.display = 'flex';
+      }
+      render();
+      return;
+    }
+
+    // Flow 2 & 3 are Glossier-only; restore Glossier branding
+    applyBranding(GLOSSIER);
+
+    // Flows 2 & 3 share: hide variant dropdown, hide Flow-1 banners
+    if (legacyVariantDropdown) legacyVariantDropdown.style.display = 'none';
+
+    if (currentFlow === 2) {
+      if (f2PreviewBanner) f2PreviewBanner.style.display = (flow2State === 1) ? '' : 'none';
+      if (f2ConfigBanner) f2ConfigBanner.style.display = (flow2State === 2) ? '' : 'none';
+      if (f2ConfirmBanner) f2ConfirmBanner.style.display = (flow2State === 3) ? '' : 'none';
+      if (f2SettledBanner) f2SettledBanner.style.display = (flow2State === 4) ? '' : 'none';
+      setVariant('current'); // old chat in the legacy preview (state 1)
+      if (flow2State === 1) { legacyEl.style.display = 'flex'; newEl.style.display = 'none'; }
+      else { legacyEl.style.display = 'none'; newEl.style.display = 'flex'; }
+      return;
+    }
+
+    // Flow 3
+    if (flow3State === 1) {
+      // Preview: legacy form + old chat
+      if (f2PreviewBanner) f2PreviewBanner.style.display = '';
+      setVariant('current');
+      legacyEl.style.display = 'flex'; newEl.style.display = 'none';
+    } else if (flow3State === 2) {
+      // Configure: KEEP legacy form (disable non-carryover fields) + show the NEW chat
+      if (f3ConfigBanner) f3ConfigBanner.style.display = '';
+      setVariant('new'); // new chat (lp-phone) in the legacy preview
+      setF3Disabled(true);
+      legacyEl.style.display = 'flex'; newEl.style.display = 'none';
+    } else if (flow3State === 3) {
+      // Published confirmation → fully new UI
+      if (f2ConfirmBanner) f2ConfirmBanner.style.display = '';
+      legacyEl.style.display = 'none'; newEl.style.display = 'flex';
+    } else if (flow3State === 4) {
+      if (f2SettledBanner) f2SettledBanner.style.display = '';
+      legacyEl.style.display = 'none'; newEl.style.display = 'flex';
+    }
+  }
+
+  if (flowToggle) {
+    flowToggle.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        flowToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFlow = parseInt(btn.dataset.flow, 10);
+        if (currentFlow === 1) flow1State = 'list';
+        if (currentFlow === 2) flow2State = 1;
+        if (currentFlow === 3) flow3State = 1;
+        if (flowConfirmTimer) { clearTimeout(flowConfirmTimer); flowConfirmTimer = null; }
+        applyFlow();
+      });
+    });
+  }
+
+  // ===== Flow 1 chat list interactions =====
+  // Click on the Glossier row → go to the existing legacy Glossier settings view
+  document.querySelectorAll('.flow1-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.flow1-update-link') || e.target.closest('.connect-store')) return;
+      if (currentFlow !== 1) return;
+      if (row.dataset.chat === 'glossier') { flow1State = 'legacy'; applyFlow(); }
+    });
+  });
+  // "Update to new chat" link — only Blondo is functional for now
+  document.querySelectorAll('.flow1-update-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentFlow !== 1) return;
+      const which = link.dataset.update;
+      if (which === 'blondo') { flow1State = 'blondo-configure'; applyFlow(); }
+    });
+  });
+
+  const fBtn = id => document.getElementById(id);
+  // Flow 2 transitions
+  if (fBtn('flow2-preview-btn')) fBtn('flow2-preview-btn').addEventListener('click', () => { flow2State = 2; applyFlow(); });
+  // Save and exit — branches by current flow + Flow 1 state
+  if (fBtn('flow2-exit-btn')) fBtn('flow2-exit-btn').addEventListener('click', () => {
+    if (currentFlow === 1 && flow1State === 'blondo-configure') { flow1State = 'list'; }
+    else { flow2State = 1; }
+    applyFlow();
+  });
+  // Save and publish — Flow 2 opens a confirmation modal; Flow 1 Blondo + Flow 3 transition directly
+  if (fBtn('flow2-publish-btn')) fBtn('flow2-publish-btn').addEventListener('click', () => {
+    if (currentFlow === 1 && flow1State === 'blondo-configure') {
+      flow1State = 'blondo-confirm'; applyFlow();
+      flowConfirmTimer = setTimeout(() => { flow1State = 'blondo-settled'; applyFlow(); flowConfirmTimer = null; }, 5000);
+    } else if (currentFlow === 2 && flow2State === 2) {
+      const m = document.getElementById('flow2-switch-modal');
+      if (m) m.classList.add('open');
+    } else {
+      // Flow 3 (configure state via Flow 2 button — not normally hit, but safe fallback)
+      flow2State = 3; applyFlow();
+      flowConfirmTimer = setTimeout(() => { flow2State = 4; applyFlow(); flowConfirmTimer = null; }, 5000);
+    }
+  });
+  // Flow 2 "Switch to new chat" modal — Cancel / Update / Close / Backdrop
+  (function wireFlow2SwitchModal(){
+    const m = document.getElementById('flow2-switch-modal');
+    if (!m) return;
+    function close() { m.classList.remove('open'); }
+    const cancel = document.getElementById('flow2-switch-cancel');
+    const closeBtn = document.getElementById('flow2-switch-close');
+    const confirm = document.getElementById('flow2-switch-confirm');
+    if (cancel) cancel.addEventListener('click', close);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (confirm) confirm.addEventListener('click', () => {
+      close();
+      flow2State = 3; applyFlow();
+      flowConfirmTimer = setTimeout(() => { flow2State = 4; applyFlow(); flowConfirmTimer = null; }, 5000);
+    });
+    m.addEventListener('click', e => { if (e.target === m) close(); });
+  })();
+  // Settled banner Switch back — branches by current flow + Flow 1 state
+  if (fBtn('flow2-settled-switchback-btn')) fBtn('flow2-settled-switchback-btn').addEventListener('click', () => {
+    if (currentFlow === 1 && flow1State === 'blondo-settled') { flow1State = 'list'; applyFlow(); return; }
+    if (currentFlow === 3) { flow3State = 1; applyFlow(); return; }
+    // Flow 2 → confirmation modal
+    switchModalContext = 'flow2';
+    const m = document.getElementById('switch-back-modal');
+    if (m) m.classList.add('open');
+  });
+  // Flow 3 transitions
+  if (fBtn('flow2-preview-btn')) {} // (preview button is shared; handled below per-flow)
+  // Preview-and-configure must branch by flow, so attach a flow-aware handler too:
+  if (fBtn('flow3-publish-btn')) fBtn('flow3-publish-btn').addEventListener('click', () => {
+    flow3State = 3; applyFlow();
+    flowConfirmTimer = setTimeout(() => { flow3State = 4; applyFlow(); flowConfirmTimer = null; }, 5000);
+  });
+  if (fBtn('flow3-exit-btn')) fBtn('flow3-exit-btn').addEventListener('click', () => { flow3State = 1; applyFlow(); });
+
+  // The "Preview and configure" button is shared by Flow 2 & Flow 3 (same banner element).
+  // Re-bind it to advance whichever flow is active.
+  if (fBtn('flow2-preview-btn')) fBtn('flow2-preview-btn').addEventListener('click', () => {
+    if (currentFlow === 3) { flow3State = 2; applyFlow(); }
+  });
+
   // Initial render
   render();
+  applyFlow();
 </script>
 
 </body>
