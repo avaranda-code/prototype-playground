@@ -1223,9 +1223,6 @@
     background: #fff; color: #1e242e;
     box-shadow: 0 1px 2px rgba(0,0,0,0.08);
   }
-  /* Flow 3 — fields with no new-UI equivalent appear disabled during configure */
-  .f3-disabled { opacity: 0.4; pointer-events: none; }
-
   /* ============ Flow 1 chat list (entry screen) ============ */
   .flow1-list-version {
     display: flex; flex-direction: column;
@@ -1732,7 +1729,6 @@
       <div class="flow-toggle" id="flow-toggle">
         <button class="active" data-flow="1">Flow 1</button>
         <button data-flow="2">Flow 2</button>
-        <button data-flow="3">Flow 3</button>
       </div>
       <div class="sidebar-section collapsed">
         <div class="sidebar-section-header">
@@ -1957,23 +1953,6 @@
       <button class="top-banner-btn" id="flow2-preview-btn">Preview new chat</button>
     </div>
 
-    <!-- Flow 3 · State 2 — Configure banner (pink), shown over the legacy form -->
-    <div class="top-banner pink" id="flow3-configure-banner" style="display:none">
-      <div class="top-banner-icon" aria-hidden="true">
-        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1.667 10S4.167 4.583 10 4.583 18.333 10 18.333 10 15.833 15.417 10 15.417 1.667 10 1.667 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M10 12.083a2.083 2.083 0 1 0 0-4.166 2.083 2.083 0 0 0 0 4.166Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="top-banner-text">
-        <span class="top-banner-title">You're viewing the new dashboard</span>
-        <span class="top-banner-desc">Edit your new chat. Either publish now or later.</span>
-      </div>
-      <div class="top-banner-actions">
-        <button class="top-banner-btn" id="flow3-publish-btn">Save and publish</button>
-        <button class="top-banner-btn secondary" id="flow3-exit-btn">Save and exit</button>
-      </div>
-    </div>
 
     <div class="legacy-content-row">
     <div class="legacy-page-area">
@@ -1997,7 +1976,7 @@
 
       <!-- Legacy Appearance form -->
       <div class="legacy-form" id="legacy-form-appearance">
-        <div class="legacy-section" data-f3-disable>
+        <div class="legacy-section">
           <div class="legacy-field">
             <label class="legacy-field-label">Chat title <span class="required">*</span></label>
             <input class="legacy-input" value="Glossier" />
@@ -2026,7 +2005,7 @@
                 <input id="legacy-brand-hex" value="#FFDFE2" />
               </div>
             </div>
-            <div class="legacy-field" data-f3-disable>
+            <div class="legacy-field">
               <label class="legacy-field-label">Conversation color</label>
               <div class="legacy-color-input">
                 <div class="swatch" style="background:#E8E8E8"></div>
@@ -2034,19 +2013,19 @@
               </div>
             </div>
           </div>
-          <label class="legacy-checkbox-row" style="margin-top:8px" data-f3-disable>
+          <label class="legacy-checkbox-row" style="margin-top:8px">
             <input type="checkbox" />
             <span class="text">Keep main color when outside business hours</span>
           </label>
         </div>
 
-        <div class="legacy-section" data-f3-disable>
+        <div class="legacy-section">
           <h2>Background style</h2>
           <label class="legacy-radio-row"><input type="radio" name="legacy-bg" checked /> <span class="legacy-radio-text">Gradient</span></label>
           <label class="legacy-radio-row"><input type="radio" name="legacy-bg" /> <span class="legacy-radio-text">Solid</span></label>
         </div>
 
-        <div class="legacy-section" data-f3-disable>
+        <div class="legacy-section">
           <h2>Font</h2>
           <select class="legacy-select"><option>Arial</option><option>Inter</option></select>
         </div>
@@ -3562,7 +3541,7 @@
   if (lPrivText) state.privacyText = lPrivText.value;
   if (lBrand) state.brandHex = lBrand.value;
 
-  // ===== Flow 1 / Flow 2 / Flow 3 prototype switching =====
+  // ===== Flow 1 / Flow 2 prototype switching =====
   let currentFlow = 1;
   // Flow 1 sub-state:
   //   'list'              — chat list (default entry)
@@ -3573,7 +3552,6 @@
   //   'blondo-settled'    — Blondo settled (lavender Switch back)
   let flow1State = 'list';
   let flow2State = 1;
-  let flow3State = 1;
   let flowConfirmTimer = null;
 
   const flowToggle = document.getElementById('flow-toggle');
@@ -3584,11 +3562,10 @@
   const f2ConfigBanner = document.getElementById('flow2-configure-banner');
   const f2ConfirmBanner = document.getElementById('flow2-confirm-banner');
   const f2SettledBanner = document.getElementById('flow2-settled-banner');
-  const f3ConfigBanner = document.getElementById('flow3-configure-banner');
   const legacyVariantDropdown = document.getElementById('legacy-variant-dropdown');
   const breadcrumbCurrent = document.querySelector('.breadcrumb .crumb.current');
   const defaultLogoRow = document.getElementById('default-logo-card-row');
-  const allFlowBanners = [f1LegacyBanner, f1NewBanner, f2PreviewBanner, f2ConfigBanner, f2ConfirmBanner, f2SettledBanner, f3ConfigBanner];
+  const allFlowBanners = [f1LegacyBanner, f1NewBanner, f2PreviewBanner, f2ConfigBanner, f2ConfirmBanner, f2SettledBanner];
 
   // ----- Brand swap (Glossier ↔ Blondo) -----
   const BLONDO_HEART_SVG = '<svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px"><path d="M14 24s-9-5.4-9-13a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 7.6-9 13-9 13z" stroke="#D6201F" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/></svg>';
@@ -3641,10 +3618,6 @@
     if (typeof render === 'function') render();
   }
 
-  function setF3Disabled(on) {
-    document.querySelectorAll('[data-f3-disable]').forEach(el => el.classList.toggle('f3-disabled', on));
-  }
-
   // In Flow 2's legacy preview, the During/Outside Business Hours toggle only
   // belongs on the Appearance tab — hide it on the Preferences (and other) tabs.
   function updateLegacyBizVisibility() {
@@ -3657,9 +3630,8 @@
   }
 
   function applyFlow() {
-    // Reset: hide every flow banner, clear Flow-3 disabling, hide chat list
+    // Reset: hide every flow banner, hide chat list
     allFlowBanners.forEach(b => { if (b) b.style.display = 'none'; });
-    setF3Disabled(false);
     updateLegacyBizVisibility();
     if (flow1ChatList) flow1ChatList.style.display = 'none';
 
@@ -3715,28 +3687,6 @@
       setVariant('current'); // old chat in the legacy preview (state 1)
       if (flow2State === 1) { legacyEl.style.display = 'flex'; newEl.style.display = 'none'; }
       else { legacyEl.style.display = 'none'; newEl.style.display = 'flex'; }
-      return;
-    }
-
-    // Flow 3
-    if (flow3State === 1) {
-      // Preview: legacy form + old chat
-      if (f2PreviewBanner) f2PreviewBanner.style.display = '';
-      setVariant('current');
-      legacyEl.style.display = 'flex'; newEl.style.display = 'none';
-    } else if (flow3State === 2) {
-      // Configure: KEEP legacy form (disable non-carryover fields) + show the NEW chat
-      if (f3ConfigBanner) f3ConfigBanner.style.display = '';
-      setVariant('new'); // new chat (lp-phone) in the legacy preview
-      setF3Disabled(true);
-      legacyEl.style.display = 'flex'; newEl.style.display = 'none';
-    } else if (flow3State === 3) {
-      // Published confirmation → fully new UI
-      if (f2ConfirmBanner) f2ConfirmBanner.style.display = '';
-      legacyEl.style.display = 'none'; newEl.style.display = 'flex';
-    } else if (flow3State === 4) {
-      if (f2SettledBanner) f2SettledBanner.style.display = '';
-      legacyEl.style.display = 'none'; newEl.style.display = 'flex';
     }
   }
 
@@ -3748,7 +3698,6 @@
         currentFlow = parseInt(btn.dataset.flow, 10);
         if (currentFlow === 1) flow1State = 'list';
         if (currentFlow === 2) flow2State = 1;
-        if (currentFlow === 3) flow3State = 1;
         if (flowConfirmTimer) { clearTimeout(flowConfirmTimer); flowConfirmTimer = null; }
         applyFlow();
       });
@@ -3783,7 +3732,7 @@
     else { flow2State = 1; }
     applyFlow();
   });
-  // Save and publish — Flow 2 opens a confirmation modal; Flow 1 Blondo + Flow 3 transition directly
+  // Save and publish — Flow 2 opens a confirmation modal; Flow 1 Blondo transitions directly
   if (fBtn('flow2-publish-btn')) fBtn('flow2-publish-btn').addEventListener('click', () => {
     if (currentFlow === 1 && flow1State === 'blondo-configure') {
       flow1State = 'blondo-confirm'; applyFlow();
@@ -3791,10 +3740,6 @@
     } else if (currentFlow === 2 && flow2State === 2) {
       const m = document.getElementById('flow2-switch-modal');
       if (m) m.classList.add('open');
-    } else {
-      // Flow 3 (configure state via Flow 2 button — not normally hit, but safe fallback)
-      flow2State = 3; applyFlow();
-      flowConfirmTimer = setTimeout(() => { flow2State = 4; applyFlow(); flowConfirmTimer = null; }, 5000);
     }
   });
   // Flow 2 "Switch to new chat" modal — Cancel / Update / Close / Backdrop
@@ -3817,25 +3762,10 @@
   // Settled banner Switch back — branches by current flow + Flow 1 state
   if (fBtn('flow2-settled-switchback-btn')) fBtn('flow2-settled-switchback-btn').addEventListener('click', () => {
     if (currentFlow === 1 && flow1State === 'blondo-settled') { flow1State = 'list'; applyFlow(); return; }
-    if (currentFlow === 3) { flow3State = 1; applyFlow(); return; }
     // Flow 2 → confirmation modal
     switchModalContext = 'flow2';
     const m = document.getElementById('switch-back-modal');
     if (m) m.classList.add('open');
-  });
-  // Flow 3 transitions
-  if (fBtn('flow2-preview-btn')) {} // (preview button is shared; handled below per-flow)
-  // Preview-and-configure must branch by flow, so attach a flow-aware handler too:
-  if (fBtn('flow3-publish-btn')) fBtn('flow3-publish-btn').addEventListener('click', () => {
-    flow3State = 3; applyFlow();
-    flowConfirmTimer = setTimeout(() => { flow3State = 4; applyFlow(); flowConfirmTimer = null; }, 5000);
-  });
-  if (fBtn('flow3-exit-btn')) fBtn('flow3-exit-btn').addEventListener('click', () => { flow3State = 1; applyFlow(); });
-
-  // The "Preview and configure" button is shared by Flow 2 & Flow 3 (same banner element).
-  // Re-bind it to advance whichever flow is active.
-  if (fBtn('flow2-preview-btn')) fBtn('flow2-preview-btn').addEventListener('click', () => {
-    if (currentFlow === 3) { flow3State = 2; applyFlow(); }
   });
 
   // Initial render
