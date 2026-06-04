@@ -1321,6 +1321,89 @@
   .preview.setup-mode #greeting-preview,
   .preview.setup-mode .quick-actions { display: none !important; }
 
+  /* Core flow — Glossier HOME chat preview (pink, matches Figma export) */
+  .legacy-phone.glossier-home {
+    width: 368px; height: 712px;
+    background: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
+    border-radius: 32px;
+    padding: 32px 20px 32px;
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    gap: 20px;
+  }
+  .glossier-home-bg {
+    position: absolute; inset: -200px;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .glossier-home > *:not(.glossier-home-bg) { position: relative; z-index: 1; }
+  .glossier-home-header {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; font-weight: 600;
+    line-height: 24px;
+    color: #1c1d1f;
+  }
+  .glossier-home-greeting {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px; font-weight: 700;
+    line-height: 28px;
+    color: #1c1d1f;
+    margin-top: -8px;
+  }
+  .glossier-home-livechat {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    padding: 12px;
+    height: 62px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: auto;
+    align-self: stretch;
+    margin-top: 4px;
+  }
+  .gh-left { display: flex; align-items: center; gap: 8px; }
+  .gh-avatar { width: 24px; height: 24px; position: relative; flex-shrink: 0; }
+  .gh-mark {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #FFDFE2;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800; font-style: italic;
+    font-size: 14px;
+    color: #e89a9f;
+    letter-spacing: -0.5px;
+  }
+  .gh-status-dot {
+    position: absolute; right: -1px; bottom: -1px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #38c172;
+    border: 1.5px solid #fff;
+  }
+  .gh-text { display: flex; flex-direction: column; gap: 0; }
+  .gh-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 500;
+    line-height: 20px;
+    color: #1c1d1f;
+  }
+  .gh-sublabel {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 400;
+    line-height: 16px;
+    color: #1c1d1f;
+  }
+  .gh-send {
+    width: 32px; height: 32px;
+    background: transparent;
+    border: none; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .gh-send:hover { background: rgba(0,0,0,0.04); }
+
   /* ============ "Set up" flow — 4-step wizard ============ */
   .setup-flow {
     display: flex;
@@ -2073,6 +2156,30 @@
   .legacy-preview-header .title-suffix {
     font-size: 13px; font-weight: 400; color: #5c6370;
   }
+  /* Home / chat view-toggle inside the legacy preview header */
+  .legacy-preview-header .view-toggle {
+    display: flex; gap: 4px;
+    border: 1px solid #ebecef;
+    border-radius: 8px;
+    padding: 2px;
+    background: #fff;
+    margin-left: auto;
+  }
+  .legacy-preview-header .view-toggle .icon-btn {
+    width: 28px; height: 24px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: #5c6370;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .legacy-preview-header .view-toggle .icon-btn:hover { background: #f6f7f8; }
+  .legacy-preview-header .view-toggle .icon-btn.active {
+    background: #ebecef;
+    color: #1e242e;
+  }
   /* Variant dropdown (Current / New (2.0)) — replaces the old pill toggle */
   .variant-dropdown { position: relative; }
   .variant-dropdown-trigger {
@@ -2241,6 +2348,28 @@
     display: flex; align-items: center; justify-content: center;
   }
   .legacy-automated { font-size: 11px; color: #6e7686; }
+
+  /* Quick-reply chip stack for the offline chat thread */
+  .legacy-quick-replies {
+    margin-top: auto;
+    display: flex; flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+    padding-top: 16px;
+  }
+  .legacy-qr-row { display: flex; gap: 8px; justify-content: flex-end; }
+  .legacy-qr {
+    background: #fff;
+    border: 1px solid #1e242e;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 500;
+    color: #1e242e;
+    cursor: pointer;
+    line-height: 16px;
+  }
+  .legacy-qr:hover { background: #f6f7f8; }
   .legacy-input-bar {
     border-top: 1px solid #ebecef;
     padding: 12px 16px;
@@ -2724,7 +2853,7 @@
           </div>
           <div class="legacy-field">
             <label class="legacy-field-label">Outside business hours</label>
-            <input class="legacy-input" id="legacy-greeting-outside" value="We're offline -- email us at gteam@glossier.com" />
+            <input class="legacy-input" id="legacy-greeting-outside" value="We'll be back tomorrow morning" />
           </div>
         </div>
 
@@ -2925,6 +3054,14 @@
         <div class="legacy-preview-top">
           <div class="legacy-preview-header">
             <div class="title">Chat preview</div>
+            <div class="view-toggle" id="legacy-view-toggle" role="group" aria-label="Preview Home or Conversation thread">
+              <button class="icon-btn active" data-view="home" title="Home" aria-label="Home">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 8L10 3L17 8V16C17 16.55 16.55 17 16 17H4C3.45 17 3 16.55 3 16V8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="icon-btn" data-view="chat" title="Conversation thread" aria-label="Conversation thread">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 5C3 4 4 3 5 3H13C14 3 15 4 15 5V11C15 12 14 13 13 13H8L4 16V13C3.4 13 3 12.5 3 12V5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
             <div class="variant-dropdown" id="legacy-variant-dropdown">
               <button class="variant-dropdown-trigger" id="legacy-variant-trigger" aria-haspopup="listbox" aria-expanded="false">
                 <span>Viewing: <span id="legacy-variant-label">Current</span></span>
@@ -3073,6 +3210,90 @@
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- Core flow: legacy HOME view (Glossier brand, pink gradient) -->
+          <div class="legacy-phone glossier-home" id="legacy-phone-glossier-home" style="display:none">
+            <div class="glossier-home-bg" aria-hidden="true">
+              <svg width="100%" height="100%" viewBox="0 0 368 712" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#gh_blur1)">
+                  <circle r="500" fill="url(#gh_g1)" fill-opacity="0.35" style="mix-blend-mode:screen"/>
+                </g>
+                <g filter="url(#gh_blur2)">
+                  <circle cx="430" cy="932" r="500" fill="url(#gh_g2)" fill-opacity="0.22" style="mix-blend-mode:screen"/>
+                </g>
+                <defs>
+                  <filter id="gh_blur1" x="-850" y="-850" width="1700" height="1700" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feGaussianBlur stdDeviation="175"/>
+                  </filter>
+                  <filter id="gh_blur2" x="-420" y="82" width="1700" height="1700" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feGaussianBlur stdDeviation="175"/>
+                  </filter>
+                  <radialGradient id="gh_g1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="rotate(90) scale(500)">
+                    <stop stop-color="#FF3377"/>
+                    <stop offset="1" stop-color="#CA6CB2"/>
+                  </radialGradient>
+                  <radialGradient id="gh_g2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(430 932) rotate(90) scale(500)">
+                    <stop stop-color="#FF3377"/>
+                    <stop offset="1" stop-color="#CA6CB2"/>
+                  </radialGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="glossier-home-header">Glossier</div>
+            <div class="glossier-home-greeting" id="glossier-home-greeting">How can we help?</div>
+            <div class="glossier-home-livechat">
+              <div class="gh-left">
+                <div class="gh-avatar">
+                  <div class="gh-mark">G</div>
+                  <div class="gh-status-dot"></div>
+                </div>
+                <div class="gh-text">
+                  <div class="gh-name">Glossier</div>
+                  <div class="gh-sublabel" id="gh-sublabel">Send us a message</div>
+                </div>
+              </div>
+              <button class="gh-send" aria-label="Send">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M9.00349 10.9964L12.8175 7.18228M16.7191 4.85461L13.4997 15.3179C13.2112 16.2556 13.0668 16.7247 12.818 16.8802C12.6021 17.015 12.3349 17.0376 12.0998 16.94C11.8287 16.8276 11.6087 16.3883 11.1698 15.5105L9.13069 11.4322C9.06105 11.2929 9.02619 11.2235 8.97967 11.1632C8.93839 11.1096 8.89074 11.0614 8.83719 11.0201C8.7782 10.9746 8.71001 10.9405 8.57693 10.874L4.48924 8.83014C3.61146 8.39124 3.17254 8.17159 3.06006 7.90053C2.96252 7.66545 2.98477 7.39796 3.11963 7.18211C3.27514 6.93322 3.74417 6.78863 4.68215 6.50002L15.1453 3.28054C15.8827 3.05364 16.2516 2.94028 16.5007 3.03172C16.7176 3.11137 16.8887 3.28224 16.9683 3.4992C17.0597 3.74816 16.9463 4.11683 16.7196 4.85352L16.7191 4.85461Z" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Core flow: legacy chat-thread, OUTSIDE business hours -->
+          <div class="legacy-phone" id="legacy-phone-offline-chat" style="display:none">
+            <div class="legacy-phone-header">
+              <div class="legacy-phone-title">Glossier</div>
+              <div class="legacy-phone-status">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5V8L10 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                <span>Back online at 9:00 AM</span>
+              </div>
+            </div>
+            <div class="legacy-phone-body">
+              <div style="text-align:center;font-size:11px;color:#9aa0a8;font-weight:600">JUNE 4</div>
+              <div class="legacy-bot-row">
+                <div class="legacy-bot-avatar">G</div>
+                <div class="legacy-bot-content">
+                  <div class="legacy-bot-name">Glossier Bot</div>
+                  <div class="legacy-bot-msg">Leave a message and we will email you once we are online.</div>
+                  <div class="legacy-bot-msg">What can we help you with?</div>
+                  <div class="legacy-automated">Automated</div>
+                </div>
+              </div>
+              <div class="legacy-quick-replies">
+                <div class="legacy-qr-row">
+                  <button class="legacy-qr">Track Order</button>
+                  <button class="legacy-qr">Report Issue</button>
+                </div>
+                <div class="legacy-qr-row">
+                  <button class="legacy-qr">Cancel Order</button>
+                  <button class="legacy-qr">Product Question</button>
+                </div>
+                <div class="legacy-qr-row">
+                  <button class="legacy-qr">Other</button>
+                </div>
+              </div>
+            </div>
+            <!-- No input bar — offline hours -->
           </div>
 
         </div>
@@ -3264,9 +3485,9 @@
                   type="text"
                   class="input compact"
                   id="greeting-outside"
-                  maxlength="50"
-                  placeholder="We'll be back soon"
-                  value="We'll be back soon"
+                  maxlength="60"
+                  placeholder="We'll be back tomorrow morning"
+                  value="We'll be back tomorrow morning"
                 />
               </div>
             </div>
@@ -3919,7 +4140,7 @@
     privacyEnabled: true, // Privacy section is always-on in the updated UI (no toggle)
     privacyOnHome: false,
     greetingDuring: 'How can we help?',
-    greetingOutside: "We'll be back soon",
+    greetingOutside: "We'll be back tomorrow morning",
     privacyText: '',
     brandHex: '#FFDFE2',
     collectEmails: false,
@@ -4124,13 +4345,16 @@
 
     // View toggle (new view) — Home / Conversation thread icon buttons
     $$('#view-toggle .icon-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
+    $$('#legacy-view-toggle .icon-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
+    // Core flow preview phone swap reacts to view/biz changes
+    if (typeof updateCorePreviewPhone === 'function') updateCorePreviewPhone();
 
     // Biz toggle visual (both new + legacy)
     $$('.biz-toggle button').forEach(b => b.classList.toggle('active', b.dataset.biz === state.bizMode));
 
-    // Biz-toggle (NEW prototype) only visible on Appearance tab
+    // Biz-toggle (NEW prototype) — visible on every settings tab including Preferences
     const bizSection = document.querySelector('.biz-toggle-section');
-    if (bizSection) bizSection.style.visibility = state.panel === 'appearance' ? '' : 'hidden';
+    if (bizSection) bizSection.style.visibility = '';
 
     // NEW prototype settings UI feedback (these elements don't exist in the legacy form)
     const startAutoToggle = $('#start-automation-toggle');
@@ -4610,15 +4834,46 @@
     if (typeof render === 'function') render();
   }
 
-  // In Flow 2's legacy preview, the During/Outside Business Hours toggle only
-  // belongs on the Appearance tab — hide it on the Preferences (and other) tabs.
+  // Core flow (Flow 3) preview state — pick which phone to show in the legacy preview
+  // based on view (home/chat) and bizMode (during/outside).
+  function updateCorePreviewPhone() {
+    const lp = document.getElementById('lp-phone');
+    const cur = document.getElementById('legacy-phone-current');
+    const offline = document.getElementById('legacy-phone-offline-chat');
+    const gHome = document.getElementById('legacy-phone-glossier-home');
+    if (!lp || !cur || !offline || !gHome) return;
+    if (typeof currentFlow !== 'undefined' && currentFlow === 3 && typeof flow3State !== 'undefined' && flow3State === 'preview') {
+      if (state.view === 'home') {
+        gHome.style.display = ''; lp.style.display = 'none'; cur.style.display = 'none'; offline.style.display = 'none';
+        // Bind greeting + sublabel + avatar dot to bizMode
+        const greetEl = document.getElementById('glossier-home-greeting');
+        if (greetEl) greetEl.textContent = state.bizMode === 'during' ? state.greetingDuring : state.greetingOutside;
+        const subEl = document.getElementById('gh-sublabel');
+        if (subEl) subEl.textContent = state.bizMode === 'during' ? 'Send us a message' : 'Leave us a message';
+        const dotEl = gHome.querySelector('.gh-status-dot');
+        if (dotEl) dotEl.style.display = state.bizMode === 'during' ? '' : 'none';
+      } else {
+        // chat-thread view
+        gHome.style.display = 'none';
+        if (state.bizMode === 'during') {
+          lp.style.display = 'none'; cur.style.display = ''; offline.style.display = 'none';
+        } else {
+          lp.style.display = 'none'; cur.style.display = 'none'; offline.style.display = '';
+        }
+      }
+    } else {
+      // Not in Core preview — hide the bespoke phones; setVariant manages the others
+      offline.style.display = 'none';
+      gHome.style.display = 'none';
+    }
+  }
+
+  // Legacy preview: always show the During/Outside Business Hours toggle,
+  // regardless of which settings tab (Appearance, Preferences, etc.) is active.
   function updateLegacyBizVisibility() {
     const section = document.getElementById('legacy-biz-toggle-section');
     if (!section) return;
-    const activeTab = document.querySelector('.legacy-tab.active');
-    const tab = activeTab ? activeTab.dataset.legacyTab : 'appearance';
-    const hide = (currentFlow === 2) && (tab !== 'appearance');
-    section.style.display = hide ? 'none' : '';
+    section.style.display = '';
   }
 
   // ===== Setup-flow refs + helpers =====
@@ -4671,11 +4926,13 @@
   }
 
   function applyFlow() {
-    // Reset: hide every flow banner, hide chat list, hide setup flow
+    // Reset: hide every flow banner, hide chat list, hide setup flow, drop Core dark preview
     allFlowBanners.forEach(b => { if (b) b.style.display = 'none'; });
     updateLegacyBizVisibility();
     if (flow1ChatList) flow1ChatList.style.display = 'none';
     if (setupEl) setupEl.style.display = 'none';
+    const _lpAside = document.querySelector('aside.legacy-preview');
+    if (_lpAside) _lpAside.classList.remove('core-preview-dark', 'core-preview-glossier');
 
     // Setup flow takes over the whole content area
     if (currentFlow === 'setup') {
@@ -4757,7 +5014,8 @@
       if (legacyVariantDropdown) legacyVariantDropdown.style.display = 'none';
       if (flow3State === 'preview') {
         if (f3PanelPreview) f3PanelPreview.style.display = '';
-        setVariant('current');
+        // Show the appropriate Glossier phone in the legacy preview based on view + bizMode
+        updateCorePreviewPhone();
         legacyEl.style.display = 'flex'; newEl.style.display = 'none';
       } else if (flow3State === 'configure') {
         if (f3PanelConfigure) f3PanelConfigure.style.display = '';
