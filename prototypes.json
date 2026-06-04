@@ -16,12 +16,12 @@
     "image": "ads-to-convo.png"
   },
   {
-    "name": "Kollo · Ads to Messaging (user testing)",
+    "name": "MyPure · Ads to Messaging",
     "author": "Ava",
-    "date": "2026-05-29",
-    "description": "Kollo-only build of the ads-to-messaging prototype for user testing. Locked to the Kollo brand, no top nav (brand selector, reset, edit panel, title all stripped), and the OG flow is hidden — toggle shows only PDP / Halfsheet / Direct to chat.",
-    "file": "kollo_gorgias_ads_to_messaging.html",
-    "image": "kollo_gorgias_ads_to_messaging.png"
+    "date": "2026-06-02",
+    "description": "MyPure build of the ads-to-messaging prototype: Instagram ad → PDP / Half-sheet / Direct to chat flows with multi-turn AI dialogue, defaulting to the MyPure brand (lavera Hyaluron foundation). Topbar flow toggle plus brand selector, reset, and live edit panel.",
+    "file": "mypure_ads_to_messaging.html",
+    "image": "mypure_ads_to_messaging.png"
   },
   {
     "name": "Farmacy · Cart Recovery Chat",
