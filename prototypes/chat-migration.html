@@ -2812,6 +2812,7 @@
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8L10 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <h1>Glossier</h1>
+        <button class="save-btn" id="legacy-save-header-btn" style="margin-left:auto">Save</button>
       </div>
 
       <!-- Flow 3 — In-panel pink preview banner (sits inside the left settings panel) -->
@@ -5026,8 +5027,8 @@
       }
     }
 
-    // Save button: hidden in Flow 3 configure (the in-panel banner has "Update chat")
-    const saveBtn = document.querySelector('.save-btn');
+    // Save button (new-version header): hidden in Flow 3 configure (the in-panel banner has "Update chat")
+    const saveBtn = document.querySelector('#new-version .save-btn');
     if (saveBtn) saveBtn.style.display = (currentFlow === 3 && flow3State === 'configure') ? 'none' : '';
     // Header tertiary Switch back: only shown in Flow 3 settled
     const headerSwitchBack = document.getElementById('flow3-header-switchback-btn');
