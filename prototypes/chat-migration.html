@@ -1112,10 +1112,18 @@
     padding: 0 24px 24px;
   }
   .legacy-save-btn {
-    background: #1e242e; color: #fff;
+    background: #b3b8c1;
+    color: #fdfdfc;
     border-radius: 8px;
-    padding: 8px 16px;
+    border: none;
+    height: 32px;
+    padding: 0 12px;
+    font-family: 'Inter', sans-serif;
     font-size: 14px; font-weight: 600;
+    line-height: 20px;
+    cursor: not-allowed;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 4px;
   }
 
   /* Legacy preview area (right side) — single floating white card */
@@ -2812,7 +2820,7 @@
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8L10 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <h1>Glossier</h1>
-        <button class="save-btn" id="legacy-save-header-btn" style="margin-left:auto">Save</button>
+        <button class="legacy-save-btn" id="legacy-save-header-btn" style="margin-left:auto" disabled>Save</button>
       </div>
 
       <!-- Flow 3 — In-panel pink preview banner (sits inside the left settings panel) -->
