@@ -46,5 +46,13 @@
     "description": "Gorgias admin (Axiom) Shopping Assistant settings page. Pick a selling-style archetype (Educational / Guided / Bold) and a live chat preview swaps to a matching sample transcript. Includes a Discount strategy sub-tab (No discount / On abandonment / Strategic / Generous + fixed-discount input and Shopify auto-discounts note) and a Contextual rules sub-tab with togglable behavior rules. Hand-rewritten from a Lovable React export into a single self-contained HTML file.",
     "file": "ai-assistant-settings.html",
     "image": "ai-assistant-settings.png"
+  },
+  {
+    "name": "Shopping Assistant typing animations",
+    "author": "Ava",
+    "date": "2026-06-04",
+    "description": "Showcase of typing / loading indicators for the Estaluna shopping-assistant chat. Six variants shown in identical chat shells: four human-typing styles (bouncing dots, fading dots in a glass bubble with a sweeping glow, ripple dots, and a single sweeping dot) and two AI-loading styles (a spinning sparkle star with wave bars, and breathing bars). Hand-rewritten from a Lovable React export into a single self-contained HTML file.",
+    "file": "shopping-assistant-typing-animations.html",
+    "image": "shopping-assistant-typing-animations.png"
   }
 ]
