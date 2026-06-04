@@ -1316,6 +1316,633 @@
   }
   .header-tertiary-btn:hover { background: rgba(0,0,0,0.04); }
 
+  /* In the Set up flow the chat preview is intentionally minimal —
+     hide the greeting and quick-action chips on the home view. */
+  .preview.setup-mode #greeting-preview,
+  .preview.setup-mode .quick-actions { display: none !important; }
+
+  /* ============ "Set up" flow — 4-step wizard ============ */
+  .setup-flow {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 8px 8px 0 0;
+    gap: 8px;
+  }
+  .setup-page {
+    flex-grow: 1;
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 16px;
+    min-width: 0;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .setup-page-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 24px 16px;
+  }
+  .setup-back-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: #fff;
+    border: 0.5px solid #b3b8c1;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.05);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .setup-back-btn:hover { background: #f6f7f8; }
+  .setup-page-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px; font-weight: 600;
+    color: #1e242e;
+    line-height: 28px;
+  }
+  .setup-stepper {
+    display: flex; gap: 8px;
+    padding: 0 24px 16px;
+    overflow-x: auto;
+  }
+  .setup-step-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 32px;
+    padding: 0 14px 0 6px;
+    background: #f3f4f6;
+    border-radius: 999px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: #5c6370;
+    white-space: nowrap;
+    cursor: default;
+  }
+  .setup-step-pill .num {
+    width: 22px; height: 22px;
+    border-radius: 999px;
+    background: #d5d7dd;
+    color: #1e242e;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+  }
+  .setup-step-pill.active {
+    background: #f1ecff;
+    color: #1e242e;
+    font-weight: 600;
+  }
+  .setup-step-pill.active .num { background: #683fcf; color: #fff; }
+  .setup-step-pill.done .num {
+    background: #1e242e;
+    color: #fff;
+  }
+  .setup-step-pill.done .num svg { width: 12px; height: 12px; }
+  .setup-step-pill.done { color: #1e242e; }
+
+  .setup-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 8px 24px 16px;
+  }
+  .setup-step-panel { display: none; }
+  .setup-step-panel.active { display: block; }
+  .setup-card {
+    border: 1px solid #ebecef;
+    border-radius: 12px;
+    padding: 24px;
+    background: #fff;
+  }
+  .setup-section-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; font-weight: 600;
+    color: #1e242e;
+    line-height: 24px;
+    margin-bottom: 16px;
+  }
+  .setup-field-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: #1e242e;
+    line-height: 20px;
+    display: inline-flex; align-items: center; gap: 2px;
+    margin-bottom: 6px;
+  }
+  .setup-field-label .required { color: #d90b28; }
+  .setup-field-help {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 400;
+    color: #5c6370;
+    line-height: 16px;
+    margin-top: 6px;
+  }
+  .setup-field-block { margin-bottom: 20px; }
+  .setup-field-block:last-child { margin-bottom: 0; }
+  .setup-input,
+  .setup-select {
+    width: 100%;
+    height: 32px;
+    border: 1px solid #ebecef;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 400;
+    color: #1e242e;
+    line-height: 20px;
+    background: #fff;
+    box-sizing: border-box;
+  }
+  .setup-input:focus, .setup-select:focus { outline: none; border-color: #683fcf; }
+  .setup-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'><path d='M11.46 6.77L8 10.23L4.54 6.77' stroke='%231E242E' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 32px;
+  }
+  .setup-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: #683fcf;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    background: none; border: none; padding: 0;
+    margin-top: 8px;
+  }
+  .setup-link:hover { text-decoration: underline; }
+
+  /* Radio group */
+  .setup-radio {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 10px 0;
+    cursor: pointer;
+  }
+  .setup-radio + .setup-radio { padding-top: 10px; }
+  .setup-radio .radio-dot {
+    width: 16px; height: 16px;
+    border-radius: 999px;
+    border: 1px solid #b3b8c1;
+    background: #fff;
+    box-shadow: inset 1px 2px 3px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .setup-radio.selected .radio-dot {
+    border-color: #1e242e;
+  }
+  .setup-radio.selected .radio-dot::after {
+    content: ''; width: 8px; height: 8px; border-radius: 999px;
+    background: #1e242e;
+  }
+  .setup-radio-body { display: flex; flex-direction: column; gap: 2px; }
+  .setup-radio-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: #1e242e;
+    line-height: 20px;
+  }
+  .setup-radio-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 400;
+    color: #5c6370;
+    line-height: 16px;
+  }
+
+  /* Brand color input (matches existing brand-color but local) */
+  .setup-brand-color {
+    display: flex; align-items: stretch;
+    width: 240px;
+    height: 32px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .setup-brand-color .swatch-wrap {
+    width: 32px;
+    border: 1px solid #ebecef;
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 6px;
+    background: #fff;
+  }
+  .setup-brand-color .chip {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    background: #FFDFE2;
+  }
+  .setup-brand-color input {
+    flex-grow: 1;
+    border: 1px solid #ebecef;
+    border-radius: 0 6px 6px 0;
+    padding: 6px 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 400;
+    color: #1e242e;
+    line-height: 20px;
+    background: #fff;
+    box-sizing: border-box;
+  }
+  .setup-brand-color input:focus { outline: none; }
+
+  /* Connect-store select with Shopify icon */
+  .setup-store-select {
+    position: relative;
+    width: 100%;
+    height: 32px;
+    border: 1px solid #ebecef;
+    border-radius: 6px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 32px 6px 8px;
+    background: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 400;
+    color: #1e242e;
+    cursor: pointer;
+  }
+  .setup-store-select .store-icon {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    background: #96bf47;
+    color: #fff;
+    font-size: 10px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .setup-store-select::after {
+    content: '';
+    position: absolute; right: 8px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'><path d='M11.46 6.77L8 10.23L4.54 6.77' stroke='%231E242E' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat; background-position: center;
+  }
+
+  /* Logo cards (step 2) */
+  .setup-logo-cards {
+    display: flex; gap: 16px;
+    margin-top: 8px;
+  }
+  .setup-logo-card {
+    flex: 1;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    padding: 12px 16px;
+    display: flex; flex-direction: column; gap: 16px;
+    min-height: 138px;
+  }
+  .setup-logo-card .card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 600;
+    color: #1e242e;
+    line-height: 20px;
+  }
+  .setup-logo-card .card-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 400;
+    color: #5c6370;
+    line-height: 16px;
+    margin-top: 4px;
+  }
+  .setup-logo-card .add-btn {
+    background: rgba(255,255,255,0.5);
+    border: 0.5px solid rgba(103, 113, 131, 0.5);
+    border-radius: 6px;
+    height: 24px;
+    padding: 0 8px 0 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 600;
+    color: #1e242e;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.05);
+    align-self: flex-start;
+  }
+  .setup-logo-card .logo-thumb {
+    background: #FFDFE2;
+    border-radius: 6px;
+    height: 50px;
+    width: 116px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Georgia', serif;
+    font-size: 14px; font-weight: 400;
+    color: #1e242e;
+    flex-shrink: 0;
+  }
+  .setup-logo-card .logo-row {
+    display: flex; align-items: center; gap: 8px;
+    align-self: flex-start;
+  }
+  .setup-logo-card .remove-btn {
+    background: transparent; border: none; padding: 4px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Launcher position row (step 2) */
+  .setup-launcher-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .setup-launcher-row .col label {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: #1e242e;
+    margin-bottom: 6px;
+  }
+  .setup-px-wrap { position: relative; }
+  .setup-px-wrap input {
+    width: 100%;
+    height: 32px;
+    border: 1px solid #ebecef;
+    border-radius: 6px;
+    padding: 6px 28px 6px 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 400;
+    color: #1e242e;
+    background: #fff;
+    box-sizing: border-box;
+  }
+  .setup-px-wrap .px-suffix {
+    position: absolute; right: 8px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 400;
+    color: #6e7686;
+    pointer-events: none;
+  }
+
+  /* Order management card (step 3) */
+  .setup-order-card {
+    border: 1px solid #ebecef;
+    border-radius: 12px;
+    padding: 16px 20px;
+    background: #fff;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .setup-order-card .order-text { flex: 1; }
+  .setup-order-card .order-title-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px;
+  }
+  .setup-order-card .order-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; font-weight: 600;
+    color: #1e242e;
+    line-height: 24px;
+  }
+  .setup-order-card .order-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #f1ecff;
+    color: #1e242e;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px; font-weight: 600;
+    line-height: 14px;
+  }
+  .setup-order-card .order-badge::before { content: '⚡'; color: #683fcf; }
+  .setup-order-card .order-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 400;
+    color: #5c6370;
+    line-height: 20px;
+  }
+  .setup-axiom-toggle {
+    width: 28px; height: 16px;
+    background: #d5d7dd;
+    border-radius: 999px;
+    padding: 2px;
+    display: inline-flex; align-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 4px;
+    box-shadow: inset 1px 2px 3px rgba(0,0,0,0.06);
+    transition: background 0.2s;
+  }
+  .setup-axiom-toggle .knob {
+    width: 12px; height: 12px;
+    border-radius: 999px;
+    background: #fff;
+    transition: transform 0.2s;
+  }
+  .setup-axiom-toggle.on { background: #683fcf; }
+  .setup-axiom-toggle.on .knob { transform: translateX(12px); }
+
+  /* Footer (step nav) */
+  .setup-footer {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 24px;
+    border-top: 1px solid #ebecef;
+    background: #fff;
+  }
+  .setup-btn {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: none;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.05);
+  }
+  .setup-btn.primary { background: #1e242e; color: #fff; }
+  .setup-btn.primary:hover { background: #2c333f; }
+  .setup-btn.secondary {
+    background: rgba(255,255,255,0.5);
+    color: #1e242e;
+    border: 0.5px solid rgba(103, 113, 131, 0.5);
+  }
+  .setup-btn.secondary:hover { background: rgba(255,255,255,0.8); }
+  .setup-btn.tertiary {
+    background: transparent;
+    color: #1e242e;
+    box-shadow: none;
+  }
+  .setup-btn.tertiary:hover { background: rgba(0,0,0,0.04); }
+
+  /* ============ Setup-flow chat preview (right side) ============ */
+  .setup-preview {
+    width: 480px;
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid #ebecef;
+    border-radius: 16px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .setup-preview-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 16px 12px;
+  }
+  .setup-preview-header .title {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; font-weight: 600;
+    color: #1e242e;
+  }
+  .setup-preview-header .pv-icons {
+    display: flex; gap: 4px;
+  }
+  .setup-preview-header .pv-icons button {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: transparent; border: none;
+    color: #5c6370;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .setup-preview-header .pv-icons button:hover { background: #f3f4f6; color: #1e242e; }
+  .setup-preview-biz {
+    margin: 0 16px 12px;
+    border-radius: 8px;
+    background: #f6f7f8;
+    padding: 3px;
+    display: flex;
+  }
+  .setup-preview-biz button {
+    flex: 1;
+    height: 28px;
+    background: transparent; border: none;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: #5c6370;
+    cursor: pointer;
+  }
+  .setup-preview-biz button.active {
+    background: #fff;
+    color: #1e242e;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .setup-phone-wrap {
+    flex-grow: 1;
+    background: #f6f7f8;
+    padding: 16px;
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .setup-phone {
+    flex-grow: 1;
+    background: radial-gradient(140% 60% at 50% 0%, #4a4a4a 0%, #1e1e1e 60%, #0a0a0a 100%);
+    border-radius: 14px;
+    padding: 16px 16px 24px;
+    position: relative;
+    display: flex; flex-direction: column;
+    color: #fff;
+    overflow: hidden;
+  }
+  .setup-phone-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 600;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .setup-phone-greeting {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .setup-tile {
+    background: #fff;
+    color: #1e242e;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 500;
+  }
+  .setup-tile .tile-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .setup-tile .tile-text { flex-grow: 1; }
+  .setup-tile .chev svg { display: block; }
+  .setup-tile.live { padding: 10px 14px; }
+  .setup-tile.live .avatars {
+    display: inline-flex; align-items: center;
+    flex-shrink: 0;
+  }
+  .setup-tile.live .avatars .av {
+    width: 24px; height: 24px;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600;
+    color: #fff;
+  }
+  .setup-tile.live .avatars .av + .av { margin-left: -8px; }
+  .setup-tile.live .av-a { background: #c8a4f5; }
+  .setup-tile.live .av-l { background: #f5b3a4; position: relative; }
+  .setup-tile.live .av-l::after {
+    content: ''; position: absolute; bottom: 0; right: 0;
+    width: 7px; height: 7px; border-radius: 999px;
+    background: #2eb27d; border: 1.5px solid #fff;
+  }
+  .setup-tile.live .av-j { background: #b7d4f3; }
+  .setup-tile.live .live-text { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; }
+  .setup-tile.live .live-name { font-size: 14px; font-weight: 600; color: #1e242e; }
+  .setup-tile.live .live-sub { font-size: 12px; font-weight: 400; color: #5c6370; }
+  .setup-prev-link {
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 4px;
+    cursor: pointer;
+  }
+  .setup-privacy {
+    margin-top: auto;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex; align-items: flex-start; gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 400;
+    color: #d8dadd;
+    line-height: 15px;
+  }
+  .setup-privacy .priv-text { flex-grow: 1; }
+  .setup-privacy .priv-text a { color: #d8dadd; text-decoration: underline; }
+  .setup-privacy .priv-close {
+    background: transparent; border: none; padding: 0;
+    color: #d8dadd; cursor: pointer;
+    width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .setup-launcher-fab {
+    position: absolute;
+    right: 24px; bottom: 24px;
+    width: 44px; height: 44px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f9c6e8 0%, #d8a4f5 50%, #a98bf5 100%);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+  }
+  .setup-down-fab {
+    position: absolute;
+    right: 24px; bottom: 80px;
+    width: 36px; height: 36px;
+    border-radius: 999px;
+    background: #1e242e;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.20);
+    cursor: pointer;
+  }
+
   /* ============ Flow 1 chat list (entry screen) ============ */
   .flow1-list-version {
     display: flex; flex-direction: column;
@@ -1820,9 +2447,10 @@
     <div class="sidebar-nav">
       <!-- Flow 1 / Flow 2 prototype toggle -->
       <div class="flow-toggle" id="flow-toggle">
-        <button class="active" data-flow="1">Flow 1</button>
-        <button data-flow="2">Flow 2</button>
-        <button data-flow="3">Flow 3</button>
+        <button class="active" data-flow="3">Core</button>
+        <button data-flow="1">Multi list</button>
+        <button data-flow="setup">Setup</button>
+        <button data-flow="2">xed</button>
       </div>
       <div class="sidebar-section collapsed">
         <div class="sidebar-section-header">
@@ -2998,6 +3626,217 @@
   </div>
   <!-- /new-version -->
 
+  <!-- ============ "Set up" flow — 4-step wizard ============ -->
+  <div class="setup-flow" id="setup-flow" style="display:none">
+    <div class="setup-page">
+      <div class="setup-page-header">
+        <button class="setup-back-btn" id="setup-header-back" title="Back to chat list">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8L10 12" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="setup-page-title">very-good-things-store</div>
+      </div>
+
+      <div class="setup-stepper" id="setup-stepper">
+        <div class="setup-step-pill active" data-step="1"><span class="num">1</span><span>Set up the basics</span></div>
+        <div class="setup-step-pill" data-step="2"><span class="num">2</span><span>Brand</span></div>
+        <div class="setup-step-pill" data-step="3"><span class="num">3</span><span>Enable order management</span></div>
+        <div class="setup-step-pill" data-step="4"><span class="num">4</span><span>Install and launch</span></div>
+      </div>
+
+      <div class="setup-content" id="setup-content">
+
+        <!-- Step 1: Set up the basics -->
+        <div class="setup-step-panel active" data-step="1">
+          <div class="setup-card">
+            <div class="setup-section-title">Set up the basics</div>
+
+            <div class="setup-field-block">
+              <label class="setup-field-label" for="setup-chat-title">Chat title<span class="required">*</span></label>
+              <input type="text" id="setup-chat-title" class="setup-input" value="very-good-things-store" />
+              <div class="setup-field-help">Give your chat a name for internal reference. This title won't be visible to customers.</div>
+            </div>
+
+            <div class="setup-field-block">
+              <label class="setup-field-label" for="setup-lang">Default language<span class="required">*</span></label>
+              <select id="setup-lang" class="setup-select">
+                <option>English - US</option>
+                <option>English - UK</option>
+                <option>French</option>
+                <option>Spanish</option>
+                <option>German</option>
+              </select>
+              <div class="setup-field-help">Select the main language for your chat. Add more languages as needed.</div>
+              <button class="setup-link" type="button">+ Add language</button>
+            </div>
+
+            <div class="setup-field-block">
+              <div class="setup-field-label">Choose where you'll install your chat</div>
+              <div class="setup-radio selected" data-group="install-loc" data-value="ecom">
+                <span class="radio-dot"></span>
+                <div class="setup-radio-body">
+                  <span class="setup-radio-title">Ecommerce platforms</span>
+                  <span class="setup-radio-desc">Shopify, Magento, BigCommerce</span>
+                </div>
+              </div>
+              <div class="setup-radio" data-group="install-loc" data-value="any">
+                <span class="radio-dot"></span>
+                <div class="setup-radio-body">
+                  <span class="setup-radio-title">Any other website</span>
+                  <span class="setup-radio-desc">Websites, knowledge bases, etc.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="setup-field-block">
+              <label class="setup-field-label">Connect a store<span class="required">*</span></label>
+              <div class="setup-store-select" id="setup-store-select">
+                <span class="store-icon">S</span>
+                <span>very-good-things-store</span>
+              </div>
+              <div class="setup-field-help">Link your store to enable AI Agent features and quick Shopify installation.</div>
+            </div>
+
+            <div class="setup-field-block">
+              <div class="setup-field-label">Choose how to connect with customers</div>
+              <div class="setup-radio selected" data-group="connect-mode" data-value="live">
+                <span class="radio-dot"></span>
+                <div class="setup-radio-body">
+                  <span class="setup-radio-title">Allow live chat messages</span>
+                  <span class="setup-radio-desc">Creates live chat tickets when an agent is available during business hours.</span>
+                </div>
+              </div>
+              <div class="setup-radio" data-group="connect-mode" data-value="offline">
+                <span class="radio-dot"></span>
+                <div class="setup-radio-body">
+                  <span class="setup-radio-title">Allow only offline capture messages</span>
+                  <span class="setup-radio-desc">Creates offline capture tickets that you can respond to by email at any moment.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Brand -->
+        <div class="setup-step-panel" data-step="2">
+          <div class="setup-card">
+            <div class="setup-section-title">Brand</div>
+            <div style="font-family:'Inter',sans-serif;font-size:14px;color:#5c6370;line-height:20px;margin-bottom:24px">Give the chat widget your brand's look and feel</div>
+
+            <div class="setup-field-block">
+              <label class="setup-field-label" for="setup-brand-hex">Brand color</label>
+              <div class="setup-field-help" style="margin-top:0;margin-bottom:8px">Make your chat fit in with your brand color</div>
+              <div class="setup-brand-color">
+                <div class="swatch-wrap"><div class="chip" id="setup-brand-chip"></div></div>
+                <input type="text" id="setup-brand-hex" value="#FFDFE2" maxlength="7" />
+              </div>
+            </div>
+
+            <div class="setup-field-block">
+              <label class="setup-field-label">Home page logo</label>
+              <div class="setup-field-help" style="margin-top:0">Add a PNG, JPG or GIF horizontal logo with a transparent background. You only need an alternative logo if your default isn't visible on white backgrounds.</div>
+              <div class="setup-logo-cards">
+                <div class="setup-logo-card" id="setup-default-logo-card">
+                  <div>
+                    <div class="card-title">Default logo</div>
+                    <div class="card-desc">Works on your brand color</div>
+                  </div>
+                  <div id="setup-default-logo-slot">
+                    <button class="add-btn" id="setup-default-logo-add">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3.5 8H8M8 8H12.5M8 8V12.5M8 8V3.5" stroke="#1E242E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      Add logo
+                    </button>
+                  </div>
+                </div>
+                <div class="setup-logo-card">
+                  <div>
+                    <div class="card-title">Alternative logo</div>
+                    <div class="card-desc">Works on white backgrounds</div>
+                  </div>
+                  <button class="add-btn">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3.5 8H8M8 8H12.5M8 8V12.5M8 8V3.5" stroke="#1E242E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Add logo
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="setup-field-block">
+              <label class="setup-field-label">Launcher position</label>
+              <div class="setup-field-help" style="margin-top:0">Control where the launcher sits on your page.</div>
+              <div class="setup-launcher-row">
+                <div class="col">
+                  <label>Position</label>
+                  <select class="setup-select">
+                    <option>Bottom right</option>
+                    <option>Bottom left</option>
+                    <option>Top right</option>
+                    <option>Top left</option>
+                  </select>
+                </div>
+                <div class="col">
+                  <label>Move horizontally</label>
+                  <div class="setup-px-wrap"><input type="text" value="0" /><span class="px-suffix">px</span></div>
+                </div>
+                <div class="col">
+                  <label>Move vertically</label>
+                  <div class="setup-px-wrap"><input type="text" value="0" /><span class="px-suffix">px</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Enable order management -->
+        <div class="setup-step-panel" data-step="3">
+          <div class="setup-order-card">
+            <div class="order-text">
+              <div class="order-title-row">
+                <div class="order-title">Order management</div>
+                <div class="order-badge">Automate up to 30% of tickets</div>
+              </div>
+              <div class="order-desc">Let customers sign in to track, return, cancel or report issues with orders.</div>
+            </div>
+            <div class="setup-axiom-toggle on" id="setup-order-toggle" role="switch" aria-checked="true">
+              <span class="knob"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Install and launch -->
+        <div class="setup-step-panel" data-step="4">
+          <div class="setup-card">
+            <div class="setup-section-title">Installation method</div>
+            <div class="setup-radio selected" data-group="install-method" data-value="quick">
+              <span class="radio-dot"></span>
+              <div class="setup-radio-body">
+                <span class="setup-radio-title">Quick install for Shopify</span>
+                <span class="setup-radio-desc">Install chat in a few clicks. In the Shopify window, select Install, then Save—no edits needed.</span>
+              </div>
+            </div>
+            <div class="setup-radio" data-group="install-method" data-value="manual">
+              <span class="radio-dot"></span>
+              <div class="setup-radio-body">
+                <span class="setup-radio-title">Install manually</span>
+                <span class="setup-radio-desc">Install chat on non-Shopify stores, Shopify Headless, specific Shopify pages, or any other website.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-footer">
+        <button class="setup-btn secondary" id="setup-back-btn" style="display:none">Back</button>
+        <button class="setup-btn primary" id="setup-continue-btn">Continue</button>
+        <button class="setup-btn primary" id="setup-install-btn" style="display:none">Install</button>
+        <button class="setup-btn tertiary" id="setup-exit-btn">Save and Exit</button>
+        <button class="setup-btn tertiary" id="setup-save-install-later-btn" style="display:none">Save &amp; Install Later</button>
+      </div>
+    </div>
+
+    <!-- Right-side chat preview — the real .preview aside is moved here when this flow is active -->
+  </div>
+  <!-- /setup-flow -->
+
   <!-- Confirmation Modal for switching back to previous chat -->
   <div class="modal-overlay" id="switch-back-modal">
     <div class="modal-card">
@@ -3186,7 +4025,11 @@
     const liveChatPill = p('live-chat-pill');
     if (liveChatPill) liveChatPill.style.display = state.startWithAutomation ? 'none' : '';
     const liveChatLabel = p('live-chat-label');
-    if (liveChatLabel) liveChatLabel.textContent = state.bizMode === 'during' ? 'Chat with us' : 'Leave us a message';
+    if (liveChatLabel) {
+      const inSetup = (typeof currentFlow !== 'undefined' && currentFlow === 'setup');
+      const duringLabel = inSetup ? 'Send us a message' : 'Chat with us';
+      liveChatLabel.textContent = state.bizMode === 'during' ? duringLabel : 'Leave us a message';
+    }
     const liveChatAvatar = p('live-chat-avatar');
     if (liveChatAvatar) liveChatAvatar.classList.toggle('offline', state.bizMode === 'outside');
 
@@ -3678,7 +4521,7 @@
   if (lBrand) state.brandHex = lBrand.value;
 
   // ===== Flow 1 / Flow 2 prototype switching =====
-  let currentFlow = 1;
+  let currentFlow = 3;
   // Flow 1 sub-state:
   //   'list'              — chat list (default entry)
   //   'legacy'            — Glossier legacy settings
@@ -3778,11 +4621,81 @@
     section.style.display = hide ? 'none' : '';
   }
 
+  // ===== Setup-flow refs + helpers =====
+  const setupEl = document.getElementById('setup-flow');
+  // Cache the chat-preview aside and its original parent so we can move it
+  // between #new-version and #setup-flow as the flow changes.
+  const sharedPreview = document.querySelector('aside.preview');
+  const sharedPreviewHome = sharedPreview ? sharedPreview.parentElement : null;
+  function movePreviewToSetup() {
+    if (setupEl && sharedPreview && sharedPreview.parentElement !== setupEl) {
+      setupEl.appendChild(sharedPreview);
+    }
+  }
+  function movePreviewToHome() {
+    if (sharedPreview && sharedPreviewHome && sharedPreview.parentElement !== sharedPreviewHome) {
+      sharedPreviewHome.appendChild(sharedPreview);
+    }
+  }
+  let setupStep = 1;
+  function renderSetupStep() {
+    if (!setupEl) return;
+    // Pills
+    setupEl.querySelectorAll('.setup-step-pill').forEach(p => {
+      const n = parseInt(p.dataset.step, 10);
+      p.classList.toggle('active', n === setupStep);
+      p.classList.toggle('done', n < setupStep);
+      // Replace number with check when done
+      const numEl = p.querySelector('.num');
+      if (n < setupStep) numEl.innerHTML = '<svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6L5 8.5L9.5 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      else numEl.textContent = String(n);
+    });
+    // Panels
+    setupEl.querySelectorAll('.setup-step-panel').forEach(panel => {
+      panel.classList.toggle('active', parseInt(panel.dataset.step, 10) === setupStep);
+    });
+    // Footer button visibility
+    const backBtn = document.getElementById('setup-back-btn');
+    const continueBtn = document.getElementById('setup-continue-btn');
+    const installBtn = document.getElementById('setup-install-btn');
+    const exitBtn = document.getElementById('setup-exit-btn');
+    const saveLaterBtn = document.getElementById('setup-save-install-later-btn');
+    if (backBtn) backBtn.style.display = (setupStep > 1) ? '' : 'none';
+    if (continueBtn) continueBtn.style.display = (setupStep < 4) ? '' : 'none';
+    if (installBtn) installBtn.style.display = (setupStep === 4) ? '' : 'none';
+    if (exitBtn) exitBtn.style.display = (setupStep < 4) ? '' : 'none';
+    if (saveLaterBtn) saveLaterBtn.style.display = (setupStep === 4) ? '' : 'none';
+    // Scroll content area back to top on step change
+    const content = document.getElementById('setup-content');
+    if (content) content.scrollTop = 0;
+  }
+
   function applyFlow() {
-    // Reset: hide every flow banner, hide chat list
+    // Reset: hide every flow banner, hide chat list, hide setup flow
     allFlowBanners.forEach(b => { if (b) b.style.display = 'none'; });
     updateLegacyBizVisibility();
     if (flow1ChatList) flow1ChatList.style.display = 'none';
+    if (setupEl) setupEl.style.display = 'none';
+
+    // Setup flow takes over the whole content area
+    if (currentFlow === 'setup') {
+      legacyEl.style.display = 'none';
+      newEl.style.display = 'none';
+      if (setupEl) setupEl.style.display = 'flex';
+      // Use the real Glossier new-chat preview, hosted inside #setup-flow
+      movePreviewToSetup();
+      if (sharedPreview) sharedPreview.classList.add('setup-mode');
+      applyBranding(GLOSSIER);
+      renderSetupStep();
+      render();
+      // Sync setup-specific preview overrides (logo hidden until added, order pill matches toggle)
+      if (typeof window.__syncSetupBrandLogo === 'function') window.__syncSetupBrandLogo();
+      if (typeof window.__applySetupOrderState === 'function') window.__applySetupOrderState();
+      return;
+    }
+    // Leaving setup → return the preview to its original parent + drop setup-mode styling
+    movePreviewToHome();
+    if (sharedPreview) sharedPreview.classList.remove('setup-mode');
 
     if (currentFlow === 1) {
       if (legacyVariantDropdown) legacyVariantDropdown.style.display = '';
@@ -3868,10 +4781,15 @@
       btn.addEventListener('click', () => {
         flowToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        currentFlow = parseInt(btn.dataset.flow, 10);
+        const raw = btn.dataset.flow;
+        currentFlow = (raw === 'setup') ? 'setup' : parseInt(raw, 10);
         if (currentFlow === 1) flow1State = 'list';
         if (currentFlow === 2) flow2State = 1;
         if (currentFlow === 3) flow3State = 'preview';
+        if (currentFlow === 'setup') {
+          setupStep = 1;
+          if (typeof window.__resetSetupLogo === 'function') window.__resetSetupLogo();
+        }
         if (flowConfirmTimer) { clearTimeout(flowConfirmTimer); flowConfirmTimer = null; }
         if (flow3ToastTimer) { clearTimeout(flow3ToastTimer); flow3ToastTimer = null; if (f3Toast) f3Toast.classList.remove('open'); }
         applyFlow();
@@ -3982,6 +4900,127 @@
     const m = document.getElementById('switch-back-modal');
     if (m) m.classList.add('open');
   });
+
+  // ===== Setup-flow wizard wiring =====
+  (function wireSetupFlow() {
+    if (!setupEl) return;
+
+    // Step navigation: Back / Continue
+    const continueBtn = document.getElementById('setup-continue-btn');
+    const backBtn = document.getElementById('setup-back-btn');
+    if (continueBtn) continueBtn.addEventListener('click', () => {
+      if (setupStep < 4) { setupStep += 1; renderSetupStep(); }
+    });
+    if (backBtn) backBtn.addEventListener('click', () => {
+      if (setupStep > 1) { setupStep -= 1; renderSetupStep(); }
+    });
+
+    // Step pills are clickable for direct navigation (handy in a demo)
+    setupEl.querySelectorAll('.setup-step-pill').forEach(p => {
+      p.addEventListener('click', () => {
+        const n = parseInt(p.dataset.step, 10);
+        if (n >= 1 && n <= 4) { setupStep = n; renderSetupStep(); }
+      });
+      p.style.cursor = 'pointer';
+    });
+
+    // Install + Save & Install Later → reset to step 1
+    const resetToStart = () => { setupStep = 1; renderSetupStep(); };
+    const installBtn = document.getElementById('setup-install-btn');
+    const saveLaterBtn = document.getElementById('setup-save-install-later-btn');
+    if (installBtn) installBtn.addEventListener('click', resetToStart);
+    if (saveLaterBtn) saveLaterBtn.addEventListener('click', resetToStart);
+
+    // Save and Exit on steps 1-3 → also reset to step 1
+    const exitBtn = document.getElementById('setup-exit-btn');
+    if (exitBtn) exitBtn.addEventListener('click', resetToStart);
+
+    // Header back arrow — no-op decorative for the demo (or could go to chat list)
+    const headerBack = document.getElementById('setup-header-back');
+    if (headerBack) headerBack.addEventListener('click', resetToStart);
+
+    // Radio groups (visual only)
+    setupEl.querySelectorAll('.setup-radio').forEach(radio => {
+      radio.addEventListener('click', () => {
+        const group = radio.dataset.group;
+        if (!group) return;
+        setupEl.querySelectorAll(`.setup-radio[data-group="${group}"]`).forEach(r => r.classList.remove('selected'));
+        radio.classList.add('selected');
+      });
+    });
+
+    // Order management toggle ↔ "Track Orders" pill in the chat preview (step 3)
+    const orderToggle = document.getElementById('setup-order-toggle');
+    const trackOrdersPill = document.getElementById('track-orders-pill');
+    function applyOrderState() {
+      const on = orderToggle && orderToggle.classList.contains('on');
+      if (orderToggle) orderToggle.setAttribute('aria-checked', on ? 'true' : 'false');
+      if (trackOrdersPill && currentFlow === 'setup') trackOrdersPill.style.display = on ? '' : 'none';
+    }
+    if (orderToggle) {
+      orderToggle.addEventListener('click', () => {
+        orderToggle.classList.toggle('on');
+        applyOrderState();
+      });
+    }
+    // Expose so applyFlow can re-sync the preview pill when entering setup
+    window.__applySetupOrderState = applyOrderState;
+
+    // Default logo card (step 2) — empty by default; clicking "Add logo" fills it
+    // with the Glossier logo thumb AND shows the .brand-logo in the chat preview.
+    const defaultLogoSlot = document.getElementById('setup-default-logo-slot');
+    const emptyHTML = `
+      <button class="add-btn" id="setup-default-logo-add">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3.5 8H8M8 8H12.5M8 8V12.5M8 8V3.5" stroke="#1E242E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Add logo
+      </button>`;
+    const filledHTML = `
+      <div class="logo-row">
+        <div class="logo-thumb">Glossier.</div>
+        <button class="remove-btn" id="setup-default-logo-remove" title="Remove logo">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11.98 11.99L7.99 8M7.99 8L4 4.01M7.99 8L11.98 4.01M7.99 8L4 11.99" stroke="#1E242E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>`;
+    let setupLogoAdded = false;
+    function syncBrandLogoVisibility() {
+      // Only override visibility while in setup flow; other flows manage it via applyBranding.
+      if (currentFlow !== 'setup') return;
+      document.querySelectorAll('.brand-logo').forEach(el => {
+        el.style.display = setupLogoAdded ? '' : 'none';
+      });
+    }
+    function renderDefaultLogoCard() {
+      if (!defaultLogoSlot) return;
+      defaultLogoSlot.innerHTML = setupLogoAdded ? filledHTML : emptyHTML;
+      wireDefaultLogoCard();
+      syncBrandLogoVisibility();
+    }
+    function wireDefaultLogoCard() {
+      const addBtn = document.getElementById('setup-default-logo-add');
+      const rmBtn = document.getElementById('setup-default-logo-remove');
+      if (addBtn) addBtn.addEventListener('click', () => { setupLogoAdded = true; renderDefaultLogoCard(); });
+      if (rmBtn) rmBtn.addEventListener('click', () => { setupLogoAdded = false; renderDefaultLogoCard(); });
+    }
+    wireDefaultLogoCard();
+    // Expose hooks so applyFlow can reset & sync when entering setup
+    window.__resetSetupLogo = () => { setupLogoAdded = false; renderDefaultLogoCard(); };
+    window.__syncSetupBrandLogo = syncBrandLogoVisibility;
+
+    // Brand color (step 2) — live-update only the local swatch chip
+    const setupBrandHex = document.getElementById('setup-brand-hex');
+    const setupBrandChip = document.getElementById('setup-brand-chip');
+    if (setupBrandHex && setupBrandChip) {
+      const syncChip = () => {
+        const v = setupBrandHex.value.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(v) || /^#[0-9a-fA-F]{3}$/.test(v)) {
+          setupBrandChip.style.background = v;
+        }
+      };
+      setupBrandHex.addEventListener('input', syncChip);
+      syncChip();
+    }
+
+  })();
 
   // Initial render
   render();
