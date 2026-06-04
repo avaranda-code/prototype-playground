@@ -27,14 +27,14 @@
 
   .wrap { max-width: 1280px; margin: 0 auto; }
   .row {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;
   }
   .row-brands { margin-bottom: 72px; }
   .row-1 { margin-bottom: 56px; }
   .row-2 { margin-bottom: 80px; }
   .row-3 { margin-bottom: 80px; }
   .section-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; margin-bottom: 24px; letter-spacing: 0.5px; }
-  .cell { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 280px; }
   .cell-label { font-size: 12px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; }
 
   /* ─── CHAT CARD (ConversationShell) ─── */
@@ -114,27 +114,6 @@
     50% { transform: scale(1.3); opacity: 1; }
   }
 
-  /* 4 · FadeDots */
-  .fade-outer { position: relative; display: inline-block; overflow: hidden; border-radius: 20px; padding: 1px 0; }
-  .fade-mover {
-    position: absolute; width: 300%; height: 50%; opacity: 0.7; border-radius: 9999px; z-index: 0;
-    background: radial-gradient(circle, hsl(var(--primary)), transparent 10%);
-  }
-  .fade-mover.bottom { bottom: -11px; right: -250%; animation: star-movement-bottom 6s linear infinite alternate; }
-  .fade-mover.top { top: -10px; left: -250%; animation: star-movement-top 6s linear infinite alternate; }
-  .fade-inner {
-    position: relative; z-index: 1; border-radius: 20px;
-    padding: 12px 16px; display: flex; align-items: center; gap: 6px;
-  }
-  .fade-dot { display: block; width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--primary)); animation: fade-chase 1.8s ease-in-out infinite; }
-  @keyframes fade-chase {
-    0%, 100% { opacity: 0.1; transform: scale(0.7); }
-    30% { opacity: 1; transform: scale(1); }
-    60% { opacity: 0.1; transform: scale(0.7); }
-  }
-  @keyframes star-movement-bottom { 0% { transform: translate(0%,0%); opacity: 1; } 100% { transform: translate(-100%,0%); opacity: 0; } }
-  @keyframes star-movement-top { 0% { transform: translate(0%,0%); opacity: 1; } 100% { transform: translate(100%,0%); opacity: 0; } }
-
   /* 6 · RippleDots */
   .ripple-row { display: flex; align-items: center; gap: 5px; }
   .ripple-dot { position: relative; display: block; width: 6px; height: 6px; }
@@ -163,27 +142,6 @@
     0% { transform: translate(0, -50%); }
     50% { transform: translate(30px, -50%); }
     100% { transform: translate(0, -50%); }
-  }
-
-  /* 5 · StarSpin */
-  .star-row { display: flex; align-items: center; gap: 10px; }
-  .star-orb { position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
-  .star-orb .star { width: 20px; height: 20px; position: relative; z-index: 10; animation: star-spin 3s linear infinite; }
-  .star-glow {
-    position: absolute; inset: 0; border-radius: 50%;
-    background: radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%);
-    animation: star-glow 2s ease-in-out infinite;
-  }
-  .star-bars { display: flex; gap: 3px; align-items: center; }
-  .star-bar { width: 4px; height: 4px; border-radius: 50%; background: hsl(var(--primary) / 0.5); animation: star-bar-wave 1.4s ease-in-out infinite; }
-  @keyframes star-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  @keyframes star-glow {
-    0%, 100% { transform: scale(0.8); opacity: 0.3; }
-    50% { transform: scale(1.4); opacity: 0.7; }
-  }
-  @keyframes star-bar-wave {
-    0%, 100% { transform: scale(0.6); opacity: 0.3; }
-    50% { transform: scale(1.3); opacity: 1; }
   }
 
   /* 8 · StarBreath */
@@ -355,8 +313,6 @@
   <h2 class="section-title">Animation / motion options</h2>
   <div class="row row-1" id="row1"></div>
   <div class="row row-2" id="row2"></div>
-  <div class="row row-3" id="row3"></div>
-  <div class="row row-4" id="row4"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -383,26 +339,13 @@ const chatBg = `
     </defs>
   </svg>`;
 
-// AI sparkle star (replaces ai-star.png)
-const sparkle = '<svg class="star" viewBox="0 0 24 24" fill="#404DA8" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c1 7.2 4.8 11 12 12-7.2 1-11 4.8-12 12-1-7.2-4.8-11-12-12 7.2-1 11-4.8 12-12Z"/></svg>';
-
-// ─── the six typing/loading animations ───
+// ─── the typing / loading animations ───
 const animations = {
   bounce: `
     <div class="bounce-wrap"><div class="bounce-row">
       <span class="bounce-dot" style="animation-delay:0s"></span>
       <span class="bounce-dot" style="animation-delay:0.2s"></span>
       <span class="bounce-dot" style="animation-delay:0.4s"></span>
-    </div></div>`,
-  fade: `
-    <div class="anim-left"><div class="fade-outer">
-      <div class="fade-mover bottom"></div>
-      <div class="fade-mover top"></div>
-      <div class="fade-inner chat-glass">
-        <span class="fade-dot" style="animation-delay:0s"></span>
-        <span class="fade-dot" style="animation-delay:0.3s"></span>
-        <span class="fade-dot" style="animation-delay:0.6s"></span>
-      </div>
     </div></div>`,
   ripple: `
     <div class="anim-left"><div class="ripple-row">
@@ -413,15 +356,6 @@ const animations = {
     </div></div>`,
   sweep: `
     <div class="sweep-wrap"><div class="sweep-track"><span class="sweep-dot"></span></div></div>`,
-  starSpin: `
-    <div class="anim-left"><div class="star-row">
-      <div class="star-orb">${sparkle}<span class="star-glow"></span></div>
-      <div class="star-bars">
-        <span class="star-bar" style="animation-delay:0s"></span>
-        <span class="star-bar" style="animation-delay:0.2s"></span>
-        <span class="star-bar" style="animation-delay:0.4s"></span>
-      </div>
-    </div></div>`,
   starBreath: `
     <div class="breath-wrap"><div class="breath-bars">
       <span class="breath-bar b1"></span>
@@ -617,27 +551,21 @@ document.getElementById('rowBrands').innerHTML = [
   ['Split-by-character — Glamnetic', '', glamneticRotator, 'glamnetic'],
 ].map(([l, a, r, brand]) => cell(l, a, r, brand)).join('');
 
-// Generic animation / motion options (ESTALUNA skin)
+// Generic animation / motion options (ESTALUNA skin) — 4 per row
 document.getElementById('row1').innerHTML = [
   ['Bounce dots — wave pulse', animations.bounce],
-  ['Fade chase — gliding glow', animations.fade],
   ['Sweep dot — sliding back & forth', animations.sweep],
-].map(([l, a]) => cell(l, a)).join('');
-
-document.getElementById('row2').innerHTML = [
-  ['Star spin — rotating sparkle + bars', animations.starSpin],
   ['Breathing bars — fading lines', animations.starBreath],
+  ['Sonar ping — radar ring', animations.sonar],
 ].map(([l, a]) => cell(l, a)).join('');
 
-document.getElementById('row3').innerHTML = [
-  ['Sonar ping — radar ring', animations.sonar],
+// second row — includes the no-dots typed-out variation (letters ripple in, then backspace out)
+document.getElementById('row2').innerHTML = [
   ['Breathing dot — single heartbeat', animations.breatheDot],
   ['Equalizer bars — audio levels', animations.equalizer],
   ['Shimmer sweep — gliding highlight', animations.shimmer],
-].map(([l, a]) => cell(l, a)).join('');
-
-// new variation: NO dots — phrase letters ripple in live (typed-out style), then re-type next phrase
-document.getElementById('row4').innerHTML = cell('Bounce-in letters — types in, backspaces out, no dots', '', typeRotator);
+  ['Bounce-in letters — types in, backspaces out, no dots', '', typeRotator],
+].map(([l, a, r]) => cell(l, a, r)).join('');
 document.querySelectorAll('.phrase-type').forEach(el => {
   let i = 0;
   const waveStep = 70;    // stagger while typing in (left → right wave)
