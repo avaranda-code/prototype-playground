@@ -16,12 +16,12 @@
     "image": "ads-to-convo.png"
   },
   {
-    "name": "MyPure · Ads to Messaging",
+    "name": "Sachin & Babi · Ads to Messaging",
     "author": "Ava",
-    "date": "2026-06-02",
-    "description": "MyPure build of the ads-to-messaging prototype: Instagram ad → PDP / Half-sheet / Direct to chat flows with multi-turn AI dialogue, defaulting to the MyPure brand (lavera Hyaluron foundation). Topbar flow toggle plus brand selector, reset, and live edit panel.",
-    "file": "mypure_ads_to_messaging.html",
-    "image": "mypure_ads_to_messaging.png"
+    "date": "2026-06-05",
+    "description": "Sachin & Babi build of the ads-to-messaging prototype: Instagram ad → PDP / Half-sheet / Direct to chat flows with multi-turn AI dialogue. Features the Laurant Gown with selectable colourways (swatches swap the dress image) and sizes, plus SPQs and chat answers tuned to Sachin & Babi's real top FAQs and elegant brand voice.",
+    "file": "sachin_and_babi_ads_to_messaging.html",
+    "image": "sachin_and_babi_ads_to_messaging.png"
   },
   {
     "name": "Farmacy · Cart Recovery Chat",
