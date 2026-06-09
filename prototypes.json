@@ -24,6 +24,14 @@
     "image": "sachin_and_babi_ads_to_messaging.png"
   },
   {
+    "name": "One Bone · Ads to Messaging",
+    "author": "Ava",
+    "date": "2026-06-05",
+    "description": "One Bone build of the ads-to-messaging prototype, featuring the Bullet Tee. PDP with colour swatches (swap the image) and One Bone's numeric sizing. The Halfsheet flow is replaced with a glassy bottom 'Chat to shop' dock — SPQ pills + Reviews, an in-hood mini conversation (typing → answer → follow-up chips → product rec), minimize, and expand-to-full-chat carrying the transcript over. SPQs and answers tuned to One Bone's real tickets (sizing, fit, size guide, restock, promos).",
+    "file": "one_bone_brand_ads_to_messaging.html",
+    "image": "one_bone_brand_ads_to_messaging.png"
+  },
+  {
     "name": "Farmacy · Cart Recovery Chat",
     "author": "Ava",
     "date": "2026-05-20",
