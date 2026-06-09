@@ -57,6 +57,7 @@
     background: var(--hlc-bg);
     color: var(--hlc-ink);
     min-height: 100vh;
+    min-height: 100dvh; /* iOS Safari: keep layout aligned with the visible viewport so fixed bottom UI stays visible */
     overflow-x: hidden;
   }
   .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
@@ -816,19 +817,19 @@
     .pdp-related { padding: 0 18px; margin-top: 56px; padding-bottom: 40px; }
     .pdp-related-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
 
-    /* Mobile dock: flush to viewport bottom, safe-area aware, sticky on scroll */
+    /* Mobile dock: edge-to-edge, flush to viewport bottom, safe-area aware, always sticky */
     .chat-dock {
       position: fixed; left: 0; right: 0;
-      bottom: 0; /* flush to bottom of viewport */
-      padding-bottom: max(10px, env(safe-area-inset-bottom));
-      padding-left: 10px; padding-right: 10px;
+      bottom: 0;          /* flush to viewport edge */
+      padding: 0;         /* edge-to-edge: no horizontal margins */
       pointer-events: none;
     }
     .chat-dock-inner {
-      width: 100%;
-      border-radius: 22px;
-      padding: 10px 12px 12px;
-      box-shadow: 0 -8px 28px rgba(70,58,46,0.14);
+      width: 100%;                                /* fill screen width */
+      border-radius: 22px 22px 0 0;               /* rounded only on top — sits on the edge */
+      padding: 12px 14px max(14px, env(safe-area-inset-bottom));
+      box-shadow: 0 -10px 30px rgba(70,58,46,0.18);
+      background: rgba(255,255,255,0.72);         /* slightly more opaque so it pops off page */
     }
     .chat-bar-input input { font-size: 16px; padding: 12px 0; } /* prevents iOS zoom on focus */
 
@@ -2441,8 +2442,9 @@
       state.spqDismissed = false; state.hoodActive = false; document.getElementById('chatDock').classList.remove('minimized'); state.messages = []; document.getElementById('chatThread').innerHTML = '';
       document.getElementById('chatFollowups').innerHTML = '';
       state.spqRevealed = false;
-      // Hold the SPQ pills back ~2s, then let them pop in
-      spqRevealTimer = setTimeout(() => { state.spqRevealed = true; renderClosedWidget(); }, 2000);
+      // Mobile: chips visible immediately. Desktop: small ~600ms delay for a graceful pop-in.
+      const delay = window.matchMedia('(max-width: 900px)').matches ? 0 : 600;
+      spqRevealTimer = setTimeout(() => { state.spqRevealed = true; renderClosedWidget(); }, delay);
     }
     renderChat();
     renderClosedWidget();
