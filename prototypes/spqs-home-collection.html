@@ -684,6 +684,81 @@
   .ai-orb { position: absolute; right: 24px; bottom: 22px; width: 52px; height: 52px; border-radius: 50%; background: var(--grad-conic); box-shadow: 0 10px 26px rgba(126,85,246,0.30); animation: orbSpin 9s linear infinite; z-index: 5; }
   @keyframes orbSpin { to { transform: rotate(360deg); } }
 
+  /* ════════════════════════════════════════════════════════════════════
+     PRODUCT DETAIL PAGE (storefront PDP)
+     ════════════════════════════════════════════════════════════════════ */
+  .pdp-page { padding: 24px 28px 80px; max-width: 1280px; margin: 0 auto; }
+  .pdp-crumb { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hlc-soft); margin-bottom: 28px; }
+  .pdp-crumb a { text-decoration: none; }
+  .pdp-crumb a:hover { opacity: 0.55; }
+  .pdp-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: start; }
+  .pdp-gallery { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 96px; }
+  .pdp-main-img { aspect-ratio: 1 / 1; background: var(--hlc-tile); border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .pdp-main-img img { max-height: 80%; max-width: 72%; object-fit: contain; filter: drop-shadow(0 22px 32px rgba(0,0,0,0.16)); }
+  .pdp-thumbs { display: flex; gap: 10px; }
+  .pdp-thumb { flex: 1; max-width: 92px; aspect-ratio: 1 / 1; background: var(--hlc-tile); border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; transition: border 0.15s; padding: 0; }
+  .pdp-thumb img { max-height: 72%; max-width: 70%; object-fit: contain; }
+  .pdp-thumb.active { border-color: var(--hlc-ink); }
+  .pdp-info { padding: 4px 0 0; }
+  .pdp-vendor { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--hlc-soft); font-weight: 600; }
+  .pdp-title { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 52px; margin: 12px 0 8px; color: var(--hlc-ink); line-height: 1.05; }
+  .pdp-notes-line { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hlc-soft); margin-bottom: 14px; }
+  .pdp-rating { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--hlc-soft); margin-bottom: 22px; }
+  .pdp-rating .stars { color: #e0a93b; display: inline-flex; gap: 2px; font-size: 14px; }
+  .pdp-rating a { color: var(--hlc-soft); text-decoration: none; border-bottom: 1px solid var(--hlc-line); }
+  .pdp-price { font-size: 22px; font-weight: 600; color: var(--hlc-ink); margin-bottom: 22px; }
+  .pdp-options-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .pdp-opt-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hlc-soft); font-weight: 600; margin-right: 4px; }
+  .pdp-size { font-family: inherit; font-size: 13px; padding: 11px 18px; border-radius: 9999px; border: 1px solid var(--hlc-line); background: #fff; color: var(--hlc-ink); cursor: pointer; transition: all 0.15s; }
+  .pdp-size:hover { border-color: var(--hlc-ink); }
+  .pdp-size.active { background: var(--hlc-ink); color: #fff; border-color: var(--hlc-ink); }
+  .pdp-buy-row { display: flex; gap: 10px; align-items: stretch; margin: 22px 0; }
+  .pdp-qty { display: flex; align-items: center; border: 1px solid var(--hlc-line); border-radius: 4px; overflow: hidden; }
+  .pdp-qty button { width: 42px; height: 52px; background: #fff; border: 0; cursor: pointer; font-size: 18px; color: var(--hlc-ink); font-family: inherit; }
+  .pdp-qty button:hover { background: var(--surface); }
+  .pdp-qty input { width: 44px; height: 52px; border: 0; text-align: center; font-family: inherit; font-size: 15px; color: var(--hlc-ink); background: #fff; }
+  .pdp-buy { flex: 1; padding: 16px 22px; border: 0; border-radius: 4px; background: var(--hlc-accent); color: #fff; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s; }
+  .pdp-buy:hover { opacity: 0.88; }
+  .pdp-shortdesc { font-size: 15px; line-height: 1.7; color: var(--hlc-soft); margin: 0 0 18px; }
+  .pdp-feats { display: flex; gap: 18px; padding: 18px 0; border-top: 1px solid var(--hlc-line); border-bottom: 1px solid var(--hlc-line); margin-top: 8px; }
+  .pdp-feat { flex: 1; text-align: center; font-size: 12px; }
+  .pdp-feat .ico { display: inline-flex; color: var(--hlc-ink); margin-bottom: 6px; }
+  .pdp-feat .lbl { font-weight: 700; color: var(--hlc-ink); display: block; font-size: 12px; letter-spacing: 0.04em; }
+  .pdp-feat .sub { color: var(--hlc-soft); display: block; margin-top: 3px; }
+
+  .pdp-details { margin-top: 80px; max-width: 720px; margin-left: auto; margin-right: auto; padding: 0 4px; }
+  .pdp-section { padding: 36px 0; border-top: 1px solid var(--hlc-line); }
+  .pdp-section:first-of-type { border-top: 0; padding-top: 0; }
+  .pdp-section h3 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 28px; font-weight: 500; margin: 0 0 16px; color: var(--hlc-ink); text-align: center; }
+  .pdp-section p { font-size: 15px; line-height: 1.75; color: var(--hlc-soft); margin: 0 0 12px; text-align: center; }
+  .pdp-pyramid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; padding: 16px 0 8px; }
+  .pdp-pyramid .lvl { padding: 18px 14px; background: var(--hlc-tile); border-radius: 4px; text-align: center; }
+  .pdp-pyramid .lvl b { display: block; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--hlc-soft); margin-bottom: 8px; font-weight: 700; }
+  .pdp-pyramid .lvl span { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--hlc-ink); display: block; line-height: 1.4; }
+  .pdp-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 32px; padding: 8px 0; }
+  .pdp-meta div { font-size: 15px; color: var(--hlc-ink); }
+  .pdp-meta b { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hlc-soft); display: block; margin-bottom: 4px; font-weight: 700; }
+
+  .pdp-acc-item { border-top: 1px solid var(--hlc-line); }
+  .pdp-acc-item:last-child { border-bottom: 1px solid var(--hlc-line); }
+  .pdp-acc-head { width: 100%; padding: 18px 4px; background: none; border: 0; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--hlc-ink); text-align: left; display: flex; align-items: center; justify-content: space-between; }
+  .pdp-acc-body { padding: 0 4px 18px; display: none; }
+  .pdp-acc-body p { text-align: left; font-size: 14px; line-height: 1.65; color: var(--hlc-soft); margin: 0 0 8px; }
+  .pdp-acc-item.open .pdp-acc-body { display: block; }
+  .pdp-acc-head .chev { transition: transform 0.2s; opacity: 0.55; }
+  .pdp-acc-item.open .pdp-acc-head .chev { transform: rotate(180deg); }
+
+  .pdp-rev { padding: 16px 0; border-top: 1px solid var(--hlc-line); }
+  .pdp-rev:first-child { border-top: 0; }
+  .pdp-rev-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .pdp-rev-head b { font-size: 13px; color: var(--hlc-ink); }
+  .pdp-rev-head .stars { color: #e0a93b; font-size: 13px; }
+  .pdp-rev p { font-size: 14px; line-height: 1.65; color: var(--hlc-soft); margin: 4px 0 0; text-align: left; }
+
+  .pdp-related { margin-top: 72px; max-width: 1280px; margin-left: auto; margin-right: auto; padding: 0 28px; }
+  .pdp-related h2 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 36px; text-align: center; margin: 0 0 28px; color: var(--hlc-ink); }
+  .pdp-related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
   /* ── Responsive ────────────────────────────────────────────────────── */
   @media (max-width: 900px) {
     .hdr-row { grid-template-columns: auto 1fr auto; padding: 14px 18px; }
@@ -726,6 +801,42 @@
     .msheet .close { position: absolute; top: 18px; right: 20px; background: none; border: 0; font-size: 26px; cursor: pointer; color: var(--hlc-ink); }
     .msheet h4 { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--hlc-soft); margin: 40px 0 14px; }
     .msheet a { display: block; text-decoration: none; font-family: 'Cormorant Garamond', serif; font-size: 30px; color: var(--hlc-ink); padding: 8px 0; border-bottom: 1px solid var(--hlc-line); }
+
+    /* PDP mobile */
+    .pdp-page { padding: 18px 18px 140px; }
+    .pdp-grid { grid-template-columns: 1fr; gap: 26px; }
+    .pdp-gallery { position: static; }
+    .pdp-title { font-size: 36px; }
+    .pdp-feats { gap: 10px; padding: 14px 0; }
+    .pdp-feat { font-size: 11px; }
+    .pdp-details { margin-top: 48px; padding: 0 4px; }
+    .pdp-section h3 { font-size: 24px; }
+    .pdp-pyramid { grid-template-columns: 1fr; gap: 10px; }
+    .pdp-meta { grid-template-columns: 1fr; gap: 16px; }
+    .pdp-related { padding: 0 18px; margin-top: 56px; padding-bottom: 40px; }
+    .pdp-related-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+    /* Mobile dock: flush to viewport bottom, safe-area aware, sticky on scroll */
+    .chat-dock {
+      position: fixed; left: 0; right: 0;
+      bottom: 0; /* flush to bottom of viewport */
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      padding-left: 10px; padding-right: 10px;
+      pointer-events: none;
+    }
+    .chat-dock-inner {
+      width: 100%;
+      border-radius: 22px;
+      padding: 10px 12px 12px;
+      box-shadow: 0 -8px 28px rgba(70,58,46,0.14);
+    }
+    .chat-bar-input input { font-size: 16px; padding: 12px 0; } /* prevents iOS zoom on focus */
+
+    /* Mobile ASAP launcher + pills: pin to bottom-right, safe-area aware */
+    .chat-closed {
+      right: 16px;
+      bottom: max(16px, env(safe-area-inset-bottom));
+    }
   }
   @media (max-width: 360px) {
     .prod-grid { grid-template-columns: 1fr; }
@@ -904,6 +1015,94 @@
       <div class="coll-sub" style="margin-top:40px"><h4 id="collectionSub">All</h4></div>
       <div class="section" style="padding-top:24px">
         <div class="prod-grid" id="collectionGrid"></div>
+      </div>
+    </section>
+
+    <!-- ── PRODUCT DETAIL PAGE ──────────────────────────────────────────── -->
+    <section class="view" data-route="product">
+      <div class="pdp-page">
+        <div class="pdp-crumb" id="pdpCrumb"></div>
+        <div class="pdp-grid">
+          <div class="pdp-gallery">
+            <div class="pdp-main-img"><img id="pdpMainImg" alt=""></div>
+            <div class="pdp-thumbs" id="pdpThumbs"></div>
+          </div>
+          <div class="pdp-info">
+            <div class="pdp-vendor">Hotel Lobby Candle</div>
+            <h1 class="pdp-title" id="pdpPageName"></h1>
+            <div class="pdp-notes-line" id="pdpPageNotes"></div>
+            <div class="pdp-rating"><span class="stars" id="pdpStars">★★★★★</span><a href="#reviews" id="pdpRevLink">4.8 · 312 reviews</a></div>
+            <div class="pdp-price" id="pdpPagePrice"></div>
+            <div class="pdp-options-row"><span class="pdp-opt-label">Size</span><div id="pdpSizes" style="display:flex;gap:8px;flex-wrap:wrap"></div></div>
+            <div class="pdp-buy-row">
+              <div class="pdp-qty"><button id="pdpQtyMinus" aria-label="Decrease">–</button><input id="pdpQtyInput" type="text" value="1" readonly aria-label="Quantity"><button id="pdpQtyPlus" aria-label="Increase">+</button></div>
+              <button class="pdp-buy" id="pdpBuy">Add to Bag</button>
+            </div>
+            <p class="pdp-shortdesc" id="pdpShortDesc"></p>
+            <div class="pdp-feats">
+              <div class="pdp-feat">
+                <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg></span>
+                <span class="lbl">65-hour burn</span>
+                <span class="sub">Hand-poured</span>
+              </div>
+              <div class="pdp-feat">
+                <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/></svg></span>
+                <span class="lbl">Clean burn</span>
+                <span class="sub">Coconut-soy</span>
+              </div>
+              <div class="pdp-feat">
+                <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 8h14v13H5zM3 5h18v3H3z"/><path d="M12 5v16"/></svg></span>
+                <span class="lbl">Reusable vessel</span>
+                <span class="sub">Hand-painted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pdp-details">
+          <div class="pdp-section">
+            <h3>The scent</h3>
+            <p id="pdpFullDesc"></p>
+          </div>
+          <div class="pdp-section">
+            <h3>Fragrance notes</h3>
+            <div class="pdp-pyramid" id="pdpPyramid"></div>
+          </div>
+          <div class="pdp-section">
+            <h3>Details</h3>
+            <div class="pdp-meta" id="pdpMeta"></div>
+          </div>
+          <div class="pdp-section" id="reviews">
+            <h3>Reviews</h3>
+            <div id="pdpReviews"></div>
+          </div>
+          <div class="pdp-acc-item">
+            <button class="pdp-acc-head">Care &amp; use<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+            <div class="pdp-acc-body">
+              <p>Trim the wick to ¼ inch before each burn for a clean, even flame.</p>
+              <p>On the first burn, let the wax melt edge to edge (about 2–3 hours) so future burns stay even.</p>
+              <p>Keep the candle out of direct sunlight, drafts, and away from anything flammable.</p>
+              <p>Stop burning when about ½ inch of wax remains — then clean out the vessel and reuse it.</p>
+            </div>
+          </div>
+          <div class="pdp-acc-item">
+            <button class="pdp-acc-head">Ingredients<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+            <div class="pdp-acc-body">
+              <p>Premium coconut-soy wax blend, fine fragrance and essential oils, cotton wick. Vegan, phthalate-free, clean-burning. Hand-painted glass vessel.</p>
+            </div>
+          </div>
+          <div class="pdp-acc-item">
+            <button class="pdp-acc-head">Shipping &amp; returns<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+            <div class="pdp-acc-body">
+              <p>Complimentary US shipping on orders over $75. Orders ship within 2 business days. Returns accepted within 30 days on unopened items.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pdp-related">
+          <h2>You may also like</h2>
+          <div class="pdp-related-grid" id="pdpRelated"></div>
+        </div>
       </div>
     </section>
 
@@ -1440,7 +1639,7 @@
   /* ──────────────────────────────────────────────────────────────────
      ROUTER
      ────────────────────────────────────────────────────────────────── */
-  const state = { route:'home', collectionSlug:null, cartCount:0, chatOpen:false, messages:[], spqDismissed:false,
+  const state = { route:'home', collectionSlug:null, productHandle:null, cartCount:0, chatOpen:false, messages:[], spqDismissed:false,
     spqSettings: { home:true, collection:true, product:true }, spqRevealed:false, flow:'asap', hoodActive:false };
   let spqRevealTimer = null;
 
@@ -1449,7 +1648,7 @@
     diffusers: { status:'Custom',   last:'5 days ago' },
     handwash:  { status:'Disabled', last:'—' },
   };
-  const PRODUCT_PREVIEW_CHIPS = ["What's the burn time?", 'How do I care for this candle?', 'Is the vessel refillable?'];
+  const PRODUCT_PREVIEW_CHIPS = ['What does it smell like?', "What's the burn time?", 'How do I care for this candle?', 'Is the vessel refillable?'];
 
   function parseHash() {
     const raw = (location.hash || '#/').replace(/^#/, '');
@@ -1457,12 +1656,13 @@
     const parts = path.split('/').filter(Boolean);
     if (parts.length === 0) return { route:'home' };
     if (parts[0] === 'collections' && COLLECTIONS[parts[1]]) return { route:'collection', collectionSlug:parts[1] };
+    if (parts[0] === 'products' && parts[1] && (typeof PRODUCT_BY_ID === 'undefined' || PRODUCT_BY_ID[parts[1]])) return { route:'product', productHandle:parts[1] };
     if (parts[0] === 'admin' && parts[1] === 'shopping-assistant') return { route:'admin' };
     return { route:'notfound' };
   }
 
   function productCard(p) {
-    return `<article class="prod-card">
+    return `<a class="prod-card" href="#/products/${p.id}" style="text-decoration:none;color:inherit;display:block">
       <div class="art">
         ${p.tag ? `<span class="tag">${p.tag}</span>` : ''}
         <img src="${p.img}" alt="${p.name}" loading="lazy">
@@ -1472,7 +1672,7 @@
         <div class="price">${p.price}</div>
         <button class="add-to-bag" data-name="${p.name}">add to bag</button>
       </div>
-    </article>`;
+    </a>`;
   }
 
   function renderHome() {
@@ -1502,6 +1702,91 @@
     document.getElementById('collectionGrid').innerHTML = PRODUCTS[c.category].map(productCard).join('');
   }
 
+  /* ── Product Detail Page ───────────────────────────────────────────── */
+  const PDP_PYRAMID = {
+    'nespresso-martini-candle': { top:['Espresso','Caramelized Sugar'], heart:['Vanilla','Cream Froth'], base:['Roasted Cacao','Tonka Bean'] },
+    'signature-candle':         { top:['Bergamot','Black Pepper'],       heart:['Agarwood','Vetiver','Atlas Cedar'], base:['Amber','White Musk'] },
+    'racquet-club-candle':      { top:['Green Citrus','Mineral Mist'],   heart:['Vetiver'],                          base:['Blonde Woods','White Musk'] },
+    'new-york-candle':          { top:['Bergamot'],                      heart:['Glowing Amber','Sweet Sage'],       base:['Warm Woods','Musk'] },
+    'london-candle':            { top:['Earl Grey','Bergamot'],          heart:['Creamy Vanilla','Lavender'],        base:['Honey','Tonka Bean'] },
+    'miami-candle':             { top:['Coconut'],                       heart:['Neroli'],                            base:['Sea Salt','White Musk'] },
+  };
+  const PDP_EXTRA_IMAGES = {
+    'nespresso-martini-candle': ['https://cdn.shopify.com/s/files/1/0465/1889/4755/files/nespresso-candle.png?v=1775664356'],
+  };
+  function pdpFeats(cat) {
+    if (cat === 'candles') return [
+      ['65-hour burn','Hand-poured','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>'],
+      ['Clean burn','Coconut-soy','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/></svg>'],
+      ['Reusable vessel','Hand-painted','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 8h10v13H7z"/><path d="M9 3h6v5H9z"/></svg>'],
+    ];
+    if (cat === 'diffusers') return [
+      ['~4 months','Always-on','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
+      ['Flame-free','Natural reeds','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 21V8M12 21V5M16 21V8"/></svg>'],
+      ['Refillable','150ml vessel','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 8h10v13H7z"/><path d="M9 3h6v5H9z"/></svg>'],
+    ];
+    return [
+      ['Niacinamide','Hydrates','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v18M3 12h18"/></svg>'],
+      ['Vitamin B5','Soothes','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>'],
+      ['Argan oil','Softens','<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/></svg>'],
+    ];
+  }
+  function pdpMeta(p) {
+    if (p.cat === 'candles') return [
+      ['Burn time','~65 hours'], ['Size','9.75 oz · 277g'], ['Wax','Coconut-soy blend'], ['Vessel','Hand-painted glass'], ['Wick','Cotton'], ['Made in','USA'],
+    ];
+    if (p.cat === 'diffusers') return [
+      ['Lasts','3–4 months'], ['Volume','5 oz · 150 ml'], ['Reeds','Natural rattan, 8 ct'], ['Vessel','Refillable glass'], ['Best for','Entryways · powder rooms'], ['Made in','USA'],
+    ];
+    return [
+      ['Volume','10 fl oz · 300 ml'], ['Formula','Niacinamide · B5 · argan oil'], ['Vessel','Refillable bottle'], ['Free from','Phthalates · parabens · sulfates'], ['Made in','USA'], ['Vegan','Yes'],
+    ];
+  }
+  function pdpSampleReviews(p) {
+    const samples = [
+      {n:'Alex M.', t:5, txt:'Bought this on a whim and now it\'s the only candle I burn. Smells exactly like the description — luxurious and instantly mood-setting.'},
+      {n:'Jordan K.', t:5, txt:'Hand-poured, beautiful vessel, and the throw fills my whole living room. Worth every penny.'},
+      {n:'Priya S.', t:4, txt:'Lovely scent and burns cleanly. Slightly subtle at first but warms up after a few hours.'},
+    ];
+    return samples.map(s => '<div class="pdp-rev"><div class="pdp-rev-head"><b>' + s.n + '</b><span class="stars">' + '★'.repeat(s.t) + '☆'.repeat(5 - s.t) + '</span></div><p>' + s.txt + '</p></div>').join('');
+  }
+  function pdpRelated(p) {
+    return (PRODUCTS[p.cat] || []).filter(o => o.id !== p.id).slice(0, 4).map(productCard).join('');
+  }
+  function renderPDP(handle) {
+    const p = PRODUCT_BY_ID[handle];
+    if (!p) return;
+    const catSlug = (CAT_SLUG && CAT_SLUG[p.cat]) ? CAT_SLUG[p.cat] : ({candles:'candles',diffusers:'reed-diffusers',handwash:'hand-wash'})[p.cat];
+    const catLabel = { candles:'Candles', diffusers:'Reed Diffusers', handwash:'Hand Wash' }[p.cat];
+    document.getElementById('pdpCrumb').innerHTML = '<a href="#/">Home</a> &nbsp;/&nbsp; <a href="#/collections/' + catSlug + '">' + catLabel + '</a> &nbsp;/&nbsp; ' + p.name;
+    const imgs = [p.img].concat(PDP_EXTRA_IMAGES[handle] || []);
+    const mainImg = document.getElementById('pdpMainImg');
+    mainImg.src = imgs[0]; mainImg.alt = p.name;
+    document.getElementById('pdpThumbs').innerHTML = imgs.map((src, i) => '<button class="pdp-thumb' + (i === 0 ? ' active' : '') + '" data-src="' + src + '"><img src="' + src + '" alt=""></button>').join('');
+    document.getElementById('pdpPageName').textContent = p.name;
+    document.getElementById('pdpPageNotes').textContent = p.scent;
+    document.getElementById('pdpPagePrice').textContent = p.price;
+    const sizes = OPTIONS_BY_CAT[p.cat] || ['Default'];
+    document.getElementById('pdpSizes').innerHTML = sizes.map((s, i) => '<button class="pdp-size' + (i === 0 ? ' active' : '') + '">' + s + '</button>').join('');
+    document.getElementById('pdpQtyInput').value = '1';
+    document.getElementById('pdpShortDesc').textContent = p.desc.split('. ')[0] + '.';
+    document.getElementById('pdpFullDesc').textContent = p.desc;
+    // Feature row
+    const featsHTML = pdpFeats(p.cat).map(f => '<div class="pdp-feat"><span class="ico">' + f[2] + '</span><span class="lbl">' + f[0] + '</span><span class="sub">' + f[1] + '</span></div>').join('');
+    const featsEl = document.querySelector('.pdp-info .pdp-feats'); if (featsEl) featsEl.innerHTML = featsHTML;
+    // Fragrance pyramid
+    const py = PDP_PYRAMID[handle] || (function () {
+      const parts = (p.scent || '').split(' · ');
+      return { top: parts.slice(0,2).filter(Boolean), heart: parts.slice(2,4).filter(Boolean), base: parts.slice(4).filter(Boolean) };
+    })();
+    document.getElementById('pdpPyramid').innerHTML = [['Top','top'],['Heart','heart'],['Base','base']].map(([lbl, k]) => '<div class="lvl"><b>' + lbl + ' Notes</b><span>' + ((py[k] || []).join(' · ') || '—') + '</span></div>').join('');
+    // Meta
+    document.getElementById('pdpMeta').innerHTML = pdpMeta(p).map(([l, v]) => '<div><b>' + l + '</b>' + v + '</div>').join('');
+    // Reviews + related
+    document.getElementById('pdpReviews').innerHTML = pdpSampleReviews(p);
+    document.getElementById('pdpRelated').innerHTML = pdpRelated(p);
+  }
+
   function updateCart() {
     document.querySelectorAll('.js-cart-badge').forEach(b => {
       b.textContent = state.cartCount;
@@ -1525,12 +1810,14 @@
 
   function currentChipSet() {
     if (state.route === 'collection') return SPQ_CHIPS[COLLECTIONS[state.collectionSlug].category] || [];
+    if (state.route === 'product') return PRODUCT_PREVIEW_CHIPS;
     return SPQ_CHIPS.home;
   }
   // Is the floating-SPQ feature enabled for the current storefront surface?
   function surfaceEnabled() {
     if (state.route === 'home') return state.spqSettings.home;
     if (state.route === 'collection') return state.spqSettings.collection;
+    if (state.route === 'product') return state.spqSettings.product;
     return true;
   }
 
@@ -1551,7 +1838,7 @@
 
   // Closed-state entry point — varies by flow (ASAP launcher / Medium dock / Longer search).
   function renderClosedWidget() {
-    const isStore = state.route === 'home' || state.route === 'collection';
+    const isStore = state.route === 'home' || state.route === 'collection' || state.route === 'product';
     const closed = document.getElementById('chatClosed');
     const dock = document.getElementById('chatDock');
 
@@ -1743,7 +2030,7 @@
     document.getElementById('chatFollowups').innerHTML = ''; state.spqDismissed = false; state.hoodActive = false;
     document.getElementById('chatDock').classList.remove('minimized');
     state.spqRevealed = false; clearTimeout(spqRevealTimer);
-    const isStore = state.route === 'home' || state.route === 'collection';
+    const isStore = state.route === 'home' || state.route === 'collection' || state.route === 'product';
     if (isStore) spqRevealTimer = setTimeout(() => { state.spqRevealed = true; renderClosedWidget(); }, 800);
     renderClosedWidget();
   }
@@ -1835,6 +2122,7 @@
   };
   function chatCategory() {
     if (state.route === 'collection') return COLLECTIONS[state.collectionSlug].category;
+    if (state.route === 'product' && PRODUCT_BY_ID[state.productHandle]) return PRODUCT_BY_ID[state.productHandle].cat;
     return 'candles';
   }
   function matchVibe(text) { return VIBES[(text || '').trim()] || null; }
@@ -2135,10 +2423,11 @@
     const parsed = parseHash();
     state.route = parsed.route;
     state.collectionSlug = parsed.collectionSlug || null;
+    state.productHandle = parsed.productHandle || null;
 
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.route === state.route));
 
-    const isStore = state.route === 'home' || state.route === 'collection';
+    const isStore = state.route === 'home' || state.route === 'collection' || state.route === 'product';
     document.getElementById('storefrontHeader').classList.toggle('show', isStore);
     document.getElementById('storefrontFooter').style.display = isStore ? 'block' : 'none';
     const topBtn = document.getElementById('topNavBtn');
@@ -2160,6 +2449,7 @@
 
     if (state.route === 'home') renderHome();
     if (state.route === 'collection') renderCollection(state.collectionSlug);
+    if (state.route === 'product') renderPDP(state.productHandle);
 
     closeMenus();
     document.getElementById('routeChip').textContent = location.hash || '#/';
@@ -2186,10 +2476,23 @@
     document.getElementById('mobileClose').addEventListener('click', () => document.getElementById('mobileSheet').classList.remove('open'));
     document.getElementById('mobileSheet').addEventListener('click', (e) => { if (e.target.tagName === 'A') closeMenus(); });
 
-    // Add-to-bag → bump cart badge (full cart UI arrives with the chat widget, Step 4)
+    // Add-to-bag → bump cart badge (and stop the parent product-card link from navigating)
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('.add-to-bag');
-      if (btn) { state.cartCount++; updateCart(); }
+      if (btn) { e.preventDefault(); e.stopPropagation(); state.cartCount++; updateCart(); }
+    });
+
+    // PDP interactions (size pills, thumbs, qty, buy, accordions)
+    document.addEventListener('click', (e) => {
+      const size = e.target.closest('.pdp-size');
+      if (size) { document.querySelectorAll('.pdp-size').forEach(x => x.classList.remove('active')); size.classList.add('active'); return; }
+      const thumb = e.target.closest('.pdp-thumb');
+      if (thumb) { document.querySelectorAll('.pdp-thumb').forEach(x => x.classList.remove('active')); thumb.classList.add('active'); const img = document.getElementById('pdpMainImg'); if (img) img.src = thumb.dataset.src; return; }
+      if (e.target && e.target.id === 'pdpQtyMinus') { const i = document.getElementById('pdpQtyInput'); i.value = Math.max(1, (parseInt(i.value) || 1) - 1); return; }
+      if (e.target && e.target.id === 'pdpQtyPlus')  { const i = document.getElementById('pdpQtyInput'); i.value = (parseInt(i.value) || 1) + 1; return; }
+      if (e.target && e.target.id === 'pdpBuy') { const n = parseInt(document.getElementById('pdpQtyInput').value) || 1; state.cartCount += n; updateCart(); if (typeof showToast === 'function') showToast('Added to bag'); return; }
+      const acc = e.target.closest('.pdp-acc-head');
+      if (acc) { acc.parentElement.classList.toggle('open'); return; }
     });
   }
 
