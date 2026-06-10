@@ -3394,7 +3394,7 @@
             <span class="page-title">Settings</span>
           </div>
           <div style="display:flex; align-items:center; gap:8px">
-            <button class="header-tertiary-btn" id="flow3-header-switchback-btn" style="display:none">Switch to old chat</button>
+            <button class="header-tertiary-btn" id="flow3-header-switchback-btn" style="display:none">Switch to previous chat</button>
             <button class="save-btn">Save</button>
           </div>
         </div>
@@ -3403,8 +3403,8 @@
       <!-- Flow 3 — In-panel lavender configure banner (sits inside the left settings panel, below Settings header) -->
       <div class="in-panel-banner lavender" id="flow3-panel-configure-banner" style="display:none">
         <div class="in-panel-banner-text">
-          <div class="in-panel-banner-title">You're previewing the new chat. Switch now?</div>
-          <div class="in-panel-banner-desc">Switch today to give your shoppers the updated chat experience. You can switch back anytime before August 1.</div>
+          <div class="in-panel-banner-title">You're previewing the new chat experience</div>
+          <div class="in-panel-banner-desc">Give your shoppers the updated chat experience. Switch back anytime before August 1.</div>
         </div>
         <div class="in-panel-banner-actions">
           <button class="in-panel-banner-btn" id="flow3-panel-update-btn">Switch now</button>
@@ -4071,7 +4071,7 @@
   <div class="modal-overlay" id="switch-back-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title">Switch to old chat?</div>
+        <div class="modal-title">Do you want to keep the new chat?</div>
         <button class="modal-close-btn" id="switch-back-close" aria-label="Close">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -4109,13 +4109,13 @@
   <div class="modal-overlay" id="flow2-switch-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title">Switch to the new chat?</div>
+        <div class="modal-title">Switch to the new chat experience?</div>
         <button class="modal-close-btn" id="flow2-switch-close" aria-label="Close">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
       <div class="modal-body">
-        Your changes may take up to 30 minutes to appear.
+        Your changes may take up to 30 minutes for all shoppers.
       </div>
       <div class="modal-footer">
         <button class="modal-btn tertiary" id="flow2-switch-cancel">Cancel</button>
@@ -4983,7 +4983,8 @@
         newEl.style.display = 'flex';
       } else if (flow1State === 'blondo-configure') {
         applyBranding(BLONDO);
-        if (f2ConfigBanner) f2ConfigBanner.style.display = '';
+        // Show the in-panel lavender configure banner (matches the Core flow's preview state)
+        if (f3PanelConfigure) f3PanelConfigure.style.display = '';
         legacyEl.style.display = 'none';
         newEl.style.display = 'flex';
       } else if (flow1State === 'blondo-confirm') {
@@ -5074,14 +5075,18 @@
     applyFlow();
   });
   if (flow3PanelGoBackBtn) flow3PanelGoBackBtn.addEventListener('click', () => {
-    if (currentFlow !== 3) return;
-    flow3State = 'preview';
-    applyFlow();
+    if (currentFlow === 3) { flow3State = 'preview'; applyFlow(); return; }
+    if (currentFlow === 1 && flow1State === 'blondo-configure') {
+      // Multi list Blondo — "Leave preview" returns to the chat list
+      flow1State = 'list'; applyFlow();
+    }
   });
   if (flow3PanelUpdateBtn) flow3PanelUpdateBtn.addEventListener('click', () => {
-    if (currentFlow !== 3) return;
-    const m = document.getElementById('flow2-switch-modal');
-    if (m) m.classList.add('open');
+    // Core (Flow 3) AND Multi list Blondo both open the same Switch-to-new-chat modal
+    if (currentFlow === 3 || (currentFlow === 1 && flow1State === 'blondo-configure')) {
+      const m = document.getElementById('flow2-switch-modal');
+      if (m) m.classList.add('open');
+    }
   });
   // Toast close X (manual dismiss)
   const flow3ToastClose = document.getElementById('flow3-toast-close');
@@ -5148,10 +5153,14 @@
     if (confirm) confirm.addEventListener('click', () => {
       close();
       if (currentFlow === 3) {
-        // Flow 3: jump straight to settled + show Axiom toast (no green banner)
+        // Core: jump straight to settled + show Axiom toast (no green banner)
         flow3State = 'settled';
         applyFlow();
         showFlow3Toast();
+      } else if (currentFlow === 1 && flow1State === 'blondo-configure') {
+        // Multi list Blondo: green confirmation (5s) → settled state with header switch-back
+        flow1State = 'blondo-confirm'; applyFlow();
+        flowConfirmTimer = setTimeout(() => { flow1State = 'blondo-settled'; applyFlow(); flowConfirmTimer = null; }, 5000);
       } else {
         flow2State = 3; applyFlow();
         flowConfirmTimer = setTimeout(() => { flow2State = 4; applyFlow(); flowConfirmTimer = null; }, 5000);
