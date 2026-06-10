@@ -2826,11 +2826,11 @@
       <!-- Flow 3 — In-panel pink preview banner (sits inside the left settings panel) -->
       <div class="in-panel-banner pink" id="flow3-panel-preview-banner" style="display:none">
         <div class="in-panel-banner-text">
-          <div class="in-panel-banner-title">A fresh look for chat</div>
-          <div class="in-panel-banner-desc">Preview and edit the refreshed settings and design before updating. Update now and switch back anytime before July 27th.</div>
+          <div class="in-panel-banner-title">A new chat experience is ready</div>
+          <div class="in-panel-banner-desc">Preview the changes, or switch now. Switch back anytime before August 1, when all accounts move to the new design.</div>
         </div>
         <div class="in-panel-banner-actions">
-          <button class="in-panel-banner-btn" id="flow3-panel-preview-btn">Preview new chat</button>
+          <button class="in-panel-banner-btn" id="flow3-panel-preview-btn">Preview</button>
         </div>
       </div>
 
@@ -2992,15 +2992,15 @@
       <div class="legacy-form" id="legacy-form-preferences" style="display:none">
         <div class="legacy-section">
           <h2>Live chat</h2>
-          <div class="legacy-section-desc">Choose when customers can send live chat messages to your team during <a class="legacy-link">business hours</a>. Live chat is always unavailable outside business hours.</div>
-          <label class="legacy-radio-row" style="align-items:flex-start"><input type="radio" name="legacy-live" /> <div><div class="legacy-radio-text">Live when agents are available</div><div class="legacy-radio-help">Customers can only send live chat messages when an agent is available in Gorgias.</div></div></label>
-          <label class="legacy-radio-row" style="align-items:flex-start"><input type="radio" name="legacy-live" checked /> <div><div class="legacy-radio-text">Always live during business hours</div><div class="legacy-radio-help">Customers can always send live chat messages during business hours</div></div></label>
-          <label class="legacy-radio-row" style="align-items:flex-start"><input type="radio" name="legacy-live" /> <div><div class="legacy-radio-text">Offline</div><div class="legacy-radio-help">Customers can only send messages using the offline capture</div></div></label>
+          <div class="legacy-section-desc">Choose when shoppers can send live chat messages to your team during <a class="legacy-link">business hours</a>. Live chat is always unavailable outside business hours.</div>
+          <label class="legacy-radio-row" style="align-items:flex-start"><input type="radio" name="legacy-live" /> <div><div class="legacy-radio-text">Live when agents are available</div><div class="legacy-radio-help">Shoppers can only send live chat messages when an agent is available in Gorgias.</div></div></label>
+          <label class="legacy-radio-row" style="align-items:flex-start"><input type="radio" name="legacy-live" checked /> <div><div class="legacy-radio-text">Always live during business hours</div><div class="legacy-radio-help">Shoppers can always send live chat messages during business hours</div></div></label>
+          <label class="legacy-radio-row" style="align-items:flex-start"><input type="radio" name="legacy-live" /> <div><div class="legacy-radio-text">Offline</div><div class="legacy-radio-help">Shoppers can only send messages using the offline capture</div></div></label>
         </div>
 
         <div class="legacy-section">
           <h2>Require automated interaction</h2>
-          <div class="legacy-section-desc">Hide "Send us a message" so customers must start with an automation button before they can send a message.</div>
+          <div class="legacy-section-desc">Hide "Send us a message" so shoppers must start with an automation button before they can send a message.</div>
           <div class="legacy-toggle-row"><div class="toggle" id="legacy-start-automation-toggle"></div><div class="text-block"><div class="title">Remove "Send us a message" button</div></div></div>
         </div>
 
@@ -3013,7 +3013,7 @@
 
         <div class="legacy-section">
           <h2>Email capture</h2>
-          <div class="legacy-section-desc">Collecting customer emails helps grow your email list and send follow-up messages. However, only around 30% of customers will send a message if they must provide an email.</div>
+          <div class="legacy-section-desc">Collecting shopper emails helps grow your email list and send follow-up messages. However, only around 30% of shoppers will send a message if they must provide an email.</div>
           <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle" id="legacy-collect-emails-toggle"></div><div class="text-block"><div class="title">Enable email capture</div></div></div>
           <label class="legacy-radio-row"><input type="radio" name="legacy-email" value="optional" checked /> <span class="legacy-radio-text">Optional</span></label>
           <label class="legacy-radio-row"><input type="radio" name="legacy-email" value="required" /> <span class="legacy-radio-text">Required</span></label>
@@ -3021,7 +3021,7 @@
 
         <div class="legacy-section">
           <h2>Auto-reply with wait time</h2>
-          <div class="legacy-section-desc">During <a class="legacy-link">business hours</a>, let customers know how fast they can expect a response with an auto-reply. A message is sent in new chat tickets after 30 seconds without replies from an agent.</div>
+          <div class="legacy-section-desc">During <a class="legacy-link">business hours</a>, let shoppers know how fast they can expect a response with an auto-reply. A message is sent in new chat tickets after 30 seconds without replies from an agent.</div>
           <div class="legacy-toggle-row" style="margin-bottom:12px"><div class="toggle" id="legacy-share-wait-toggle"></div><div class="text-block"><div class="title">Send auto-reply with wait time</div></div></div>
           <label class="legacy-radio-row"><input type="radio" name="legacy-wait" value="dynamic" checked /> <span class="legacy-radio-text">Dynamic wait time (recommended)</span></label>
           <label class="legacy-radio-row"><input type="radio" name="legacy-wait" value="few-minutes" /> <span class="legacy-radio-text">In a few minutes</span></label>
@@ -3037,10 +3037,10 @@
 
         <div class="legacy-section">
           <h2>Connect email</h2>
-          <div class="legacy-section-desc">Connect an email to your chat to send conversation transcripts, offline capture confirmation, and <a class="legacy-link">satisfaction surveys</a> to your customers.</div>
+          <div class="legacy-section-desc">Connect an email to your chat to send conversation transcripts, offline capture confirmation, and <a class="legacy-link">satisfaction surveys</a> to your shoppers.</div>
           <label class="legacy-field-label">Select which email address sends these messages</label>
           <select class="legacy-select" style="max-width:none"><option>Glossier gTEAM &lt;gteam@glossier.com&gt;</option></select>
-          <div class="legacy-toggle-row" style="margin-top:16px"><div class="toggle on"></div><div class="text-block"><div class="title">Send chat transcripts to customer email</div><div class="help">When customers don't see your message in chat, we automatically send them a transcript after 30 minutes.</div></div></div>
+          <div class="legacy-toggle-row" style="margin-top:16px"><div class="toggle on"></div><div class="text-block"><div class="title">Send chat transcripts to shopper email</div><div class="help">When shoppers don't see your message in chat, we automatically send them a transcript after 30 minutes.</div></div></div>
         </div>
       </div>
 
@@ -3339,7 +3339,7 @@
       </div>
       <div class="top-banner-text">
         <span class="top-banner-title">You're previewing the new chat</span>
-        <span class="top-banner-desc">Edit and enable your new chat for customers</span>
+        <span class="top-banner-desc">Edit and enable your new chat for shoppers</span>
       </div>
       <div class="top-banner-actions">
         <button class="top-banner-btn" id="flow2-publish-btn">Enable new chat</button>
@@ -3404,10 +3404,10 @@
       <div class="in-panel-banner lavender" id="flow3-panel-configure-banner" style="display:none">
         <div class="in-panel-banner-text">
           <div class="in-panel-banner-title">You're previewing the new chat. Switch now?</div>
-          <div class="in-panel-banner-desc">Customers still see your current chat. Switch to the new chat below, and switch back anytime before July 27th.</div>
+          <div class="in-panel-banner-desc">Switch today to give your shoppers the updated chat experience. You can switch back anytime before August 1.</div>
         </div>
         <div class="in-panel-banner-actions">
-          <button class="in-panel-banner-btn" id="flow3-panel-update-btn">Switch to new chat</button>
+          <button class="in-panel-banner-btn" id="flow3-panel-update-btn">Switch now</button>
           <button class="in-panel-banner-btn secondary" id="flow3-panel-goback-btn">Leave preview</button>
         </div>
       </div>
@@ -3474,7 +3474,7 @@
 
             <div class="field">
               <div class="field-sublabel">Greeting</div>
-              <div class="field-help">Set a greeting when customers open chat · 50 characters max</div>
+              <div class="field-help">Set a greeting when shoppers open chat · 50 characters max</div>
 
               <div class="field">
                 <div class="field-help" style="color:#1e242e;font-weight:500">During business hours</div>
@@ -3579,7 +3579,7 @@
           <!-- How team appears card -->
           <div class="card">
             <div>
-              <div class="card-title">How your team appears to customers</div>
+              <div class="card-title">How your team appears to shoppers</div>
               <div class="card-subtitle">Choose how your team's name and profile appear in conversations.</div>
             </div>
             <div class="field">
@@ -3608,16 +3608,16 @@
               <div class="card-subtitle">Control when shoppers can start a live chat and what happens outside business hours.</div>
             </div>
             <div class="field">
-              <label class="radio-row"><input class="radio" type="radio" name="avail" checked /> <div><div class="radio-text">Live when agents are available</div><div class="radio-help">Customers can only send live chat messages when an agent is available in Gorgias.</div></div></label>
-              <label class="radio-row"><input class="radio" type="radio" name="avail" /> <div><div class="radio-text">Always live during business hours</div><div class="radio-help">Customers can always send live chat messages during business hours.</div></div></label>
-              <label class="radio-row"><input class="radio" type="radio" name="avail" /> <div><div class="radio-text">Offline (capture messages only)</div><div class="radio-help">Customers can only send messages using the offline capture.</div></div></label>
+              <label class="radio-row"><input class="radio" type="radio" name="avail" checked /> <div><div class="radio-text">Live when agents are available</div><div class="radio-help">Shoppers can only send live chat messages when an agent is available in Gorgias.</div></div></label>
+              <label class="radio-row"><input class="radio" type="radio" name="avail" /> <div><div class="radio-text">Always live during business hours</div><div class="radio-help">Shoppers can always send live chat messages during business hours.</div></div></label>
+              <label class="radio-row"><input class="radio" type="radio" name="avail" /> <div><div class="radio-text">Offline (capture messages only)</div><div class="radio-help">Shoppers can only send messages using the offline capture.</div></div></label>
             </div>
           </div>
           <div class="card">
             <div class="card-header-row">
               <div>
                 <div class="card-title">Start conversations with automation</div>
-                <div class="card-subtitle">Decide if customers begin chatting with your automated flows before reaching your team.</div>
+                <div class="card-subtitle">Decide if shoppers begin chatting with your automated flows before reaching your team.</div>
               </div>
               <div class="toggle" id="start-automation-toggle" role="switch"></div>
             </div>
@@ -3625,17 +3625,17 @@
           <div class="card">
             <div>
               <div class="card-title">Where chat appears</div>
-              <div class="card-subtitle">Control when and where your chat widget is visible to customers.</div>
+              <div class="card-subtitle">Control when and where your chat widget is visible to shoppers.</div>
             </div>
             <div class="pref-row"><div class="toggle on"></div><div class="text-block"><div class="title">Display chat</div><div class="help">Turn off to temporarily remove the chat widget from your website without uninstalling it.</div></div></div>
             <div class="pref-row"><div class="toggle on"></div><div class="text-block"><div class="title">Show chat outside of business hours</div><div class="help">Automatically hide the widget when your team is offline.</div></div></div>
             <div class="pref-row"><div class="toggle on"></div><div class="text-block"><div class="title">Show on mobile</div><div class="help">Turn off to hide the chat widget from your mobile site.</div></div></div>
-            <div class="pref-row"><div class="toggle"></div><div class="text-block"><div class="title">Display campaigns when chat is hidden</div><div class="help">Keep campaigns visible even when chat is turned off. Customers won't be able to reply.</div></div></div>
+            <div class="pref-row"><div class="toggle"></div><div class="text-block"><div class="title">Display campaigns when chat is hidden</div><div class="help">Keep campaigns visible even when chat is turned off. Shoppers won't be able to reply.</div></div></div>
           </div>
           <div class="card">
             <div class="card-header-row">
               <div>
-                <div class="card-title">Collect customer emails</div>
+                <div class="card-title">Collect shopper emails</div>
                 <div class="card-subtitle">Grow your email list and send follow-up messages.</div>
               </div>
               <div class="toggle" id="collect-emails-toggle" role="switch"></div>
@@ -3657,8 +3657,8 @@
           <div class="card">
             <div class="card-header-row">
               <div>
-                <div class="card-title">Share wait time with customers</div>
-                <div class="card-subtitle">Let customers know when to expect a reply while waiting for your team.</div>
+                <div class="card-title">Share wait time with shoppers</div>
+                <div class="card-subtitle">Let shoppers know when to expect a reply while waiting for your team.</div>
               </div>
               <div class="toggle" id="share-wait-toggle" role="switch"></div>
             </div>
@@ -3667,7 +3667,7 @@
                 <input class="radio" type="radio" name="wait-mode" value="dynamic" checked style="margin-top:3px" />
                 <div>
                   <div class="radio-text">Dynamic wait time (recommended)</div>
-                  <div class="radio-help">Customers can only send live chat messages when an agent is available in Gorgias.</div>
+                  <div class="radio-help">Shoppers can only send live chat messages when an agent is available in Gorgias.</div>
                 </div>
               </label>
               <label class="radio-row">
@@ -3683,7 +3683,7 @@
           <div class="card">
             <div>
               <div class="card-title">Shopper experience</div>
-              <div class="card-subtitle">Customize how customers experience chat after the conversation.</div>
+              <div class="card-subtitle">Customize how shoppers experience chat after the conversation.</div>
             </div>
             <div class="field">
               <div class="field-sublabel">Connect email</div>
@@ -3697,15 +3697,15 @@
             <label class="checkbox-row" style="align-items:flex-start;gap:8px">
               <input type="checkbox" class="checkbox" style="margin-top:2px" />
               <div>
-                <div style="color:#1e242e">Send conversation transcripts to customers</div>
-                <div class="field-help" style="margin-top:2px">If a customer doesn't see your reply in chat, we'll automatically send them a transcript after 30 minutes.</div>
+                <div style="color:#1e242e">Send conversation transcripts to shoppers</div>
+                <div class="field-help" style="margin-top:2px">If a shopper doesn't see your reply in chat, we'll automatically send them a transcript after 30 minutes.</div>
               </div>
             </label>
             <label class="checkbox-row" style="align-items:flex-start;gap:8px">
               <input type="checkbox" class="checkbox" style="margin-top:2px" />
               <div>
                 <div style="color:#1e242e">Send CSAT</div>
-                <div class="field-help" style="margin-top:2px">Send a customer satisfaction survey after each conversation.</div>
+                <div class="field-help" style="margin-top:2px">Send a shopper satisfaction survey after each conversation.</div>
               </div>
             </label>
           </div>
@@ -3716,7 +3716,7 @@
           <div class="card">
             <div>
               <div class="card-title">Flows</div>
-              <div class="card-subtitle">Show up to 6 flows on your chat to proactively resolve top customer requests.</div>
+              <div class="card-subtitle">Show up to 6 flows on your chat to proactively resolve top shopper requests.</div>
             </div>
             <div class="flow-list">
               <div class="flow-item"><span class="flow-grip">⋮⋮</span><span class="flow-name">Tennis Racket Finder</span><span class="flow-actions">✎ ✕</span></div>
@@ -3731,7 +3731,7 @@
             <div class="card-header-row">
               <div>
                 <div class="card-title">Order management</div>
-                <div class="card-subtitle">Let customers sign in to track, return, cancel or report issues with orders.</div>
+                <div class="card-subtitle">Let shoppers sign in to track, return, cancel or report issues with orders.</div>
               </div>
               <div class="toggle on" id="order-management-toggle" role="switch"></div>
             </div>
@@ -3883,7 +3883,7 @@
             <div class="setup-field-block">
               <label class="setup-field-label" for="setup-chat-title">Chat title<span class="required">*</span></label>
               <input type="text" id="setup-chat-title" class="setup-input" value="very-good-things-store" />
-              <div class="setup-field-help">Give your chat a name for internal reference. This title won't be visible to customers.</div>
+              <div class="setup-field-help">Give your chat a name for internal reference. This title won't be visible to shoppers.</div>
             </div>
 
             <div class="setup-field-block">
@@ -3927,7 +3927,7 @@
             </div>
 
             <div class="setup-field-block">
-              <div class="setup-field-label">Choose how to connect with customers</div>
+              <div class="setup-field-label">Choose how to connect with shoppers</div>
               <div class="setup-radio selected" data-group="connect-mode" data-value="live">
                 <span class="radio-dot"></span>
                 <div class="setup-radio-body">
@@ -4024,7 +4024,7 @@
                 <div class="order-title">Order management</div>
                 <div class="order-badge">Automate up to 30% of tickets</div>
               </div>
-              <div class="order-desc">Let customers sign in to track, return, cancel or report issues with orders.</div>
+              <div class="order-desc">Let shoppers sign in to track, return, cancel or report issues with orders.</div>
             </div>
             <div class="setup-axiom-toggle on" id="setup-order-toggle" role="switch" aria-checked="true">
               <span class="knob"></span>
@@ -4071,13 +4071,13 @@
   <div class="modal-overlay" id="switch-back-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title">Switch back to the old chat?</div>
+        <div class="modal-title">Switch to old chat?</div>
         <button class="modal-close-btn" id="switch-back-close" aria-label="Close">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
       <div class="modal-body">
-        Switch anytime before July 27. Changes can take up to 30 minutes to appear across your store.
+        Switch back anytime before August 1, when the new design goes into effect permanently.
       </div>
       <div class="modal-footer">
         <button class="modal-btn tertiary" id="switch-back-cancel">Cancel</button>
@@ -4109,17 +4109,17 @@
   <div class="modal-overlay" id="flow2-switch-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title">Switch to new chat</div>
+        <div class="modal-title">Switch to the new chat?</div>
         <button class="modal-close-btn" id="flow2-switch-close" aria-label="Close">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
       <div class="modal-body">
-        Changes can take up to 30 minutes to appear across your store.
+        Your changes may take up to 30 minutes to appear.
       </div>
       <div class="modal-footer">
         <button class="modal-btn tertiary" id="flow2-switch-cancel">Cancel</button>
-        <button class="modal-btn destructive" id="flow2-switch-confirm">Switch</button>
+        <button class="modal-btn destructive" id="flow2-switch-confirm">Switch now</button>
       </div>
     </div>
   </div>
@@ -4131,7 +4131,7 @@
         <path d="M12.3333 8.44444L9.22222 11.5556L7.66667 10M10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17Z" stroke="#147656" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </span>
-    <span class="toast-text">You're on the updated chat</span>
+    <span class="toast-text">You're on the new chat</span>
     <button class="toast-close" id="flow3-toast-close" aria-label="Dismiss">
       <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M11.98 11.99L7.99 8.00001M7.99 8.00001L4 4.01001M7.99 8.00001L11.98 4.01001M7.99 8.00001L4 11.99" stroke="#1E242E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -4170,7 +4170,7 @@
   // respects bizMode (the new prototype's panel-based override doesn't apply).
   function deriveChatContent(forLegacy) {
     const effectiveBiz = (!forLegacy && state.panel === 'preferences') ? 'during' : state.bizMode;
-    let customerBubbleText = 'I need a new light foundation';
+    let shopperBubbleText = 'I need a new light foundation';
     let agentMsgText = null, statusText = null;
     let showEmailCapture = false, showInput = true;
 
@@ -4196,7 +4196,7 @@
     } else {
       statusText = effectiveBiz === 'outside' ? 'Back online at 9:00 AM EST' : null;
     }
-    return { customerBubbleText, agentMsgText, statusText, showEmailCapture, showInput, effectiveBiz };
+    return { shopperBubbleText, agentMsgText, statusText, showEmailCapture, showInput, effectiveBiz };
   }
 
   // Render a phone (new prototype's chat preview) — works for both #phone and #lp-phone.
@@ -4265,8 +4265,8 @@
 
     // Chat view content
     const c = deriveChatContent(prefix === 'lp-');
-    const customerBubble = p('chat-bubble-customer');
-    if (customerBubble) customerBubble.textContent = c.customerBubbleText;
+    const shopperBubble = p('chat-bubble-customer');
+    if (shopperBubble) shopperBubble.textContent = c.shopperBubbleText;
 
     const agentMsgEl = p('agent-msg');
     if (agentMsgEl) {
@@ -4510,7 +4510,7 @@
   const labelInput = $('#launcher-label');
   if (labelInput) labelInput.addEventListener('input', render);
 
-  // Collect customer emails toggle
+  // Collect shopper emails toggle
   $('#collect-emails-toggle').addEventListener('click', () => {
     state.collectEmails = !state.collectEmails;
     render();
