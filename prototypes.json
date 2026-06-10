@@ -32,6 +32,14 @@
     "image": "one_bone_brand_ads_to_messaging.png"
   },
   {
+    "name": "OSEA · Ads to Messaging",
+    "author": "Ava",
+    "date": "2026-06-05",
+    "description": "OSEA build of the ads-to-messaging prototype, featuring the Hyaluronic Sea Serum. Instagram ad → PDP and Direct-to-chat flows (no half-sheet) with multi-turn AI dialogue. PDP shows the serum gallery, $88, and a 1 fl oz size. SPQs and chat answers are tuned to OSEA's clean, coastal voice — how to use, benefits, skin type, ingredients (two HA weights + Japanese seaweed), layering, results, and a first-order offer.",
+    "file": "osea_malibu_ads_to_messaging.html",
+    "image": "osea_malibu_ads_to_messaging.png"
+  },
+  {
     "name": "Farmacy · Cart Recovery Chat",
     "author": "Ava",
     "date": "2026-05-20",
