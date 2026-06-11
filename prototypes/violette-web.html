@@ -400,11 +400,9 @@ img { display: block; max-width: 100%; }
   background: rgba(22,17,12,0.20); margin: 0 auto;
 }
 .dock-actions {
-  position: absolute; left: 0; right: 0; top: -2px;
-  display: flex; justify-content: space-between; align-items: center;
-  pointer-events: none;
+  position: absolute; right: 0; top: -2px;
+  display: flex; gap: 4px;
 }
-.dock-actions > * { pointer-events: auto; }
 .hood-btn {
   width: 28px; height: 28px; border-radius: 50%; border: 0;
   background: rgba(255,255,255,0.7); color: #5a5147;
@@ -433,15 +431,18 @@ img { display: block; max-width: 100%; }
   }
 }
 
-/* Circular Gorgias-style chat launcher (shown after close) */
+/* Circular chat launcher — modeled on violettefr.com's real Gorgias widget:
+   white circle, blue speech-bubble with three white dots, soft drop shadow. */
 .chat-launcher {
   position: fixed; right: 24px; z-index: 49;
   bottom: max(24px, env(safe-area-inset-bottom));
   width: 60px; height: 60px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--purple), var(--navy-deep));
-  color: #fff; border: 0; cursor: pointer;
+  background: #fff;
+  color: var(--bag-accent);              /* speech-bubble fill */
+  border: 0; cursor: pointer;
+  padding: 16px;
   display: inline-flex; align-items: center; justify-content: center;
-  box-shadow: 0 14px 32px rgba(22,17,12,0.28), 0 2px 6px rgba(22,17,12,0.18);
+  box-shadow: rgba(22,22,22,0.16) 0px 2px 4px, 0 8px 20px rgba(22,17,12,0.14);
   opacity: 0; transform: scale(0.35);
   pointer-events: none;
   transition: opacity 0.32s ease 0.16s,
@@ -452,13 +453,9 @@ img { display: block; max-width: 100%; }
   opacity: 1; transform: scale(1);
   pointer-events: auto;
 }
-.chat-launcher:hover { transform: scale(1.06); box-shadow: 0 18px 40px rgba(22,17,12,0.32); }
+.chat-launcher:hover { transform: scale(1.06); box-shadow: rgba(22,22,22,0.20) 0 4px 8px, 0 14px 30px rgba(22,17,12,0.20); }
 .chat-launcher.show:active { transform: scale(0.96); }
-.chat-launcher .badge {
-  position: absolute; top: -2px; right: -2px;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: #2ecc71; border: 2px solid #fff;
-}
+.chat-launcher svg { width: 100%; height: 100%; }
 
 .dock-preview {
   display: flex; flex-direction: row; flex-wrap: nowrap;
@@ -589,7 +586,10 @@ img { display: block; max-width: 100%; }
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   FULL CHAT PANEL (slides up when expand icon tapped)
+   FULL CHAT PANEL — mirrors the real VIOLETTE_FR Gorgias chat:
+   royal-blue background, glassy header pills, vertical SPQ stack,
+   user messages as glassy bubbles, bot replies as full-width white
+   cards with a "Was this helpful?" tail, white "Ask anything" input.
    ════════════════════════════════════════════════════════════════════ */
 .chat-scrim {
   position: fixed; inset: 0; background: rgba(22,17,12,0.32);
@@ -600,72 +600,167 @@ img { display: block; max-width: 100%; }
 .chat-panel {
   position: fixed; right: 24px; bottom: 24px; z-index: 61;
   width: 420px; height: min(680px, calc(100vh - 80px));
-  background: #fff; border-radius: 22px;
+  background: #1B52D4;                       /* Violette blue */
+  border-radius: 22px;
   box-shadow: 0 30px 70px rgba(22,17,12,0.30);
   display: flex; flex-direction: column;
   overflow: hidden;
   transform: translateY(20px) scale(0.96); opacity: 0;
   transition: transform 0.26s cubic-bezier(0.2,0.8,0.2,1), opacity 0.22s;
   visibility: hidden;
+  color: #fff;
 }
 .chat-panel.open { transform: translateY(0) scale(1); opacity: 1; visibility: visible; }
+
 .chat-head {
-  padding: 18px 20px; border-bottom: 1px solid var(--line);
-  display: flex; align-items: center; gap: 12px;
+  padding: 14px 14px 6px;
+  display: flex; align-items: center; gap: 8px;
 }
-.chat-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--purple), var(--navy-deep));
-  display: inline-flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 700; font-size: 14px;
+.chat-head .spacer { flex: 1; }
+.chat-head-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.32);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 7px 13px; font-size: 13px;
+  font-family: inherit; cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: background 0.15s;
 }
-.chat-title {
-  flex: 1; font-size: 14px; font-weight: 600; color: var(--ink);
+.chat-head-btn:hover { background: rgba(255,255,255,0.28); }
+.chat-head-btn.icon-only {
+  width: 36px; height: 36px; padding: 0; justify-content: center;
 }
-.chat-title small {
-  display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px;
+.chat-head-btn[hidden] { display: none; }
+
+.chat-subtitle {
+  text-align: center;
+  color: rgba(255,255,255,0.92);
+  font-size: 13px;
+  padding: 12px 24px 14px;
 }
-.chat-close {
-  width: 32px; height: 32px; border-radius: 50%; border: 0;
-  background: var(--surface); color: var(--ink);
-  display: inline-flex; align-items: center; justify-content: center;
+
+.chat-body {
+  flex: 1; overflow-y: auto;
+  padding: 4px 16px 4px;
+  scrollbar-width: none;
+  display: flex; flex-direction: column;
 }
-.chat-close:hover { background: var(--line); }
-.chat-thread {
-  flex: 1; overflow-y: auto; padding: 18px 20px;
+.chat-body::-webkit-scrollbar { display: none; }
+
+/* Empty state: vertical SPQ stack (glassy white-bordered pills) */
+.chat-spq-stack {
   display: flex; flex-direction: column; gap: 12px;
+  padding: 6px 0;
 }
+.chat-stack-chip {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 13px 20px;
+  font-size: 14px; font-family: inherit;
+  text-align: left;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: background 0.15s;
+  animation: stackChipRise 0.4s cubic-bezier(0.34,1.56,0.64,1) backwards;
+}
+.chat-stack-chip:hover { background: rgba(255,255,255,0.22); }
+@keyframes stackChipRise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Conversation */
 .chat-msg {
-  max-width: 80%; padding: 10px 14px; border-radius: 18px;
-  font-size: 14px; line-height: 1.5;
+  font-size: 14px; line-height: 1.55;
+  animation: msgIn 0.28s ease;
 }
-.chat-msg.bot { background: var(--surface); color: var(--ink); border-radius: 18px 18px 18px 4px; align-self: flex-start; }
-.chat-msg.user { background: var(--ink); color: #fff; border-radius: 18px 18px 4px 18px; align-self: flex-end; }
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat-msg.user {
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.32);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  border-radius: 18px;
+  padding: 10px 16px;
+  max-width: 80%;
+  align-self: flex-end;
+  margin: 10px 0 6px;
+}
+.chat-msg.bot {
+  background: #fff;
+  color: var(--ink);
+  border-radius: 16px;
+  padding: 18px 20px 16px;
+  align-self: stretch;
+  margin: 8px 0;
+}
+.chat-msg.bot .helpful {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Follow-up chips inside the panel (glassy on blue) */
 .chat-followups {
-  display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 20px;
+  display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 8px;
 }
 .chat-fchip {
-  background: #fff; border: 1px solid var(--line);
-  border-radius: 9999px; padding: 8px 14px; font-size: 13px;
-  font-family: inherit; color: var(--ink);
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: background 0.15s;
 }
-.chat-fchip:hover { background: var(--surface); }
+.chat-fchip:hover { background: rgba(255,255,255,0.22); }
+
+/* Composer (Ask anything…) */
 .chat-composer {
-  padding: 12px 14px max(14px, env(safe-area-inset-bottom));
-  border-top: 1px solid var(--line);
+  padding: 10px 14px max(14px, env(safe-area-inset-bottom));
+  background: transparent;
+  border-top: 0;
   display: flex; gap: 8px; align-items: center;
 }
+.chat-composer .composer-wrap {
+  flex: 1; position: relative;
+  display: flex; align-items: center;
+  background: rgba(255,255,255,0.96);
+  border-radius: 9999px;
+  padding: 4px 8px 4px 4px;
+}
 .chat-composer input {
-  flex: 1; border: 1px solid var(--line); border-radius: 9999px;
-  padding: 12px 18px; font-family: inherit; font-size: 14px;
-  background: #fff; outline: 0;
+  flex: 1; border: 0; outline: 0; background: transparent;
+  font-family: inherit; font-size: 14px;
+  padding: 12px 18px;
+  color: var(--ink);
 }
-.chat-composer input:focus { border-color: var(--ink); }
-.chat-composer .send-btn {
-  background: var(--ink); color: #fff; border: 0;
-  width: 42px; height: 42px; border-radius: 50%;
+.chat-composer input::placeholder { color: #8b9ab8; }
+.chat-composer .composer-attach {
+  flex-shrink: 0;
+  background: transparent; border: 0;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  color: #6b7a96;
   display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
 }
+.chat-composer .composer-attach:hover { background: rgba(0,0,0,0.06); }
 
 /* ── Toast ─────────────────────────────────────────────────────────── */
 .toast {
@@ -929,34 +1024,44 @@ img { display: block; max-width: 100%; }
   </div>
 </div>
 
-<!-- Circular Gorgias-style chat launcher (shown after the dock is closed) -->
+<!-- Circular chat launcher (mirrors the real violettefr.com Gorgias widget) -->
 <button class="chat-launcher" id="chatLauncher" aria-label="Open chat">
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 12a8 8 0 0 1-11.4 7.2L4 21l1.8-5.6A8 8 0 1 1 21 12z"/>
+  <svg viewBox="0 0 28 28" fill="currentColor">
+    <path d="M14 2C7.4 2 2 6.9 2 13c0 3 1.3 5.7 3.4 7.7L4 26l5.7-1.8c1.4.5 2.8.8 4.3.8 6.6 0 12-4.9 12-11s-5.4-11-12-11z"/>
+    <circle cx="9" cy="13" r="1.5" fill="#fff"/>
+    <circle cx="14" cy="13" r="1.5" fill="#fff"/>
+    <circle cx="19" cy="13" r="1.5" fill="#fff"/>
   </svg>
-  <span class="badge"></span>
 </button>
 
-<!-- Full chat panel -->
+<!-- Full chat panel — Violette Gorgias look (royal blue, glassy header, white bot cards) -->
 <div class="chat-scrim" id="chatScrim"></div>
 <div class="chat-panel" id="chatPanel">
   <div class="chat-head">
-    <div class="chat-avatar">V</div>
-    <div class="chat-title">
-      Violette
-      <small>Beauty consultant · Online</small>
-    </div>
-    <button class="chat-close" id="chatClose" aria-label="Close">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    <button class="chat-head-btn icon-only" id="chatBack" aria-label="Back" hidden>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="spacer"></div>
+    <button class="chat-head-btn icon-only" aria-label="Cart">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 7h12l-1.2 12.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+    </button>
+    <button class="chat-head-btn" aria-label="Track orders">
+      Track orders
+    </button>
+    <button class="chat-head-btn icon-only" id="chatClose" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
-  <div class="chat-thread" id="chatThread"></div>
+  <div class="chat-subtitle">This chat is AI-powered for faster assistance.</div>
+  <div class="chat-body" id="chatBody"></div>
   <div class="chat-followups" id="chatFollowups"></div>
   <div class="chat-composer">
-    <input id="composerInput" type="text" placeholder="Ask Violette anything…" aria-label="Message">
-    <button class="send-btn" id="composerSend" aria-label="Send">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-    </button>
+    <div class="composer-wrap">
+      <input id="composerInput" type="text" placeholder="Ask anything" aria-label="Message">
+      <button class="composer-attach" id="composerAttach" aria-label="Attach image">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1268,13 +1373,31 @@ function closeFullChat() {
   renderClosedWidget();
 }
 function renderChatTranscript() {
-  const thread = document.getElementById('chatThread');
-  thread.innerHTML = state.messages.map(m => `<div class="chat-msg ${m.role}">${escapeHtml(m.text)}</div>`).join('');
-  thread.scrollTop = thread.scrollHeight;
+  const body = document.getElementById('chatBody');
+  const fu = document.getElementById('chatFollowups');
+  const back = document.getElementById('chatBack');
+  if (state.messages.length === 0) {
+    // Empty state — show the stacked SPQ chips (mirrors the real Gorgias widget)
+    body.innerHTML = '<div class="chat-spq-stack">' +
+      currentChipSet().map((c, i) =>
+        `<button class="chat-stack-chip" data-chip="${c.replace(/"/g,'&quot;')}" style="animation-delay:${(i*0.05).toFixed(2)}s">${c}</button>`
+      ).join('') + '</div>';
+    fu.innerHTML = '';
+    if (back) back.hidden = true;
+    return;
+  }
+  // Conversation — user as glassy pill, bot as full-width white card with "Was this helpful?"
+  body.innerHTML = state.messages.map(m => {
+    if (m.role === 'user') return `<div class="chat-msg user">${escapeHtml(m.text)}</div>`;
+    return `<div class="chat-msg bot">${escapeHtml(m.text)}<div class="helpful">Was this helpful?</div></div>`;
+  }).join('');
+  body.scrollTop = body.scrollHeight;
   // Follow-up chips on the last bot message
   const last = [...state.messages].reverse().find(m => m.role === 'bot');
-  const fu = document.getElementById('chatFollowups');
-  fu.innerHTML = last && last.chips ? last.chips.map(c => `<button class="chat-fchip" data-chip="${c.replace(/"/g,'&quot;')}">${c}</button>`).join('') : '';
+  fu.innerHTML = last && last.chips
+    ? last.chips.map(c => `<button class="chat-fchip" data-chip="${c.replace(/"/g,'&quot;')}">${c}</button>`).join('')
+    : '';
+  if (back) back.hidden = false;
 }
 
 function sendMessage(text) {
@@ -1333,7 +1456,10 @@ document.addEventListener('click', (e) => {
   // Reviews accordion
   const revHead = e.target.closest('.rev-head');
   if (revHead) { revHead.closest('.rev-section').classList.toggle('open'); return; }
-  // Hood follow-up chip (full chat)
+  // Full-chat SPQ stack chip (empty state) — open conversation
+  const stackChip = e.target.closest('.chat-stack-chip');
+  if (stackChip && stackChip.dataset.chip) { sendMessage(stackChip.dataset.chip); return; }
+  // Full-chat follow-up chip
   const fchip = e.target.closest('.chat-fchip');
   if (fchip && fchip.dataset.chip) { sendMessage(fchip.dataset.chip); return; }
   // Hero CTA / AI routine button → open chat with routine prompt
@@ -1364,11 +1490,10 @@ function openDockFromLauncher() {
   const launcher = document.getElementById('chatLauncher');
   launcher.classList.remove('show');
   dock.classList.remove('hidden');
-  // Wait one frame so the browser registers the dock un-hiding before we
-  // remove `.closing` — otherwise the transition won't replay.
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => dock.classList.remove('closing'));
-  });
+  // Force a synchronous reflow so the browser registers the un-hide before
+  // we strip `.closing` — guarantees the morph-back transition replays.
+  void dock.offsetWidth;
+  dock.classList.remove('closing');
 }
 document.getElementById('hoodClose').addEventListener('click', closeDockToLauncher);
 document.getElementById('chatLauncher').addEventListener('click', openDockFromLauncher);
@@ -1401,10 +1526,11 @@ document.getElementById('composerInput').addEventListener('keydown', (e) => {
     sendMessage(v);
   }
 });
-document.getElementById('composerSend').addEventListener('click', () => {
-  const input = document.getElementById('composerInput');
-  const v = input.value.trim();
-  if (v) { input.value = ''; sendMessage(v); }
+
+/* Back button in the chat panel → clear conversation, show the SPQ stack again */
+document.getElementById('chatBack').addEventListener('click', () => {
+  state.messages = [];
+  renderChatTranscript();
 });
 
 /* Hood carousel: add-to-bag on rec card */
