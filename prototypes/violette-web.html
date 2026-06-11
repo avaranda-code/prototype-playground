@@ -1372,7 +1372,8 @@ const THINKING_PHRASES = [
   'Bringing you something lovely',
   'Voilà — almost ready',
 ];
-const THINKING_ROTATE_MS = 1800;
+const THINKING_ROTATE_MS = 1200;        /* swap a phrase every 1.2s */
+const THINKING_TOTAL_MS  = 3800;        /* ≥3 phrase cycles before bot replies */
 
 /* ── SPQs per route ─────────────────────────────────────────────────── */
 const HOME_CHIPS = [
@@ -1894,7 +1895,7 @@ function handlePDPChip(chipText) {
     setTimeout(() => appendChips(IN_CART_CHIPS.map(c => c.text), 'in-cart'), 200);
     return true;
   }
-  withLoadingLine(def.loading, 1500, () => {
+  withThinking(THINKING_TOTAL_MS, () => {
     appendBot(def.answer);
     if (def.card === 'reviews') { appendReviewsCard(); state.pdpReviewsShown = true; }
     if (def.card === 'pairs')   appendPairsCard();
@@ -1911,7 +1912,7 @@ function handleInCartChip(chipText) {
   if (!def) return false;
   appendUser(chipText);
   clearChips();
-  withLoadingLine("Just a moment...", 900, () => {
+  withThinking(THINKING_TOTAL_MS, () => {
     appendBot(def.answer);
     appendChips(IN_CART_CHIPS.map(c => c.text), 'in-cart');
   });
@@ -1924,16 +1925,13 @@ function handleWelcomeChip(chipText) {
   if (!def) return false;
   appendUser(chipText);
   clearChips();
-  if (def.next === 'concern' && !def.intro) {
-    // No thinking line, jump straight in
-    runConcern();
-  } else {
-    withThinking(1500, () => {
-      if (def.next === 'concern')  runConcern({ intro: def.intro });
-      if (def.next === 'look')     runLook({ intro: def.intro });
-      if (def.next === 'whatsnew') runWhatsNew();
-    });
-  }
+  // Every welcome chip now shows the rotating-phrase indicator
+  // (≥3 cycles) before its next step renders.
+  withThinking(THINKING_TOTAL_MS, () => {
+    if (def.next === 'concern')  runConcern({ intro: def.intro });
+    if (def.next === 'look')     runLook({ intro: def.intro });
+    if (def.next === 'whatsnew') runWhatsNew();
+  });
   return true;
 }
 
@@ -1943,7 +1941,7 @@ function handleConcernChip(chipText) {
   if (!k) return false;
   appendUser(chipText);
   clearChips();
-  withThinking(1200, () => runSerum(k));
+  withThinking(THINKING_TOTAL_MS, () => runSerum(k));
   return true;
 }
 
@@ -2122,20 +2120,20 @@ function startHoodConvo(userText) {
   // "Compare serums" → 1.2s thinking → concern picker (find your match)
   if (userText === 'Compare serums') {
     clearChips();
-    return withThinking(1200, () => runConcern({ intro: "Happy to. All four Sérum Superlatifs are €53 — they target different concerns. What's yours?" }));
+    return withThinking(THINKING_TOTAL_MS, () => runConcern({ intro: "Happy to. All four Sérum Superlatifs are €53 — they target different concerns. What's yours?" }));
   }
   // Free-text routing — "serum" or "find" jumps to concern picker
   const lower = userText.toLowerCase();
   if (/serum|find/.test(lower)) {
     clearChips();
-    return withThinking(1200, () => runConcern());
+    return withThinking(THINKING_TOTAL_MS, () => runConcern());
   }
   // Fallback library
   if (FALLBACK_REPLIES[userText]) {
-    return withThinking(1200, () => appendBot(FALLBACK_REPLIES[userText]));
+    return withThinking(THINKING_TOTAL_MS, () => appendBot(FALLBACK_REPLIES[userText]));
   }
   // Default reply
-  withThinking(1500, () => appendBot("Great question — let me look into that for you."));
+  withThinking(THINKING_TOTAL_MS, () => appendBot("Great question — let me look into that for you."));
 }
 
 function renderHoodReply(reply) {
