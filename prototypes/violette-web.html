@@ -965,49 +965,59 @@ img { display: block; max-width: 100%; }
 <script>
 'use strict';
 
-/* ── Product data ───────────────────────────────────────────────────── */
+/* ── Product data ───────────────────────────────────────────────────────
+   Real product images from VIOLETTE_FR's Shopify CDN. Shopify lets us
+   append ?width=N to scale on the fly so cards don't pull full-res files. */
+const CDN = 'https://cdn.shopify.com/s/files/1/0519/0628/1661/files/';
 const PRODUCT_IMGS = {
-  pinkBottle: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4C5C0"/><stop offset="1" stop-color="#E8A19B"/></linearGradient></defs><rect x="58" y="40" width="84" height="200" rx="22" fill="url(%23g)"/><rect x="78" y="20" width="44" height="28" rx="6" fill="#1A1872"/><rect x="68" y="120" width="64" height="64" rx="4" fill="#fff" opacity="0.92"/><text x="100" y="148" text-anchor="middle" font-family="Inter" font-weight="700" font-size="9" fill="#1A1872">VIOLETTE_FR</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="8" fill="#1A1872">BOUM-BOUM</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="8" fill="#1A1872">MILK</text></svg>'),
-  pinkBottleSmall: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4C5C0"/><stop offset="1" stop-color="#E8A19B"/></linearGradient></defs><rect x="72" y="80" width="56" height="150" rx="16" fill="url(%23g)"/><rect x="84" y="62" width="32" height="22" rx="4" fill="#1A1872"/><rect x="80" y="138" width="40" height="50" rx="3" fill="#fff" opacity="0.92"/><text x="100" y="160" text-anchor="middle" font-family="Inter" font-weight="700" font-size="7" fill="#1A1872">VIOLETTE_FR</text><text x="100" y="172" text-anchor="middle" font-family="Inter" font-size="6" fill="#1A1872">BOUM-BOUM</text></svg>'),
-  whiteJar: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="j" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E5E0D8"/></linearGradient></defs><ellipse cx="100" cy="80" rx="68" ry="14" fill="#1A1872"/><rect x="32" y="80" width="136" height="14" fill="#1A1872"/><path d="M32 94 L168 94 L160 220 Q160 240 140 240 L60 240 Q40 240 40 220 Z" fill="url(%23j)" stroke="#D8CFC0" stroke-width="1"/><text x="100" y="162" text-anchor="middle" font-family="Inter" font-weight="700" font-size="10" fill="#1A1872">VIOLETTE_FR</text><text x="100" y="180" text-anchor="middle" font-family="Inter" font-size="9" fill="#1A1872">C\'EST LA</text><text x="100" y="194" text-anchor="middle" font-family="Inter" font-size="9" fill="#1A1872">CREAM</text></svg>'),
-  whiteTube: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect x="68" y="40" width="64" height="200" rx="10" fill="#FFFFFF" stroke="#D8CFC0"/><rect x="80" y="32" width="40" height="14" rx="2" fill="#1A1872"/><rect x="72" y="120" width="56" height="58" rx="3" fill="#FAFAFA"/><text x="100" y="142" text-anchor="middle" font-family="Inter" font-weight="700" font-size="9" fill="#1A1872">VIOLETTE_FR</text><text x="100" y="158" text-anchor="middle" font-family="Inter" font-size="8" fill="#1A1872">INVISIBLE</text><text x="100" y="170" text-anchor="middle" font-family="Inter" font-size="8" fill="#1A1872">BANDAGE</text></svg>'),
-  dropperBarrier: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A8E6CF"/><stop offset="1" stop-color="#80C9A8"/></linearGradient></defs><rect x="86" y="20" width="28" height="36" rx="4" fill="#1A1872"/><rect x="76" y="56" width="48" height="14" rx="2" fill="#1A1872"/><rect x="64" y="70" width="72" height="170" rx="6" fill="url(%23d)"/><rect x="76" y="132" width="48" height="60" rx="3" fill="#fff" opacity="0.95"/><text x="100" y="152" text-anchor="middle" font-family="Inter" font-weight="700" font-size="8" fill="#1A1872">SUPERLATIF</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">SKIN BARRIER</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">RESCUE</text></svg>'),
-  dropperBlemish: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="d2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE4A8"/><stop offset="1" stop-color="#E8C57A"/></linearGradient></defs><rect x="86" y="20" width="28" height="36" rx="4" fill="#1A1872"/><rect x="76" y="56" width="48" height="14" rx="2" fill="#1A1872"/><rect x="64" y="70" width="72" height="170" rx="6" fill="url(%23d2)"/><rect x="76" y="132" width="48" height="60" rx="3" fill="#fff" opacity="0.95"/><text x="100" y="152" text-anchor="middle" font-family="Inter" font-weight="700" font-size="8" fill="#1A1872">SUPERLATIF</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">BLEMISH</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">RESCUE</text></svg>'),
-  dropperDull: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="d3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD6E8"/><stop offset="1" stop-color="#E8A6C4"/></linearGradient></defs><rect x="86" y="20" width="28" height="36" rx="4" fill="#1A1872"/><rect x="76" y="56" width="48" height="14" rx="2" fill="#1A1872"/><rect x="64" y="70" width="72" height="170" rx="6" fill="url(%23d3)"/><rect x="76" y="132" width="48" height="60" rx="3" fill="#fff" opacity="0.95"/><text x="100" y="152" text-anchor="middle" font-family="Inter" font-weight="700" font-size="8" fill="#1A1872">SUPERLATIF</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">DULLNESS</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">RESCUE</text></svg>'),
-  dropperReactive: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="d4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D6E8FF"/><stop offset="1" stop-color="#A6C4E8"/></linearGradient></defs><rect x="86" y="20" width="28" height="36" rx="4" fill="#1A1872"/><rect x="76" y="56" width="48" height="14" rx="2" fill="#1A1872"/><rect x="64" y="70" width="72" height="170" rx="6" fill="url(%23d4)"/><rect x="76" y="132" width="48" height="60" rx="3" fill="#fff" opacity="0.95"/><text x="100" y="152" text-anchor="middle" font-family="Inter" font-weight="700" font-size="8" fill="#1A1872">SUPERLATIF</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">REACTIVE</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">RESCUE</text></svg>'),
-  blushCompact: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><circle cx="100" cy="130" r="78" fill="#E8A19B"/><circle cx="100" cy="130" r="60" fill="#D67A75"/><circle cx="100" cy="130" r="42" fill="#C16B68"/><text x="100" y="135" text-anchor="middle" font-family="Inter" font-weight="700" font-size="9" fill="#fff">PLUME</text></svg>'),
-  kabukiBrush: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect x="84" y="120" width="32" height="120" rx="6" fill="#1A1872"/><ellipse cx="100" cy="100" rx="48" ry="44" fill="#E8DBC4"/><ellipse cx="100" cy="92" rx="40" ry="32" fill="#D4C4A8"/></svg>')
+  // Skincare
+  boumBoum100:    CDN + 'VFR_PDP_1500x1872_BBM_100mL_wSeals_9bde829e-7cfd-40d3-93c9-55cec3b276e3.jpg?v=1767645700&width=700',
+  boumBoum50:     CDN + 'VFR_PDP_1500x1872_BBM_50mL_wSeals_c5d1e330-9dcc-4286-8541-11992a50f9ad.jpg?v=1767645674&width=700',
+  cestLaCream:    CDN + 'VFR_PDP_1500x1872_CLC_wSeals_c290a726-b60d-48c0-8c34-cbffef8479ce.jpg?v=1767645792&width=700',
+  invisibleBandage: CDN + '2024_InvisibleBandage_PDP_1500x1872_001.jpg?v=1740576532&width=700',
+  serumBarrier:   CDN + 'ProductPage-PACKSHOT-1-SERUMS-SKIN-BARRIER-DESKTOP.jpg?v=1711052662&width=700',
+  serumBlemish:   CDN + 'ProductPage-PACKSHOT-1-SERUMS-BLEMISH-DESKTOP.jpg?v=1710967424&width=700',
+  serumDullness:  CDN + 'ProductPage-PACKSHOT-1-SERUMS-DULLNESS-DESKTOP.jpg?v=1711051937&width=700',
+  serumReactive:  CDN + 'ProductPage-PACKSHOT-1-SERUMS-REACTIVE-DESKTOP.jpg?v=1711052485&width=700',
+  // Makeup (Home page)
+  plumeBlush:     CDN + '250925_005_039_0001_RoseFume_APV.jpg?v=1779809528&width=700',
+  leKabuki:       CDN + 'VFR_PDP_1500x1872_Kabuki_Brush_POD.jpg?v=1779825656&width=700',
+  // Sets
+  dreamSkinDuo:   CDN + 'VFR_PDP_1500x1872_DreamSkinDuo_wSeals_9a7f990f-0389-4963-acc0-061d079e9f15.jpg?v=1767645758&width=700',
+  skinAmourDuo:   CDN + 'BALM_AMOUR_0154_PDP_SETS_APV.jpg?v=1753134535&width=700',
+  plumeBlushDuo:  CDN + 'VFR_PDP_1500x1872_PlumeBlush_Set_Duo_51e4d715-e850-4087-9972-096e52409c2c.jpg?v=1780058909&width=700',
+  plumeBlushEyeDuo: CDN + 'VFR_PDP_1500x1872_PlumeBlush_Eye_Set_Duo_a9e7f9ae-5107-4d68-b40d-f24aa00a91fc.jpg?v=1780058908&width=700',
 };
 
 const SKINCARE = [
-  { id:'boum-boum-100', name:'Boum-Boum Milk 100ml', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€73', badge:'BEST SELLER', img:PRODUCT_IMGS.pinkBottle, swatches:[] },
-  { id:'boum-boum-50',  name:'Boum-Boum Milk 50ml',  sub:'3-in-1 Skincare Spray', rating:4.6, price:'€50', img:PRODUCT_IMGS.pinkBottleSmall, swatches:[] },
-  { id:'cest-la-cream', name:"C'est La Cream",       sub:'Face cream and more',  rating:4.5, price:'€78', img:PRODUCT_IMGS.whiteJar, swatches:[] },
-  { id:'invisible-bandage', name:'Invisible Bandage',sub:'Protect + Prime Solution', rating:3.9, price:'€53', img:PRODUCT_IMGS.whiteTube, swatches:[] },
-  { id:'serum-barrier', name:'Sérum Superlatif Skin Barrier Rescue', sub:'Microflora Support Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperBarrier, swatches:[] },
-  { id:'serum-blemish', name:'Sérum Superlatif Blemish Rescue',    sub:'Breakout Calming Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperBlemish, swatches:[] },
-  { id:'serum-dull',    name:'Sérum Superlatif Dullness Rescue',   sub:'Radiance + Revival Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperDull, swatches:[] },
-  { id:'serum-reactive',name:'Sérum Superlatif Reactive Skin Rescue', sub:'Rapid Soothing Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperReactive, swatches:[] },
+  { id:'boum-boum-100', name:'Boum-Boum Milk 100ml', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€73', badge:'BEST SELLER', img:PRODUCT_IMGS.boumBoum100 },
+  { id:'boum-boum-50',  name:'Boum-Boum Milk 50ml',  sub:'3-in-1 Skincare Spray', rating:4.6, price:'€50', img:PRODUCT_IMGS.boumBoum50 },
+  { id:'cest-la-cream', name:"C'est La Cream",       sub:'Face cream and more',  rating:4.5, price:'€78', img:PRODUCT_IMGS.cestLaCream },
+  { id:'invisible-bandage', name:'Invisible Bandage',sub:'Protect + Prime Solution', rating:3.9, price:'€53', img:PRODUCT_IMGS.invisibleBandage },
+  { id:'serum-barrier', name:'Sérum Superlatif Skin Barrier Rescue', sub:'Microflora Support Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.serumBarrier },
+  { id:'serum-blemish', name:'Sérum Superlatif Blemish Rescue',    sub:'Breakout Calming Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.serumBlemish },
+  { id:'serum-dull',    name:'Sérum Superlatif Dullness Rescue',   sub:'Radiance + Revival Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.serumDullness },
+  { id:'serum-reactive',name:'Sérum Superlatif Reactive Skin Rescue', sub:'Rapid Soothing Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.serumReactive },
 ];
 
 const HOME_PRODUCTS = {
   new: [
-    { id:'plume-blush', name:'Plume Blush', sub:'Cream Blush · 6 shades', rating:4.8, price:'€36', badge:'NEW', img:PRODUCT_IMGS.blushCompact, swatches:['#E8A19B','#D67A75','#C16B68','#9C4F4F'] },
-    { id:'le-kabuki',   name:'Le Kabuki',   sub:'Blush Brush',           rating:4.9, price:'€48', badge:'NEW', img:PRODUCT_IMGS.kabukiBrush, swatches:[] },
-    { id:'boum-boum-100-home', name:'Boum-Boum Milk', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€73', img:PRODUCT_IMGS.pinkBottle, swatches:[] },
-    { id:'serum-barrier-home', name:'Sérum Superlatif', sub:'Skin Barrier Rescue', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperBarrier, swatches:[] },
+    { id:'plume-blush', name:'Plume Blush', sub:'Cream Blush · 6 shades', rating:4.8, price:'€36', badge:'NEW', img:PRODUCT_IMGS.plumeBlush, swatches:['#E8A19B','#D67A75','#C16B68','#9C4F4F'] },
+    { id:'le-kabuki',   name:'Le Kabuki',   sub:'Blush Brush',           rating:4.9, price:'€48', badge:'NEW', img:PRODUCT_IMGS.leKabuki },
+    { id:'boum-boum-100-home', name:'Boum-Boum Milk', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€73', img:PRODUCT_IMGS.boumBoum100 },
+    { id:'serum-barrier-home', name:'Sérum Superlatif', sub:'Skin Barrier Rescue', rating:4.7, price:'€53', img:PRODUCT_IMGS.serumBarrier },
   ],
   best: [
-    { id:'boum-boum-100-best', name:'Boum-Boum Milk 100ml', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€73', badge:'BEST SELLER', img:PRODUCT_IMGS.pinkBottle, swatches:[] },
-    { id:'cest-la-cream-best', name:"C'est La Cream", sub:'Face cream and more', rating:4.5, price:'€78', img:PRODUCT_IMGS.whiteJar, swatches:[] },
-    { id:'plume-blush-best', name:'Plume Blush', sub:'Cream Blush · 6 shades', rating:4.8, price:'€36', img:PRODUCT_IMGS.blushCompact, swatches:['#E8A19B','#D67A75','#C16B68'] },
-    { id:'serum-barrier-best', name:'Sérum Superlatif', sub:'Skin Barrier Rescue', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperBarrier, swatches:[] },
+    { id:'boum-boum-100-best', name:'Boum-Boum Milk 100ml', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€73', badge:'BEST SELLER', img:PRODUCT_IMGS.boumBoum100 },
+    { id:'cest-la-cream-best', name:"C'est La Cream", sub:'Face cream and more', rating:4.5, price:'€78', img:PRODUCT_IMGS.cestLaCream },
+    { id:'plume-blush-best', name:'Plume Blush', sub:'Cream Blush · 6 shades', rating:4.8, price:'€36', img:PRODUCT_IMGS.plumeBlush, swatches:['#E8A19B','#D67A75','#C16B68'] },
+    { id:'serum-barrier-best', name:'Sérum Superlatif', sub:'Skin Barrier Rescue', rating:4.7, price:'€53', img:PRODUCT_IMGS.serumBarrier },
   ],
   sets: [
-    { id:'set-glow', name:'The Glow Set', sub:'Boum-Boum + Sérum Dullness', rating:4.8, price:'€110', badge:'SET', img:PRODUCT_IMGS.pinkBottle, swatches:[] },
-    { id:'set-rescue', name:'The Rescue Set', sub:'C\'est La Cream + Sérum Barrier', rating:4.7, price:'€120', badge:'SET', img:PRODUCT_IMGS.whiteJar, swatches:[] },
-    { id:'set-face',   name:'Plume + Kabuki', sub:'Cheek essentials', rating:4.9, price:'€78', badge:'SET', img:PRODUCT_IMGS.blushCompact, swatches:[] },
-    { id:'set-skin',   name:'Sérum Quartet', sub:'All four superlatifs', rating:4.7, price:'€185', badge:'SET', img:PRODUCT_IMGS.dropperReactive, swatches:[] },
+    { id:'set-dream',  name:'The Dream Skin Duo', sub:'Boum-Boum Milk + C\'est La Cream', rating:4.8, price:'€140', badge:'SET', img:PRODUCT_IMGS.dreamSkinDuo },
+    { id:'set-amour',  name:'Skin Amour Duo',     sub:'Lip + cheek essentials',       rating:4.7, price:'€68', badge:'SET', img:PRODUCT_IMGS.skinAmourDuo },
+    { id:'set-plume',  name:'Plume Blush Duo',    sub:'Two cream-blush shades',       rating:4.9, price:'€64', badge:'SET', img:PRODUCT_IMGS.plumeBlushDuo },
+    { id:'set-blusheye', name:'Plume Blush & Eyeshadow Duo', sub:'One blush + one shadow', rating:4.7, price:'€68', badge:'SET', img:PRODUCT_IMGS.plumeBlushEyeDuo },
   ],
 };
 
