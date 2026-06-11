@@ -400,9 +400,11 @@ img { display: block; max-width: 100%; }
   background: rgba(22,17,12,0.20); margin: 0 auto;
 }
 .dock-actions {
-  position: absolute; right: 0; top: -2px;
-  display: flex; gap: 4px;
+  position: absolute; left: 0; right: 0; top: -2px;
+  display: flex; justify-content: space-between; align-items: center;
+  pointer-events: none;
 }
+.dock-actions > * { pointer-events: auto; }
 .hood-btn {
   width: 28px; height: 28px; border-radius: 50%; border: 0;
   background: rgba(255,255,255,0.7); color: #5a5147;
@@ -410,10 +412,53 @@ img { display: block; max-width: 100%; }
   padding: 0; transition: background 0.15s;
 }
 .hood-btn:hover { background: #fff; }
-.hood-btn .ic-plus { display: none; }
-.chat-dock.minimized .hood-min .ic-min { display: none; }
-.chat-dock.minimized .hood-min .ic-plus { display: inline-flex; }
-.chat-dock.minimized #hoodBody { display: none; }
+
+/* Close → animate dock into circular launcher at bottom-right */
+.chat-dock-inner {
+  transform-origin: bottom right;
+  transition: transform 0.42s cubic-bezier(0.55, 0, 0.55, 1),
+              opacity 0.32s ease,
+              border-radius 0.4s ease,
+              box-shadow 0.4s ease;
+}
+.chat-dock.closing .chat-dock-inner {
+  transform: translateX(48vw) translateY(6px) scale(0.10);
+  opacity: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+@media (max-width: 900px) {
+  .chat-dock.closing .chat-dock-inner {
+    transform: translateX(42vw) translateY(-12px) scale(0.14);
+  }
+}
+
+/* Circular Gorgias-style chat launcher (shown after close) */
+.chat-launcher {
+  position: fixed; right: 24px; z-index: 49;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--navy-deep));
+  color: #fff; border: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 14px 32px rgba(22,17,12,0.28), 0 2px 6px rgba(22,17,12,0.18);
+  opacity: 0; transform: scale(0.35);
+  pointer-events: none;
+  transition: opacity 0.32s ease 0.16s,
+              transform 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.16s,
+              box-shadow 0.2s ease;
+}
+.chat-launcher.show {
+  opacity: 1; transform: scale(1);
+  pointer-events: auto;
+}
+.chat-launcher:hover { transform: scale(1.06); box-shadow: 0 18px 40px rgba(22,17,12,0.32); }
+.chat-launcher.show:active { transform: scale(0.96); }
+.chat-launcher .badge {
+  position: absolute; top: -2px; right: -2px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #2ecc71; border: 2px solid #fff;
+}
 
 .dock-preview {
   display: flex; flex-direction: row; flex-wrap: nowrap;
@@ -863,12 +908,11 @@ img { display: block; max-width: 100%; }
     <div class="dock-top">
       <span class="dock-grip"></span>
       <div class="dock-actions">
-        <button class="hood-btn hood-min" id="hoodMin" aria-label="Minimize">
-          <span class="glyph ic-min"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
-          <span class="glyph ic-plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
-        </button>
         <button class="hood-btn hood-expand" id="hoodExpand" aria-label="Open full chat">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6"/></svg>
+        </button>
+        <button class="hood-btn hood-close" id="hoodClose" aria-label="Close chat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
     </div>
@@ -884,6 +928,14 @@ img { display: block; max-width: 100%; }
     </div>
   </div>
 </div>
+
+<!-- Circular Gorgias-style chat launcher (shown after the dock is closed) -->
+<button class="chat-launcher" id="chatLauncher" aria-label="Open chat">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12a8 8 0 0 1-11.4 7.2L4 21l1.8-5.6A8 8 0 1 1 21 12z"/>
+  </svg>
+  <span class="badge"></span>
+</button>
 
 <!-- Full chat panel -->
 <div class="chat-scrim" id="chatScrim"></div>
@@ -1027,8 +1079,10 @@ const state = {
   spqRevealed: false,
   chatOpen: false,
   spqDismissed: false,
+  dockClosed: false,     // true when shopper hit X — dock collapses to circular launcher
 };
 let spqRevealTimer = null;
+let dockCloseTimer = null;
 
 /* ── Router ─────────────────────────────────────────────────────────── */
 function parseHash() {
@@ -1238,7 +1292,12 @@ function render() {
 
   // Fresh transcript per page
   state.messages = []; state.hoodActive = false; state.spqDismissed = false;
-  document.getElementById('chatDock').classList.remove('minimized');
+  // Reset the dock to its open state (clear any closing animation + hide launcher)
+  state.dockClosed = false;
+  clearTimeout(dockCloseTimer);
+  const dockEl = document.getElementById('chatDock');
+  dockEl.classList.remove('closing'); dockEl.classList.remove('hidden');
+  document.getElementById('chatLauncher').classList.remove('show');
   clearTimeout(spqRevealTimer);
   state.spqRevealed = false;
   const delay = window.matchMedia('(max-width: 900px)').matches ? 0 : 500;
@@ -1275,9 +1334,34 @@ document.addEventListener('click', (e) => {
 });
 
 /* Dock controls */
-document.getElementById('hoodMin').addEventListener('click', () => {
-  document.getElementById('chatDock').classList.toggle('minimized');
-});
+function closeDockToLauncher() {
+  if (state.dockClosed) return;
+  state.dockClosed = true;
+  const dock = document.getElementById('chatDock');
+  const launcher = document.getElementById('chatLauncher');
+  dock.classList.add('closing');
+  // After the dock animates away, hide it and reveal the launcher
+  clearTimeout(dockCloseTimer);
+  dockCloseTimer = setTimeout(() => {
+    dock.classList.add('hidden');
+    launcher.classList.add('show');
+  }, 380);
+}
+function openDockFromLauncher() {
+  if (!state.dockClosed) return;
+  state.dockClosed = false;
+  const dock = document.getElementById('chatDock');
+  const launcher = document.getElementById('chatLauncher');
+  launcher.classList.remove('show');
+  dock.classList.remove('hidden');
+  // Wait one frame so the browser registers the dock un-hiding before we
+  // remove `.closing` — otherwise the transition won't replay.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => dock.classList.remove('closing'));
+  });
+}
+document.getElementById('hoodClose').addEventListener('click', closeDockToLauncher);
+document.getElementById('chatLauncher').addEventListener('click', openDockFromLauncher);
 document.getElementById('hoodExpand').addEventListener('click', openFullChat);
 document.getElementById('chatClose').addEventListener('click', closeFullChat);
 document.getElementById('chatScrim').addEventListener('click', closeFullChat);
