@@ -1826,7 +1826,7 @@ function startFlow(name, opts) {
 
 function runWelcome() {
   clearHood();
-  appendBot("What are you looking for today?");
+  // Just the chips — no intro line at the top of the dock
   appendChips(WELCOME_CHIPS.map(c => c.text), 'welcome');
 }
 
