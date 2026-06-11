@@ -1727,7 +1727,14 @@ function clearHood() {
   if (hc) hc.innerHTML = '';
   state.messages = [];
 }
-function hoodEl() { return document.getElementById('hoodConvo'); }
+function hoodEl() {
+  // When the full chat panel is open, the panel body IS the active conversation
+  // surface — so all flow append helpers (cards, chips, messages, thinking
+  // indicator) render into the panel instead of the dock.
+  return state.chatOpen
+    ? document.getElementById('chatBody')
+    : document.getElementById('hoodConvo');
+}
 function appendHTML(html) {
   const hc = hoodEl(); if (!hc) return;
   hc.insertAdjacentHTML('beforeend', html);
@@ -2203,10 +2210,36 @@ function openFullChat() {
   state.chatOpen = true;
   document.getElementById('chatScrim').classList.add('open');
   document.getElementById('chatPanel').classList.add('open');
-  renderChatTranscript();
+
+  const hc = document.getElementById('hoodConvo');
+  const body = document.getElementById('chatBody');
+
+  if (hc && hc.innerHTML.trim()) {
+    // Mirror the dock conversation into the panel — cards, chips, everything.
+    body.innerHTML = hc.innerHTML;
+  } else {
+    // Panel opened with no prior convo — drop the shopper into the welcome flow.
+    body.innerHTML = '';
+    state.hoodActive = true;
+    state.flow = 'welcome';
+    appendChips(WELCOME_CHIPS.map(c => c.text), 'welcome');
+  }
+  body.scrollTop = body.scrollHeight;
+  // The panel's own follow-up row + back button aren't used in the new flow.
+  document.getElementById('chatFollowups').innerHTML = '';
+  document.getElementById('chatBack').hidden = true;
+
   renderClosedWidget();
 }
 function closeFullChat() {
+  // Sync any new content the shopper produced in the panel back to the dock
+  // so when the dock reappears it shows the same conversation.
+  const hc = document.getElementById('hoodConvo');
+  const body = document.getElementById('chatBody');
+  if (body && body.innerHTML.trim()) {
+    hc.innerHTML = body.innerHTML;
+    hc.scrollTop = hc.scrollHeight;
+  }
   state.chatOpen = false;
   document.getElementById('chatScrim').classList.remove('open');
   document.getElementById('chatPanel').classList.remove('open');
@@ -2415,10 +2448,10 @@ document.addEventListener('click', (e) => {
   if (revHead) { revHead.closest('.rev-section').classList.toggle('open'); return; }
   // Full-chat SPQ stack chip (empty state) — open conversation
   const stackChip = e.target.closest('.chat-stack-chip');
-  if (stackChip && stackChip.dataset.chip) { sendMessage(stackChip.dataset.chip); return; }
+  if (stackChip && stackChip.dataset.chip) { startHoodConvo(stackChip.dataset.chip); return; }
   // Full-chat follow-up chip
   const fchip = e.target.closest('.chat-fchip');
-  if (fchip && fchip.dataset.chip) { sendMessage(fchip.dataset.chip); return; }
+  if (fchip && fchip.dataset.chip) { startHoodConvo(fchip.dataset.chip); return; }
 
   // Hero CTA → What's new flow
   if (e.target.matches('.hero-cta')) { startFlow('whatsnew', { fresh: true }); return; }
@@ -2523,13 +2556,13 @@ document.getElementById('chatBarSend').addEventListener('click', () => {
   else openFullChat();
 });
 
-/* Full chat composer */
+/* Full chat composer — route through the flow runner so cards/chips render */
 document.getElementById('composerInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
     const v = e.target.value.trim(); if (!v) return;
     e.target.value = '';
-    sendMessage(v);
+    startHoodConvo(v);
   }
 });
 
