@@ -1373,7 +1373,7 @@ const THINKING_PHRASES = [
   'Voilà — almost ready',
 ];
 const THINKING_ROTATE_MS = 1200;        /* swap a phrase every 1.2s */
-const THINKING_TOTAL_MS  = 3800;        /* ≥3 phrase cycles before bot replies */
+const THINKING_TOTAL_MS  = 2400;        /* exactly 2 phrases per agent reply */
 
 /* ── SPQs per route ─────────────────────────────────────────────────── */
 const HOME_CHIPS = [
@@ -1439,12 +1439,14 @@ const REPLIES = {
    See spec at the top of the script for the full flow tree.
    ════════════════════════════════════════════════════════════════════ */
 
-/* Default chips per page (used by dock idle state) */
+/* Default chips per page (used by dock idle state)
+   Home + skincare now both show the 4 welcome chips so they're visible
+   whenever the dock appears (not only on the first auto-open of the session). */
 const DEFAULT_CHIPS_BY_PAGE = {
-  home: ['Find me the right serum', 'Compare serums'],
-  collection: ['Find me the right serum', 'Build me a routine', 'Compare serums', "What's new?"],
-  product: ['Find me the right serum'],
-  cart: ['Unlock free shipping', 'What pairs with this?'],
+  home:       ['Find me the right serum', 'I want a new look', 'Build me a routine', "What's new?"],
+  collection: ['Find me the right serum', 'I want a new look', 'Build me a routine', "What's new?"],
+  product:    ['Find me the right serum'],
+  cart:       ['Unlock free shipping', 'What pairs with this?'],
 };
 
 /* Serum recommendations — one card + message per concern */
@@ -1683,15 +1685,19 @@ function renderClosedWidget() {
 }
 
 /* ── Thinking indicator (slot-machine rotating phrase + brand-tinted dots) ── */
+let thinkingCallCount = 0;
 function startThinking(scope) {
+  // Cycle the starting index so every "thinking" event shows a different
+  // pair of phrases (4 distinct pairs across the 8-phrase pool).
+  thinkingCallCount++;
+  let idx = (thinkingCallCount * 2) % THINKING_PHRASES.length;
   const wrap = document.createElement('div');
   wrap.className = 'thinking';
   wrap.innerHTML =
-    `<div class="thinking-phrase"><div class="slot in">${escapeHtml(THINKING_PHRASES[0])}</div></div>` +
+    `<div class="thinking-phrase"><div class="slot in">${escapeHtml(THINKING_PHRASES[idx])}</div></div>` +
     '<div class="thinking-dots"><span></span><span></span><span></span></div>';
   scope.appendChild(wrap);
   const phraseEl = wrap.querySelector('.thinking-phrase');
-  let idx = 0;
   const timer = setInterval(() => {
     idx = (idx + 1) % THINKING_PHRASES.length;
     const next = document.createElement('div');
