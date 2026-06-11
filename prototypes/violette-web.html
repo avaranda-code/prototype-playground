@@ -1560,8 +1560,24 @@ const QUIZ_STEPS = [
     ], field:'makeup' },
 ];
 
-/* Look picker chips */
+/* Look picker chips + responses */
 const LOOK_CHIPS = ['Everyday glow', 'Bold look'];
+const LOOK_REPLIES = {
+  'Everyday glow': {
+    msg: "For an everyday glow, I'd reach for Plume Blush in Rose Fumé — second-skin finish that looks like you, only rested. Sweep it on with Le Kabuki and let it melt in.",
+    card: { eyebrow:'PLUME BLUSH', name:'Plume Blush — Rose Fumé', sub:'Cream Blush', price:'€40', stars:5, count:88,
+            img:'https://cdn.shopify.com/s/files/1/0519/0628/1661/files/VFR_PDP_1500x1872_PlumeBlush_Grid_RoseFume.jpg?v=1779809528&width=700',
+            handle:'plume-blush' },
+    chips: ['Show me Le Kabuki', 'Build me a routine'],
+  },
+  'Bold look': {
+    msg: "Then let's go bolder. Plume Blush in En Feu and a Plume Lip in Syrah Fumé — French girl, but make it dramatic.",
+    card: { eyebrow:'PLUME BLUSH', name:'Plume Blush — En Feu', sub:'Cream Blush', price:'€40', stars:5, count:64,
+            img:'https://cdn.shopify.com/s/files/1/0519/0628/1661/files/VFR_PDP_1500x1872_PlumeBlush_Grid_EnFeu.jpg?v=1779809839&width=700',
+            handle:'plume-blush' },
+    chips: ['Show me the Plume Lip', 'Build me a routine'],
+  },
+};
 
 /* What's new card */
 const WHATSNEW = {
@@ -1948,6 +1964,20 @@ function handleWelcomeChip(chipText) {
   return true;
 }
 
+/* ── Look picker chip handler ── */
+function handleLookChip(chipText) {
+  const def = LOOK_REPLIES[chipText];
+  if (!def) return false;
+  appendUser(chipText);
+  clearChips();
+  withThinking(THINKING_TOTAL_MS, () => {
+    appendBot(def.msg);
+    if (def.card) appendSerumCard(def.card);
+    if (def.chips) appendChips(def.chips, 'look-followup');
+  });
+  return true;
+}
+
 /* ── Concern picker chip handler ── */
 function handleConcernChip(chipText) {
   const k = CONCERN_KEY[chipText];
@@ -2124,6 +2154,7 @@ function startHoodConvo(userText) {
   if (state.flow === 'quiz')                        return handleQuizTyped(userText);
   if (WELCOME_CHIPS.find(c => c.text === userText)) return handleWelcomeChip(userText);
   if (CONCERN_KEY[userText])                        return handleConcernChip(userText);
+  if (LOOK_REPLIES[userText])                       return handleLookChip(userText);
   if (IN_CART_CHIPS.find(c => c.text === userText)) return handleInCartChip(userText);
   const pdpSet = state.pdpReviewsShown ? PDP_CHIPS_AFTER_REVIEWS : PDP_CHIPS_DEFAULT;
   if (pdpSet.find(c => c.text === userText))        return handlePDPChip(userText);
@@ -2439,6 +2470,7 @@ document.addEventListener('click', (e) => {
     if (state.flow === 'quiz')          return void handleQuizChip(label);
     if (state.flow === 'welcome')       return void handleWelcomeChip(label);
     if (state.flow === 'concern')       return void handleConcernChip(label);
+    if (state.flow === 'look')          return void handleLookChip(label);
     if (state.flow === 'in-cart')       return void handleInCartChip(label);
     if (state.flow === 'pdp')           return void handlePDPChip(label);
     // Otherwise, treat as free-text
