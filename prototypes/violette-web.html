@@ -547,19 +547,16 @@ img { display: block; max-width: 100%; }
   30%          { transform: scale(1.2);  opacity: 1; }
 }
 
-/* Inside the blue chat panel: glassy card with white text + dots */
+/* Inside the white chat panel: plain text + brand-blue dots, no card */
 .chat-panel .thinking {
   align-self: stretch;
-  background: rgba(255,255,255,0.10);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 16px;
-  padding: 14px 18px;
-  margin: 8px 0;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  background: transparent;
+  border: 0;
+  padding: 10px 0 4px;
+  margin: 4px 0;
 }
-.chat-panel .thinking-phrase { color: rgba(255,255,255,0.95); font-weight: 500; }
-.chat-panel .thinking-dots span { background: rgba(255,255,255,0.90); }
+.chat-panel .thinking-phrase { color: var(--muted); font-weight: 500; }
+.chat-panel .thinking-dots span { background: var(--bag-accent); }
 .hood-msg {
   font-size: 14px; line-height: 1.55; color: #2a2418;
   padding: 4px 6px 0;
@@ -639,15 +636,15 @@ img { display: block; max-width: 100%; }
 .chat-panel {
   position: fixed; right: 24px; bottom: 24px; z-index: 61;
   width: 420px; height: min(680px, calc(100vh - 80px));
-  background: #1B52D4;                       /* Violette blue */
+  background: #fff;
   border-radius: 22px;
-  box-shadow: 0 30px 70px rgba(22,17,12,0.30);
+  box-shadow: 0 30px 70px rgba(22,17,12,0.18);
   display: flex; flex-direction: column;
   overflow: hidden;
   transform: translateY(20px) scale(0.96); opacity: 0;
   transition: transform 0.26s cubic-bezier(0.2,0.8,0.2,1), opacity 0.22s;
   visibility: hidden;
-  color: #fff;
+  color: var(--ink);
 }
 .chat-panel.open { transform: translateY(0) scale(1); opacity: 1; visibility: visible; }
 
@@ -658,17 +655,15 @@ img { display: block; max-width: 100%; }
 .chat-head .spacer { flex: 1; }
 .chat-head-btn {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,0.16);
-  border: 1px solid rgba(255,255,255,0.32);
-  color: #fff;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
   border-radius: 9999px;
   padding: 7px 13px; font-size: 13px;
   font-family: inherit; cursor: pointer;
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
-.chat-head-btn:hover { background: rgba(255,255,255,0.28); }
+.chat-head-btn:hover { background: var(--surface); }
 .chat-head-btn.icon-only {
   width: 36px; height: 36px; padding: 0; justify-content: center;
 }
@@ -676,39 +671,37 @@ img { display: block; max-width: 100%; }
 
 .chat-subtitle {
   text-align: center;
-  color: rgba(255,255,255,0.92);
-  font-size: 13px;
+  color: var(--muted);
+  font-size: 12px;
   padding: 12px 24px 14px;
 }
 
 .chat-body {
   flex: 1; overflow-y: auto;
-  padding: 4px 16px 4px;
+  padding: 4px 18px 4px;
   scrollbar-width: none;
   display: flex; flex-direction: column;
 }
 .chat-body::-webkit-scrollbar { display: none; }
 
-/* Empty state: vertical SPQ stack (glassy white-bordered pills) */
+/* Empty state: vertical SPQ stack — outlined pills on white */
 .chat-spq-stack {
-  display: flex; flex-direction: column; gap: 12px;
+  display: flex; flex-direction: column; gap: 10px;
   padding: 6px 0;
 }
 .chat-stack-chip {
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.35);
-  color: #fff;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
   border-radius: 9999px;
   padding: 13px 20px;
   font-size: 14px; font-family: inherit;
   text-align: left;
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
   animation: stackChipRise 0.4s cubic-bezier(0.34,1.56,0.64,1) backwards;
 }
-.chat-stack-chip:hover { background: rgba(255,255,255,0.22); }
+.chat-stack-chip:hover { background: var(--surface); border-color: rgba(22,17,12,0.18); }
 @keyframes stackChipRise {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -723,72 +716,90 @@ img { display: block; max-width: 100%; }
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* User: dark navy pill (right-aligned) */
 .chat-msg.user {
-  background: rgba(255,255,255,0.16);
-  border: 1px solid rgba(255,255,255,0.32);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: var(--ink);
   color: #fff;
-  border-radius: 18px;
-  padding: 10px 16px;
+  border: 0;
+  border-radius: 9999px;
+  padding: 10px 18px;
   max-width: 80%;
   align-self: flex-end;
-  margin: 10px 0 6px;
+  margin: 12px 0 6px;
 }
+/* Bot: plain text on white background — no bubble, no card */
 .chat-msg.bot {
-  background: #fff;
+  background: transparent;
   color: var(--ink);
-  border-radius: 16px;
-  padding: 18px 20px 16px;
+  border-radius: 0;
+  padding: 12px 0 4px;
   align-self: stretch;
-  margin: 8px 0;
+  margin: 4px 0 10px;
+  width: 100%;
 }
 .chat-msg.bot .helpful {
   margin-top: 14px;
   font-size: 13px;
   color: var(--muted);
+  display: flex; align-items: center; gap: 14px;
 }
+.chat-msg.bot .helpful .helpful-btn {
+  background: transparent; border: 0; padding: 4px;
+  color: var(--muted); cursor: pointer; display: inline-flex;
+  border-radius: 6px;
+}
+.chat-msg.bot .helpful .helpful-btn:hover { background: var(--surface); color: var(--ink); }
 
-/* Follow-up chips inside the panel (glassy on blue) */
+/* Follow-up chips: dark pills on white, right-aligned (preview a user action) */
 .chat-followups {
-  display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 8px;
+  display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 18px 10px;
+  justify-content: flex-end;
 }
 .chat-fchip {
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.35);
+  background: var(--ink);
+  border: 0;
   color: #fff;
   border-radius: 9999px;
-  padding: 8px 14px;
+  padding: 10px 16px;
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
   transition: background 0.15s;
 }
-.chat-fchip:hover { background: rgba(255,255,255,0.22); }
+.chat-fchip:hover { background: #2a221a; }
 
-/* Composer (Ask anything…) */
+/* Composer — white pill input with a soft Violette-blue glow ring */
 .chat-composer {
   padding: 10px 14px max(14px, env(safe-area-inset-bottom));
-  background: transparent;
+  background: #fff;
   border-top: 0;
   display: flex; gap: 8px; align-items: center;
 }
 .chat-composer .composer-wrap {
   flex: 1; position: relative;
   display: flex; align-items: center;
-  background: rgba(255,255,255,0.96);
+  background: #fff;
   border-radius: 9999px;
-  padding: 4px 8px 4px 4px;
+  padding: 2px 6px 2px 4px;
+  border: 1.5px solid rgba(27,82,212,0.42);
+  box-shadow:
+    0 0 0 4px rgba(27,82,212,0.10),
+    0 4px 14px rgba(27,82,212,0.10);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.chat-composer .composer-wrap:focus-within {
+  border-color: var(--bag-accent);
+  box-shadow:
+    0 0 0 5px rgba(27,82,212,0.18),
+    0 6px 18px rgba(27,82,212,0.14);
 }
 .chat-composer input {
   flex: 1; border: 0; outline: 0; background: transparent;
   font-family: inherit; font-size: 14px;
-  padding: 12px 18px;
+  padding: 12px 16px;
   color: var(--ink);
 }
-.chat-composer input::placeholder { color: #8b9ab8; }
+.chat-composer input::placeholder { color: #a4adbd; }
 .chat-composer .composer-attach {
   flex-shrink: 0;
   background: transparent; border: 0;
@@ -1473,10 +1484,15 @@ function renderChatTranscript() {
     if (back) back.hidden = true;
     return;
   }
-  // Conversation — user as glassy pill, bot as full-width white card with "Was this helpful?"
+  // Conversation — user message as dark pill, bot reply as plain text on white with thumbs feedback
+  const thumbsSvg = (down) =>
+    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"${down?' style="transform:rotate(180deg)"':''}><path d="M7 11V21H3V11h4z"/><path d="M7 11l4-8a3 3 0 0 1 3 3v4h5.4a2 2 0 0 1 2 2.3l-1.3 8a2 2 0 0 1-2 1.7H7"/></svg>`;
   body.innerHTML = state.messages.map(m => {
     if (m.role === 'user') return `<div class="chat-msg user">${escapeHtml(m.text)}</div>`;
-    return `<div class="chat-msg bot">${escapeHtml(m.text)}<div class="helpful">Was this helpful?</div></div>`;
+    return `<div class="chat-msg bot">${escapeHtml(m.text)}<div class="helpful">
+      <button class="helpful-btn" aria-label="Helpful">${thumbsSvg(false)}</button>
+      <button class="helpful-btn" aria-label="Not helpful">${thumbsSvg(true)}</button>
+    </div></div>`;
   }).join('');
   body.scrollTop = body.scrollHeight;
   // Follow-up chips on the last bot message
