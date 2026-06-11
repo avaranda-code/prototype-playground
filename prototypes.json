@@ -64,6 +64,13 @@
     "image": "ai-assistant-settings.png"
   },
   {
+    "name": "Violette_Web · Medium term shopping assistant",
+    "author": "Ava",
+    "date": "2026-06-11",
+    "description": "VIOLETTE_FR desktop Home + Skincare collection pages with the Medium term shopping-assistant chat dock: a centered glassy 'Chat to shop' hood with horizontal SPQ pills, an in-hood mini conversation (typing → answer → follow-up chips → product carousel), Reviews chip with collapsible category summaries, minimize, and expand to a full Violette chat panel that carries the transcript over. Real product data — Boum-Boum Milk, C'est La Cream, Invisible Bandage, and the Sérum Superlatif quartet — plus Plume Blush + Le Kabuki on Home. Mobile dock is edge-to-edge and safe-area aware.",
+    "file": "violette-web.html"
+  },
+  {
     "name": "Shopping Assistant typing animations",
     "author": "Ava",
     "date": "2026-06-04",

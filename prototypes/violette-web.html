@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Violette_Web — VIOLETTE_FR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens ─────────────────────────────────────────────────── */
+:root {
+  --ink: #16110C;
+  --muted: #6B6B6B;
+  --line: #E5E5E5;
+  --surface: #F8F7F5;
+  --paper: #FFFFFF;
+  --purple: #534AB7;
+  --navy: #1A1872;
+  --navy-deep: #1B1464;
+  --bag-accent: #1B52D4;
+  --shadow-card: 0 2px 14px rgba(22,17,12,0.06);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  min-height: 100dvh; /* iOS Safari fix so the fixed dock stays visible */
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+img { display: block; max-width: 100%; }
+
+/* ── Playground topbar (small chrome at very top) ──────────────────── */
+.pg-bar {
+  background: #1B1B22; color: #c7cbd4; font-size: 11px;
+  padding: 6px 16px; display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid #2a2f3b;
+}
+.pg-bar strong { color: #fff; }
+.pg-bar a { color: #b6a0ff; }
+.pg-bar .chip {
+  background: #2a2f3b; color: #c7cbd4; padding: 2px 8px; border-radius: 6px;
+  font-family: ui-monospace, Menlo, monospace; font-size: 10px;
+}
+.pg-bar .spacer { flex: 1; }
+
+/* ── Announcement bar ──────────────────────────────────────────────── */
+.announce {
+  background: var(--navy); color: #fff;
+  font-size: 11px; letter-spacing: 0.06em;
+  text-align: center; padding: 9px 16px;
+}
+
+/* ── Top nav ──────────────────────────────────────────────────────── */
+.topnav {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  height: 72px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 0 48px;
+  position: sticky; top: 0; z-index: 20;
+}
+.nav-cats { display: flex; gap: 24px; }
+.nav-cats a {
+  font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink);
+  padding: 4px 0; position: relative;
+}
+.nav-cats a:hover::after,
+.nav-cats a.active::after {
+  content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1.5px; background: var(--ink);
+}
+.wordmark {
+  font-size: 18px; font-weight: 700; letter-spacing: 0.18em;
+  color: var(--ink); text-align: center;
+  cursor: pointer;
+}
+.nav-icons { display: flex; gap: 18px; align-items: center; justify-content: flex-end; }
+.nav-icon-btn {
+  background: none; border: 0; padding: 6px; color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  position: relative; border-radius: 8px;
+}
+.nav-icon-btn:hover { background: var(--surface); }
+.bag-badge {
+  position: absolute; top: 0; right: 0;
+  background: var(--bag-accent); color: #fff;
+  font-size: 10px; font-weight: 600;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: 999px; display: inline-flex;
+  align-items: center; justify-content: center; line-height: 1;
+}
+
+/* ── App shell ─────────────────────────────────────────────────────── */
+#app { position: relative; min-height: calc(100vh - 72px - 31px); }
+.view { display: none; }
+.view.active { display: block; }
+.shell { max-width: 1440px; margin: 0 auto; }
+
+/* ── Home: Hero ────────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  height: 560px;
+  background-image: url('https://www.violettefr.com/cdn/shop/files/VFR_HP_BANNER_Mobile_1500x1892_PlumeBlush_Product_1.png?v=1779819769&width=1500');
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+.hero::after {
+  /* Bottom-left gradient overlay so the white text reads */
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(120deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.05) 55%, transparent 100%);
+  pointer-events: none;
+}
+.hero-copy {
+  position: absolute; left: 80px; bottom: 80px; z-index: 2;
+  color: #fff; max-width: 540px;
+}
+.hero-eyebrow {
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  font-weight: 600; margin-bottom: 18px;
+}
+.hero-h1 {
+  font-size: 48px; font-weight: 700; line-height: 1.08;
+  letter-spacing: -0.01em; margin: 0 0 28px;
+}
+.hero-cta {
+  background: transparent; color: #fff; border: 1.5px solid #fff;
+  padding: 14px 32px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  border-radius: 0; transition: background 0.15s, color 0.15s;
+}
+.hero-cta:hover { background: #fff; color: var(--ink); }
+.hero-dots {
+  position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; z-index: 2;
+}
+.hero-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+}
+.hero-dot.active { background: #fff; }
+
+/* ── AI entry card ─────────────────────────────────────────────────── */
+.ai-card {
+  max-width: 720px; margin: 48px auto;
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 16px; padding: 32px 36px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+}
+.ai-card h3 {
+  font-size: 18px; font-weight: 600; margin: 0 0 8px; color: var(--ink);
+}
+.ai-card p {
+  font-size: 14px; color: var(--muted); margin: 0 0 22px;
+}
+.ai-card .ai-btn {
+  display: block; width: 100%;
+  background: var(--ink); color: #fff;
+  border: 0; border-radius: 9999px;
+  padding: 14px 22px; font-size: 14px; font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: background 0.15s;
+}
+.ai-card .ai-btn:hover { background: #2a221a; }
+.ai-card .ai-btn .sparkle {
+  display: inline-block; margin-right: 8px; vertical-align: -2px;
+}
+
+/* ── Tagline block ─────────────────────────────────────────────────── */
+.tagline {
+  max-width: 640px; margin: 56px auto 48px;
+  text-align: center; padding: 0 24px;
+}
+.tagline-eyebrow {
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  font-weight: 600; color: var(--purple); margin-bottom: 16px;
+}
+.tagline-body {
+  font-size: 16px; line-height: 1.6; color: var(--ink);
+  margin: 0;
+}
+
+/* ── Category grid ─────────────────────────────────────────────────── */
+.cat-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  padding: 0 16px; margin-bottom: 56px;
+}
+.cat-tile {
+  position: relative; height: 320px; border-radius: 12px;
+  overflow: hidden; background-size: cover; background-position: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.cat-tile:hover { transform: translateY(-2px); }
+.cat-tile .cat-strip {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0));
+  color: #fff; padding: 22px 18px 18px;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+}
+
+/* ── Product carousel (Home) ──────────────────────────────────────── */
+.section { padding: 56px 64px; }
+.section-tabs {
+  display: flex; justify-content: center; gap: 36px;
+  border-bottom: 1px solid var(--line); margin-bottom: 40px;
+  padding-bottom: 16px; position: relative;
+}
+.tab {
+  background: none; border: 0; padding: 4px 0;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted);
+  position: relative;
+}
+.tab.active { color: var(--ink); }
+.tab.active::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -17px;
+  height: 2px; background: var(--ink);
+}
+.tab:hover { color: var(--ink); }
+
+.prod-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+}
+.prod-card {
+  display: block; text-decoration: none; color: inherit;
+  cursor: pointer; transition: transform 0.2s;
+}
+.prod-card:hover { transform: translateY(-3px); }
+.prod-img {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: #F4F2EF;
+  border-radius: 12px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  padding: 18px;
+}
+.prod-img img {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.08));
+}
+.prod-badge {
+  position: absolute; top: 12px; left: 12px;
+  background: var(--navy-deep); color: #fff;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 4px 9px; border-radius: 4px;
+}
+.prod-badge.outline {
+  background: #fff; color: var(--ink); border: 1px solid var(--ink);
+}
+.prod-body { padding: 14px 4px 0; }
+.prod-name {
+  font-size: 14px; font-weight: 600; color: var(--ink);
+  margin: 0 0 4px; line-height: 1.35;
+}
+.prod-sub {
+  font-size: 12px; color: var(--muted); margin: 0 0 10px;
+  line-height: 1.4;
+}
+.prod-swatches {
+  display: flex; gap: 6px; margin-bottom: 10px;
+}
+.prod-swatch {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.prod-rating {
+  font-size: 12px; color: var(--ink); display: flex; align-items: center;
+  gap: 6px; margin-bottom: 12px;
+}
+.prod-rating .stars { color: #1B1464; letter-spacing: 1px; font-size: 11px; }
+.prod-price-btn {
+  display: block; width: 100%;
+  background: transparent; color: var(--ink); border: 1px solid var(--ink);
+  padding: 11px 14px; font-size: 13px; font-weight: 600;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+.prod-price-btn:hover { background: var(--ink); color: #fff; }
+
+/* ── Collection page ───────────────────────────────────────────────── */
+.subnav {
+  border-bottom: 1px solid var(--line);
+  padding: 18px 64px;
+  display: flex; gap: 32px; justify-content: center;
+}
+.subnav a {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 4px 0; position: relative;
+}
+.subnav a:hover { color: var(--ink); }
+.subnav a.active { color: var(--ink); }
+.subnav a.active::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -19px;
+  height: 2px; background: var(--ink);
+}
+
+.coll-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 48px 64px 8px;
+}
+.coll-title {
+  font-size: 38px; font-weight: 700; letter-spacing: -0.01em;
+  margin: 0; color: var(--ink);
+}
+.coll-count {
+  font-size: 12px; color: var(--muted); margin-left: 14px;
+  letter-spacing: 0.06em;
+}
+.filter-btn {
+  background: transparent; color: var(--ink); border: 1px solid var(--ink);
+  padding: 10px 22px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+.filter-btn:hover { background: var(--ink); color: #fff; }
+
+.coll-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+  padding: 32px 64px 80px;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────── */
+.foot {
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  padding: 56px 64px 24px;
+  font-size: 13px; color: var(--muted);
+}
+.foot-inner {
+  max-width: 1440px; margin: 0 auto;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
+}
+.foot h5 {
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink); font-weight: 600; margin: 0 0 18px;
+}
+.foot ul { list-style: none; padding: 0; margin: 0; }
+.foot ul li { margin-bottom: 10px; }
+.foot ul a { color: var(--muted); transition: color 0.15s; }
+.foot ul a:hover { color: var(--ink); }
+.foot-brand h4 {
+  font-size: 16px; font-weight: 700; letter-spacing: 0.18em;
+  margin: 0 0 12px; color: var(--ink);
+}
+.foot-brand p { margin: 0 0 14px; max-width: 320px; line-height: 1.55; }
+.foot-base {
+  max-width: 1440px; margin: 32px auto 0;
+  padding-top: 18px; border-top: 1px solid var(--line);
+  font-size: 11px; color: var(--muted); text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   CHAT DOCK — Medium term flow pattern
+   Centered glassy hood on desktop; edge-to-edge on mobile.
+   ════════════════════════════════════════════════════════════════════ */
+.chat-dock {
+  position: fixed; left: 0; right: 0; bottom: 24px; z-index: 50;
+  display: flex; justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.chat-dock.hidden { display: none; }
+.chat-dock.leaving { opacity: 0; pointer-events: none; }
+.chat-dock-inner {
+  pointer-events: auto;
+  width: min(600px, calc(100% - 28px));
+  display: flex; flex-direction: column; gap: 12px;
+  background: rgba(255,255,255,0.48);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  backdrop-filter: blur(22px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 26px;
+  padding: 12px 14px 14px;
+  box-shadow: 0 18px 46px rgba(22,17,12,0.16);
+  transition: transform 0.32s cubic-bezier(0.2,0.8,0.2,1), opacity 0.28s;
+}
+.dock-top {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  min-height: 18px;
+}
+.dock-grip {
+  width: 40px; height: 5px; border-radius: 9999px;
+  background: rgba(22,17,12,0.20); margin: 0 auto;
+}
+.dock-actions {
+  position: absolute; right: 0; top: -2px;
+  display: flex; gap: 4px;
+}
+.hood-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: 0;
+  background: rgba(255,255,255,0.7); color: #5a5147;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0; transition: background 0.15s;
+}
+.hood-btn:hover { background: #fff; }
+.hood-btn .ic-plus { display: none; }
+.chat-dock.minimized .hood-min .ic-min { display: none; }
+.chat-dock.minimized .hood-min .ic-plus { display: inline-flex; }
+.chat-dock.minimized #hoodBody { display: none; }
+
+.dock-preview {
+  display: flex; flex-direction: row; flex-wrap: nowrap;
+  gap: 9px; width: 100%; overflow-x: auto;
+  scrollbar-width: none; padding: 2px 1px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+}
+.dock-preview::-webkit-scrollbar { display: none; }
+.spq-preview-chip {
+  flex-shrink: 0; white-space: nowrap;
+  background: #fff; color: var(--ink); border: 0;
+  border-radius: 9999px; padding: 10px 16px; font-size: 13px;
+  font-family: inherit;
+  box-shadow: 0 3px 10px rgba(22,17,12,0.10);
+  animation: chipRise 0.42s cubic-bezier(0.34,1.56,0.64,1) backwards;
+}
+.spq-preview-chip:hover { background: #fcfaf6; }
+@keyframes chipRise {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.dock-reviews {
+  flex-shrink: 0; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fff; color: var(--ink); border: 0;
+  border-radius: 9999px; padding: 10px 15px; font-size: 13px;
+  font-family: inherit;
+  box-shadow: 0 3px 10px rgba(22,17,12,0.10);
+  animation: chipRise 0.42s cubic-bezier(0.34,1.56,0.64,1) backwards;
+}
+.dock-reviews .stars { color: #e0a93b; display: inline-flex; }
+
+.chat-bar-input {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid rgba(22,17,12,0.10);
+  border-radius: 9999px; padding: 4px 8px 4px 22px;
+  box-shadow: 0 4px 14px rgba(22,17,12,0.10);
+}
+.chat-bar-input input {
+  flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+  font-family: inherit; font-size: 16px;
+  padding: 14px 0; color: var(--ink);
+}
+.chat-bar-input input::placeholder { color: #9b8f7d; }
+.chat-bar-input .attach {
+  flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%;
+  border: 0; background: transparent; color: #6f6353;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.chat-bar-input .attach:hover { background: #f1ece4; }
+
+/* In-hood mini conversation */
+.hood-convo { max-height: 320px; overflow-y: auto; scrollbar-width: none; }
+.hood-convo::-webkit-scrollbar { display: none; }
+.hood-typing { display: flex; gap: 5px; padding: 10px 6px 12px; }
+.hood-typing span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #b8aa97; animation: typeBounce 1.2s infinite ease-in-out;
+}
+.hood-typing span:nth-child(2) { animation-delay: 0.15s; }
+.hood-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typeBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+.hood-msg {
+  font-size: 14px; line-height: 1.55; color: #2a2418;
+  padding: 4px 6px 0;
+  animation: hoodFade 0.3s ease;
+}
+.hood-msg.user {
+  background: var(--ink); color: #fff;
+  border-radius: 18px 18px 4px 18px;
+  padding: 10px 14px; margin: 8px 0 0 auto;
+  max-width: 80%; width: max-content;
+}
+@keyframes hoodFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hood-chips {
+  display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 6px 4px;
+}
+.hood-chip {
+  background: #fff; color: var(--ink); border: 1px solid rgba(22,17,12,0.12);
+  border-radius: 9999px; padding: 8px 14px; font-size: 13px;
+  font-family: inherit;
+}
+.hood-chip:hover { background: #fcfaf6; }
+.hood-carousel {
+  display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none;
+  padding: 12px 4px 4px;
+}
+.hood-carousel::-webkit-scrollbar { display: none; }
+.hood-rec {
+  flex: 0 0 132px; background: #fff; border-radius: 14px;
+  border: 1px solid rgba(22,17,12,0.08); padding: 10px;
+  text-decoration: none; color: inherit;
+}
+.hood-rec .hr-img {
+  aspect-ratio: 1/1; border-radius: 8px;
+  background: #F4F2EF; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center; padding: 8px;
+}
+.hood-rec .hr-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.hood-rec .hr-name { font-size: 12px; font-weight: 600; margin: 0 0 4px; line-height: 1.3; }
+.hood-rec .hr-price { font-size: 12px; color: var(--muted); margin: 0; }
+
+/* Reviews summary inside hood */
+.hood-reviews { padding: 4px 4px 0; }
+.rev-overview { font-size: 13px; line-height: 1.55; color: #2a2418; padding: 2px 4px 12px; }
+.rev-caption { font-size: 11px; color: #9b8f7d; margin-top: 6px; }
+.rev-section { border-top: 1px solid rgba(22,17,12,0.10); }
+.rev-head {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  background: none; border: 0; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 600; color: var(--ink); padding: 11px 4px;
+}
+.rev-head .chev { transition: transform 0.2s; opacity: 0.55; }
+.rev-section.open .rev-head .chev { transform: rotate(180deg); }
+.rev-body { display: none; padding: 0 4px 12px; }
+.rev-section.open .rev-body { display: block; }
+.rev-sum { font-size: 13px; line-height: 1.5; color: #4a4036; margin: 0 0 8px; }
+.rev-quote {
+  font-size: 13px; line-height: 1.45; color: #6f6353;
+  font-style: italic; margin: 7px 0; padding-left: 10px;
+  border-left: 2px solid rgba(22,17,12,0.20);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FULL CHAT PANEL (slides up when expand icon tapped)
+   ════════════════════════════════════════════════════════════════════ */
+.chat-scrim {
+  position: fixed; inset: 0; background: rgba(22,17,12,0.32);
+  z-index: 60; opacity: 0; visibility: hidden;
+  transition: opacity 0.22s, visibility 0.22s;
+}
+.chat-scrim.open { opacity: 1; visibility: visible; }
+.chat-panel {
+  position: fixed; right: 24px; bottom: 24px; z-index: 61;
+  width: 420px; height: min(680px, calc(100vh - 80px));
+  background: #fff; border-radius: 22px;
+  box-shadow: 0 30px 70px rgba(22,17,12,0.30);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  transform: translateY(20px) scale(0.96); opacity: 0;
+  transition: transform 0.26s cubic-bezier(0.2,0.8,0.2,1), opacity 0.22s;
+  visibility: hidden;
+}
+.chat-panel.open { transform: translateY(0) scale(1); opacity: 1; visibility: visible; }
+.chat-head {
+  padding: 18px 20px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 12px;
+}
+.chat-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--navy-deep));
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 14px;
+}
+.chat-title {
+  flex: 1; font-size: 14px; font-weight: 600; color: var(--ink);
+}
+.chat-title small {
+  display: block; color: var(--muted); font-weight: 400; font-size: 12px; margin-top: 2px;
+}
+.chat-close {
+  width: 32px; height: 32px; border-radius: 50%; border: 0;
+  background: var(--surface); color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.chat-close:hover { background: var(--line); }
+.chat-thread {
+  flex: 1; overflow-y: auto; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.chat-msg {
+  max-width: 80%; padding: 10px 14px; border-radius: 18px;
+  font-size: 14px; line-height: 1.5;
+}
+.chat-msg.bot { background: var(--surface); color: var(--ink); border-radius: 18px 18px 18px 4px; align-self: flex-start; }
+.chat-msg.user { background: var(--ink); color: #fff; border-radius: 18px 18px 4px 18px; align-self: flex-end; }
+.chat-followups {
+  display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 20px;
+}
+.chat-fchip {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 9999px; padding: 8px 14px; font-size: 13px;
+  font-family: inherit; color: var(--ink);
+}
+.chat-fchip:hover { background: var(--surface); }
+.chat-composer {
+  padding: 12px 14px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  display: flex; gap: 8px; align-items: center;
+}
+.chat-composer input {
+  flex: 1; border: 1px solid var(--line); border-radius: 9999px;
+  padding: 12px 18px; font-family: inherit; font-size: 14px;
+  background: #fff; outline: 0;
+}
+.chat-composer input:focus { border-color: var(--ink); }
+.chat-composer .send-btn {
+  background: var(--ink); color: #fff; border: 0;
+  width: 42px; height: 42px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* ── Toast ─────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed; left: 50%; bottom: 110px;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: #fff;
+  padding: 12px 22px; border-radius: 9999px;
+  font-size: 14px; z-index: 90;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ════════════════════════════════════════════════════════════════════
+   RESPONSIVE — mobile dock is edge-to-edge, body uses 100dvh
+   ════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .topnav { padding: 0 18px; height: 56px; }
+  .nav-cats { display: none; }
+  .wordmark { font-size: 15px; text-align: left; }
+  .nav-icons { gap: 12px; }
+  .topnav { grid-template-columns: 1fr auto; }
+  .topnav .nav-cats { display: none; }
+  .topnav .wordmark { grid-column: 1; }
+  .topnav .nav-icons { grid-column: 2; }
+
+  .hero { height: 460px; background-position: center right; }
+  .hero-copy { left: 24px; right: 24px; bottom: 60px; }
+  .hero-h1 { font-size: 36px; }
+  .ai-card { margin: 32px 16px; padding: 24px 22px; border-radius: 14px; }
+  .tagline { margin: 40px auto; padding: 0 24px; }
+  .tagline-body { font-size: 15px; }
+
+  .cat-grid { grid-template-columns: 1fr 1fr; padding: 0 12px; gap: 8px; }
+  .cat-tile { height: 200px; }
+
+  .section { padding: 40px 18px; }
+  .section-tabs { gap: 18px; }
+  .prod-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .subnav {
+    padding: 14px 18px; gap: 16px; justify-content: flex-start;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .subnav::-webkit-scrollbar { display: none; }
+  .coll-title-row { padding: 28px 18px 8px; }
+  .coll-title { font-size: 28px; }
+  .coll-grid { padding: 24px 18px 200px; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .foot { padding: 40px 18px 24px; }
+  .foot-inner { grid-template-columns: 1fr 1fr; gap: 28px; }
+
+  /* Mobile dock — edge-to-edge, flush to bottom, safe-area aware */
+  .chat-dock {
+    bottom: 0; padding: 0;
+  }
+  .chat-dock-inner {
+    width: 100%;
+    border-radius: 22px 22px 0 0;
+    padding: 12px 14px max(14px, env(safe-area-inset-bottom));
+    box-shadow: 0 -10px 30px rgba(22,17,12,0.18);
+    background: rgba(255,255,255,0.72);
+  }
+  .chat-bar-input input { font-size: 16px; padding: 12px 0; } /* prevents iOS zoom */
+
+  .chat-panel {
+    right: 0; bottom: 0; width: 100%; height: 100dvh;
+    border-radius: 22px 22px 0 0;
+  }
+}
+@media (max-width: 600px) {
+  .prod-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Playground topbar (tiny chrome row up top) -->
+<div class="pg-bar">
+  <strong>Violette_Web</strong>
+  <span>· VIOLETTE_FR × Medium term shopping assistant</span>
+  <span class="spacer"></span>
+  <span class="chip" id="routeChip">#/</span>
+</div>
+
+<!-- Announcement bar -->
+<div class="announce">Livraison standard offerte à partir de 75€, livraison express offerte à partir de 100€</div>
+
+<!-- Top nav -->
+<nav class="topnav">
+  <div class="nav-cats">
+    <a href="#/" data-cat="makeup">MAKEUP</a>
+    <a href="#/collections/skincare" data-cat="skincare">SKINCARE</a>
+    <a href="#/" data-cat="fragrance">FRAGRANCE</a>
+    <a href="#/" data-cat="hair">HAIR</a>
+    <a href="#/" data-cat="body">BODY</a>
+    <a href="#/" data-cat="sets">SETS</a>
+  </div>
+  <a class="wordmark" href="#/">VIOLETTE_FR</a>
+  <div class="nav-icons">
+    <button class="nav-icon-btn" aria-label="Search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    </button>
+    <button class="nav-icon-btn" aria-label="Account">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+    </button>
+    <button class="nav-icon-btn" aria-label="Bag" id="bagBtn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 7h12l-1.2 12.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+      <span class="bag-badge" id="bagBadge">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- App shell -->
+<main id="app">
+  <!-- HOME view -->
+  <section class="view" data-route="home">
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-copy">
+        <div class="hero-eyebrow">INTRODUCING</div>
+        <h1 class="hero-h1">PLUME BLUSH<br>+ LE KABUKI</h1>
+        <button class="hero-cta">SHOP NOW</button>
+      </div>
+      <div class="hero-dots">
+        <span class="hero-dot active"></span>
+        <span class="hero-dot"></span>
+        <span class="hero-dot"></span>
+      </div>
+    </div>
+
+    <!-- AI entry card -->
+    <div class="ai-card">
+      <h3>Find the right products for your skin.</h3>
+      <p>Answer a few questions and we'll build your routine.</p>
+      <button class="ai-btn" id="aiRoutineBtn">
+        <span class="sparkle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6z"/></svg>
+        </span>
+        Build my routine
+      </button>
+    </div>
+
+    <!-- Tagline -->
+    <div class="tagline">
+      <div class="tagline-eyebrow">BRINGING THE 'JOIE DE VIVRE' BACK TO BEAUTY</div>
+      <p class="tagline-body">Curated essentials for the artist and muse in you. Innovative and easy-to-use. Safe and effective. Conscious without compromise.</p>
+    </div>
+
+    <!-- Category grid -->
+    <div class="cat-grid">
+      <a class="cat-tile" data-cat="makeup" style="background-image:url('https://images.unsplash.com/photo-1522335789203-aaa1f0a87b1f?w=900&q=80')">
+        <div class="cat-strip">Makeup</div>
+      </a>
+      <a class="cat-tile" href="#/collections/skincare" data-cat="skincare" style="background-image:url('https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=900&q=80')">
+        <div class="cat-strip">Skincare</div>
+      </a>
+      <a class="cat-tile" data-cat="fragrance" style="background-image:url('https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=900&q=80')">
+        <div class="cat-strip">Fragrance</div>
+      </a>
+      <a class="cat-tile" data-cat="hair" style="background-image:url('https://images.unsplash.com/photo-1620331309097-fda53adfedd1?w=900&q=80')">
+        <div class="cat-strip">Hair</div>
+      </a>
+    </div>
+
+    <!-- Product carousel -->
+    <section class="section">
+      <div class="section-tabs">
+        <button class="tab active" data-tab="new">NEW</button>
+        <button class="tab" data-tab="best">BEST SELLERS</button>
+        <button class="tab" data-tab="sets">SETS</button>
+      </div>
+      <div class="prod-grid" id="homeProdGrid"></div>
+    </section>
+  </section>
+
+  <!-- COLLECTION view -->
+  <section class="view" data-route="collection">
+    <div class="subnav">
+      <a href="#/collections/skincare" data-sub="all">SHOP ALL</a>
+      <a href="#/" data-sub="lip">LIP</a>
+      <a href="#/" data-sub="eye">EYE</a>
+      <a href="#/" data-sub="cheek">CHEEK</a>
+      <a href="#/collections/skincare" data-sub="skincare" class="active">SKINCARE</a>
+      <a href="#/" data-sub="hair">HAIR</a>
+    </div>
+
+    <div class="coll-title-row">
+      <h1 class="coll-title">SKINCARE<span class="coll-count" id="collCount"></span></h1>
+      <button class="filter-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+        FILTER
+      </button>
+    </div>
+
+    <div class="ai-card">
+      <h3>Find the right products for your skin.</h3>
+      <p>Answer a few questions and we'll build your routine.</p>
+      <button class="ai-btn" id="aiRoutineBtn2">
+        <span class="sparkle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6z"/></svg>
+        </span>
+        Build my routine
+      </button>
+    </div>
+
+    <div class="coll-grid" id="collGrid"></div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <h4>VIOLETTE_FR</h4>
+      <p>Joie de vivre, bottled. Curated French beauty for the artist and muse in you.</p>
+    </div>
+    <div>
+      <h5>Shop</h5>
+      <ul><li><a>Makeup</a></li><li><a>Skincare</a></li><li><a>Fragrance</a></li><li><a>Hair</a></li><li><a>Sets</a></li></ul>
+    </div>
+    <div>
+      <h5>About</h5>
+      <ul><li><a>Our Story</a></li><li><a>Sustainability</a></li><li><a>Press</a></li><li><a>Stockists</a></li></ul>
+    </div>
+    <div>
+      <h5>Help</h5>
+      <ul><li><a>Contact</a></li><li><a>Shipping</a></li><li><a>Returns</a></li><li><a>FAQ</a></li></ul>
+    </div>
+  </div>
+  <div class="foot-base">© 2026 VIOLETTE_FR · Made in Paris</div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CHAT DOCK — Medium term flow
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="chat-dock hidden" id="chatDock">
+  <div class="chat-dock-inner">
+    <div class="dock-top">
+      <span class="dock-grip"></span>
+      <div class="dock-actions">
+        <button class="hood-btn hood-min" id="hoodMin" aria-label="Minimize">
+          <span class="glyph ic-min"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></span>
+          <span class="glyph ic-plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+        </button>
+        <button class="hood-btn hood-expand" id="hoodExpand" aria-label="Open full chat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="hood-body" id="hoodBody">
+      <div class="dock-preview" id="dockPreview"></div>
+      <div class="hood-convo" id="hoodConvo" hidden></div>
+    </div>
+    <div class="chat-bar-input">
+      <input id="chatBarInput" type="text" placeholder="Chat to shop" aria-label="Chat to shop">
+      <button class="attach" id="chatBarSend" aria-label="Send">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Full chat panel -->
+<div class="chat-scrim" id="chatScrim"></div>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="chat-avatar">V</div>
+    <div class="chat-title">
+      Violette
+      <small>Beauty consultant · Online</small>
+    </div>
+    <button class="chat-close" id="chatClose" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="chat-thread" id="chatThread"></div>
+  <div class="chat-followups" id="chatFollowups"></div>
+  <div class="chat-composer">
+    <input id="composerInput" type="text" placeholder="Ask Violette anything…" aria-label="Message">
+    <button class="send-btn" id="composerSend" aria-label="Send">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Added to bag</div>
+
+<script>
+'use strict';
+
+/* ── Product data ───────────────────────────────────────────────────── */
+const PRODUCT_IMGS = {
+  pinkBottle: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4C5C0"/><stop offset="1" stop-color="#E8A19B"/></linearGradient></defs><rect x="58" y="40" width="84" height="200" rx="22" fill="url(%23g)"/><rect x="78" y="20" width="44" height="28" rx="6" fill="#1A1872"/><rect x="68" y="120" width="64" height="64" rx="4" fill="#fff" opacity="0.92"/><text x="100" y="148" text-anchor="middle" font-family="Inter" font-weight="700" font-size="9" fill="#1A1872">VIOLETTE_FR</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="8" fill="#1A1872">BOUM-BOUM</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="8" fill="#1A1872">MILK</text></svg>'),
+  pinkBottleSmall: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4C5C0"/><stop offset="1" stop-color="#E8A19B"/></linearGradient></defs><rect x="72" y="80" width="56" height="150" rx="16" fill="url(%23g)"/><rect x="84" y="62" width="32" height="22" rx="4" fill="#1A1872"/><rect x="80" y="138" width="40" height="50" rx="3" fill="#fff" opacity="0.92"/><text x="100" y="160" text-anchor="middle" font-family="Inter" font-weight="700" font-size="7" fill="#1A1872">VIOLETTE_FR</text><text x="100" y="172" text-anchor="middle" font-family="Inter" font-size="6" fill="#1A1872">BOUM-BOUM</text></svg>'),
+  whiteJar: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="j" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E5E0D8"/></linearGradient></defs><ellipse cx="100" cy="80" rx="68" ry="14" fill="#1A1872"/><rect x="32" y="80" width="136" height="14" fill="#1A1872"/><path d="M32 94 L168 94 L160 220 Q160 240 140 240 L60 240 Q40 240 40 220 Z" fill="url(%23j)" stroke="#D8CFC0" stroke-width="1"/><text x="100" y="162" text-anchor="middle" font-family="Inter" font-weight="700" font-size="10" fill="#1A1872">VIOLETTE_FR</text><text x="100" y="180" text-anchor="middle" font-family="Inter" font-size="9" fill="#1A1872">C\'EST LA</text><text x="100" y="194" text-anchor="middle" font-family="Inter" font-size="9" fill="#1A1872">CREAM</text></svg>'),
+  whiteTube: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect x="68" y="40" width="64" height="200" rx="10" fill="#FFFFFF" stroke="#D8CFC0"/><rect x="80" y="32" width="40" height="14" rx="2" fill="#1A1872"/><rect x="72" y="120" width="56" height="58" rx="3" fill="#FAFAFA"/><text x="100" y="142" text-anchor="middle" font-family="Inter" font-weight="700" font-size="9" fill="#1A1872">VIOLETTE_FR</text><text x="100" y="158" text-anchor="middle" font-family="Inter" font-size="8" fill="#1A1872">INVISIBLE</text><text x="100" y="170" text-anchor="middle" font-family="Inter" font-size="8" fill="#1A1872">BANDAGE</text></svg>'),
+  dropperBarrier: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A8E6CF"/><stop offset="1" stop-color="#80C9A8"/></linearGradient></defs><rect x="86" y="20" width="28" height="36" rx="4" fill="#1A1872"/><rect x="76" y="56" width="48" height="14" rx="2" fill="#1A1872"/><rect x="64" y="70" width="72" height="170" rx="6" fill="url(%23d)"/><rect x="76" y="132" width="48" height="60" rx="3" fill="#fff" opacity="0.95"/><text x="100" y="152" text-anchor="middle" font-family="Inter" font-weight="700" font-size="8" fill="#1A1872">SUPERLATIF</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">SKIN BARRIER</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">RESCUE</text></svg>'),
+  dropperBlemish: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="d2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE4A8"/><stop offset="1" stop-color="#E8C57A"/></linearGradient></defs><rect x="86" y="20" width="28" height="36" rx="4" fill="#1A1872"/><rect x="76" y="56" width="48" height="14" rx="2" fill="#1A1872"/><rect x="64" y="70" width="72" height="170" rx="6" fill="url(%23d2)"/><rect x="76" y="132" width="48" height="60" rx="3" fill="#fff" opacity="0.95"/><text x="100" y="152" text-anchor="middle" font-family="Inter" font-weight="700" font-size="8" fill="#1A1872">SUPERLATIF</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">BLEMISH</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">RESCUE</text></svg>'),
+  dropperDull: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="d3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD6E8"/><stop offset="1" stop-color="#E8A6C4"/></linearGradient></defs><rect x="86" y="20" width="28" height="36" rx="4" fill="#1A1872"/><rect x="76" y="56" width="48" height="14" rx="2" fill="#1A1872"/><rect x="64" y="70" width="72" height="170" rx="6" fill="url(%23d3)"/><rect x="76" y="132" width="48" height="60" rx="3" fill="#fff" opacity="0.95"/><text x="100" y="152" text-anchor="middle" font-family="Inter" font-weight="700" font-size="8" fill="#1A1872">SUPERLATIF</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">DULLNESS</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">RESCUE</text></svg>'),
+  dropperReactive: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><defs><linearGradient id="d4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D6E8FF"/><stop offset="1" stop-color="#A6C4E8"/></linearGradient></defs><rect x="86" y="20" width="28" height="36" rx="4" fill="#1A1872"/><rect x="76" y="56" width="48" height="14" rx="2" fill="#1A1872"/><rect x="64" y="70" width="72" height="170" rx="6" fill="url(%23d4)"/><rect x="76" y="132" width="48" height="60" rx="3" fill="#fff" opacity="0.95"/><text x="100" y="152" text-anchor="middle" font-family="Inter" font-weight="700" font-size="8" fill="#1A1872">SUPERLATIF</text><text x="100" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">REACTIVE</text><text x="100" y="178" text-anchor="middle" font-family="Inter" font-size="7" fill="#1A1872">RESCUE</text></svg>'),
+  blushCompact: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><circle cx="100" cy="130" r="78" fill="#E8A19B"/><circle cx="100" cy="130" r="60" fill="#D67A75"/><circle cx="100" cy="130" r="42" fill="#C16B68"/><text x="100" y="135" text-anchor="middle" font-family="Inter" font-weight="700" font-size="9" fill="#fff">PLUME</text></svg>'),
+  kabukiBrush: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect x="84" y="120" width="32" height="120" rx="6" fill="#1A1872"/><ellipse cx="100" cy="100" rx="48" ry="44" fill="#E8DBC4"/><ellipse cx="100" cy="92" rx="40" ry="32" fill="#D4C4A8"/></svg>')
+};
+
+const SKINCARE = [
+  { id:'boum-boum-100', name:'Boum-Boum Milk 100ml', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€73', badge:'BEST SELLER', img:PRODUCT_IMGS.pinkBottle, swatches:[] },
+  { id:'boum-boum-50',  name:'Boum-Boum Milk 50ml',  sub:'3-in-1 Skincare Spray', rating:4.6, price:'€50', img:PRODUCT_IMGS.pinkBottleSmall, swatches:[] },
+  { id:'cest-la-cream', name:"C'est La Cream",       sub:'Face cream and more',  rating:4.5, price:'€78', img:PRODUCT_IMGS.whiteJar, swatches:[] },
+  { id:'invisible-bandage', name:'Invisible Bandage',sub:'Protect + Prime Solution', rating:3.9, price:'€53', img:PRODUCT_IMGS.whiteTube, swatches:[] },
+  { id:'serum-barrier', name:'Sérum Superlatif Skin Barrier Rescue', sub:'Microflora Support Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperBarrier, swatches:[] },
+  { id:'serum-blemish', name:'Sérum Superlatif Blemish Rescue',    sub:'Breakout Calming Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperBlemish, swatches:[] },
+  { id:'serum-dull',    name:'Sérum Superlatif Dullness Rescue',   sub:'Radiance + Revival Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperDull, swatches:[] },
+  { id:'serum-reactive',name:'Sérum Superlatif Reactive Skin Rescue', sub:'Rapid Soothing Serum', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperReactive, swatches:[] },
+];
+
+const HOME_PRODUCTS = {
+  new: [
+    { id:'plume-blush', name:'Plume Blush', sub:'Cream Blush · 6 shades', rating:4.8, price:'€36', badge:'NEW', img:PRODUCT_IMGS.blushCompact, swatches:['#E8A19B','#D67A75','#C16B68','#9C4F4F'] },
+    { id:'le-kabuki',   name:'Le Kabuki',   sub:'Blush Brush',           rating:4.9, price:'€48', badge:'NEW', img:PRODUCT_IMGS.kabukiBrush, swatches:[] },
+    { id:'boum-boum-100-home', name:'Boum-Boum Milk', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€73', img:PRODUCT_IMGS.pinkBottle, swatches:[] },
+    { id:'serum-barrier-home', name:'Sérum Superlatif', sub:'Skin Barrier Rescue', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperBarrier, swatches:[] },
+  ],
+  best: [
+    { id:'boum-boum-100-best', name:'Boum-Boum Milk 100ml', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€73', badge:'BEST SELLER', img:PRODUCT_IMGS.pinkBottle, swatches:[] },
+    { id:'cest-la-cream-best', name:"C'est La Cream", sub:'Face cream and more', rating:4.5, price:'€78', img:PRODUCT_IMGS.whiteJar, swatches:[] },
+    { id:'plume-blush-best', name:'Plume Blush', sub:'Cream Blush · 6 shades', rating:4.8, price:'€36', img:PRODUCT_IMGS.blushCompact, swatches:['#E8A19B','#D67A75','#C16B68'] },
+    { id:'serum-barrier-best', name:'Sérum Superlatif', sub:'Skin Barrier Rescue', rating:4.7, price:'€53', img:PRODUCT_IMGS.dropperBarrier, swatches:[] },
+  ],
+  sets: [
+    { id:'set-glow', name:'The Glow Set', sub:'Boum-Boum + Sérum Dullness', rating:4.8, price:'€110', badge:'SET', img:PRODUCT_IMGS.pinkBottle, swatches:[] },
+    { id:'set-rescue', name:'The Rescue Set', sub:'C\'est La Cream + Sérum Barrier', rating:4.7, price:'€120', badge:'SET', img:PRODUCT_IMGS.whiteJar, swatches:[] },
+    { id:'set-face',   name:'Plume + Kabuki', sub:'Cheek essentials', rating:4.9, price:'€78', badge:'SET', img:PRODUCT_IMGS.blushCompact, swatches:[] },
+    { id:'set-skin',   name:'Sérum Quartet', sub:'All four superlatifs', rating:4.7, price:'€185', badge:'SET', img:PRODUCT_IMGS.dropperReactive, swatches:[] },
+  ],
+};
+
+/* ── SPQs per route ─────────────────────────────────────────────────── */
+const HOME_CHIPS = [
+  'Help me build a routine',
+  "What's good for sensitive skin?",
+  'Show me bestsellers',
+  "What's Plume Blush?",
+];
+const SKINCARE_CHIPS = [
+  'Which serum is right for me?',
+  "What's good for breakouts?",
+  'How do I layer my products?',
+  "What's the difference between Boum-Boum Milks?",
+];
+
+/* ── Bot responses ──────────────────────────────────────────────────── */
+const REPLIES = {
+  'Help me build a routine': {
+    text: "Bien sûr — let's keep it simple. Tell me one thing first: what does your skin do most often?",
+    chips: ['Get dry', 'Get dull', 'Break out', 'React easily']
+  },
+  'Which serum is right for me?': {
+    text: "I love a good serum reco. All four Sérum Superlatifs are €53 and target different concerns. Which sounds like you?",
+    chips: ['Barrier · sensitive', 'Blemish · breakouts', 'Dullness · radiance', 'Reactive · redness']
+  },
+  "What's good for sensitive skin?": {
+    text: "Reach for Sérum Superlatif Reactive Skin Rescue — it's our rapid-soothing serum for skin that flares up. Pair it with Boum-Boum Milk to keep the barrier calm.",
+    products: ['serum-reactive','boum-boum-100','cest-la-cream']
+  },
+  'Show me bestsellers': {
+    text: "Our most-loved right now — Boum-Boum Milk, C'est La Cream, and Plume Blush.",
+    products: ['boum-boum-100','cest-la-cream','plume-blush']
+  },
+  "What's Plume Blush?": {
+    text: "Plume Blush is our cream blush in a soft second-skin finish — six shades, blendable with fingers or our Le Kabuki brush. The kind of glow that looks like you, but rested.",
+    products: ['plume-blush','le-kabuki']
+  },
+  "What's good for breakouts?": {
+    text: "Sérum Superlatif Blemish Rescue is the move — calms breakouts without stripping. Apply two drops on cleansed skin morning + night.",
+    products: ['serum-blemish','boum-boum-100']
+  },
+  'How do I layer my products?': {
+    text: "Bonne question. Order: cleanser → Boum-Boum Milk (or essence) → Sérum Superlatif → C'est La Cream → SPF (morning). Always thinnest to thickest, finish with sunscreen.",
+    chips: ["What's an essence?", 'Do I need SPF inside?', 'When to use Invisible Bandage?']
+  },
+  "What's the difference between Boum-Boum Milks?": {
+    text: "Same beloved 3-in-1 formula — just different sizes. 50ml is great for travel and trying it out (€50). 100ml is the everyday hero (€73) — better value if it's already in your routine.",
+    products: ['boum-boum-100','boum-boum-50']
+  },
+  /* follow-ups */
+  'Get dry': { text: "Dry skin deserves richness. Start with C'est La Cream as your daily moisturiser, and add Sérum Superlatif Dullness Rescue for the bounce.", products:['cest-la-cream','serum-dull'] },
+  'Get dull': { text: "Sérum Superlatif Dullness Rescue is the one — radiance + revival in a few drops. Boum-Boum Milk keeps things plump underneath.", products:['serum-dull','boum-boum-100'] },
+  'Break out': { text: "Sérum Superlatif Blemish Rescue calms breakouts without drying you out. Pair with Boum-Boum Milk to keep the barrier strong.", products:['serum-blemish','boum-boum-100'] },
+  'React easily': { text: "Reactive Skin Rescue is your friend — rapid soothing, no fuss. Layer over C'est La Cream for extra cushion.", products:['serum-reactive','cest-la-cream'] },
+  'Barrier · sensitive': { text: "Skin Barrier Rescue supports the microflora — think of it as a daily strengthener. Two drops, AM and PM.", products:['serum-barrier'] },
+  'Blemish · breakouts': { text: "Blemish Rescue takes the edge off without that stripped feeling. Targets active breakouts and the marks they leave.", products:['serum-blemish'] },
+  'Dullness · radiance': { text: "Dullness Rescue brings the glow back — light-reflecting, revivifying. Best worn morning before makeup.", products:['serum-dull'] },
+  'Reactive · redness': { text: "Reactive Rescue is the calm-down — rapid soothing for flushes and flares. Pat in, breathe out.", products:['serum-reactive'] },
+};
+
+/* ── State ──────────────────────────────────────────────────────────── */
+const state = {
+  route: 'home',
+  cartCount: 0,
+  messages: [],          // shared transcript (in-hood + full chat)
+  hoodActive: false,
+  spqRevealed: false,
+  chatOpen: false,
+  spqDismissed: false,
+};
+let spqRevealTimer = null;
+
+/* ── Router ─────────────────────────────────────────────────────────── */
+function parseHash() {
+  const raw = (location.hash || '#/').replace(/^#/, '');
+  const parts = raw.split('/').filter(Boolean);
+  if (parts.length === 0) return { route:'home' };
+  if (parts[0] === 'collections' && parts[1] === 'skincare') return { route:'collection' };
+  return { route:'home' };
+}
+
+/* ── Cart ───────────────────────────────────────────────────────────── */
+function bumpCart() {
+  state.cartCount++;
+  document.getElementById('bagBadge').textContent = state.cartCount;
+  toast('Added to bag');
+}
+
+let toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+/* ── Renderers ──────────────────────────────────────────────────────── */
+function productCard(p) {
+  const swatches = (p.swatches || []).map(c => `<span class="prod-swatch" style="background:${c}"></span>`).join('');
+  const badge = p.badge ? `<span class="prod-badge ${p.badge === 'NEW' || p.badge === 'SET' ? '' : 'outline'}">${p.badge}</span>` : '';
+  const stars = '★★★★★'.slice(0, Math.round(p.rating));
+  return `<a class="prod-card" data-id="${p.id}" href="javascript:void(0)">
+    <div class="prod-img">
+      ${badge}
+      <img src="${p.img}" alt="${p.name}">
+    </div>
+    <div class="prod-body">
+      <div class="prod-name">${p.name}</div>
+      <div class="prod-sub">${p.sub}</div>
+      ${swatches ? `<div class="prod-swatches">${swatches}</div>` : ''}
+      <div class="prod-rating"><span class="stars">${stars}</span> ${p.rating}</div>
+      <button class="prod-price-btn" data-add="${p.id}">${p.price} · Add</button>
+    </div>
+  </a>`;
+}
+
+function renderHome(activeTab) {
+  const tab = activeTab || 'new';
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('homeProdGrid').innerHTML = HOME_PRODUCTS[tab].map(productCard).join('');
+}
+
+function renderCollection() {
+  document.getElementById('collCount').textContent = ` (${SKINCARE.length})`;
+  document.getElementById('collGrid').innerHTML = SKINCARE.map(productCard).join('');
+}
+
+/* ── Chat dock (Medium term pattern) ────────────────────────────────── */
+function currentChipSet() {
+  return state.route === 'collection' ? SKINCARE_CHIPS : HOME_CHIPS;
+}
+
+function renderClosedWidget() {
+  const dock = document.getElementById('chatDock');
+  dock.classList.remove('hidden');
+  dock.classList.toggle('leaving', state.chatOpen);
+  const dp = document.getElementById('dockPreview');
+  const hc = document.getElementById('hoodConvo');
+  if (state.hoodActive) {
+    dp.style.display = 'none'; hc.hidden = false;
+  } else {
+    dp.style.display = ''; hc.hidden = true; hc.innerHTML = '';
+    if (!state.chatOpen && state.messages.length === 0 && state.spqRevealed && !state.spqDismissed) {
+      const chips = currentChipSet().slice(0, 4);
+      const reviewsChip = `<button class="dock-reviews" data-chip="__reviews" style="animation-delay:${(chips.length*0.08).toFixed(2)}s"><span class="stars"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 21.5l-4.9-2.8.9-5.5-4-3.9 5.5-.8z"/></svg></span>Reviews</button>`;
+      dp.innerHTML = chips.map((c, i) => `<button class="spq-preview-chip" data-chip="${c.replace(/"/g,'&quot;')}" style="animation-delay:${(i*0.08).toFixed(2)}s">${c}</button>`).join('') + reviewsChip;
+    } else {
+      dp.innerHTML = '';
+    }
+  }
+}
+
+/* In-hood mini-conversation: bot typing → reply → optional follow-up chips / products */
+function startHoodConvo(userText) {
+  state.hoodActive = true;
+  state.messages.push({ role:'user', text: userText });
+  document.getElementById('dockPreview').style.display = 'none';
+  const hc = document.getElementById('hoodConvo');
+  hc.hidden = false;
+  hc.innerHTML = `<div class="hood-msg user">${escapeHtml(userText)}</div><div class="hood-typing"><span></span><span></span><span></span></div>`;
+  hc.scrollTop = hc.scrollHeight;
+
+  setTimeout(() => {
+    const reply = REPLIES[userText] || { text: "Bonne question — let me find the right answer for you. (This is a demo reply.)" };
+    state.messages.push({ role:'bot', text: reply.text, products: reply.products, chips: reply.chips });
+    renderHoodReply(reply);
+  }, 900);
+}
+
+function renderHoodReply(reply) {
+  const hc = document.getElementById('hoodConvo');
+  // Remove typing dots
+  const typing = hc.querySelector('.hood-typing'); if (typing) typing.remove();
+  let html = `<div class="hood-msg">${escapeHtml(reply.text)}</div>`;
+  if (reply.chips) {
+    html += `<div class="hood-chips">${reply.chips.map(c => `<button class="hood-chip" data-chip="${c.replace(/"/g,'&quot;')}">${c}</button>`).join('')}</div>`;
+  }
+  if (reply.products) {
+    const prods = reply.products.map(id => SKINCARE.find(p => p.id === id) || HOME_PRODUCTS.new.find(p => p.id === id) || HOME_PRODUCTS.best.find(p => p.id === id) || HOME_PRODUCTS.sets.find(p => p.id === id)).filter(Boolean);
+    html += `<div class="hood-carousel">${prods.map(p => `
+      <a class="hood-rec" data-id="${p.id}">
+        <div class="hr-img"><img src="${p.img}" alt="${p.name}"></div>
+        <div class="hr-name">${p.name}</div>
+        <div class="hr-price">${p.price}</div>
+      </a>`).join('')}</div>`;
+  }
+  hc.insertAdjacentHTML('beforeend', html);
+  hc.scrollTop = hc.scrollHeight;
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* Hood reviews summary */
+const REVIEW_OVERVIEW = "Customers love VIOLETTE_FR for skin-flattering finishes and minimalist routines that actually work. Boum-Boum Milk and the Sérum Superlatif line lead the praise — for results without irritation. Plume Blush gets called out as 'the most natural cream blush I've tried.' A few wish for more shade range; most love the curation.";
+const REVIEW_CATEGORIES = [
+  { key:'skincare', label:'Skincare', summary:"The Sérum Superlatif quartet wins for clear results without irritation; Boum-Boum Milk is the 3-in-1 hero everyone restocks.", quotes:[
+    "Sérum Reactive cleared my redness in two weeks — nothing else worked.",
+    "Boum-Boum Milk before makeup is my new step. Skin looks lit-from-within.",
+    "C'est La Cream is rich without ever feeling heavy."
+  ]},
+  { key:'makeup', label:'Makeup', summary:"Plume Blush + Le Kabuki are described as a 'one-two punch' for a soft diffused finish; shades blend onto every skin tone.", quotes:[
+    "Plume Blush in Châtaigne is my forever shade — looks like I jogged a block.",
+    "Le Kabuki blends it so seamlessly. Cannot tell where blush starts and skin ends.",
+    "Wish there were more deep shades — please keep adding."
+  ]},
+  { key:'value', label:'Value & feel', summary:"Reviewers find the line concise and premium; packaging gets compliments and most products last 3+ months daily.", quotes:[
+    "Three products, a routine I actually keep up with.",
+    "The bottles are gorgeous on the shelf. Real french-girl chic.",
+    "Pricey but lasts longer than I expected — worth it."
+  ]},
+];
+
+function showHoodReviews() {
+  state.hoodActive = true;
+  document.getElementById('dockPreview').style.display = 'none';
+  const hc = document.getElementById('hoodConvo');
+  hc.hidden = false;
+  let html = `<div class="hood-reviews"><div class="rev-overview">${REVIEW_OVERVIEW}<div class="rev-caption">AI summary across 1,240 reviews</div></div>`;
+  REVIEW_CATEGORIES.forEach((c, i) => {
+    html += `<div class="rev-section ${i===0?'open':''}">
+      <button class="rev-head" data-rev="${c.key}">${c.label}<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="rev-body">
+        <p class="rev-sum">${c.summary}</p>
+        ${c.quotes.map(q => `<p class="rev-quote">"${q}"</p>`).join('')}
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  hc.innerHTML = html;
+}
+
+/* ── Full chat panel ────────────────────────────────────────────────── */
+function openFullChat() {
+  state.chatOpen = true;
+  document.getElementById('chatScrim').classList.add('open');
+  document.getElementById('chatPanel').classList.add('open');
+  renderChatTranscript();
+  renderClosedWidget();
+}
+function closeFullChat() {
+  state.chatOpen = false;
+  document.getElementById('chatScrim').classList.remove('open');
+  document.getElementById('chatPanel').classList.remove('open');
+  renderClosedWidget();
+}
+function renderChatTranscript() {
+  const thread = document.getElementById('chatThread');
+  thread.innerHTML = state.messages.map(m => `<div class="chat-msg ${m.role}">${escapeHtml(m.text)}</div>`).join('');
+  thread.scrollTop = thread.scrollHeight;
+  // Follow-up chips on the last bot message
+  const last = [...state.messages].reverse().find(m => m.role === 'bot');
+  const fu = document.getElementById('chatFollowups');
+  fu.innerHTML = last && last.chips ? last.chips.map(c => `<button class="chat-fchip" data-chip="${c.replace(/"/g,'&quot;')}">${c}</button>`).join('') : '';
+}
+
+function sendMessage(text) {
+  if (!text || !text.trim()) return;
+  state.messages.push({ role:'user', text });
+  renderChatTranscript();
+  setTimeout(() => {
+    const reply = REPLIES[text] || { text: "I'm noting that — let me follow up with the right rec." };
+    state.messages.push({ role:'bot', text: reply.text, chips: reply.chips, products: reply.products });
+    renderChatTranscript();
+  }, 700);
+}
+
+/* ── Main render ────────────────────────────────────────────────────── */
+function render() {
+  const parsed = parseHash();
+  state.route = parsed.route;
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.route === state.route));
+  // Active nav highlight
+  document.querySelectorAll('.nav-cats a').forEach(a => a.classList.toggle('active', state.route === 'collection' && a.dataset.cat === 'skincare'));
+  document.getElementById('routeChip').textContent = location.hash || '#/';
+
+  if (state.route === 'home') renderHome('new');
+  if (state.route === 'collection') renderCollection();
+
+  // Fresh transcript per page
+  state.messages = []; state.hoodActive = false; state.spqDismissed = false;
+  document.getElementById('chatDock').classList.remove('minimized');
+  clearTimeout(spqRevealTimer);
+  state.spqRevealed = false;
+  const delay = window.matchMedia('(max-width: 900px)').matches ? 0 : 500;
+  spqRevealTimer = setTimeout(() => { state.spqRevealed = true; renderClosedWidget(); }, delay);
+  renderClosedWidget();
+  window.scrollTo(0, 0);
+}
+
+/* ── Event delegation ───────────────────────────────────────────────── */
+document.addEventListener('click', (e) => {
+  // Tabs
+  const tab = e.target.closest('.tab');
+  if (tab && state.route === 'home') { renderHome(tab.dataset.tab); return; }
+  // Add to bag (price button)
+  const addBtn = e.target.closest('[data-add]');
+  if (addBtn) { e.preventDefault(); e.stopPropagation(); bumpCart(); return; }
+  // Dock SPQ chip
+  const chip = e.target.closest('.spq-preview-chip, .hood-chip');
+  if (chip && chip.dataset.chip) { startHoodConvo(chip.dataset.chip); return; }
+  // Reviews chip
+  const rev = e.target.closest('[data-chip="__reviews"]');
+  if (rev) { showHoodReviews(); return; }
+  // Reviews accordion
+  const revHead = e.target.closest('.rev-head');
+  if (revHead) { revHead.closest('.rev-section').classList.toggle('open'); return; }
+  // Hood follow-up chip (full chat)
+  const fchip = e.target.closest('.chat-fchip');
+  if (fchip && fchip.dataset.chip) { sendMessage(fchip.dataset.chip); return; }
+  // Hero CTA / AI routine button → open chat with routine prompt
+  if (e.target.matches('.hero-cta')) { startHoodConvo("What's Plume Blush?"); return; }
+  if (e.target.matches('#aiRoutineBtn, #aiRoutineBtn2') || e.target.closest('#aiRoutineBtn, #aiRoutineBtn2')) {
+    startHoodConvo('Help me build a routine'); return;
+  }
+});
+
+/* Dock controls */
+document.getElementById('hoodMin').addEventListener('click', () => {
+  document.getElementById('chatDock').classList.toggle('minimized');
+});
+document.getElementById('hoodExpand').addEventListener('click', openFullChat);
+document.getElementById('chatClose').addEventListener('click', closeFullChat);
+document.getElementById('chatScrim').addEventListener('click', closeFullChat);
+
+/* Send via dock input bar — opens full chat with the message sent */
+document.getElementById('chatBarInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const v = e.target.value.trim(); if (!v) return;
+    e.target.value = '';
+    startHoodConvo(v);
+  }
+});
+document.getElementById('chatBarSend').addEventListener('click', () => {
+  const input = document.getElementById('chatBarInput');
+  const v = input.value.trim();
+  if (v) { input.value = ''; startHoodConvo(v); }
+  else openFullChat();
+});
+
+/* Full chat composer */
+document.getElementById('composerInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const v = e.target.value.trim(); if (!v) return;
+    e.target.value = '';
+    sendMessage(v);
+  }
+});
+document.getElementById('composerSend').addEventListener('click', () => {
+  const input = document.getElementById('composerInput');
+  const v = input.value.trim();
+  if (v) { input.value = ''; sendMessage(v); }
+});
+
+/* Hood carousel: add-to-bag on rec card */
+document.addEventListener('click', (e) => {
+  const rec = e.target.closest('.hood-rec');
+  if (rec) { bumpCart(); }
+});
+
+/* ── Init ───────────────────────────────────────────────────────────── */
+window.addEventListener('hashchange', render);
+if (!location.hash) location.hash = '#/';
+render();
+</script>
+</body>
+</html>
