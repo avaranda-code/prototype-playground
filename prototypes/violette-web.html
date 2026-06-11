@@ -385,7 +385,7 @@ img { display: block; max-width: 100%; }
 .chat-launcher.gated { opacity: 0 !important; pointer-events: none !important; }
 .chat-dock-inner {
   pointer-events: auto;
-  width: min(600px, calc(100% - 28px));
+  width: min(450px, calc(100% - 28px));    /* 3/4 of previous 600px max width */
   display: flex; flex-direction: column; gap: 12px;
   background: rgba(255,255,255,0.48);
   -webkit-backdrop-filter: blur(22px) saturate(1.5);
@@ -1440,9 +1440,9 @@ const REPLIES = {
 
 /* Default chips per page (used by dock idle state) */
 const DEFAULT_CHIPS_BY_PAGE = {
-  home: ['Find the best serum for my skin', 'Compare serums'],
-  collection: ['Find the best serum for my skin'],
-  product: ['Find the best serum for my skin'],
+  home: ['Find me the right serum', 'Compare serums'],
+  collection: ['Find me the right serum', 'Build me a routine', 'Compare serums', "What's new?"],
+  product: ['Find me the right serum'],
   cart: ['Unlock free shipping', 'What pairs with this?'],
 };
 
@@ -2108,15 +2108,22 @@ function submitDiscount() {
 /* ── Free-text composer / typed message ── */
 function startHoodConvo(userText) {
   ensureHoodOpen();
-  // Quiz step in progress? Forward to quiz handler
-  if (state.flow === 'quiz') return handleQuizTyped(userText);
-  appendUser(userText);
-  // Recognise existing chip labels
+  // Recognised chip labels are forwarded to their handler (which append the
+  // user bubble itself) — do NOT pre-append here, or we'd double-add it.
+  if (state.flow === 'quiz')                        return handleQuizTyped(userText);
   if (WELCOME_CHIPS.find(c => c.text === userText)) return handleWelcomeChip(userText);
-  if (CONCERN_KEY[userText])                       return handleConcernChip(userText);
-  if (IN_CART_CHIPS.find(c => c.text === userText))return handleInCartChip(userText);
+  if (CONCERN_KEY[userText])                        return handleConcernChip(userText);
+  if (IN_CART_CHIPS.find(c => c.text === userText)) return handleInCartChip(userText);
   const pdpSet = state.pdpReviewsShown ? PDP_CHIPS_AFTER_REVIEWS : PDP_CHIPS_DEFAULT;
-  if (pdpSet.find(c => c.text === userText))       return handlePDPChip(userText);
+  if (pdpSet.find(c => c.text === userText))        return handlePDPChip(userText);
+
+  // From here we're in free-text territory — render the user bubble ourselves.
+  appendUser(userText);
+  // "Compare serums" → 1.2s thinking → concern picker (find your match)
+  if (userText === 'Compare serums') {
+    clearChips();
+    return withThinking(1200, () => runConcern({ intro: "Happy to. All four Sérum Superlatifs are €53 — they target different concerns. What's yours?" }));
+  }
   // Free-text routing — "serum" or "find" jumps to concern picker
   const lower = userText.toLowerCase();
   if (/serum|find/.test(lower)) {
