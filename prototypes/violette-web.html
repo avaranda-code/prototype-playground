@@ -568,7 +568,8 @@ img { display: block; max-width: 100%; }
   animation: hoodFade 0.3s ease;
 }
 .hood-msg.user {
-  background: var(--ink); color: #fff;
+  background: var(--purple);              /* #534AB7 — Violette purple per flows spec */
+  color: #fff;
   border-radius: 18px 18px 4px 18px;
   padding: 10px 14px; margin: 8px 0 0 auto;
   max-width: 80%; width: max-content;
@@ -578,8 +579,13 @@ img { display: block; max-width: 100%; }
   to { opacity: 1; transform: translateY(0); }
 }
 .hood-chips {
-  display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 6px 4px;
+  display: flex; gap: 8px; flex-wrap: nowrap;             /* horizontal-scrolling pills */
+  overflow-x: auto; scrollbar-width: none;
+  padding: 12px 6px 4px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
 }
+.hood-chips::-webkit-scrollbar { display: none; }
+.hood-chip { flex-shrink: 0; white-space: nowrap; }
 .hood-chip {
   background: #fff; color: var(--ink); border: 1px solid rgba(22,17,12,0.12);
   border-radius: 9999px; padding: 8px 14px; font-size: 13px;
@@ -604,6 +610,176 @@ img { display: block; max-width: 100%; }
 .hood-rec .hr-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .hood-rec .hr-name { font-size: 12px; font-weight: 600; margin: 0 0 4px; line-height: 1.3; }
 .hood-rec .hr-price { font-size: 12px; color: var(--muted); margin: 0; }
+
+/* ── Flow components: serum rec card, reviews card, pairs card, quiz UI ── */
+.flow-prod {                         /* full serum-recommendation card */
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px;
+  margin: 10px 0; display: flex; gap: 14px;
+  animation: hoodFade 0.3s ease;
+}
+.flow-prod .fp-img {
+  flex: 0 0 96px; height: 96px; border-radius: 10px;
+  background: #F4F2EF; display: flex; align-items: center; justify-content: center; padding: 8px;
+}
+.flow-prod .fp-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.flow-prod .fp-body { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.flow-prod .fp-eyebrow { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.flow-prod .fp-name { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.flow-prod .fp-sub { font-size: 12px; color: var(--muted); }
+.flow-prod .fp-meta { font-size: 12px; color: var(--ink); display: flex; gap: 6px; align-items: center; margin-top: 2px; }
+.flow-prod .fp-meta .stars { color: #e0a93b; letter-spacing: 1px; font-size: 10px; }
+.flow-prod .fp-quote { font-size: 12px; color: var(--muted); font-style: italic; padding-left: 8px; border-left: 2px solid var(--line); margin: 4px 0; }
+.flow-prod .fp-btn {
+  margin-top: 6px; padding: 8px 14px; border-radius: 9999px;
+  background: var(--ink); color: #fff; border: 0;
+  font-size: 12px; font-weight: 600; font-family: inherit;
+  align-self: flex-start; cursor: pointer;
+}
+.flow-prod .fp-btn:hover { background: #2a221a; }
+
+/* Reviews card */
+.flow-reviews {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px; margin: 10px 0;
+  animation: hoodFade 0.3s ease;
+}
+.flow-reviews .fr-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.flow-reviews .fr-rating { font-weight: 700; color: var(--ink); font-size: 14px; }
+.flow-reviews .fr-stars { color: #e0a93b; letter-spacing: 1px; font-size: 11px; }
+.flow-reviews .fr-count { font-size: 12px; color: var(--muted); }
+.flow-reviews .fr-bar { height: 6px; background: #F0EFEC; border-radius: 9999px; overflow: hidden; margin-bottom: 10px; }
+.flow-reviews .fr-bar > div { height: 100%; background: var(--purple); border-radius: 9999px; }
+.flow-reviews .fr-summary { font-size: 13px; color: var(--ink); line-height: 1.5; padding: 4px 0 10px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.flow-reviews .fr-rev { padding: 6px 0; }
+.flow-reviews .fr-rev .fr-name { font-size: 12px; font-weight: 600; color: var(--ink); display: flex; gap: 6px; align-items: center; }
+.flow-reviews .fr-rev .fr-text { font-size: 12px; color: #4a4036; line-height: 1.45; margin-top: 2px; }
+
+/* Pairs card (smaller variant) */
+.flow-pairs {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px;
+  margin: 10px 0; display: flex; gap: 12px;
+  animation: hoodFade 0.3s ease;
+}
+.flow-pairs .fp-img { flex: 0 0 72px; height: 72px; border-radius: 8px; background: #F4F2EF; padding: 6px; display: flex; align-items: center; justify-content: center; }
+.flow-pairs .fp-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.flow-pairs .fp-body { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.flow-pairs .fp-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.flow-pairs .fp-sub { font-size: 11px; color: var(--muted); }
+.flow-pairs .fp-meta { font-size: 11px; color: var(--ink); display: flex; gap: 6px; margin-top: 2px; }
+.flow-pairs .fp-btn { margin-top: 4px; padding: 6px 12px; border-radius: 9999px; background: var(--ink); color: #fff; border: 0; font-size: 11px; font-weight: 600; font-family: inherit; align-self: flex-start; cursor: pointer; }
+
+/* Quiz progress bar */
+.quiz-progress {
+  background: #F0EFEC; border-radius: 9999px;
+  height: 6px; margin: 8px 0 12px; overflow: hidden;
+}
+.quiz-progress > div { height: 100%; background: var(--purple); border-radius: 9999px; transition: width 0.35s cubic-bezier(0.2,0.8,0.2,1); }
+.quiz-step-label { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 4px; }
+
+/* Routine result: horizontally-scrolling product cards */
+.routine-row {
+  display: flex; gap: 10px; overflow-x: auto;
+  scrollbar-width: none; padding: 10px 0 6px;
+}
+.routine-row::-webkit-scrollbar { display: none; }
+.routine-card {
+  flex: 0 0 160px; background: #fff; border: 1px solid var(--line);
+  border-radius: 12px; padding: 10px;
+  display: flex; flex-direction: column; gap: 4px;
+  animation: hoodFade 0.4s ease backwards;
+}
+.routine-card .rc-img { aspect-ratio: 1/1; border-radius: 8px; background: #F4F2EF; padding: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; }
+.routine-card .rc-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.routine-card .rc-name { font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.routine-card .rc-sub { font-size: 11px; color: var(--muted); }
+.routine-card .rc-meta { font-size: 11px; color: var(--ink); display: flex; gap: 6px; }
+.routine-card .rc-btn { margin-top: 6px; padding: 6px 12px; border-radius: 9999px; background: var(--ink); color: #fff; border: 0; font-size: 11px; font-weight: 600; font-family: inherit; cursor: pointer; }
+
+/* Layering instructions card */
+.routine-howto {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px; margin: 10px 0;
+  animation: hoodFade 0.3s ease;
+}
+.routine-howto h5 { font-size: 13px; font-weight: 600; margin: 0 0 10px; color: var(--ink); }
+.routine-howto ol { list-style: none; padding: 0; margin: 0; counter-reset: step; display: flex; flex-direction: column; gap: 10px; }
+.routine-howto li {
+  display: grid; grid-template-columns: 22px 1fr; gap: 10px;
+  font-size: 12px; color: var(--ink); line-height: 1.5;
+}
+.routine-howto li::before {
+  counter-increment: step;
+  content: counter(step);
+  background: var(--purple); color: #fff;
+  width: 22px; height: 22px; border-radius: 50%;
+  font-size: 11px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* Email/phone discount capture card */
+.discount-card {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; padding: 16px; margin: 10px 0;
+  animation: hoodFade 0.4s ease;
+}
+.discount-card h5 { font-size: 14px; font-weight: 600; margin: 0 0 4px; color: var(--ink); }
+.discount-card p { font-size: 12px; color: var(--muted); margin: 0 0 12px; line-height: 1.5; }
+.discount-tabs {
+  display: inline-flex; background: #F0EFEC; border-radius: 9999px;
+  padding: 3px; margin-bottom: 10px;
+}
+.discount-tabs button {
+  background: transparent; border: 0; padding: 6px 14px;
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  border-radius: 9999px; cursor: pointer; font-family: inherit;
+}
+.discount-tabs button.active { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.discount-card .dc-input {
+  width: 100%; padding: 10px 14px; font-size: 13px;
+  border: 1px solid var(--line); border-radius: 9999px;
+  font-family: inherit; outline: 0;
+  margin-bottom: 10px;
+}
+.discount-card .dc-input:focus { border-color: var(--purple); }
+.discount-card .dc-cta {
+  width: 100%; padding: 11px 18px;
+  background: var(--ink); color: #fff; border: 0; border-radius: 9999px;
+  font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
+}
+.discount-card .dc-cta:hover { background: #2a221a; }
+
+/* Discount success state */
+.discount-success {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px; margin: 10px 0;
+  text-align: center;
+  animation: hoodFade 0.4s ease;
+}
+.discount-success .ds-check { font-size: 14px; color: #1ea758; font-weight: 600; margin-bottom: 4px; }
+.discount-success p { font-size: 12px; color: var(--muted); margin: 4px 0 10px; line-height: 1.5; }
+.discount-success .ds-code {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px dashed var(--purple); color: var(--purple);
+  background: rgba(83,74,183,0.08);
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px; padding: 7px 14px; border-radius: 9999px;
+}
+
+/* Loading spinner card */
+.routine-spinner {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; padding: 18px; margin: 10px 0;
+  text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.routine-spinner .rs-ring {
+  width: 32px; height: 32px; border: 3px solid #F0EFEC;
+  border-top-color: var(--purple); border-radius: 50%;
+  animation: rs-spin 0.9s linear infinite;
+}
+@keyframes rs-spin { to { transform: rotate(360deg); } }
+.routine-spinner p { font-size: 13px; color: var(--ink); margin: 0; }
 
 /* Reviews summary inside hood */
 .hood-reviews { padding: 4px 4px 0; }
@@ -1025,6 +1201,9 @@ img { display: block; max-width: 100%; }
 
     <div class="coll-grid" id="collGrid"></div>
   </section>
+
+  <!-- PRODUCT (PDP) view — populated by renderPDP() -->
+  <section class="view" data-route="product"></section>
 </main>
 
 <!-- Footer -->
@@ -1254,9 +1433,155 @@ const REPLIES = {
   'Reactive · redness': { text: "Reactive Rescue is the calm-down — rapid soothing for flushes and flares. Pat in, breathe out.", products:['serum-reactive'] },
 };
 
+/* ════════════════════════════════════════════════════════════════════
+   CONVERSATIONAL FLOWS — assistant flows + chip routing for the dock.
+   See spec at the top of the script for the full flow tree.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Default chips per page (used by dock idle state) */
+const DEFAULT_CHIPS_BY_PAGE = {
+  home: ['Find the best serum for my skin', 'Compare serums'],
+  collection: ['Find the best serum for my skin'],
+  product: ['Find the best serum for my skin'],
+  cart: ['Unlock free shipping', 'What pairs with this?'],
+};
+
+/* Serum recommendations — one card + message per concern */
+const SERUM_RECS = {
+  dryness: {
+    msg: "For dryness, I recommend the Sérum Superlatif – Skin Barrier Rescue. It's a microflora support serum that strengthens your skin barrier so it holds onto moisture instead of losing it — the root cause of most dryness. Lightweight, layers under any moisturiser, and works for sensitive skin.",
+    card: { eyebrow:'SÉRUM SUPERLATIF', name:"Sérum Superlatif – Skin Barrier Rescue", sub:'Microflora Support Serum', price:'€53', stars:5, count:112, img: PRODUCT_IMGS.serumBarrier, handle:'serum-barrier-rescue', quote:"Finally fixed my redness after years of trying. — Marie-Hélène D." }
+  },
+  dullness: {
+    msg: "For dullness, I recommend the Sérum Superlatif – Dullness Rescue. It's packed with brightening actives that revive your complexion's natural radiance and give you a lit-from-within glow. Lightweight, gentle enough for daily use, and pairs beautifully with SPF.",
+    card: { eyebrow:'SÉRUM SUPERLATIF', name:"Sérum Superlatif – Dullness Rescue", sub:'Radiance + Revival Serum', price:'€53', stars:5, count:112, img: PRODUCT_IMGS.serumDullness, handle:'serum-dullness-rescue', quote:"Brighter skin in two weeks — I'm never going back. — Sandrine V." }
+  },
+  finelines: {
+    msg: "For fine lines, I recommend the Sérum Superlatif – Skin Barrier Rescue. A strong barrier retains moisture and plumpness, which softens the appearance of fine lines over time. It's the foundation of any anti-ageing routine — gentle, effective, and works under any moisturiser.",
+    card: { eyebrow:'SÉRUM SUPERLATIF', name:"Sérum Superlatif – Skin Barrier Rescue", sub:'Microflora Support Serum', price:'€53', stars:5, count:112, img: PRODUCT_IMGS.serumBarrier, handle:'serum-barrier-rescue' }
+  },
+  redness: {
+    msg: "For redness, I recommend the Sérum Superlatif – Reactive Skin Rescue. It calms reactive, irritated skin within hours thanks to centella asiatica and a probiotic complex that rebalances your microbiome. Fragrance-free and safe for the most sensitive skin.",
+    card: { eyebrow:'SÉRUM SUPERLATIF', name:"Sérum Superlatif – Reactive Skin Rescue", sub:'Rapid Soothing Serum', price:'€53', stars:5, count:112, img: PRODUCT_IMGS.serumReactive, handle:'serum-reactive-skin-rescue' }
+  },
+};
+
+/* Product handle → concern mapping for PDP auto-open */
+const PRODUCT_HANDLE_TO_CONCERN = {
+  'serum-barrier-rescue':'dryness',
+  'serum-dullness-rescue':'dullness',
+  'serum-reactive-skin-rescue':'redness',
+};
+
+/* Concern → PDP opening line */
+const PDP_OPENING = {
+  dullness: "Vitamin C + Niacinamide — that's what's in here and that's exactly what targets dullness. Brighter in 48 hours.",
+  dryness: "The microflora support in this serum locks in moisture without heaviness — it's the dry skin pick for a reason.",
+  finelines: "The brightening actives here resurface and renew — most people notice smoother-looking skin within 3 weeks.",
+  redness: "This one strengthens your barrier and calms visible redness — it addresses the cause, not just the symptom.",
+};
+
+/* PDP chip sets */
+const PDP_CHIPS_DEFAULT = [
+  { text: "What do people say about results?", loading: "Reading what shoppers are saying...",
+    answer: "Shoppers consistently see results within 2–3 weeks. Here's the breakdown:", card: 'reviews' },
+  { text: "Key ingredients?", loading: "Pulling up the key ingredients...",
+    answer: "Hero actives: a probiotic complex, niacinamide, and centella asiatica. Fragrance-free, vegan, and formulated without parabens, sulphates, or silicones." },
+  { text: "How do I use it?", loading: "Checking how to use it...",
+    answer: "Apply 3–4 drops to clean skin morning and night, before your moisturiser. Pat gently — don't rub. Layer SPF on top in the AM." },
+];
+
+const PDP_CHIPS_AFTER_REVIEWS = [
+  { text: "What pairs with this?", loading: "Finding what works well with this serum...",
+    answer: "The Sérum Superlatif pairs best with the Boum-Boum Milk — apply the serum first, then the Boum-Boum Milk to lock it in. Both are lightweight and fragrance-free, so they layer without irritation.", card: 'pairs' },
+  { text: "How fast will I see results?", loading: "Checking the timeline...",
+    answer: "Most people notice brighter skin within 48 hours. The bigger shift — smoother texture, more even tone — happens at the 3-week mark. Best with daily use, morning and night." },
+  { text: "Add to cart", action: 'addtocart' },
+];
+
+const REVIEWS_CARD_DATA = {
+  rating: 4.7, count: 89, progress: 90,
+  summary: "Most reviewers notice brighter, more even skin within 2 weeks. Frequently praised for its lightweight texture and visible glow effect. Sensitive-skin users recommend easing in every other day.",
+  reviews: [
+    { name:'Sandrine V.', stars:5, text:"Brighter skin in two weeks — I'm never going back." },
+    { name:'Marie-Hélène D.', stars:5, text:"Finally fixed my redness after years of trying." },
+    { name:'Camille R.', stars:4, text:"Lightweight and actually works. My skin looks alive again." },
+  ],
+};
+
+const PAIRS_BOUM_BOUM = {
+  name:'Boum-Boum Milk', sub:'3-in-1 Skincare Spray', rating:4.6, price:'€50',
+  img:'https://www.violettefr.com/cdn/shop/files/VFR_PDP_1500x1872_BBM_100mL_wSeals_9bde829e-7cfd-40d3-93c9-55cec3b276e3.jpg?v=1767645700&width=713',
+  handle:'boum-boum-milk-100-ml',
+};
+
+/* In-cart follow-ups */
+const IN_CART_CHIPS = [
+  { text: "Checkout", answer: "Ready when you are — tap the bag icon up top to review your order and check out. Shipping is free over €75." },
+  { text: "Build a full routine", answer: "Pair this serum with Boum-Boum Milk (mist + prep) and C'est La Cream (moisturise + seal) for a complete 3-step routine that takes under 2 minutes." },
+  { text: "What else pairs with this?", answer: "Customers most often add Boum-Boum Milk and Invisible Bandage alongside this serum — both work synergistically on barrier and hydration." },
+];
+
+/* Extra fallback responses */
+const FALLBACK_REPLIES = {
+  "Is it sensitive-skin safe?": "Yes — fragrance-free, dermatologist-tested, and formulated for reactive skin. Safe for daily use even on compromised barriers.",
+  "How long until I see results?": "Hydration and glow within 48 hours. Tone and texture improvements typically visible after ~3 weeks of consistent daily use.",
+  "Vegan & cruelty-free?": "100% vegan and certified cruelty-free. Made in France with traceable, ethically-sourced ingredients.",
+};
+
+/* Routine quiz config */
+const QUIZ_STEPS = [
+  { q: "What's your main skin concern?",
+    chips: [
+      { text:'Dullness',  k:'dullness'  },
+      { text:'Dryness',   k:'dryness'   },
+      { text:'Fine lines', k:'finelines' },
+      { text:'Redness',   k:'redness'   },
+    ], field:'concern' },
+  { q: "Tell me a bit more — what does your skin feel like day to day?",
+    chips: [
+      { text:'Oily / shiny',     ack:"Got it — we'll keep the routine lightweight." },
+      { text:'Tight or dry',     ack:"Understood — we'll focus on moisture and barrier support." },
+      { text:'Pretty normal',    ack:"Great baseline. We'll refine from there." },
+      { text:'Sensitive / reactive', ack:"Noted — we'll keep it simple and fragrance-free." },
+    ], field:'feel', typedAck:"Got it — thanks for sharing that." },
+  { q: "How much time do you want to spend on your routine?",
+    chips: [
+      { text:'Under 2 minutes', ack:'Perfect.' },
+      { text:'5 minutes',       ack:'Perfect.' },
+      { text:'I love a full ritual', ack:'Perfect.' },
+    ], field:'time' },
+  { q: "Last one — do you wear makeup most days?",
+    chips: [
+      { text:'Yes, daily' }, { text:'A few times a week' }, { text:'Rarely or never' },
+    ], field:'makeup' },
+];
+
+/* Look picker chips */
+const LOOK_CHIPS = ['Everyday glow', 'Bold look'];
+
+/* What's new card */
+const WHATSNEW = {
+  msg: "Just landed: the Plume Blush + Le Kabuki. A feather-light cheek melt and the brush made for it.",
+  card: {
+    eyebrow:'PLUME BLUSH', name:'Plume Blush — Rose Fumé', sub:'Cream Blush', price:'€40', stars:5, count:88,
+    img:'https://cdn.shopify.com/s/files/1/0519/0628/1661/files/VFR_PDP_1500x1872_PlumeBlush_Model_Logo_AmberRougeFume.jpg?v=1779812998&width=700',
+    handle:'plume-blush'
+  }
+};
+
+/* Welcome chips */
+const WELCOME_CHIPS = [
+  { text:'Find me the right serum', next:'concern',  intro:null },
+  { text:'I want a new look',       next:'look',     intro:"Great choice. A bold blush or lip can change everything. What kind of look are you going for — everyday glow, or something more striking?" },
+  { text:'Build me a routine',      next:'concern',  intro:"Let's build it. What's your skin's biggest concern right now?" },
+  { text:"What's new?",             next:'whatsnew', intro:null },
+];
+
 /* ── State ──────────────────────────────────────────────────────────── */
 const state = {
   route: 'home',
+  productHandle: null,
   cartCount: 0,
   messages: [],          // shared transcript (in-hood + full chat)
   hoodActive: false,
@@ -1265,6 +1590,12 @@ const state = {
   spqDismissed: false,
   dockClosed: false,     // true when shopper hit X — dock collapses to circular launcher
   dockGated: false,      // home only — true while the AI quiz card is still in view
+  flow: null,            // 'welcome' | 'concern' | 'serum' | 'look' | 'whatsnew' | 'pdp' | 'pdp-after-reviews' | 'in-cart' | 'quiz'
+  activeConcern: null,   // last-picked concern — used by PDP opener
+  pdpReviewsShown: false,
+  quiz: { step: 0, answers: {} },
+  routineDiscountMode: 'email',
+  welcomeShown: false,   // populated from sessionStorage at init
 };
 let spqRevealTimer = null;
 let dockCloseTimer = null;
@@ -1275,6 +1606,7 @@ function parseHash() {
   const parts = raw.split('/').filter(Boolean);
   if (parts.length === 0) return { route:'home' };
   if (parts[0] === 'collections' && parts[1] === 'skincare') return { route:'collection' };
+  if (parts[0] === 'products' && parts[1]) return { route:'product', productHandle: parts[1] };
   return { route:'home' };
 }
 
@@ -1326,7 +1658,7 @@ function renderCollection() {
 
 /* ── Chat dock (Medium term pattern) ────────────────────────────────── */
 function currentChipSet() {
-  return state.route === 'collection' ? SKINCARE_CHIPS : HOME_CHIPS;
+  return DEFAULT_CHIPS_BY_PAGE[state.route] || DEFAULT_CHIPS_BY_PAGE.home;
 }
 
 function renderClosedWidget() {
@@ -1381,23 +1713,422 @@ function stopThinking(t) {
   if (t.wrap && t.wrap.parentNode) t.wrap.remove();
 }
 
-/* In-hood mini-conversation: bot typing → reply → optional follow-up chips / products */
-let hoodThinker = null;
-function startHoodConvo(userText) {
+/* ── Hood DOM helpers (used by flows) ─────────────────────────────── */
+function ensureHoodOpen() {
   state.hoodActive = true;
-  state.messages.push({ role:'user', text: userText });
-  document.getElementById('dockPreview').style.display = 'none';
+  const dp = document.getElementById('dockPreview'); if (dp) dp.style.display = 'none';
+  const hc = document.getElementById('hoodConvo'); if (hc) hc.hidden = false;
+  // If dock is closed (launcher visible), restore the dock
+  if (state.dockClosed) openDockFromLauncher();
+}
+function clearHood() {
   const hc = document.getElementById('hoodConvo');
-  hc.hidden = false;
-  hc.innerHTML = `<div class="hood-msg user">${escapeHtml(userText)}</div>`;
-  hoodThinker = startThinking(hc);
+  if (hc) hc.innerHTML = '';
+  state.messages = [];
+}
+function hoodEl() { return document.getElementById('hoodConvo'); }
+function appendHTML(html) {
+  const hc = hoodEl(); if (!hc) return;
+  hc.insertAdjacentHTML('beforeend', html);
   hc.scrollTop = hc.scrollHeight;
+}
+function appendUser(text) {
+  state.messages.push({ role:'user', text });
+  appendHTML(`<div class="hood-msg user">${escapeHtml(text)}</div>`);
+}
+function appendBot(text) {
+  state.messages.push({ role:'bot', text });
+  appendHTML(`<div class="hood-msg">${escapeHtml(text)}</div>`);
+}
+function appendChips(chips, scope) {
+  const html = `<div class="hood-chips" data-scope="${scope || ''}">${chips.map(c => {
+    const label = typeof c === 'string' ? c : c.text;
+    return `<button class="hood-chip" data-chip="${label.replace(/"/g,'&quot;')}">${escapeHtml(label)}</button>`;
+  }).join('')}</div>`;
+  appendHTML(html);
+}
+function clearChips() { hoodEl()?.querySelectorAll('.hood-chips').forEach(c => c.remove()); }
 
+/* Show a "thinking…" indicator for N ms then run cb */
+let hoodThinker = null;
+function withThinking(ms, cb) {
+  const hc = hoodEl(); if (!hc) { cb(); return; }
+  hoodThinker = startThinking(hc); hc.scrollTop = hc.scrollHeight;
+  setTimeout(() => { stopThinking(hoodThinker); hoodThinker = null; cb(); }, ms);
+}
+/* Simpler one-line "Loading…" pill (used for the per-chip PDP loaders) */
+function withLoadingLine(text, ms, cb) {
+  const hc = hoodEl(); if (!hc) { cb(); return; }
+  const wrap = document.createElement('div');
+  wrap.className = 'hood-msg'; wrap.style.color = 'var(--muted)'; wrap.style.fontStyle = 'italic';
+  wrap.textContent = text;
+  hc.appendChild(wrap); hc.scrollTop = hc.scrollHeight;
+  setTimeout(() => { wrap.remove(); cb(); }, ms);
+}
+
+/* ── Card renderers ────────────────────────────────────────────────── */
+function starsStr(n) { return '★★★★★'.slice(0, Math.round(n)); }
+
+function appendSerumCard(card) {
+  appendHTML(`<div class="flow-prod" data-prod-card data-handle="${card.handle}">
+    <div class="fp-img"><img src="${card.img}" alt="${escapeHtml(card.name)}"></div>
+    <div class="fp-body">
+      <div class="fp-eyebrow">${escapeHtml(card.eyebrow)}</div>
+      <div class="fp-name">${escapeHtml(card.name)}</div>
+      <div class="fp-sub">${escapeHtml(card.sub)}</div>
+      <div class="fp-meta"><strong>${card.price}</strong> · <span class="stars">${starsStr(card.stars)}</span> ${card.count} reviews</div>
+      ${card.quote ? `<div class="fp-quote">${escapeHtml(card.quote)}</div>` : ''}
+      <button class="fp-btn" data-add-rec="${card.handle}">Add to cart</button>
+    </div>
+  </div>`);
+}
+
+function appendReviewsCard() {
+  const d = REVIEWS_CARD_DATA;
+  appendHTML(`<div class="flow-reviews">
+    <div class="fr-head"><span class="fr-rating">★${d.rating}</span><span class="fr-count">— ${d.count} reviews</span></div>
+    <div class="fr-bar"><div style="width:${d.progress}%"></div></div>
+    <div class="fr-summary">${escapeHtml(d.summary)}</div>
+    ${d.reviews.map(r => `<div class="fr-rev">
+      <div class="fr-name">${escapeHtml(r.name)} <span class="fr-stars" style="color:#e0a93b">${starsStr(r.stars)}</span></div>
+      <div class="fr-text">${escapeHtml(r.text)}</div>
+    </div>`).join('')}
+  </div>`);
+}
+
+function appendPairsCard() {
+  const p = PAIRS_BOUM_BOUM;
+  appendHTML(`<div class="flow-pairs" data-prod-card data-handle="${p.handle}">
+    <div class="fp-img"><img src="${p.img}" alt="${escapeHtml(p.name)}"></div>
+    <div class="fp-body">
+      <div class="fp-name">${escapeHtml(p.name)}</div>
+      <div class="fp-sub">${escapeHtml(p.sub)}</div>
+      <div class="fp-meta"><strong>${p.price}</strong> · ★${p.rating}</div>
+      <button class="fp-btn" data-add-rec="${p.handle}">Add to cart</button>
+    </div>
+  </div>`);
+}
+
+/* ── Flow runner: welcome → concern → serum, etc. ─────────────────── */
+function startFlow(name, opts) {
+  ensureHoodOpen();
+  state.flow = name;
+  if (opts && opts.fresh) clearHood();
+  if (name === 'welcome')   return runWelcome();
+  if (name === 'concern')   return runConcern(opts);
+  if (name === 'serum')     return runSerum(opts && opts.concern);
+  if (name === 'look')      return runLook(opts);
+  if (name === 'whatsnew')  return runWhatsNew();
+  if (name === 'pdp')       return runPDP();
+  if (name === 'in-cart')   return runInCart();
+  if (name === 'quiz')      return runQuiz({ fresh: true });
+}
+
+function runWelcome() {
+  clearHood();
+  appendBot("What are you looking for today?");
+  appendChips(WELCOME_CHIPS.map(c => c.text), 'welcome');
+}
+
+function runConcern(opts) {
+  state.flow = 'concern';
+  clearChips();
+  if (opts && opts.intro) appendBot(opts.intro);
+  else appendBot("What are your main skin concerns?");
+  appendChips(['Dullness', 'Dryness', 'Fine lines', 'Redness'], 'concern');
+}
+
+const CONCERN_KEY = { 'Dullness':'dullness', 'Dryness':'dryness', 'Fine lines':'finelines', 'Redness':'redness' };
+
+function runSerum(concernKey) {
+  state.flow = 'serum';
+  clearChips();
+  const rec = SERUM_RECS[concernKey] || SERUM_RECS.dullness;
+  state.activeConcern = concernKey;
+  appendBot(rec.msg);
+  appendSerumCard(rec.card);
+}
+
+function runLook(opts) {
+  state.flow = 'look';
+  clearChips();
+  if (opts && opts.intro) appendBot(opts.intro);
+  appendChips(LOOK_CHIPS, 'look');
+}
+
+function runWhatsNew() {
+  state.flow = 'whatsnew';
+  clearChips();
+  appendBot(WHATSNEW.msg);
+  appendSerumCard(WHATSNEW.card);
+}
+
+function runPDP() {
+  clearHood();
+  const concern = state.activeConcern
+    || PRODUCT_HANDLE_TO_CONCERN[state.productHandle]
+    || 'dullness';
+  state.activeConcern = concern;
+  state.pdpReviewsShown = false;
+  appendBot(PDP_OPENING[concern] || PDP_OPENING.dullness);
+  appendChips(PDP_CHIPS_DEFAULT.map(c => c.text), 'pdp');
+}
+
+function runInCart() {
+  clearChips();
+  appendBot("Anything else I can help with?");
+  appendChips(IN_CART_CHIPS.map(c => c.text), 'in-cart');
+}
+
+/* ── PDP chip handler ── */
+function handlePDPChip(chipText) {
+  const set = state.pdpReviewsShown ? PDP_CHIPS_AFTER_REVIEWS : PDP_CHIPS_DEFAULT;
+  const def = set.find(c => c.text === chipText);
+  if (!def) return false;
+  appendUser(chipText);
+  clearChips();
+  if (def.action === 'addtocart') {
+    bumpCart();
+    appendBot("Added — your serum's in the bag.");
+    state.flow = 'in-cart';
+    setTimeout(() => appendChips(IN_CART_CHIPS.map(c => c.text), 'in-cart'), 200);
+    return true;
+  }
+  withLoadingLine(def.loading, 1500, () => {
+    appendBot(def.answer);
+    if (def.card === 'reviews') { appendReviewsCard(); state.pdpReviewsShown = true; }
+    if (def.card === 'pairs')   appendPairsCard();
+    // Re-render chip set
+    const nextChips = state.pdpReviewsShown ? PDP_CHIPS_AFTER_REVIEWS : PDP_CHIPS_DEFAULT;
+    appendChips(nextChips.map(c => c.text), 'pdp');
+  });
+  return true;
+}
+
+/* ── In-cart chip handler ── */
+function handleInCartChip(chipText) {
+  const def = IN_CART_CHIPS.find(c => c.text === chipText);
+  if (!def) return false;
+  appendUser(chipText);
+  clearChips();
+  withLoadingLine("Just a moment...", 900, () => {
+    appendBot(def.answer);
+    appendChips(IN_CART_CHIPS.map(c => c.text), 'in-cart');
+  });
+  return true;
+}
+
+/* ── Welcome chip handler ── */
+function handleWelcomeChip(chipText) {
+  const def = WELCOME_CHIPS.find(c => c.text === chipText);
+  if (!def) return false;
+  appendUser(chipText);
+  clearChips();
+  if (def.next === 'concern' && !def.intro) {
+    // No thinking line, jump straight in
+    runConcern();
+  } else {
+    withThinking(1500, () => {
+      if (def.next === 'concern')  runConcern({ intro: def.intro });
+      if (def.next === 'look')     runLook({ intro: def.intro });
+      if (def.next === 'whatsnew') runWhatsNew();
+    });
+  }
+  return true;
+}
+
+/* ── Concern picker chip handler ── */
+function handleConcernChip(chipText) {
+  const k = CONCERN_KEY[chipText];
+  if (!k) return false;
+  appendUser(chipText);
+  clearChips();
+  withThinking(1200, () => runSerum(k));
+  return true;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ROUTINE QUIZ — 4 steps + progress bar + result + email/phone capture
+   ════════════════════════════════════════════════════════════════════ */
+function runQuiz(opts) {
+  if (opts && opts.fresh) {
+    state.quiz = { step: 0, answers: {} };
+    clearHood();
+  }
+  state.flow = 'quiz';
+  appendQuizProgress();
+  appendQuizQuestion();
+}
+
+function appendQuizProgress() {
+  // Remove old progress
+  hoodEl()?.querySelectorAll('.quiz-progress, .quiz-step-label').forEach(n => n.remove());
+  const totalSteps = QUIZ_STEPS.length;
+  const completed = state.quiz.step;
+  const pct = Math.min(100, ((completed) / totalSteps) * 100);
+  const label = `Step ${Math.min(completed + 1, totalSteps)} of ${totalSteps}`;
+  appendHTML(`<div class="quiz-step-label">${label}</div>
+    <div class="quiz-progress"><div style="width:${pct}%"></div></div>`);
+}
+
+function appendQuizQuestion() {
+  const step = QUIZ_STEPS[state.quiz.step];
+  if (!step) return finishQuiz();
+  appendBot(step.q);
+  appendChips(step.chips.map(c => c.text), 'quiz');
+}
+
+function handleQuizChip(chipText) {
+  const step = QUIZ_STEPS[state.quiz.step];
+  if (!step) return false;
+  const chipDef = step.chips.find(c => c.text === chipText);
+  if (!chipDef) return false;
+  appendUser(chipText);
+  clearChips();
+  // Store answer
+  state.quiz.answers[step.field] = chipDef.k || chipDef.text;
+  if (step.field === 'concern') state.activeConcern = chipDef.k;
+  // Advance + ack + next
+  advanceQuiz(chipDef.ack);
+  return true;
+}
+
+function handleQuizTyped(text) {
+  const step = QUIZ_STEPS[state.quiz.step];
+  if (!step) return false;
+  appendUser(text);
+  state.quiz.answers[step.field] = text;
+  advanceQuiz(step.typedAck);
+  return true;
+}
+
+function advanceQuiz(ackText) {
+  state.quiz.step += 1;
+  appendQuizProgress();
+  const doNext = () => {
+    if (state.quiz.step >= QUIZ_STEPS.length) return finishQuiz();
+    withTypingDots(600, () => appendQuizQuestion());
+  };
+  if (ackText) {
+    setTimeout(() => { appendBot(ackText); doNext(); }, 350);
+  } else doNext();
+}
+
+/* Brief typing-dots-only indicator (600ms between quiz questions) */
+function withTypingDots(ms, cb) {
+  const hc = hoodEl(); if (!hc) { cb(); return; }
+  const dots = document.createElement('div');
+  dots.className = 'thinking-dots'; dots.style.padding = '8px 6px';
+  dots.innerHTML = '<span></span><span></span><span></span>';
+  hc.appendChild(dots); hc.scrollTop = hc.scrollHeight;
+  setTimeout(() => { dots.remove(); cb(); }, ms);
+}
+
+function finishQuiz() {
+  appendQuizProgress();
+  // "Building your routine..." spinner card
+  const hc = hoodEl();
+  const wrap = document.createElement('div');
+  wrap.className = 'routine-spinner';
+  wrap.innerHTML = '<div class="rs-ring"></div><p>Building your routine...</p>';
+  hc.appendChild(wrap); hc.scrollTop = hc.scrollHeight;
   setTimeout(() => {
-    const reply = REPLIES[userText] || { text: "Bonne question — let me find the right answer for you. (This is a demo reply.)" };
-    state.messages.push({ role:'bot', text: reply.text, products: reply.products, chips: reply.chips });
-    renderHoodReply(reply);
-  }, 2400);
+    wrap.remove();
+    renderRoutineResult();
+  }, 2000);
+}
+
+function renderRoutineResult() {
+  const concern = state.quiz.answers.concern || state.activeConcern || 'dullness';
+  // Pick serum based on concern (Dryness/Redness → Barrier; else → Dullness)
+  const useBarrier = concern === 'dryness' || concern === 'redness';
+  const serumCard = useBarrier
+    ? { name:'Sérum Superlatif – Skin Barrier Rescue', sub:'Microflora Support Serum', price:'€53', rating:4.7, count:89, img:PRODUCT_IMGS.serumBarrier, handle:'serum-barrier-rescue' }
+    : { name:'Sérum Superlatif – Dullness Rescue',     sub:'Radiance + Revival Serum', price:'€53', rating:4.7, count:89, img:PRODUCT_IMGS.serumDullness, handle:'serum-dullness-rescue' };
+  const cards = [
+    serumCard,
+    { name:'Boum-Boum Milk – 100ml', sub:'3-in-1 Skincare Spray', price:'€73', rating:4.6, count:142, img:PRODUCT_IMGS.boumBoum100, handle:'boum-boum-milk-100-ml' },
+    { name:"C'est La Cream", sub:'Face cream and more',   price:'€78', rating:4.5, count:96,  img:PRODUCT_IMGS.cestLaCream, handle:'cest-la-cream' },
+  ];
+
+  appendBot("Here's your 3-step routine — matched to your concern and skin type.");
+
+  // Horizontally-scrolling row of 3 product cards, staggered 150ms each
+  const row = `<div class="routine-row">${cards.map((p, i) => `
+    <div class="routine-card" data-handle="${p.handle}" style="animation-delay:${(i * 0.15).toFixed(2)}s">
+      <div class="rc-img"><img src="${p.img}" alt="${escapeHtml(p.name)}"></div>
+      <div class="rc-name">${escapeHtml(p.name)}</div>
+      <div class="rc-sub">${escapeHtml(p.sub)}</div>
+      <div class="rc-meta"><strong>${p.price}</strong> · ★${p.rating}</div>
+      <button class="rc-btn" data-add-rec="${p.handle}">Add to cart</button>
+    </div>`).join('')}</div>`;
+  appendHTML(row);
+
+  // Layering steps card
+  const serumName = useBarrier ? 'Sérum Superlatif – Skin Barrier Rescue' : 'Sérum Superlatif – Dullness Rescue';
+  appendHTML(`<div class="routine-howto">
+    <h5>How to layer them</h5>
+    <ol>
+      <li>${escapeHtml(serumName)} — apply 2–3 drops to clean skin, morning and night. Always follow with SPF in the AM.</li>
+      <li>Boum-Boum Milk — spritz over the serum while skin is still damp to lock moisture in.</li>
+      <li>C'est La Cream — seal everything with a light layer. Morning only if you're short on time at night.</li>
+    </ol>
+  </div>`);
+
+  // Discount email/phone capture card slides in 300ms later
+  setTimeout(() => renderDiscountCard(), 300);
+}
+
+function renderDiscountCard() {
+  const mode = state.routineDiscountMode || 'email';
+  const placeholder = mode === 'email' ? 'you@email.com' : '+33 6 00 00 00 00';
+  appendHTML(`<div class="discount-card" id="discountCard">
+    <h5>Your routine, for less.</h5>
+    <p>Get 10% off — enter your email and it applies automatically at checkout.</p>
+    <div class="discount-tabs">
+      <button class="${mode==='email'?'active':''}" data-discount-mode="email">Email</button>
+      <button class="${mode==='phone'?'active':''}" data-discount-mode="phone">Phone</button>
+    </div>
+    <input class="dc-input" id="discountInput" type="text" placeholder="${placeholder}">
+    <button class="dc-cta" id="discountCta">Get my 10% off</button>
+  </div>`);
+}
+
+function submitDiscount() {
+  const card = document.getElementById('discountCard');
+  if (!card) return;
+  card.outerHTML = `<div class="discount-success">
+    <div class="ds-check">✓ Discount applied.</div>
+    <p>Your code has been added to your cart automatically.</p>
+    <span class="ds-code">ROUTINE10 — −10% applied ✓</span>
+  </div>`;
+  hoodEl().scrollTop = hoodEl().scrollHeight;
+}
+
+/* ── Free-text composer / typed message ── */
+function startHoodConvo(userText) {
+  ensureHoodOpen();
+  // Quiz step in progress? Forward to quiz handler
+  if (state.flow === 'quiz') return handleQuizTyped(userText);
+  appendUser(userText);
+  // Recognise existing chip labels
+  if (WELCOME_CHIPS.find(c => c.text === userText)) return handleWelcomeChip(userText);
+  if (CONCERN_KEY[userText])                       return handleConcernChip(userText);
+  if (IN_CART_CHIPS.find(c => c.text === userText))return handleInCartChip(userText);
+  const pdpSet = state.pdpReviewsShown ? PDP_CHIPS_AFTER_REVIEWS : PDP_CHIPS_DEFAULT;
+  if (pdpSet.find(c => c.text === userText))       return handlePDPChip(userText);
+  // Free-text routing — "serum" or "find" jumps to concern picker
+  const lower = userText.toLowerCase();
+  if (/serum|find/.test(lower)) {
+    clearChips();
+    return withThinking(1200, () => runConcern());
+  }
+  // Fallback library
+  if (FALLBACK_REPLIES[userText]) {
+    return withThinking(1200, () => appendBot(FALLBACK_REPLIES[userText]));
+  }
+  // Default reply
+  withThinking(1500, () => appendBot("Great question — let me look into that for you."));
 }
 
 function renderHoodReply(reply) {
@@ -1526,10 +2257,40 @@ function sendMessage(text) {
   }, 2400);
 }
 
+/* ── Minimal PDP renderer for /products/:handle ───────────────────── */
+function renderPDP() {
+  const handle = state.productHandle;
+  // Map handle → product data
+  const handleMap = {
+    'serum-barrier-rescue':    { name:'Sérum Superlatif – Skin Barrier Rescue', sub:'Microflora Support Serum', price:'€53', img: PRODUCT_IMGS.serumBarrier },
+    'serum-dullness-rescue':   { name:'Sérum Superlatif – Dullness Rescue',     sub:'Radiance + Revival Serum', price:'€53', img: PRODUCT_IMGS.serumDullness },
+    'serum-reactive-skin-rescue': { name:'Sérum Superlatif – Reactive Skin Rescue', sub:'Rapid Soothing Serum', price:'€53', img: PRODUCT_IMGS.serumReactive },
+    'boum-boum-milk-100-ml':   { name:'Boum-Boum Milk — 100ml', sub:'3-in-1 Skincare Spray', price:'€73', img: PRODUCT_IMGS.boumBoum100 },
+    'cest-la-cream':           { name:"C'est La Cream", sub:'Face cream and more', price:'€78', img: PRODUCT_IMGS.cestLaCream },
+    'plume-blush':             { name:'Plume Blush — Rose Fumé', sub:'Cream Blush', price:'€40', img: 'https://cdn.shopify.com/s/files/1/0519/0628/1661/files/VFR_PDP_1500x1872_PlumeBlush_Model_Logo_AmberRougeFume.jpg?v=1779812998&width=700' },
+  };
+  const p = handleMap[handle] || handleMap['serum-dullness-rescue'];
+  const view = document.querySelector('[data-route="product"]');
+  if (!view) return;
+  view.innerHTML = `<div class="pdp-stub" style="max-width:1024px;margin:48px auto;padding:0 48px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;">
+    <div style="background:#F4F2EF;border-radius:14px;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;padding:32px;">
+      <img src="${p.img}" alt="${escapeHtml(p.name)}" style="max-width:100%;max-height:100%;object-fit:contain;">
+    </div>
+    <div>
+      <div style="font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);">VIOLETTE_FR</div>
+      <h1 style="font-size:32px;margin:12px 0 8px;line-height:1.15;">${escapeHtml(p.name)}</h1>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:14px;">${escapeHtml(p.sub)}</div>
+      <div style="font-size:20px;font-weight:600;margin-bottom:18px;">${p.price}</div>
+      <button class="hero-cta" data-add="${handle}" style="background:var(--ink);color:#fff;border:0;padding:14px 28px;letter-spacing:0.12em;cursor:pointer;">ADD TO CART</button>
+    </div>
+  </div>`;
+}
+
 /* ── Main render ────────────────────────────────────────────────────── */
 function render() {
   const parsed = parseHash();
   state.route = parsed.route;
+  state.productHandle = parsed.productHandle || null;
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.route === state.route));
   // Active nav highlight
   document.querySelectorAll('.nav-cats a').forEach(a => a.classList.toggle('active', state.route === 'collection' && a.dataset.cat === 'skincare'));
@@ -1537,6 +2298,7 @@ function render() {
 
   if (state.route === 'home') renderHome('new');
   if (state.route === 'collection') renderCollection();
+  if (state.route === 'product') renderPDP();
 
   // Home: start with the dock gated (hidden) until the AI quiz card scrolls past.
   // Other routes never gate.
@@ -1552,6 +2314,7 @@ function render() {
 
   // Fresh transcript per page
   state.messages = []; state.hoodActive = false; state.spqDismissed = false;
+  state.flow = null; state.pdpReviewsShown = false;
   // Reset the dock to its open state (clear any closing animation + hide launcher)
   state.dockClosed = false;
   clearTimeout(dockCloseTimer);
@@ -1564,6 +2327,18 @@ function render() {
   spqRevealTimer = setTimeout(() => { state.spqRevealed = true; renderClosedWidget(); }, delay);
   renderClosedWidget();
   window.scrollTo(0, 0);
+
+  // ── Auto-open triggers ──
+  // PDP: always auto-open the PDP chat flow (with concern-aware opener)
+  if (state.route === 'product') {
+    setTimeout(() => { startFlow('pdp'); }, 700);
+  }
+  // Home: open the welcome flow ONCE per session (after a brief beat)
+  if (state.route === 'home' && !state.welcomeShown) {
+    state.welcomeShown = true;
+    try { sessionStorage.setItem('vweb_welcome_shown', '1'); } catch (e) {}
+    setTimeout(() => { startFlow('welcome'); }, 1400);
+  }
 }
 
 /* ── Event delegation ───────────────────────────────────────────────── */
@@ -1571,13 +2346,65 @@ document.addEventListener('click', (e) => {
   // Tabs
   const tab = e.target.closest('.tab');
   if (tab && state.route === 'home') { renderHome(tab.dataset.tab); return; }
-  // Add to bag (price button)
+
+  // Add-to-cart inside flow cards (serum rec, pairs, routine cards)
+  const recAdd = e.target.closest('[data-add-rec]');
+  if (recAdd) {
+    e.preventDefault(); e.stopPropagation();
+    bumpCart();
+    // If we're in a serum/pdp/whatsnew flow, transition to in-cart follow-ups
+    if (state.flow === 'serum' || state.flow === 'pdp' || state.flow === 'whatsnew') {
+      appendBot("Added — that's in your bag.");
+      clearChips();
+      state.flow = 'in-cart';
+      setTimeout(() => appendChips(IN_CART_CHIPS.map(c => c.text), 'in-cart'), 200);
+    }
+    return;
+  }
+  // Generic add-to-bag on storefront
   const addBtn = e.target.closest('[data-add]');
   if (addBtn) { e.preventDefault(); e.stopPropagation(); bumpCart(); return; }
-  // Dock SPQ chip
+
+  // Discount card: tab switching + submit
+  const dmode = e.target.closest('[data-discount-mode]');
+  if (dmode) {
+    state.routineDiscountMode = dmode.dataset.discountMode;
+    document.querySelectorAll('[data-discount-mode]').forEach(b => b.classList.toggle('active', b.dataset.discountMode === state.routineDiscountMode));
+    const input = document.getElementById('discountInput');
+    if (input) input.placeholder = state.routineDiscountMode === 'email' ? 'you@email.com' : '+33 6 00 00 00 00';
+    return;
+  }
+  if (e.target.id === 'discountCta') { submitDiscount(); return; }
+
+  // Routine card tap (excluding the button) — navigate to PDP
+  const routineCard = e.target.closest('.routine-card');
+  if (routineCard && !e.target.closest('button')) {
+    location.hash = '#/products/' + routineCard.dataset.handle;
+    return;
+  }
+  // Serum rec card / pairs card tap → navigate to PDP
+  const prodCard = e.target.closest('[data-prod-card]');
+  if (prodCard && !e.target.closest('button')) {
+    location.hash = '#/products/' + prodCard.dataset.handle;
+    return;
+  }
+
+  // ── Chip clicks (route through flow runner) ──
   const chip = e.target.closest('.spq-preview-chip, .hood-chip');
-  if (chip && chip.dataset.chip) { startHoodConvo(chip.dataset.chip); return; }
-  // Reviews chip
+  if (chip && chip.dataset.chip) {
+    const label = chip.dataset.chip;
+    // Quiz step in progress → quiz chip handler
+    if (state.flow === 'quiz')          return void handleQuizChip(label);
+    if (state.flow === 'welcome')       return void handleWelcomeChip(label);
+    if (state.flow === 'concern')       return void handleConcernChip(label);
+    if (state.flow === 'in-cart')       return void handleInCartChip(label);
+    if (state.flow === 'pdp')           return void handlePDPChip(label);
+    // Otherwise, treat as free-text
+    startHoodConvo(label);
+    return;
+  }
+
+  // Reviews chip (dock idle)
   const rev = e.target.closest('[data-chip="__reviews"]');
   if (rev) { showHoodReviews(); return; }
   // Reviews accordion
@@ -1589,10 +2416,12 @@ document.addEventListener('click', (e) => {
   // Full-chat follow-up chip
   const fchip = e.target.closest('.chat-fchip');
   if (fchip && fchip.dataset.chip) { sendMessage(fchip.dataset.chip); return; }
-  // Hero CTA / AI routine button → open chat with routine prompt
-  if (e.target.matches('.hero-cta')) { startHoodConvo("What's Plume Blush?"); return; }
+
+  // Hero CTA → What's new flow
+  if (e.target.matches('.hero-cta')) { startFlow('whatsnew', { fresh: true }); return; }
+  // "Build my routine" buttons → start the 4-step routine quiz
   if (e.target.matches('#aiRoutineBtn, #aiRoutineBtn2') || e.target.closest('#aiRoutineBtn, #aiRoutineBtn2')) {
-    startHoodConvo('Help me build a routine'); return;
+    startFlow('quiz', { fresh: true }); return;
   }
 });
 
@@ -1695,7 +2524,16 @@ document.addEventListener('click', (e) => {
   if (rec) { bumpCart(); }
 });
 
+/* Discount card: Enter to submit */
+document.addEventListener('keydown', (e) => {
+  if (e.target.id === 'discountInput' && e.key === 'Enter') {
+    e.preventDefault();
+    submitDiscount();
+  }
+});
+
 /* ── Init ───────────────────────────────────────────────────────────── */
+try { state.welcomeShown = sessionStorage.getItem('vweb_welcome_shown') === '1'; } catch (e) {}
 window.addEventListener('hashchange', render);
 if (!location.hash) location.hash = '#/';
 render();
