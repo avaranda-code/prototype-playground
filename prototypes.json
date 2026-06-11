@@ -40,6 +40,14 @@
     "image": "osea_malibu_ads_to_messaging.png"
   },
   {
+    "name": "Sleeplay · Ads to Messaging",
+    "author": "Ava",
+    "date": "2026-06-05",
+    "description": "Sleeplay build of the ads-to-messaging prototype, featuring the ResMed AirFit P10 nasal pillow CPAP mask. Instagram ad → PDP and Direct-to-chat flows (no half-sheet). PDP shows the mask gallery, $105, and nasal-pillow size options (Fit Pack / XS / S / M / L). SPQs and chat answers reflect Sleeplay's real customer tickets — choosing the right items, prescription requirements & order flow, what's included, machine compatibility, setup, compliance reports & myAir/AirView data sharing, filter & part replacement, HSA/FSA, and refurbished/discontinued availability.",
+    "file": "sleeplay_ads_to_messaging.html",
+    "image": "sleeplay_ads_to_messaging.png"
+  },
+  {
     "name": "Farmacy · Cart Recovery Chat",
     "author": "Ava",
     "date": "2026-05-20",
