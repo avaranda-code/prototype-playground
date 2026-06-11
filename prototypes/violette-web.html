@@ -510,17 +510,56 @@ img { display: block; max-width: 100%; }
 /* In-hood mini conversation */
 .hood-convo { max-height: 320px; overflow-y: auto; scrollbar-width: none; }
 .hood-convo::-webkit-scrollbar { display: none; }
-.hood-typing { display: flex; gap: 5px; padding: 10px 6px 12px; }
-.hood-typing span {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: #b8aa97; animation: typeBounce 1.2s infinite ease-in-out;
+
+/* ── Thinking indicator: rotating phrase (slot-machine) + pulsing dots ──
+   Used in both the dock hood and the full chat panel. */
+.thinking {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 8px 8px 12px;
+  animation: hoodFade 0.3s ease;
 }
-.hood-typing span:nth-child(2) { animation-delay: 0.15s; }
-.hood-typing span:nth-child(3) { animation-delay: 0.3s; }
-@keyframes typeBounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-  30% { transform: translateY(-5px); opacity: 1; }
+.thinking-phrase {
+  position: relative; overflow: hidden;
+  height: 20px;
+  font-size: 13px; font-weight: 500;
+  color: var(--ink);
 }
+.thinking-phrase .slot {
+  position: absolute; left: 0; right: 0; top: 0; height: 100%;
+  display: flex; align-items: center;
+  transition: transform 0.55s cubic-bezier(0.55,0.05,0.1,1), opacity 0.5s ease;
+  will-change: transform, opacity;
+}
+.thinking-phrase .slot.next { transform: translateY(100%); opacity: 0; }
+.thinking-phrase .slot.in   { transform: translateY(0);     opacity: 1; }
+.thinking-phrase .slot.out  { transform: translateY(-100%); opacity: 0; }
+
+.thinking-dots { display: flex; gap: 5px; }
+.thinking-dots span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--bag-accent);    /* brand accent — Violette blue */
+  animation: thinkPulse 1.2s infinite ease-in-out;
+}
+.thinking-dots span:nth-child(2) { animation-delay: 0.18s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.36s; }
+@keyframes thinkPulse {
+  0%, 60%, 100% { transform: scale(0.85); opacity: 0.5; }
+  30%          { transform: scale(1.2);  opacity: 1; }
+}
+
+/* Inside the blue chat panel: glassy card with white text + dots */
+.chat-panel .thinking {
+  align-self: stretch;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin: 8px 0;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.chat-panel .thinking-phrase { color: rgba(255,255,255,0.95); font-weight: 500; }
+.chat-panel .thinking-dots span { background: rgba(255,255,255,0.90); }
 .hood-msg {
   font-size: 14px; line-height: 1.55; color: #2a2418;
   padding: 4px 6px 0;
@@ -1126,6 +1165,20 @@ const HOME_PRODUCTS = {
   ],
 };
 
+/* ── Thinking phrases (slot-machine rotation in the typing indicator) ──
+   VIOLETTE_FR voice — clean-beauty, chic, joie de vivre. Edit freely. */
+const THINKING_PHRASES = [
+  'Finding your perfect shade',
+  'Looking into that for you',
+  'Curating a little inspiration',
+  'Pulling together a look',
+  'Searching our edit',
+  'One moment, ma chère',
+  'Bringing you something lovely',
+  'Voilà — almost ready',
+];
+const THINKING_ROTATE_MS = 1800;
+
 /* ── SPQs per route ─────────────────────────────────────────────────── */
 const HOME_CHIPS = [
   'Help me build a routine',
@@ -1279,27 +1332,61 @@ function renderClosedWidget() {
   }
 }
 
+/* ── Thinking indicator (slot-machine rotating phrase + brand-tinted dots) ── */
+function startThinking(scope) {
+  const wrap = document.createElement('div');
+  wrap.className = 'thinking';
+  wrap.innerHTML =
+    `<div class="thinking-phrase"><div class="slot in">${escapeHtml(THINKING_PHRASES[0])}</div></div>` +
+    '<div class="thinking-dots"><span></span><span></span><span></span></div>';
+  scope.appendChild(wrap);
+  const phraseEl = wrap.querySelector('.thinking-phrase');
+  let idx = 0;
+  const timer = setInterval(() => {
+    idx = (idx + 1) % THINKING_PHRASES.length;
+    const next = document.createElement('div');
+    next.className = 'slot next';
+    next.textContent = THINKING_PHRASES[idx];
+    phraseEl.appendChild(next);
+    // Force a reflow so the .next → .in transition actually animates
+    void next.offsetWidth;
+    const current = phraseEl.querySelector('.slot.in');
+    if (current) { current.classList.remove('in'); current.classList.add('out'); }
+    next.classList.remove('next');
+    next.classList.add('in');
+    if (current) setTimeout(() => current.remove(), 650);
+  }, THINKING_ROTATE_MS);
+  return { wrap, timer };
+}
+function stopThinking(t) {
+  if (!t) return;
+  clearInterval(t.timer);
+  if (t.wrap && t.wrap.parentNode) t.wrap.remove();
+}
+
 /* In-hood mini-conversation: bot typing → reply → optional follow-up chips / products */
+let hoodThinker = null;
 function startHoodConvo(userText) {
   state.hoodActive = true;
   state.messages.push({ role:'user', text: userText });
   document.getElementById('dockPreview').style.display = 'none';
   const hc = document.getElementById('hoodConvo');
   hc.hidden = false;
-  hc.innerHTML = `<div class="hood-msg user">${escapeHtml(userText)}</div><div class="hood-typing"><span></span><span></span><span></span></div>`;
+  hc.innerHTML = `<div class="hood-msg user">${escapeHtml(userText)}</div>`;
+  hoodThinker = startThinking(hc);
   hc.scrollTop = hc.scrollHeight;
 
   setTimeout(() => {
     const reply = REPLIES[userText] || { text: "Bonne question — let me find the right answer for you. (This is a demo reply.)" };
     state.messages.push({ role:'bot', text: reply.text, products: reply.products, chips: reply.chips });
     renderHoodReply(reply);
-  }, 900);
+  }, 2400);
 }
 
 function renderHoodReply(reply) {
   const hc = document.getElementById('hoodConvo');
-  // Remove typing dots
-  const typing = hc.querySelector('.hood-typing'); if (typing) typing.remove();
+  // Stop the thinking indicator (rotating phrase + dots)
+  stopThinking(hoodThinker); hoodThinker = null;
   let html = `<div class="hood-msg">${escapeHtml(reply.text)}</div>`;
   if (reply.chips) {
     html += `<div class="hood-chips">${reply.chips.map(c => `<button class="hood-chip" data-chip="${c.replace(/"/g,'&quot;')}">${c}</button>`).join('')}</div>`;
@@ -1400,15 +1487,21 @@ function renderChatTranscript() {
   if (back) back.hidden = false;
 }
 
+let panelThinker = null;
 function sendMessage(text) {
   if (!text || !text.trim()) return;
   state.messages.push({ role:'user', text });
   renderChatTranscript();
+  // Show the rotating-phrase thinking indicator in the chat panel body
+  const body = document.getElementById('chatBody');
+  panelThinker = startThinking(body);
+  body.scrollTop = body.scrollHeight;
   setTimeout(() => {
+    stopThinking(panelThinker); panelThinker = null;
     const reply = REPLIES[text] || { text: "I'm noting that — let me follow up with the right rec." };
     state.messages.push({ role:'bot', text: reply.text, chips: reply.chips, products: reply.products });
     renderChatTranscript();
-  }, 700);
+  }, 2400);
 }
 
 /* ── Main render ────────────────────────────────────────────────────── */
