@@ -374,10 +374,15 @@ img { display: block; max-width: 100%; }
   position: fixed; left: 0; right: 0; bottom: 24px; z-index: 50;
   display: flex; justify-content: center;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  opacity: 1;                     /* explicit defaults so transitions fire reliably */
+  transform: translateY(0);
+  transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2,0.8,0.2,1);
 }
 .chat-dock.hidden { display: none; }
 .chat-dock.leaving { opacity: 0; pointer-events: none; }
+/* Gated — fades out while the home AI quiz card is still in view */
+.chat-dock.gated { opacity: 0; pointer-events: none; transform: translateY(28px); }
+.chat-launcher.gated { opacity: 0 !important; pointer-events: none !important; }
 .chat-dock-inner {
   pointer-events: auto;
   width: min(600px, calc(100% - 28px));
@@ -716,10 +721,10 @@ img { display: block; max-width: 100%; }
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
-/* User: dark navy pill (right-aligned) */
+/* User: soft light-grey pill (right-aligned) — dark text on tinted grey */
 .chat-msg.user {
-  background: var(--ink);
-  color: #fff;
+  background: #EFEEEC;
+  color: var(--ink);
   border: 0;
   border-radius: 9999px;
   padding: 10px 18px;
@@ -756,9 +761,9 @@ img { display: block; max-width: 100%; }
   justify-content: flex-end;
 }
 .chat-fchip {
-  background: var(--ink);
+  background: #EFEEEC;
   border: 0;
-  color: #fff;
+  color: var(--ink);
   border-radius: 9999px;
   padding: 10px 16px;
   font-size: 13px;
@@ -766,7 +771,7 @@ img { display: block; max-width: 100%; }
   cursor: pointer;
   transition: background 0.15s;
 }
-.chat-fchip:hover { background: #2a221a; }
+.chat-fchip:hover { background: #E5E3DF; }
 
 /* Composer — white pill input with a soft Violette-blue glow ring */
 .chat-composer {
@@ -1259,6 +1264,7 @@ const state = {
   chatOpen: false,
   spqDismissed: false,
   dockClosed: false,     // true when shopper hit X — dock collapses to circular launcher
+  dockGated: false,      // home only — true while the AI quiz card is still in view
 };
 let spqRevealTimer = null;
 let dockCloseTimer = null;
@@ -1532,6 +1538,18 @@ function render() {
   if (state.route === 'home') renderHome('new');
   if (state.route === 'collection') renderCollection();
 
+  // Home: start with the dock gated (hidden) until the AI quiz card scrolls past.
+  // Other routes never gate.
+  if (state.route === 'home') {
+    state.dockGated = true;
+    applyDockGating();
+    // After the view renders, compute the real gating state from the card's position.
+    requestAnimationFrame(updateDockGating);
+  } else {
+    state.dockGated = false;
+    applyDockGating();
+  }
+
   // Fresh transcript per page
   state.messages = []; state.hoodActive = false; state.spqDismissed = false;
   // Reset the dock to its open state (clear any closing animation + hide launcher)
@@ -1604,6 +1622,35 @@ function openDockFromLauncher() {
   void dock.offsetWidth;
   dock.classList.remove('closing');
 }
+
+/* ── Dock gating: hide both dock + launcher while the home AI quiz card is
+   still in (or below) the viewport. Reveal once it's been scrolled past. ── */
+function applyDockGating() {
+  const dock = document.getElementById('chatDock');
+  const launcher = document.getElementById('chatLauncher');
+  if (state.dockGated) {
+    dock.classList.add('gated');
+    launcher.classList.add('gated');
+  } else {
+    dock.classList.remove('gated');
+    launcher.classList.remove('gated');
+  }
+}
+function updateDockGating() {
+  if (state.route !== 'home') {
+    if (state.dockGated) { state.dockGated = false; applyDockGating(); }
+    return;
+  }
+  const card = document.querySelector('[data-route="home"] .ai-card');
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  // Dock shows ONLY once the card's bottom edge has scrolled above viewport top
+  const scrolledPast = rect.bottom < 0;
+  const gated = !scrolledPast;
+  if (state.dockGated !== gated) { state.dockGated = gated; applyDockGating(); }
+}
+window.addEventListener('scroll', updateDockGating, { passive: true });
+window.addEventListener('resize', updateDockGating);
 document.getElementById('hoodClose').addEventListener('click', closeDockToLauncher);
 document.getElementById('chatLauncher').addEventListener('click', openDockFromLauncher);
 document.getElementById('hoodExpand').addEventListener('click', openFullChat);
