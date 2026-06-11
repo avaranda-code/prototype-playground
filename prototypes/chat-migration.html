@@ -1244,6 +1244,19 @@
   }
   .in-panel-banner.pink { background: #fee1f9; border: none; }
   .in-panel-banner.lavender { background: #f7f7f8; border: 0.5px solid #7e55f6; margin-top: 0; }
+  .in-panel-banner-header {
+    display: flex; flex-direction: row; align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+  }
+  .in-panel-banner-icon {
+    width: 20px; height: 20px;
+    flex-shrink: 0;
+    color: #683fcf;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .in-panel-banner-icon svg { width: 20px; height: 20px; display: block; }
   .in-panel-banner-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0; }
   .in-panel-banner-title { font-size: 14px; font-weight: 600; color: #1e242e; line-height: 20px; margin-bottom: 0; }
   .in-panel-banner-desc { font-size: 14px; font-weight: 400; color: #1e242e; line-height: 20px; }
@@ -2827,7 +2840,7 @@
       <div class="in-panel-banner pink" id="flow3-panel-preview-banner" style="display:none">
         <div class="in-panel-banner-text">
           <div class="in-panel-banner-title">A new chat experience is ready</div>
-          <div class="in-panel-banner-desc">Preview the changes, or switch now. Switch back anytime before August 1, when all accounts move to the new design.</div>
+          <div class="in-panel-banner-desc">Preview what's new and try it out. On August 1, the new chat experience goes into effect permanently. You can change back until then.</div>
         </div>
         <div class="in-panel-banner-actions">
           <button class="in-panel-banner-btn" id="flow3-panel-preview-btn">Preview</button>
@@ -3402,13 +3415,21 @@
 
       <!-- Flow 3 — In-panel lavender configure banner (sits inside the left settings panel, below Settings header) -->
       <div class="in-panel-banner lavender" id="flow3-panel-configure-banner" style="display:none">
-        <div class="in-panel-banner-text">
-          <div class="in-panel-banner-title">You're previewing the new chat experience</div>
-          <div class="in-panel-banner-desc">Give your shoppers the updated chat experience. Switch back anytime before August 1.</div>
+        <div class="in-panel-banner-header">
+          <div class="in-panel-banner-icon" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.667 10S4.167 4.583 10 4.583 18.333 10 18.333 10 15.833 15.417 10 15.417 1.667 10 1.667 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 12.083a2.083 2.083 0 1 0 0-4.166 2.083 2.083 0 0 0 0 4.166Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="in-panel-banner-text">
+            <div class="in-panel-banner-title">You're previewing the new chat experience</div>
+            <div class="in-panel-banner-desc">Try it today with your shoppers. You can change back anytime before August 1.</div>
+          </div>
         </div>
         <div class="in-panel-banner-actions">
           <button class="in-panel-banner-btn" id="flow3-panel-update-btn">Switch now</button>
-          <button class="in-panel-banner-btn secondary" id="flow3-panel-goback-btn">Leave preview</button>
+          <button class="in-panel-banner-btn secondary" id="flow3-panel-goback-btn">Exit preview</button>
         </div>
       </div>
 
@@ -4071,13 +4092,13 @@
   <div class="modal-overlay" id="switch-back-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title">Do you want to keep the new chat?</div>
+        <div class="modal-title">Switch to the previous chat experience?</div>
         <button class="modal-close-btn" id="switch-back-close" aria-label="Close">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1E242E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
       <div class="modal-body">
-        Switch back anytime before August 1, when the new design goes into effect permanently.
+        On August 1, the new chat experience goes into effect permanently. You can switch back to the previous chat experience until then.
       </div>
       <div class="modal-footer">
         <button class="modal-btn tertiary" id="switch-back-cancel">Cancel</button>
@@ -4115,7 +4136,7 @@
         </button>
       </div>
       <div class="modal-body">
-        Your changes may take up to 30 minutes for all shoppers.
+        Try it out and change back anytime before August 1. Updates may take up to 30 minutes to appear on your store.
       </div>
       <div class="modal-footer">
         <button class="modal-btn tertiary" id="flow2-switch-cancel">Cancel</button>
@@ -4131,7 +4152,7 @@
         <path d="M12.3333 8.44444L9.22222 11.5556L7.66667 10M10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17Z" stroke="#147656" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </span>
-    <span class="toast-text">You're on the new chat</span>
+    <span class="toast-text">You're on the new chat experience</span>
     <button class="toast-close" id="flow3-toast-close" aria-label="Dismiss">
       <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M11.98 11.99L7.99 8.00001M7.99 8.00001L4 4.01001M7.99 8.00001L11.98 4.01001M7.99 8.00001L4 11.99" stroke="#1E242E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
