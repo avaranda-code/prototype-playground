@@ -2340,12 +2340,10 @@ function render() {
   if (state.route === 'product') {
     setTimeout(() => { startFlow('pdp'); }, 700);
   }
-  // Home: open the welcome flow ONCE per session (after a brief beat)
-  if (state.route === 'home' && !state.welcomeShown) {
-    state.welcomeShown = true;
-    try { sessionStorage.setItem('vweb_welcome_shown', '1'); } catch (e) {}
-    setTimeout(() => { startFlow('welcome'); }, 1400);
-  }
+  // Home: queue the welcome flow but don't open it until the dock has actually
+  // un-gated (i.e. the AI quiz card is fully scrolled past). Otherwise the
+  // chips render inside an invisible dock and appear to "disappear" on scroll.
+  state.welcomePending = (state.route === 'home' && !state.welcomeShown);
 }
 
 /* ── Event delegation ───────────────────────────────────────────────── */
@@ -2477,13 +2475,31 @@ function updateDockGating() {
     if (state.dockGated) { state.dockGated = false; applyDockGating(); }
     return;
   }
+  // Once the chat has been engaged (welcome opened, chips visible, etc.),
+  // never re-gate — keep the conversation surface visible if the shopper
+  // scrolls back up to the AI card.
+  if (state.hoodActive) {
+    if (state.dockGated) { state.dockGated = false; applyDockGating(); }
+    return;
+  }
   const card = document.querySelector('[data-route="home"] .ai-card');
   if (!card) return;
   const rect = card.getBoundingClientRect();
   // Dock shows ONLY once the card's bottom edge has scrolled above viewport top
   const scrolledPast = rect.bottom < 0;
   const gated = !scrolledPast;
-  if (state.dockGated !== gated) { state.dockGated = gated; applyDockGating(); }
+  if (state.dockGated !== gated) {
+    state.dockGated = gated;
+    applyDockGating();
+    // First time we un-gate on home: if the welcome hasn't been shown this
+    // session, trigger it now so its chips appear in a visible dock.
+    if (!gated && state.welcomePending) {
+      state.welcomePending = false;
+      state.welcomeShown = true;
+      try { sessionStorage.setItem('vweb_welcome_shown', '1'); } catch (e) {}
+      setTimeout(() => startFlow('welcome'), 400);
+    }
+  }
 }
 window.addEventListener('scroll', updateDockGating, { passive: true });
 window.addEventListener('resize', updateDockGating);
