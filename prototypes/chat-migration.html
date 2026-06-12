@@ -719,11 +719,9 @@
   }
   .live-chat {
     height: 44px;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: #ffffff;
     border-radius: 24px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 3px rgba(0,0,0,0.10);
     padding: 0 12px;
     display: flex; justify-content: space-between; align-items: center;
     box-sizing: border-box;
@@ -761,7 +759,22 @@
     border: 1.5px solid #fff;
   }
   .brand-avatar.offline .status-dot { background: #b3b8c1; }
-  .live-chat .label { font-size: 12px; font-weight: 500; color: #1c1d1f; }
+
+  /* New chat live-chat pill — simplified avatar:
+     • During hours: just an 8px green dot (no G mark, no white border)
+     • Outside hours: entire avatar hidden (no dot, no avatar)
+     applyBranding() writes inline styles on .mark, so we need !important. */
+  .live-chat .brand-avatar { width: 8px !important; height: 8px !important; position: static; display: flex; align-items: center; justify-content: center; }
+  .live-chat .brand-avatar .mark { display: none !important; }
+  .live-chat .brand-avatar .status-dot {
+    position: static;
+    width: 8px; height: 8px;
+    border: none;
+    background: #32c898;
+    box-shadow: inset 1px 2px 3px rgba(255,255,255,0.2);
+  }
+  .live-chat .brand-avatar.offline { display: none !important; }
+  .live-chat .label { font-size: 14px; font-weight: 500; line-height: 20px; color: #5c6370; }
   .live-chat .chev { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #1e242e; }
 
   /* Chat view */
@@ -4639,7 +4652,10 @@
   if (switchConfirm) switchConfirm.addEventListener('click', () => {
     closeSwitchModal();
     if (switchModalContext === 'flow2') { flow2State = 1; applyFlow(); }
-    else if (switchModalContext === 'flow3') { flow3State = 'preview'; applyFlow(); }
+    else if (switchModalContext === 'flow3') {
+      flow3State = 'preview'; applyFlow();
+      showFlow3Toast("You're on the previous chat");
+    }
     else { switchBackToLegacy(); }
   });
   if (switchModal) switchModal.addEventListener('click', e => {
@@ -4806,8 +4822,10 @@
   const f3Toast = document.getElementById('flow3-toast');
   const allFlowBanners = [f1LegacyBanner, f1NewBanner, f2PreviewBanner, f2ConfigBanner, f2ConfirmBanner, f2SettledBanner, f3PanelPreview, f3PanelConfigure];
 
-  function showFlow3Toast() {
+  function showFlow3Toast(message) {
     if (!f3Toast) return;
+    const textEl = f3Toast.querySelector('.toast-text');
+    if (textEl) textEl.textContent = message || "You're on the new chat experience";
     f3Toast.classList.add('open');
     if (flow3ToastTimer) clearTimeout(flow3ToastTimer);
     flow3ToastTimer = setTimeout(() => { f3Toast.classList.remove('open'); flow3ToastTimer = null; }, 5000);
