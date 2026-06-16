@@ -48,6 +48,14 @@
     "image": "sleeplay_ads_to_messaging.png"
   },
   {
+    "name": "Jax Athletix · Ads to Messaging",
+    "author": "Ava",
+    "date": "2026-06-05",
+    "description": "Jax Athletix build of the ads-to-messaging prototype, featuring the Big League Berry Strap Cuff batting glove. Instagram ad → PDP and Ad-to-Convo (Direct to chat) flows. PDP has color swatches across the Strap Cuff colorways (swap the image), a With Web / No Web + swing-hand selector, and sizes YS–XXL. The chat is FAQ-driven with branching follow-ups in Jax's product-advisory voice — web technology (D3O), sizing, hand orientation, youth fit, materials, care, and availability.",
+    "file": "jax_athletix_ads_to_messaging.html",
+    "image": "jax_athletix_ads_to_messaging.png"
+  },
+  {
     "name": "Farmacy · Cart Recovery Chat",
     "author": "Ava",
     "date": "2026-05-20",
