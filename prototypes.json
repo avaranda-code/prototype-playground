@@ -99,7 +99,7 @@
     "author": "Ava",
     "date": "2026-07-02",
     "description": "Two-flow, brand-switchable Gorgias chat concierge prototype. Flow 1 recreates the Melinda Maria homepage with a grey-glass chat launcher and panel matching the live site's design (custom wordmark lockup, glass buttons, monitored/recorded disclaimer). Flow 2 recreates the Kosas homepage with a left-docked launcher, a warm cream/yellow panel theme, quick-reply pills, and a clickable privacy-policy disclaimer. A floating top switcher toggles between the two.",
-    "file": "melinda-maria-kosas-prototype.html",
-    "image": "melinda-maria-kosas-prototype.png"
+    "file": "privacy-policy-ui.html",
+    "image": "privacy-policy-ui.png"
   }
 ]
