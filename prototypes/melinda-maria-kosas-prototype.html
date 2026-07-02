@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melinda Maria × Kosas — Chat Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:'Jost',system-ui,sans-serif;
+    color:#171923;
+    background:#fff;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+
+  /* ============ FLOW SWITCHER ============ */
+  .flow-switcher{
+    position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:500;
+    display:flex;gap:4px;
+    background:rgba(20,20,20,.85);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    padding:4px;border-radius:999px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+  }
+  .flow-switcher-btn{
+    padding:8px 16px;border-radius:999px;border:none;background:transparent;
+    color:rgba(255,255,255,.75);
+    font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.2px;
+    cursor:pointer;white-space:nowrap;transition:all .15s ease;
+  }
+  .flow-switcher-btn:hover{color:#fff}
+  .flow-switcher-btn.active{background:#fff;color:#111}
+
+  /* ============ SITE HEADER (Melinda Maria) ============ */
+  .topbanner{
+    background:#000;color:#fff;text-align:center;
+    font-size:11px;letter-spacing:.5px;padding:8px 12px;
+  }
+  header.site-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;border-bottom:1px solid #f0f0f0;
+    position:relative;z-index:5;background:#fff;
+    gap:16px;
+  }
+  .nav-left{display:flex;align-items:center;gap:22px;flex-shrink:0}
+  .nav-left a{font-size:13px;color:#171923;font-weight:400;white-space:nowrap}
+  .logo{flex-shrink:0}
+  .logo img{height:22px;display:block}
+  .nav-right{display:flex;align-items:center;gap:16px;flex-shrink:0}
+  .nav-right svg{width:19px;height:19px;stroke:#171923;stroke-width:1.5;fill:none;display:block;cursor:pointer;flex-shrink:0}
+
+  /* ============ HERO (Melinda Maria) ============ */
+  .hero{position:relative;width:100%;line-height:0}
+  .hero img{width:100%;display:block;object-fit:cover}
+
+  /* ============ BANNER ROW (Melinda Maria) ============ */
+  .banner-row{display:flex;width:100%}
+  .banner-row img{width:33.3334%;display:block;object-fit:cover}
+
+  /* ============ 10% OFF PILL ============ */
+  .off-pill{
+    position:fixed;left:16px;bottom:16px;z-index:40;
+    display:flex;align-items:center;gap:10px;
+    background:#000;color:#fff;
+    padding:11px 14px 11px 18px;border-radius:999px;
+    font-size:12px;font-weight:500;letter-spacing:.3px;
+    box-shadow:0 6px 20px rgba(0,0,0,.2);
+  }
+  .off-pill button{
+    background:none;border:none;color:#fff;cursor:pointer;
+    width:16px;height:16px;display:flex;align-items:center;justify-content:center;opacity:.8;
+  }
+  .off-pill button svg{width:12px;height:12px;stroke:#fff;stroke-width:2}
+
+  /* ============ ACCESSIBILITY ICON ============ */
+  .a11y-btn{
+    position:fixed;left:16px;bottom:70px;z-index:40;
+    width:44px;height:44px;border-radius:50%;
+    background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    border:1px solid #eee;
+  }
+  .a11y-btn svg{width:24px;height:24px;fill:#171923}
+
+  /* ============ CHAT BUBBLE (closed) — shared by both flows ============ */
+  .chat-bubble{
+    position:fixed;right:24px;bottom:24px;z-index:50;
+    width:64px;height:64px;border-radius:50%;
+    overflow:hidden;padding:0;
+    cursor:pointer;border:none;
+    box-shadow:0 8px 24px rgba(0,0,0,.18);
+    transition:transform .2s ease, opacity .2s ease;
+  }
+  .chat-bubble img{width:100%;height:100%;object-fit:cover;display:block}
+  .chat-bubble:hover{transform:scale(1.05)}
+  .chat-bubble.hide{opacity:0;pointer-events:none;transform:scale(.7)}
+  .chat-bubble.left-side{right:auto;left:24px}
+
+  /* ============ GORGIAS CHAT PANEL — shared structure, themeable ============ */
+  .chat-panel{
+    position:fixed;right:24px;bottom:24px;z-index:60;
+    width:384px;height:min(680px,calc(100vh - 48px));
+    max-height:calc(100vh - 48px);
+    border-radius:32px;
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(158,158,158,.30) 0%, rgba(158,158,158,0) 55%),
+      radial-gradient(circle at 92% 96%, rgba(90,90,90,.22) 0%, rgba(90,90,90,0) 55%),
+      linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
+    box-shadow:0 20px 60px rgba(0,0,0,.28), 0 4px 16px rgba(0,0,0,.12);
+    transform:translateY(24px) scale(.96);
+    opacity:0;pointer-events:none;
+    transform-origin:bottom right;
+    transition:transform .28s cubic-bezier(.32,.72,.16,1), opacity .22s ease;
+    font-family:'Inter',sans-serif;
+  }
+  .chat-panel.open{
+    opacity:1;pointer-events:auto;
+    transform:translateY(0) scale(1);
+  }
+
+  .chat-top{
+    display:flex;align-items:center;justify-content:flex-end;gap:8px;
+    padding:32px 20px 16px;flex-shrink:0;
+    backdrop-filter:blur(5px);
+    -webkit-backdrop-filter:blur(5px);
+  }
+  .chat-icon-btn{
+    width:44px;height:44px;border-radius:24px;
+    background:rgba(255,255,255,.2);border:none;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:0 2px 3px rgba(0,0,0,.1);
+    flex-shrink:0;
+  }
+  .chat-icon-btn svg{width:20px;height:18px;stroke:#1e242e;stroke-width:1.3;fill:none}
+  .track-orders{
+    width:120px;height:44px;padding:12px 16px;border-radius:24px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.2);border:none;cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:14px;font-weight:500;line-height:20px;color:#1e242e;
+    box-shadow:0 2px 3px rgba(0,0,0,.1);
+    white-space:nowrap;
+  }
+  .chat-top-spacer{flex:1}
+
+  .chat-brand{
+    text-align:center;padding:8px 20px 8px;flex-shrink:0;
+  }
+
+  .chat-body{
+    flex:1;overflow-y:auto;
+    padding:4px 20px 8px;
+    scrollbar-width:none;
+    display:flex;flex-direction:column;
+  }
+  .chat-body::-webkit-scrollbar{display:none}
+  .chat-spacer{flex:1}
+
+  .chat-pill{
+    align-self:flex-start;
+    margin:0 0 10px;
+    height:36px;padding:0 16px;border-radius:24px;
+    display:inline-flex;align-items:center;
+    background:rgba(255,255,255,.2);
+    box-shadow:0 2px 3px rgba(0,0,0,.1);
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:#1e242e;cursor:pointer;
+    white-space:nowrap;
+  }
+
+  .chat-input-area{flex-shrink:0;padding:8px 20px 8px;backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(1px)}
+  .chat-disclaimer{
+    display:block;
+    text-align:center;font-family:'Inter',sans-serif;font-size:9px;font-weight:400;line-height:14px;letter-spacing:0;
+    color:#5c6370;padding:8px 0 0;
+  }
+  .chat-input-wrap{
+    display:flex;align-items:center;gap:16px;
+    height:46px;
+    background:rgba(255,255,255,.4);
+    border-radius:24px;
+    padding:0 8px 0 16px;
+    box-shadow:0 0 30px rgba(64,77,168,.30), 0 2px 3px rgba(0,0,0,.1);
+  }
+  .chat-input-wrap input{
+    flex:1;border:none;background:none;outline:none;
+    font-family:'Inter',sans-serif;font-size:16px;font-weight:400;line-height:24px;letter-spacing:.01em;color:#1e242e;
+    padding:10px 0;
+  }
+  .chat-input-wrap input::placeholder{color:#5c6370}
+  .chat-input-icon{
+    width:32px;height:32px;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;border:none;background:rgba(255,255,255,.01);cursor:pointer;
+  }
+  .chat-input-icon svg{width:20px;height:20px;stroke:#1e242e;stroke-width:1.5;fill:none}
+
+  /* ============ MELINDA MARIA CHAT PANEL THEME ============ */
+  .chat-panel.mm{
+    width:384px;height:623px;max-height:calc(100vh - 48px);
+    background:
+      radial-gradient(circle at 12% 8%, rgba(216,216,218,.4) 0%, rgba(216,216,218,0) 55%),
+      radial-gradient(circle at 92% 96%, rgba(52,54,60,.30) 0%, rgba(52,54,60,0) 55%),
+      linear-gradient(180deg, #d4d5d8 0%, #a8aaaf 100%);
+  }
+  .chat-panel.mm .wordmark-logo{
+    width:240px;height:18.72px;margin:0 auto;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Cormorant Garamond',serif;font-weight:600;
+    font-size:14px;letter-spacing:2.2px;
+    color:#fff;white-space:nowrap;line-height:1;
+    text-shadow:0 1px 2px rgba(0,0,0,.2);
+  }
+  .chat-panel.mm .chat-input-wrap input{font-size:15px}
+
+  /* ============ KOSAS CHAT PANEL THEME ============ */
+  .chat-panel.kosas{
+    font-family:'Archivo',sans-serif;
+    right:auto;left:24px;
+    transform-origin:bottom left;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(238,238,200,.65) 0%, rgba(238,238,200,0) 55%),
+      radial-gradient(circle at 90% 95%, rgba(245,222,150,.35) 0%, rgba(245,222,150,0) 55%),
+      linear-gradient(160deg, #f7f2cf 0%, #fdfbf0 55%, #ffffff 100%);
+  }
+  .chat-panel.kosas .kosas-wordmark{width:190px;height:auto;display:block;margin:0 auto;color:#000}
+  .chat-panel.kosas .chat-pill{
+    background:rgba(255,255,255,.55);
+    box-shadow:0 2px 3px rgba(0,0,0,.08);
+    color:#1e242e;font-family:'Archivo',sans-serif;
+  }
+  .chat-panel.kosas .chat-input-wrap{background:rgba(255,255,255,.65);box-shadow:0 0 30px rgba(211,49,103,.18), 0 2px 3px rgba(0,0,0,.08)}
+  .chat-panel.kosas .chat-input-wrap input{font-family:'Archivo',sans-serif;color:#000}
+  .chat-panel.kosas .chat-input-wrap input::placeholder{color:#676986}
+  .chat-panel.kosas .chat-disclaimer{font-family:'Archivo',sans-serif;color:#676986;cursor:pointer;transition:color .15s ease}
+  .chat-panel.kosas .chat-disclaimer:hover{color:#000}
+
+  /* ============ KOSAS HEADER ============ */
+  .k-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px;border-bottom:1px solid #f0f0f0;
+    background:#fff;position:relative;z-index:5;
+  }
+  .k-header-left,.k-header-right{display:flex;align-items:center;gap:18px;flex:1}
+  .k-header-right{justify-content:flex-end}
+  .k-icon-btn{
+    background:none;border:none;cursor:pointer;color:#111;
+    width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+    border-radius:50%;flex-shrink:0;
+  }
+  .k-icon-btn:hover{background:rgba(0,0,0,.06)}
+  .k-icon-btn svg{width:21px;height:21px}
+  .k-search-btn{
+    background:none;border:none;cursor:pointer;color:#111;
+    display:flex;align-items:center;gap:6px;
+    font-family:'Archivo',sans-serif;font-size:13px;
+  }
+  .k-search-btn svg{width:19px;height:19px}
+  .k-logo{color:#111;flex-shrink:0}
+  .k-logo svg{width:130px;height:auto;display:block}
+
+  /* ============ KOSAS HERO ============ */
+  .k-hero{position:relative;width:100%;height:640px;overflow:hidden;background:#e9e4d8}
+  .k-hero img{width:100%;height:100%;object-fit:cover;display:block}
+  .k-hero-overlay{
+    position:absolute;left:0;bottom:0;right:0;
+    padding:40px 44px;
+    background:linear-gradient(0deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 60%);
+    color:#fff;
+  }
+  .k-hero-eyebrow{font-family:'Archivo',monospace;font-size:15px;letter-spacing:1px;margin-bottom:10px}
+  .k-hero-title{font-family:'Archivo',sans-serif;font-size:64px;font-weight:500;line-height:1;margin-bottom:8px}
+  .k-hero-sub{font-family:'Archivo',sans-serif;font-size:20px;font-weight:400;margin-bottom:22px}
+  .k-hero-cta{
+    background:transparent;color:#fff;border:2px solid #fff;
+    padding:12px 32px;font-family:'Archivo',sans-serif;font-size:15px;font-weight:600;
+    letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  }
+
+  /* ============ KOSAS CATEGORY SECTION ============ */
+  .k-category-section{padding:48px 40px;text-align:center}
+  .k-category-heading{font-family:'Archivo',sans-serif;font-size:34px;font-weight:400;margin-bottom:32px;color:#111}
+  .k-category-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+  .k-cat{cursor:pointer}
+  .k-cat img{width:100%;aspect-ratio:1200/1584;object-fit:cover;display:block;background:#f1eee6}
+  .k-cat p{font-family:'Archivo',sans-serif;font-size:16px;font-weight:400;color:#111;margin-top:10px}
+
+</style>
+</head>
+<body>
+
+<div class="flow-switcher">
+  <button class="flow-switcher-btn active" data-flow="1">Flow 1 · Melinda Maria</button>
+  <button class="flow-switcher-btn" data-flow="2">Flow 2 · Kosas</button>
+</div>
+
+<!-- ======================================================= -->
+<!-- FLOW 1 — MELINDA MARIA                                   -->
+<!-- ======================================================= -->
+<div id="flow1" class="flow">
+
+<div class="topbanner">FREE SHIPPING ON ORDERS $75+</div>
+
+<header class="site-header">
+  <div class="nav-left">
+    <a href="#">New</a>
+    <a href="#">Best Sellers</a>
+    <a href="#">Shop</a>
+    <a href="#">Rewards</a>
+    <a href="#">Explore</a>
+    <a href="#">LA Store</a>
+  </div>
+  <a href="#" class="logo">
+    <img src="https://www.melindamaria.com/cdn/shop/files/opt_Logo_Header_01.jpg?height=48&v=1772647834" alt="Melinda Maria Jewelry">
+  </a>
+  <div class="nav-right">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+  </div>
+</header>
+
+<div class="hero">
+  <img src="https://www.melindamaria.com/cdn/shop/files/6.5-Labradorite_Desktop-1800x800.jpg?v=1780092239&width=1920" alt="Introducing Labradorite">
+</div>
+
+<div class="banner-row">
+  <img src="https://www.melindamaria.com/cdn/shop/files/LabBracelets_MelindaMaria-LeftBanner.jpg?v=1780092354&width=800" alt="Labradorite Bracelets">
+  <img src="https://www.melindamaria.com/cdn/shop/files/LabRings_MelindaMaria-MiddleBanner.jpg?width=800" alt="Labradorite Rings">
+  <img src="https://www.melindamaria.com/cdn/shop/files/LabNecklaces_MelindaMaria-LeftBanner-1.jpg?width=800" alt="Labradorite Necklaces">
+</div>
+
+<!-- ACCESSIBILITY -->
+<div class="a11y-btn">
+  <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm9 7.5-6 1v2.6l4 6.4-1.7 1-3.6-5.8-3.6 5.8-1.7-1 4-6.4v-2.6l-6-1V7l7 1.2L21 7v2.5z"/></svg>
+</div>
+
+<!-- 10% OFF -->
+<div class="off-pill">
+  GET 10% OFF
+  <button aria-label="dismiss"><svg viewBox="0 0 24 24"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
+</div>
+
+<!-- CHAT BUBBLE 1 -->
+<button class="chat-bubble" id="chatBubble1" aria-label="Open chat">
+  <img src="data:image/png;base64,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" alt="">
+</button>
+
+<!-- GORGIAS CHAT PANEL 1 -->
+<div class="chat-panel mm" id="chatPanel1">
+  <div class="chat-top">
+    <button class="chat-icon-btn" aria-label="Cart">
+      <svg viewBox="0 0 20 18" fill="none">
+        <path d="M2 2H4.37163L6.98156 11.2624C7.04965 11.4976 7.18582 11.7104 7.39007 11.856C7.58298 12.0016 7.83262 12.08 8.07092 12.08H15.0837C15.3333 12.08 15.5716 12.0016 15.7759 11.856C15.9688 11.7104 16.1163 11.4976 16.1844 11.2624L18 4.8H5.16596" stroke="#1e242e" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.34325 15.9998C8.96736 15.9998 9.478 15.4958 9.478 14.8798C9.478 14.2638 8.96736 13.7598 8.34325 13.7598C7.71913 13.7598 7.2085 14.2638 7.2085 14.8798C7.2085 15.4958 7.71913 15.9998 8.34325 15.9998Z" fill="#1e242e"/>
+        <path d="M14.5843 15.9998C15.2085 15.9998 15.7191 15.4958 15.7191 14.8798C15.7191 14.2638 15.2085 13.7598 14.5843 13.7598C13.9602 13.7598 13.4496 14.2638 13.4496 14.8798C13.4496 15.4958 13.9602 15.9998 14.5843 15.9998Z" fill="#1e242e"/>
+      </svg>
+    </button>
+    <button class="track-orders">Track Orders</button>
+    <button class="chat-icon-btn" id="chatClose1" aria-label="Close chat">
+      <svg viewBox="0 0 20 20" fill="none" style="width:20px;height:20px">
+        <path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1e242e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="chat-brand">
+    <div class="wordmark-logo">MELINDA MARIA</div>
+  </div>
+
+  <div class="chat-body">
+    <div class="chat-spacer"></div>
+    <div class="chat-pill">See last conversation</div>
+  </div>
+
+  <div class="chat-input-area">
+    <div class="chat-input-wrap">
+      <input type="text" placeholder="Ask anything">
+      <button class="chat-input-icon" aria-label="Attach image">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M10 2.91683H6.08337C4.68324 2.91683 3.98318 2.91683 3.4484 3.18931C2.97799 3.429 2.59554 3.81145 2.35586 4.28185C2.08337 4.81663 2.08337 5.5167 2.08337 6.91683V13.9168C2.08337 15.317 2.08337 16.017 2.35586 16.5518C2.59554 17.0222 2.97799 17.4047 3.4484 17.6443C3.98318 17.9168 4.68324 17.9168 6.08337 17.9168H13.75C14.525 17.9168 14.9125 17.9168 15.2304 17.8316C16.0932 17.6005 16.767 16.9266 16.9982 16.0639C17.0834 15.746 17.0834 15.3585 17.0834 14.5835M15.4167 7.0835V2.0835M12.9167 4.5835H17.9167M8.33337 7.50016C8.33337 8.42064 7.58718 9.16683 6.66671 9.16683C5.74623 9.16683 5.00004 8.42064 5.00004 7.50016C5.00004 6.57969 5.74623 5.8335 6.66671 5.8335C7.58718 5.8335 8.33337 6.57969 8.33337 7.50016ZM12.0751 10.3486L5.026 16.7569C4.62951 17.1173 4.43127 17.2975 4.41373 17.4537C4.39853 17.589 4.45042 17.7232 4.5527 17.8131C4.67069 17.9168 4.93861 17.9168 5.47445 17.9168H13.2967C14.496 17.9168 15.0956 17.9168 15.5666 17.7153C16.1579 17.4624 16.629 16.9914 16.8819 16.4001C17.0834 15.9291 17.0834 15.3295 17.0834 14.1301C17.0834 13.7266 17.0834 13.5249 17.0393 13.337C16.9838 13.1008 16.8775 12.8796 16.7278 12.6888C16.6086 12.537 16.451 12.411 16.1359 12.1589L13.8049 10.294C13.4895 10.0418 13.3318 9.91561 13.1582 9.87109C13.0051 9.83185 12.8441 9.83693 12.6938 9.88574C12.5233 9.94111 12.3739 10.077 12.0751 10.3486Z" stroke="#1e242e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="chat-disclaimer">This chat is AI-powered for faster assistance. It may be monitored/recorded.</div>
+  </div>
+</div>
+
+</div>
+<!-- /FLOW 1 -->
+
+<!-- ======================================================= -->
+<!-- FLOW 2 — KOSAS                                           -->
+<!-- ======================================================= -->
+<div id="flow2" class="flow" style="display:none">
+
+<div class="topbanner">FREE SHIPPING ON ORDERS $50+ &amp; FREE KOSAS HANDBAG $80+</div>
+
+<header class="k-header">
+  <div class="k-header-left">
+    <button class="k-icon-btn" aria-label="Menu">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M18.88 9.75a.75.75 0 01-.75.75H1.63a.75.75 0 010-1.5h16.5a.75.75 0 01.75.75zM1.63 4.5h16.5a.75.75 0 000-1.5H1.63a.75.75 0 000 1.5zM18.13 15H1.63a.75.75 0 000 1.5h16.5a.75.75 0 000-1.5z"/></svg>
+    </button>
+    <button class="k-search-btn" aria-label="Search">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M17.9422 17.0578L14.0305 13.1469C15.1643 11.7857 15.7297 10.0398 15.609 8.27244C15.4883 6.50506 14.6909 4.85223 13.3827 3.65779C12.0744 2.46334 10.356 1.81926 8.58498 1.85951C6.81394 1.89976 5.12659 2.62125 3.87395 3.87389C2.62131 5.12653 1.89982 6.81388 1.85957 8.58492C1.81932 10.356 2.46341 12.0744 3.65785 13.3826C4.85229 14.6909 6.50512 15.4883 8.27251 15.6089C10.0399 15.7296 11.7858 15.1642 13.1469 14.0305L17.0579 17.9422C17.1738 18.0526 17.3283 18.1132 17.4884 18.1109C17.6485 18.1086 17.8012 18.0437 17.9139 17.9301C18.0266 17.8165 18.0904 17.6633 18.0917 17.5032C18.093 17.3431 18.0316 17.1889 17.9422 17.0578ZM3.12506 8.75C3.12506 7.63748 3.45496 6.54994 4.07304 5.62491C4.69112 4.69989 5.58648 3.97892 6.59746 3.55317C7.6253 3.12743 8.7563 3.01604 9.84744 3.23308C10.9386 3.45012 11.9409 3.98585 12.7275 4.77252C13.5142 5.55919 14.0499 6.56147 14.267 7.65261C14.484 8.74376 14.3726 9.87476 13.9469 10.9026C13.5211 11.9304 12.8002 12.8089 11.8751 13.427C10.9501 14.0451 9.86258 14.375 8.75006 14.375C7.25872 14.3733 5.82894 13.7802 4.77441 12.7256C3.71987 11.6711 3.12671 10.2413 3.12506 8.75Z"/></svg>
+      <span>Search</span>
+    </button>
+  </div>
+
+  <a href="#" class="k-logo" aria-label="Kosas Cosmetics">
+    <svg viewBox="0 0 160 42" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M78.7975 30.7187C78.7975 32.2257 79.3771 33.298 80.3624 34.0514C81.2608 34.689 82.5649 35.0658 83.956 35.0658C85.7817 35.0658 88.4479 34.2543 88.4479 31.9649C88.4479 29.6754 85.434 29.2407 83.7241 28.864C77.6672 27.299 70.1034 27.1541 70.1034 19.2135C70.1034 12.1423 77.7832 10.2006 83.4923 10.2006C89.9839 10.2006 96.6783 12.0844 97.0551 19.7352H88.1581C88.1581 18.46 87.6655 17.7065 86.912 17.1559C86.1005 16.6632 85.0283 16.4024 83.869 16.4024C82.2751 16.4024 79.6959 16.6053 79.6959 18.6629C79.6959 21.387 86.1875 21.9377 90.5635 22.894C96.5045 24.0822 98.0694 28.3713 98.0694 30.8346C98.0694 38.6593 90.5635 41.2965 83.985 41.2965C77.0297 41.2965 69.9005 38.9781 69.6107 30.7477H78.7975V30.7187Z"/>
+      <path fill="currentColor" d="M101.054 20.1119C101.228 16.2575 103.024 13.7942 105.604 12.2292C108.241 10.7802 111.603 10.2006 114.993 10.2006C121.92 10.2006 128.672 11.7656 128.672 20.0539V32.9212C128.672 35.3845 128.672 38.1087 129.802 40.4271H120.152C119.775 39.5287 119.659 38.6014 119.572 37.645C117.109 40.2822 113.399 41.2965 109.864 41.2965C104.3 41.2965 99.8945 38.4565 99.8945 32.3996C99.8945 22.865 110.298 23.5606 116.935 22.2275C118.587 21.9087 119.514 21.3291 119.514 19.5033C119.514 17.3008 116.848 16.4604 114.848 16.4604C112.211 16.4604 110.501 17.6776 110.067 20.1699H101.054V20.1119ZM113.486 35.3266C118.094 35.3266 119.601 32.6894 119.369 26.6325C118.036 27.5019 115.515 27.6468 113.428 28.2554C111.284 28.777 109.458 29.6464 109.458 31.9938C109.487 34.3702 111.342 35.3266 113.486 35.3266Z"/>
+      <path fill="currentColor" d="M140.728 30.7187C140.728 32.2257 141.308 33.298 142.293 34.0514C143.191 34.689 144.495 35.0658 145.887 35.0658C147.712 35.0658 150.378 34.2543 150.378 31.9649C150.378 29.6754 147.365 29.2407 145.655 28.864C139.598 27.299 132.034 27.1541 132.034 19.2135C132.034 12.1423 139.685 10.2006 145.423 10.2006C151.914 10.2006 158.609 12.0844 158.986 19.7352H150.089C150.089 18.46 149.596 17.7065 148.843 17.1559C148.031 16.6632 146.959 16.4024 145.8 16.4024C144.206 16.4024 141.626 16.6053 141.626 18.6629C141.626 21.387 148.118 21.9377 152.494 22.894C158.435 24.0822 160 28.3713 160 30.8346C160 38.6593 152.494 41.2965 145.916 41.2965C138.96 41.2965 131.831 38.9781 131.541 30.7477H140.728V30.7187Z"/>
+      <path fill="currentColor" d="M52.4545 10.2013C61.5543 10.2013 67.93 16.9537 67.93 25.7927C67.93 34.5737 61.5543 41.2972 52.4545 41.2972C43.3546 41.2972 37.0079 34.6027 37.0079 25.7927C37.0079 16.9537 43.3256 10.2013 52.4545 10.2013ZM52.4545 33.9362C56.9174 33.9362 58.3375 29.4732 58.3375 25.7927C58.3375 22.0542 56.8884 17.5333 52.4545 17.5333C48.0205 17.5333 46.6004 22.0252 46.6004 25.7927C46.6004 29.5022 47.9915 33.9362 52.4545 33.9362Z"/>
+      <path fill="currentColor" d="M0 0H10.5199V15.5045L23.7929 0H36.892L21.9381 15.9392L38.8047 40.4276H25.7345L14.8089 23.4451L10.5199 27.995V40.4276H0V0Z"/>
+    </svg>
+  </a>
+
+  <div class="k-header-right">
+    <button class="k-icon-btn" aria-label="Account">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.875C8.39303 1.875 6.82215 2.35152 5.486 3.24431C4.14985 4.1371 3.10844 5.40605 2.49348 6.8907C1.87852 8.37535 1.71762 10.009 2.03112 11.5851C2.34463 13.1612 3.11846 14.6089 4.25476 15.7452C5.39106 16.8815 6.8388 17.6554 8.4149 17.9689C9.99099 18.2824 11.6247 18.1215 13.1093 17.5065C14.594 16.8916 15.8629 15.8502 16.7557 14.514C17.6485 13.1779 18.125 11.607 18.125 10C18.1227 7.84581 17.266 5.78051 15.7427 4.25727C14.2195 2.73403 12.1542 1.87727 10 1.875ZM5.7875 15.4297C6.23964 14.7226 6.86251 14.1406 7.59869 13.7375C8.33488 13.3345 9.16069 13.1232 10 13.1232C10.8393 13.1232 11.6651 13.3345 12.4013 13.7375C13.1375 14.1406 13.7604 14.7226 14.2125 15.4297C13.0081 16.3664 11.5258 16.8749 10 16.8749C8.47421 16.8749 6.99193 16.3664 5.7875 15.4297ZM7.5 9.375C7.5 8.03832 8.60107 6.875 10 6.875C11.3989 6.875 12.5 8.03832 12.5 9.375C12.5 10.7117 11.3989 11.875 10 11.875C8.60107 11.875 7.5 10.7117 7.5 9.375ZM15.1375 14.5633C14.4404 13.5532 13.4603 12.7717 12.3203 12.3172C13.0864 11.7538 13.6142 10.9037 13.75 9.9375C13.8996 8.87427 13.5945 7.79907 12.9052 6.97177C12.2159 6.14447 11.2065 5.63968 10.1289 5.58163C9.05131 5.52357 7.99381 5.91762 7.21935 6.66916C6.44488 7.42071 6.02201 8.4587 6.05586 9.53152C6.08972 10.6043 6.57712 11.6146 7.39795 12.3172C6.29441 12.7783 5.34009 13.5591 4.6625 14.5633C3.78169 13.5728 3.20599 12.3488 3.00472 11.0387C2.80345 9.72856 2.98519 8.3882 3.52806 7.17898C4.07092 5.96977 4.95177 4.94326 6.06453 4.22308C7.17729 3.50289 8.47451 3.11972 9.79999 3.11972C11.1255 3.11972 12.4227 3.50289 13.5355 4.22308C14.6482 4.94326 15.5291 5.96977 16.0719 7.17898C16.6148 8.3882 16.7966 9.72856 16.5953 11.0387C16.394 12.3488 15.8183 13.5728 14.9375 14.5633H15.1375Z"/></svg>
+    </button>
+    <button class="k-icon-btn" aria-label="Cart">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4.5 6.5H15.5L14.7 16.5H5.3L4.5 6.5Z" stroke-linejoin="round"/><path d="M7.3 6.5V4.8C7.3 3.3 8.5 2.1 10 2.1C11.5 2.1 12.7 3.3 12.7 4.8V6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="k-hero">
+  <img src="https://kosas.com/cdn/shop/files/HP_Banner_Desktop_-_2000x800_-_Model_-_No_Copy.jpg?v=1778795745&width=1920" alt="Impressionist Multistick">
+  <div class="k-hero-overlay">
+    <div class="k-hero-eyebrow">NEW</div>
+    <div class="k-hero-title">Impressionist Multistick</div>
+    <div class="k-hero-sub">Cream Cheek + Lip Color</div>
+    <button class="k-hero-cta">Shop Now</button>
+  </div>
+</div>
+
+<div class="k-category-section">
+  <h2 class="k-category-heading">100% Makeup. 100% Skincare.</h2>
+  <div class="k-category-grid">
+    <div class="k-cat">
+      <img src="https://kosas.com/cdn/shop/files/face-category.jpg?v=1777039942&width=500" alt="Face">
+      <p>Face</p>
+    </div>
+    <div class="k-cat">
+      <img src="https://kosas.com/cdn/shop/files/skincare-category.jpg?v=1777039943&width=500" alt="Skincare">
+      <p>Skincare</p>
+    </div>
+    <div class="k-cat">
+      <img src="https://kosas.com/cdn/shop/files/eye-category.jpg?v=1777039942&width=500" alt="Eye">
+      <p>Eye</p>
+    </div>
+    <div class="k-cat">
+      <img src="https://kosas.com/cdn/shop/files/lip-category.jpg?width=500" alt="Lip">
+      <p>Lip</p>
+    </div>
+    <div class="k-cat">
+      <img src="https://kosas.com/cdn/shop/files/cheek-category.jpg?width=500" alt="Cheek">
+      <p>Cheek</p>
+    </div>
+    <div class="k-cat">
+      <img src="https://kosas.com/cdn/shop/files/brow-category.jpg?width=500" alt="Brow">
+      <p>Brow</p>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT BUBBLE 2 -->
+<button class="chat-bubble left-side" id="chatBubble2" aria-label="Open chat">
+  <img src="data:image/png;base64,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" alt="">
+</button>
+
+<!-- GORGIAS CHAT PANEL 2 -->
+<div class="chat-panel kosas" id="chatPanel2">
+  <div class="chat-top">
+    <button class="chat-icon-btn" aria-label="Cart">
+      <svg viewBox="0 0 20 18" fill="none">
+        <path d="M2 2H4.37163L6.98156 11.2624C7.04965 11.4976 7.18582 11.7104 7.39007 11.856C7.58298 12.0016 7.83262 12.08 8.07092 12.08H15.0837C15.3333 12.08 15.5716 12.0016 15.7759 11.856C15.9688 11.7104 16.1163 11.4976 16.1844 11.2624L18 4.8H5.16596" stroke="#1e242e" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.34325 15.9998C8.96736 15.9998 9.478 15.4958 9.478 14.8798C9.478 14.2638 8.96736 13.7598 8.34325 13.7598C7.71913 13.7598 7.2085 14.2638 7.2085 14.8798C7.2085 15.4958 7.71913 15.9998 8.34325 15.9998Z" fill="#1e242e"/>
+        <path d="M14.5843 15.9998C15.2085 15.9998 15.7191 15.4958 15.7191 14.8798C15.7191 14.2638 15.2085 13.7598 14.5843 13.7598C13.9602 13.7598 13.4496 14.2638 13.4496 14.8798C13.4496 15.4958 13.9602 15.9998 14.5843 15.9998Z" fill="#1e242e"/>
+      </svg>
+    </button>
+    <button class="track-orders">Track Orders</button>
+    <button class="chat-icon-btn" id="chatClose2" aria-label="Close chat">
+      <svg viewBox="0 0 20 20" fill="none" style="width:20px;height:20px">
+        <path d="M14.9999 14.9999L10 10M10 10L5 5M10 10L15 5M10 10L5 15" stroke="#1e242e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="chat-brand">
+    <svg class="kosas-wordmark" viewBox="0 0 160 42" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M78.7975 30.7187C78.7975 32.2257 79.3771 33.298 80.3624 34.0514C81.2608 34.689 82.5649 35.0658 83.956 35.0658C85.7817 35.0658 88.4479 34.2543 88.4479 31.9649C88.4479 29.6754 85.434 29.2407 83.7241 28.864C77.6672 27.299 70.1034 27.1541 70.1034 19.2135C70.1034 12.1423 77.7832 10.2006 83.4923 10.2006C89.9839 10.2006 96.6783 12.0844 97.0551 19.7352H88.1581C88.1581 18.46 87.6655 17.7065 86.912 17.1559C86.1005 16.6632 85.0283 16.4024 83.869 16.4024C82.2751 16.4024 79.6959 16.6053 79.6959 18.6629C79.6959 21.387 86.1875 21.9377 90.5635 22.894C96.5045 24.0822 98.0694 28.3713 98.0694 30.8346C98.0694 38.6593 90.5635 41.2965 83.985 41.2965C77.0297 41.2965 69.9005 38.9781 69.6107 30.7477H78.7975V30.7187Z"/>
+      <path fill="currentColor" d="M101.054 20.1119C101.228 16.2575 103.024 13.7942 105.604 12.2292C108.241 10.7802 111.603 10.2006 114.993 10.2006C121.92 10.2006 128.672 11.7656 128.672 20.0539V32.9212C128.672 35.3845 128.672 38.1087 129.802 40.4271H120.152C119.775 39.5287 119.659 38.6014 119.572 37.645C117.109 40.2822 113.399 41.2965 109.864 41.2965C104.3 41.2965 99.8945 38.4565 99.8945 32.3996C99.8945 22.865 110.298 23.5606 116.935 22.2275C118.587 21.9087 119.514 21.3291 119.514 19.5033C119.514 17.3008 116.848 16.4604 114.848 16.4604C112.211 16.4604 110.501 17.6776 110.067 20.1699H101.054V20.1119ZM113.486 35.3266C118.094 35.3266 119.601 32.6894 119.369 26.6325C118.036 27.5019 115.515 27.6468 113.428 28.2554C111.284 28.777 109.458 29.6464 109.458 31.9938C109.487 34.3702 111.342 35.3266 113.486 35.3266Z"/>
+      <path fill="currentColor" d="M140.728 30.7187C140.728 32.2257 141.308 33.298 142.293 34.0514C143.191 34.689 144.495 35.0658 145.887 35.0658C147.712 35.0658 150.378 34.2543 150.378 31.9649C150.378 29.6754 147.365 29.2407 145.655 28.864C139.598 27.299 132.034 27.1541 132.034 19.2135C132.034 12.1423 139.685 10.2006 145.423 10.2006C151.914 10.2006 158.609 12.0844 158.986 19.7352H150.089C150.089 18.46 149.596 17.7065 148.843 17.1559C148.031 16.6632 146.959 16.4024 145.8 16.4024C144.206 16.4024 141.626 16.6053 141.626 18.6629C141.626 21.387 148.118 21.9377 152.494 22.894C158.435 24.0822 160 28.3713 160 30.8346C160 38.6593 152.494 41.2965 145.916 41.2965C138.96 41.2965 131.831 38.9781 131.541 30.7477H140.728V30.7187Z"/>
+      <path fill="currentColor" d="M52.4545 10.2013C61.5543 10.2013 67.93 16.9537 67.93 25.7927C67.93 34.5737 61.5543 41.2972 52.4545 41.2972C43.3546 41.2972 37.0079 34.6027 37.0079 25.7927C37.0079 16.9537 43.3256 10.2013 52.4545 10.2013ZM52.4545 33.9362C56.9174 33.9362 58.3375 29.4732 58.3375 25.7927C58.3375 22.0542 56.8884 17.5333 52.4545 17.5333C48.0205 17.5333 46.6004 22.0252 46.6004 25.7927C46.6004 29.5022 47.9915 33.9362 52.4545 33.9362Z"/>
+      <path fill="currentColor" d="M0 0H10.5199V15.5045L23.7929 0H36.892L21.9381 15.9392L38.8047 40.4276H25.7345L14.8089 23.4451L10.5199 27.995V40.4276H0V0Z"/>
+    </svg>
+  </div>
+
+  <div class="chat-body">
+    <div class="chat-spacer"></div>
+    <div class="chat-pill">How do I find my shade?</div>
+    <div class="chat-pill">Where do you ship?</div>
+    <div class="chat-pill">My package says delivered, but it's not here</div>
+    <div class="chat-pill">What's your return and exchange policy?</div>
+    <div class="chat-pill">See last conversation</div>
+  </div>
+
+  <div class="chat-input-area">
+    <div class="chat-input-wrap">
+      <input type="text" placeholder="Ask anything">
+      <button class="chat-input-icon" aria-label="Attach image">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M10 2.91683H6.08337C4.68324 2.91683 3.98318 2.91683 3.4484 3.18931C2.97799 3.429 2.59554 3.81145 2.35586 4.28185C2.08337 4.81663 2.08337 5.5167 2.08337 6.91683V13.9168C2.08337 15.317 2.08337 16.017 2.35586 16.5518C2.59554 17.0222 2.97799 17.4047 3.4484 17.6443C3.98318 17.9168 4.68324 17.9168 6.08337 17.9168H13.75C14.525 17.9168 14.9125 17.9168 15.2304 17.8316C16.0932 17.6005 16.767 16.9266 16.9982 16.0639C17.0834 15.746 17.0834 15.3585 17.0834 14.5835M15.4167 7.0835V2.0835M12.9167 4.5835H17.9167M8.33337 7.50016C8.33337 8.42064 7.58718 9.16683 6.66671 9.16683C5.74623 9.16683 5.00004 8.42064 5.00004 7.50016C5.00004 6.57969 5.74623 5.8335 6.66671 5.8335C7.58718 5.8335 8.33337 6.57969 8.33337 7.50016ZM12.0751 10.3486L5.026 16.7569C4.62951 17.1173 4.43127 17.2975 4.41373 17.4537C4.39853 17.589 4.45042 17.7232 4.5527 17.8131C4.67069 17.9168 4.93861 17.9168 5.47445 17.9168H13.2967C14.496 17.9168 15.0956 17.9168 15.5666 17.7153C16.1579 17.4624 16.629 16.9914 16.8819 16.4001C17.0834 15.9291 17.0834 15.3295 17.0834 14.1301C17.0834 13.7266 17.0834 13.5249 17.0393 13.337C16.9838 13.1008 16.8775 12.8796 16.7278 12.6888C16.6086 12.537 16.451 12.411 16.1359 12.1589L13.8049 10.294C13.4895 10.0418 13.3318 9.91561 13.1582 9.87109C13.0051 9.83185 12.8441 9.83693 12.6938 9.88574C12.5233 9.94111 12.3739 10.077 12.0751 10.3486Z" stroke="#1e242e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <a href="https://kosas.com/pages/privacy-policy" target="_blank" rel="noopener" class="chat-disclaimer">This chat is AI-powered for faster assistance. It may be monitored/recorded.</a>
+  </div>
+</div>
+
+</div>
+<!-- /FLOW 2 -->
+
+<script>
+  function wireChat(bubbleId, panelId, closeId){
+    const bubble = document.getElementById(bubbleId);
+    const panel = document.getElementById(panelId);
+    const closeBtn = document.getElementById(closeId);
+    bubble.addEventListener('click', () => {
+      panel.classList.add('open');
+      bubble.classList.add('hide');
+    });
+    closeBtn.addEventListener('click', () => {
+      panel.classList.remove('open');
+      bubble.classList.remove('hide');
+    });
+  }
+  wireChat('chatBubble1', 'chatPanel1', 'chatClose1');
+  wireChat('chatBubble2', 'chatPanel2', 'chatClose2');
+
+  function showFlow(n){
+    document.getElementById('flow1').style.display = n === 1 ? '' : 'none';
+    document.getElementById('flow2').style.display = n === 2 ? '' : 'none';
+    document.querySelectorAll('.flow-switcher-btn').forEach(b => {
+      b.classList.toggle('active', Number(b.dataset.flow) === n);
+    });
+    ['chatPanel1','chatPanel2'].forEach(id => document.getElementById(id).classList.remove('open'));
+    ['chatBubble1','chatBubble2'].forEach(id => document.getElementById(id).classList.remove('hide'));
+  }
+  document.querySelectorAll('.flow-switcher-btn').forEach(btn => {
+    btn.addEventListener('click', () => showFlow(Number(btn.dataset.flow)));
+  });
+</script>
+
+</body>
+</html>
