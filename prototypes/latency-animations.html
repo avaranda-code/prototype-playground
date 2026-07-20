@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latency animations — conveyor stop product reveal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sacramento&family=Fredoka:wght@500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --primary: 231 45% 46%;
+    --chat-text: 220 20% 15%;
+    --chat-text-muted: 220 10% 40%;
+    --background: 220 10% 95%;
+    --chat-glow: 231 45% 46% / 0.3;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: hsl(var(--background));
+    color: hsl(var(--chat-text));
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  .wrap { max-width: 1280px; margin: 0 auto; }
+  .row {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;
+  }
+  .row-brands { margin-bottom: 72px; }
+  .row-1 { margin-bottom: 56px; }
+  .row-2 { margin-bottom: 80px; }
+  .row-3 { margin-bottom: 80px; }
+  .section-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; margin-bottom: 24px; letter-spacing: 0.5px; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 280px; }
+  .cell-label { font-size: 12px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; }
+
+  /* ─── CHAT CARD (ConversationShell) ─── */
+  .card {
+    position: relative;
+    width: 280px; height: 600px;
+    border-radius: 24px; overflow: hidden;
+    display: flex; flex-direction: column;
+    background: linear-gradient(to bottom, hsl(0 0% 98%), hsl(220 14% 96%));
+  }
+  .chat-bg {
+    position: absolute; left: -116%; top: -54%;
+    width: 333%; height: 207%; z-index: -10;
+  }
+
+  .chat-glass {
+    background: hsl(0 0% 100% / 0.2);
+    box-shadow: 0px 2px 3px hsl(0 0% 0% / 0.1);
+    border-radius: 24px;
+  }
+  .chat-glass-input {
+    background: hsl(0 0% 100% / 0.4);
+    box-shadow: 0px 0px 30px hsl(var(--chat-glow)), 0px 2px 3px hsl(0 0% 0% / 0.1);
+    border-radius: 24px;
+  }
+
+  .header {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; gap: 6px;
+    padding: 24px 12px 8px;
+    backdrop-filter: blur(5px);
+  }
+  .icon-btn { padding: 8px; display: flex; align-items: center; justify-content: center; }
+  .header svg.lucide { stroke: hsl(var(--chat-text)); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .track-pill { padding: 8px 12px; display: flex; align-items: center; gap: 4px; }
+  .track-pill span { font-size: 11px; font-weight: 500; color: hsl(var(--chat-text)); white-space: nowrap; }
+
+  .logo-area { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 16px 4px; }
+  .logo-area svg { width: 85%; height: auto; }
+  .logo-sub { font-size: 9px; color: hsl(var(--chat-text-muted)); text-align: center; line-height: 1.2; }
+  .logo-sub .u { text-decoration: underline; }
+
+  .convo {
+    flex: 1; display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 12px 64px; gap: 8px;
+  }
+  .user-row { display: flex; justify-content: flex-end; }
+  .user-bubble {
+    background: hsl(var(--primary) / 0.1);
+    border-radius: 16px 16px 4px 16px;
+    padding: 8px 12px; max-width: 85%;
+  }
+  .user-bubble span { font-size: 11px; color: hsl(var(--chat-text)); }
+
+  .footer {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+    padding: 8px 12px 12px; backdrop-filter: blur(1px);
+  }
+  .input-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+  .input-bar .placeholder { font-size: 12px; color: hsl(var(--chat-text-muted)); flex: 1; }
+  .input-bar svg.lucide { stroke: hsl(var(--chat-text)); }
+
+  /* ─── shared dot helpers ─── */
+  .anim-left { display: flex; justify-content: flex-start; }
+
+  /* 1 · BounceDots */
+  .bounce-wrap { display: flex; flex-direction: column; padding-left: 4px; gap: 12px; }
+  .bounce-row { display: flex; align-items: center; gap: 4px; padding-left: 7px; }
+  .bounce-dot {
+    display: block; width: 6px; height: 6px; border-radius: 50%;
+    background: hsl(var(--chat-text-muted) / 0.6);
+    animation: human-wave-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes human-wave-pulse {
+    0%, 100% { transform: scale(0.6); opacity: 0.3; }
+    50% { transform: scale(1.3); opacity: 1; }
+  }
+
+  /* 6 · RippleDots */
+  .ripple-row { display: flex; align-items: center; gap: 5px; }
+  .ripple-dot { position: relative; display: block; width: 6px; height: 6px; }
+  .ripple-ring { position: absolute; inset: 0; border-radius: 50%; background: hsl(var(--primary) / 0.3); animation: ripple-ring 2s ease-out infinite; }
+  .ripple-core { position: absolute; inset: 1px; border-radius: 50%; background: hsl(var(--primary)); animation: ripple-core 2s ease-in-out infinite; }
+  @keyframes ripple-ring {
+    0%, 100% { transform: scale(1); opacity: 0; }
+    30% { transform: scale(2.2); opacity: 0.5; }
+    60% { transform: scale(3); opacity: 0; }
+  }
+  @keyframes ripple-core {
+    0%, 100% { transform: scale(0.6); opacity: 0.3; }
+    30% { transform: scale(1); opacity: 1; }
+    60% { transform: scale(0.6); opacity: 0.3; }
+  }
+
+  /* 7 · SweepDot */
+  .sweep-wrap { display: flex; flex-direction: column; padding-left: 4px; gap: 12px; }
+  .sweep-track { position: relative; padding-left: 7px; height: 8px; width: 44px; }
+  .sweep-dot {
+    position: absolute; top: 50%; left: 0; display: block;
+    width: 7px; height: 7px; border-radius: 50%; background: hsl(var(--primary));
+    animation: sweep-dot 1.6s ease-in-out infinite;
+  }
+  @keyframes sweep-dot {
+    0% { transform: translate(0, -50%); }
+    50% { transform: translate(30px, -50%); }
+    100% { transform: translate(0, -50%); }
+  }
+
+  /* 8 · StarBreath */
+  .breath-wrap { display: flex; justify-content: flex-start; padding-left: 4px; }
+  .breath-bars { display: flex; flex-direction: column; gap: 3px; }
+  .breath-bar { display: block; height: 3px; border-radius: 9999px; animation: breath-bar 2.4s ease-in-out infinite; transform-origin: left; }
+  .breath-bar.b1 { width: 48px; background: hsl(var(--primary) / 0.4); }
+  .breath-bar.b2 { width: 32px; background: hsl(var(--primary) / 0.25); animation-delay: 0.3s; }
+  @keyframes breath-bar {
+    0%, 100% { opacity: 0.2; transform: scaleX(0.6); }
+    50% { opacity: 0.7; transform: scaleX(1); }
+  }
+
+  /* 9 · TravellingWave */
+  .twave-row { display: flex; align-items: center; gap: 4px; padding-left: 7px; }
+  .twave-dot { display: block; width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--primary)); animation: twave 1.3s ease-in-out infinite; }
+  @keyframes twave { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-5px); } }
+
+  /* 10 · SonarPing */
+  .sonar-wrap { padding-left: 8px; }
+  .sonar { position: relative; display: block; width: 8px; height: 8px; }
+  .sonar-core { position: absolute; inset: 0; border-radius: 50%; background: hsl(var(--primary)); }
+  .sonar-ping { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid hsl(var(--primary)); animation: sonar-ping 1.6s cubic-bezier(0,0,.2,1) infinite; }
+  @keyframes sonar-ping { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(2.8); opacity: 0; } }
+
+  /* 11 · BreathingDot */
+  .bdot-wrap { padding-left: 8px; }
+  .bdot { display: block; width: 10px; height: 10px; border-radius: 50%; background: hsl(var(--primary)); animation: bdot 2.2s ease-in-out infinite; }
+  @keyframes bdot { 0%, 100% { transform: scale(0.65); opacity: 0.4; } 50% { transform: scale(1.15); opacity: 1; } }
+
+  /* 12 · Equalizer */
+  .eq-row { display: flex; align-items: flex-end; gap: 3px; height: 16px; padding-left: 7px; }
+  .eq-bar { display: block; width: 3px; border-radius: 2px; background: hsl(var(--primary)); animation: eq-bar 1s ease-in-out infinite; }
+  @keyframes eq-bar { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+
+  /* 13 · OrbitDots */
+  .orbit-wrap { padding-left: 8px; }
+  .orbit { position: relative; display: block; width: 18px; height: 18px; animation: orbit-spin 1.4s linear infinite; }
+  .orbit-dot { position: absolute; left: 6px; width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--primary)); }
+  .orbit-dot.top { top: 0; }
+  .orbit-dot.bottom { bottom: 0; opacity: 0.55; }
+  @keyframes orbit-spin { to { transform: rotate(360deg); } }
+
+  /* 14 · ShimmerSweep */
+  .shimmer-wrap { padding-left: 7px; }
+  .shimmer { position: relative; display: block; width: 44px; height: 5px; border-radius: 3px; background: hsl(var(--primary) / 0.2); overflow: hidden; }
+  .shimmer::after { content: ""; position: absolute; top: 0; left: -40%; width: 40%; height: 100%; border-radius: 3px; background: hsl(var(--primary)); animation: shimmer-sweep 1.4s ease-in-out infinite; }
+  @keyframes shimmer-sweep { 0% { left: -40%; } 100% { left: 100%; } }
+
+  /* ─── slot-machine thinking phrases ─── */
+  .phrase-window { height: 18px; overflow: hidden; padding-left: 8px; margin-bottom: 2px; }
+  .phrase-track { display: flex; flex-direction: column; animation: slot 14s cubic-bezier(.7,0,.2,1) infinite; }
+  .phrase { height: 18px; line-height: 18px; font-size: 11px; font-weight: 500; color: hsl(var(--primary)); white-space: nowrap; }
+  @keyframes slot {
+    0%, 9%       { transform: translateY(0); }
+    12.5%, 21.5% { transform: translateY(-18px); }
+    25%, 34%     { transform: translateY(-36px); }
+    37.5%, 46.5% { transform: translateY(-54px); }
+    50%, 59%     { transform: translateY(-72px); }
+    62.5%, 71.5% { transform: translateY(-90px); }
+    75%, 84%     { transform: translateY(-108px); }
+    87.5%, 96.5% { transform: translateY(-126px); }
+    100%         { transform: translateY(-144px); }
+  }
+
+  /* ─── typed-out thinking phrases (letters ripple in, borrows variation 1's bounce) ─── */
+  .phrase-type { height: 18px; padding-left: 8px; margin-bottom: 2px; white-space: pre; }
+  .phrase-type .ch {
+    display: inline-block; font-size: 11px; font-weight: 500; line-height: 18px;
+    color: hsl(var(--primary)); white-space: pre; transform-origin: center bottom;
+    opacity: 0.3; transform: scale(0.7);
+    animation: letter-bounce-in 0.55s ease-in-out forwards;
+  }
+  @keyframes letter-bounce-in {
+    0%   { opacity: 0.3; transform: scale(0.7); }
+    55%  { opacity: 1;   transform: scale(1.1); }
+    100% { opacity: 1;   transform: scale(1); }
+  }
+  .phrase-type .ch.deleting {
+    animation: letter-pop-out 0.28s ease-in-out forwards;
+  }
+  @keyframes letter-pop-out {
+    0%   { opacity: 1;   transform: scale(1); }
+    45%  { opacity: 1;   transform: scale(1.1); }
+    100% { opacity: 0.3; transform: scale(0.7); }
+  }
+
+  /* ─── Sami Jewels brand skin (warm-brown widget) ─── */
+  .card.sami {
+    --primary: 0 0% 100%;
+    --chat-text: 0 0% 100%;
+    --chat-text-muted: 28 24% 88%;
+    --chat-glow: 0 0% 100% / 0.18;
+    background: linear-gradient(to bottom, #71625a, #5a4d46);
+  }
+  .card.sami .chat-bg { display: none; }
+  /* header pills: cream/white with warm-brown icons, like the real widget */
+  .card.sami .chat-glass { background: hsl(36 30% 96% / 0.92); box-shadow: 0px 2px 4px hsl(25 30% 18% / 0.22); }
+  .card.sami .header svg.lucide { stroke: #4a3f39; }
+  .card.sami .track-pill span { color: #4a3f39; }
+  /* input bar: soft translucent on brown */
+  .card.sami .chat-glass-input { background: hsl(36 24% 92% / 0.16); box-shadow: 0px 2px 3px hsl(25 30% 18% / 0.22); }
+  /* logo */
+  .sami-logo { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .sami-script { font-family: 'Sacramento', cursive; font-size: 44px; line-height: 0.9; color: #fff; }
+  .sami-logo .sami-heart { width: 30px; height: 26px; margin-top: 8px; }
+  .sami-jewels { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 7px; color: #fff; margin-top: -2px; padding-left: 7px; text-align: center; }
+
+  /* ─── Parachute brand skin (light-brown linen widget) ─── */
+  .card.parachute {
+    --primary: 25 28% 30%;        /* warm dark brown — dots/accents */
+    --chat-text: 25 22% 22%;      /* near-black brown text */
+    --chat-text-muted: 26 14% 36%;
+    --chat-glow: 25 28% 38% / 0.12;
+    background: linear-gradient(to bottom, #d9c9b6, #c6b29a);
+  }
+  .card.parachute .chat-bg { display: none; }
+  .card.parachute .chat-glass { background: hsl(40 33% 97% / 0.55); box-shadow: 0px 1px 3px hsl(28 25% 22% / 0.16); }
+  .card.parachute .header svg.lucide { stroke: #36302a; }
+  .card.parachute .track-pill span { color: #36302a; }
+  .card.parachute .chat-glass-input { background: hsl(40 30% 96% / 0.32); box-shadow: 0px 1px 3px hsl(28 25% 22% / 0.16); }
+  .parachute-logo { font-family: 'Inter', sans-serif; font-weight: 300; font-size: 21px; letter-spacing: 8px; color: #2a241f; padding-left: 8px; text-align: center; }
+
+  /* ─── Toys R Us brand skin (bright blue gradient, playful) ─── */
+  .card.toysrus {
+    --primary: 0 0% 100%;          /* white dots on bright blue */
+    --chat-text: 0 0% 100%;
+    --chat-text-muted: 210 70% 93%;
+    --chat-glow: 0 0% 100% / 0.25;
+    background: linear-gradient(to bottom, #2e9bff, #0a57d6);
+  }
+  .card.toysrus .chat-bg { display: none; }
+  .card.toysrus .chat-glass { background: hsl(0 0% 100% / 0.95); box-shadow: 0px 2px 5px hsl(220 70% 18% / 0.28); }
+  .card.toysrus .header svg.lucide { stroke: #0a57d6; }
+  .card.toysrus .track-pill span { color: #0a57d6; }
+  .card.toysrus .chat-glass-input { background: hsl(0 0% 100% / 0.18); box-shadow: 0px 2px 4px hsl(220 70% 18% / 0.22); }
+  .toysrus-logo { font-family: 'Fredoka', 'Inter', sans-serif; font-weight: 600; font-size: 34px; letter-spacing: 1px; text-align: center; line-height: 1; padding-left: 4px; }
+  .toysrus-logo span { -webkit-text-stroke: 2.5px #fff; paint-order: stroke fill; }
+  .tru-pink { color: #ec008c; }
+  .tru-orange { color: #f58220; }
+  .tru-green { color: #7ac143; }
+  .tru-r { color: #1c3fd6; display: inline-block; transform: scaleX(-1); -webkit-text-stroke: 3px #fff; }
+
+  /* ─── Glamnetic brand skin (pink) + split-by-character text animation ─── */
+  .card.glamnetic {
+    --primary: 330 82% 56%;
+    --chat-text: 0 0% 100%;
+    --chat-text-muted: 330 70% 96%;
+    --chat-glow: 330 82% 60% / 0.25;
+    background: linear-gradient(to bottom, #ff8fc4, #f1559e);
+  }
+  .card.glamnetic .chat-bg { display: none; }
+  .card.glamnetic .chat-glass { background: hsl(0 0% 100% / 0.94); box-shadow: 0px 2px 5px hsl(330 55% 28% / 0.25); }
+  .card.glamnetic .header svg.lucide { stroke: #d6357f; }
+  .card.glamnetic .track-pill span { color: #d6357f; }
+  .card.glamnetic .chat-glass-input { background: hsl(0 0% 100% / 0.2); box-shadow: 0px 2px 4px hsl(330 55% 28% / 0.2); }
+  .glamnetic-logo { font-family: 'Inter', sans-serif; font-size: 26px; letter-spacing: 1px; color: #fff; text-align: center; line-height: 1; }
+  .glamnetic-logo .g1 { font-weight: 800; }
+  .glamnetic-logo .g2 { font-weight: 400; }
+  /* split-by-character phrase row (GSAP-animated) */
+  .phrase-split { height: 20px; padding-left: 8px; font-size: 12px; font-weight: 500; line-height: 20px; color: #fff; white-space: nowrap; }
+  .phrase-split .sc { display: inline-block; white-space: pre; }
+
+  /* ─── Conveyor stop — skeleton product carousel that halts on real picks ─── */
+  .conv { margin-top: 6px; overflow: hidden; position: relative; }
+  .conv-track { display: flex; gap: 8px; will-change: transform; }
+  .conv-card {
+    flex: none; background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 2px 6px hsl(0 0% 0% / 0.14); transition: box-shadow .5s;
+  }
+  .conv-img { height: 56px; position: relative; overflow: hidden; }
+  .conv-real {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 24px; opacity: 0; transform: scale(0.7); background: #fff;
+  }
+  .conv-real img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .conv-card.reveal .conv-real {
+    transition: opacity .4s, transform .5s cubic-bezier(.2,1.4,.4,1);
+    opacity: 1; transform: scale(1);
+  }
+  .conv-info { padding: 6px 7px 8px; }
+  .conv-txt { opacity: 0; }
+  .conv-card.reveal .conv-txt { transition: opacity .35s .15s; opacity: 1; }
+  .conv-name { font-size: 8.5px; font-weight: 600; color: #1c1f26; line-height: 1.25; height: 21px; overflow: hidden; }
+  .conv-price { font-size: 8.5px; color: #6b7280; margin-top: 2px; }
+  .conv-price b { color: #1c1f26; }
+  .conv-card.reveal .cbar { display: none; }
+  .conv-card.reveal .csk::after { display: none; } /* loaded cards are static — no shimmer over the product */
+  /* the card currently being loaded: faster shimmer + soft highlight ring */
+  .conv-card.loading { box-shadow: 0 0 0 2px hsl(0 0% 100% / 0.85), 0 2px 10px hsl(0 0% 0% / 0.2); }
+  .conv-card.loading .csk::after { animation-duration: 0.5s; }
+  .csk { background: #e9ebf1; position: relative; overflow: hidden; }
+  .csk::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.85), transparent);
+    transform: translateX(-100%); animation: conv-shim 1.3s infinite;
+  }
+  @keyframes conv-shim { to { transform: translateX(100%); } }
+  .cbar { height: 6px; border-radius: 3px; margin-top: 4px; }
+  .cbar.w80 { width: 80%; }
+  .cbar.w50 { width: 50%; }
+  .conv-reply {
+    display: none; height: 18px; line-height: 18px; padding-left: 8px; margin-bottom: 2px;
+    font-size: 11px; font-weight: 500; color: hsl(var(--chat-text)); white-space: nowrap;
+  }
+
+  /* ─── Sequential 2×2 grid (Toys R Us): skeletons in 1-4, out 4-2-3-1, products in 1-3 ─── */
+  .grid4 { margin-top: 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .grid4 .conv-card { opacity: 0; transform: scale(0.92); transition: opacity .35s ease, transform .35s ease; }
+  .grid4 .conv-card.show { opacity: 1; transform: none; }
+  .grid4 .conv-img { height: 64px; }
+  /* while loading, image slots preview rotating products (text stays skeleton) */
+  .grid4 .conv-card.cycling .conv-real { opacity: 1; transform: none; }
+  .grid4 .conv-card.cycling .csk::after { display: none; }
+
+  /* ─── Dual-row swipe carousel (Sami): 2×2 grid of skeletons. Cards hold, then a quick
+     eased swipe pushes each row over one position — rows offset so they alternate. ─── */
+  .belt2 { margin-top: 6px; }
+  .belt2 .conv + .conv { margin-top: 8px; }
+  .belt2 .conv-card.dim { opacity: 0; transform: scale(0.9); transition: opacity .4s, transform .4s; }
+  /* loaded product cards swipe in with the same push the belt uses, keeping the momentum */
+  .belt2 .conv-card.swipe-in { animation: swipeInCard .75s cubic-bezier(.3, 1.35, .45, 1) both; }
+  @keyframes swipeInCard {
+    from { opacity: 0; transform: translateX(96px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ─── Falling product photos (Parachute): images drop in and bounce while loading ─── */
+  .fall-stage {
+    margin-top: 6px; height: 120px; border-radius: 12px; position: relative; overflow: hidden;
+    background: hsl(40 33% 97% / 0.35); transition: opacity .35s;
+  }
+  .fall-stage.hide { opacity: 0; }
+  .fall-ball {
+    position: absolute; left: 0; top: 0; width: 38px; height: 38px; border-radius: 50%;
+    overflow: hidden; background: #fff; box-shadow: 0 2px 6px hsl(0 0% 0% / 0.18); will-change: transform;
+  }
+  .fall-ball img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .fall-cards { display: none; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .fall-cards .conv-card { opacity: 0; transform: scale(0.92); transition: opacity .35s ease, transform .35s ease; }
+  .fall-cards .conv-card.show { opacity: 1; transform: none; }
+
+  /* ─── Spinning "breathing" loader (Glamnetic): orb + rotating loading text ─── */
+  .spin-stage {
+    margin-top: 6px; height: 120px; border-radius: 12px; background: hsl(0 0% 100% / 0.14);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    transition: opacity .35s;
+  }
+  .spin-stage.hide { opacity: 0; }
+  .g-orb { width: 34px; height: 34px; animation: gbreathe 1.8s ease-in-out infinite; }
+  .g-ring {
+    width: 100%; height: 100%; border-radius: 50%;
+    border: 3px solid hsl(0 0% 100% / 0.3); border-top-color: #fff;
+    animation: gspin 0.9s linear infinite;
+  }
+  @keyframes gspin { to { transform: rotate(360deg); } }
+  @keyframes gbreathe { 0%, 100% { transform: scale(0.85); } 50% { transform: scale(1.12); } }
+  .spin-text { font-size: 11px; font-weight: 500; color: #fff; height: 16px; transition: opacity .3s; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2 class="section-title">Latency animations — loading states that reveal real product picks</h2>
+  <div class="row row-brands" id="rowConveyor"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script>
+// ─── lucide-style inline icons ───
+const ic = {
+  chevronLeft: '<svg class="lucide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+  cart: '<svg class="lucide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>',
+  x: '<svg class="lucide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+  imagePlus: '<svg class="lucide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/><path d="M19 16v6"/><path d="M16 19h6"/></svg>',
+};
+
+// blurred brand-gradient background blobs (ChatBackground)
+const chatBg = `
+  <svg class="chat-bg" viewBox="0 0 430 932" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g filter="url(#f0)"><circle r="500" fill="url(#r0)" fill-opacity="0.35" style="mix-blend-mode:screen"/></g>
+    <g filter="url(#f1)"><circle cx="430" cy="932" r="500" fill="url(#r1)" fill-opacity="0.22" style="mix-blend-mode:screen"/></g>
+    <defs>
+      <filter id="f0" x="-850" y="-850" width="1700" height="1700" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="175"/></filter>
+      <filter id="f1" x="-420" y="82" width="1700" height="1700" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="175"/></filter>
+      <radialGradient id="r0" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="rotate(90) scale(500)"><stop stop-color="#404DA8"/><stop offset="1" stop-color="#404DA8" stop-opacity="0"/></radialGradient>
+      <radialGradient id="r1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(430 932) rotate(90) scale(500)"><stop stop-color="#202755"/><stop offset="1" stop-color="#202755" stop-opacity="0"/></radialGradient>
+    </defs>
+  </svg>`;
+
+// ─── the typing / loading animations ───
+const animations = {
+  bounce: `
+    <div class="bounce-wrap"><div class="bounce-row">
+      <span class="bounce-dot" style="animation-delay:0s"></span>
+      <span class="bounce-dot" style="animation-delay:0.2s"></span>
+      <span class="bounce-dot" style="animation-delay:0.4s"></span>
+    </div></div>`,
+  ripple: `
+    <div class="anim-left"><div class="ripple-row">
+      ${[0,1,2].map(i => `<span class="ripple-dot">
+        <span class="ripple-ring" style="animation-delay:${i*0.25}s"></span>
+        <span class="ripple-core" style="animation-delay:${i*0.25}s"></span>
+      </span>`).join('')}
+    </div></div>`,
+  sweep: `
+    <div class="sweep-wrap"><div class="sweep-track"><span class="sweep-dot"></span></div></div>`,
+  starBreath: `
+    <div class="breath-wrap"><div class="breath-bars">
+      <span class="breath-bar b1"></span>
+      <span class="breath-bar b2"></span>
+    </div></div>`,
+  tWave: `
+    <div class="anim-left"><div class="twave-row">
+      <span class="twave-dot" style="animation-delay:0s"></span>
+      <span class="twave-dot" style="animation-delay:0.18s"></span>
+      <span class="twave-dot" style="animation-delay:0.36s"></span>
+    </div></div>`,
+  sonar: `
+    <div class="anim-left"><div class="sonar-wrap">
+      <span class="sonar"><span class="sonar-ping"></span><span class="sonar-core"></span></span>
+    </div></div>`,
+  breatheDot: `
+    <div class="anim-left"><div class="bdot-wrap"><span class="bdot"></span></div></div>`,
+  equalizer: `
+    <div class="anim-left"><div class="eq-row">
+      <span class="eq-bar" style="animation-delay:0s"></span>
+      <span class="eq-bar" style="animation-delay:0.2s"></span>
+      <span class="eq-bar" style="animation-delay:0.4s"></span>
+      <span class="eq-bar" style="animation-delay:0.1s"></span>
+    </div></div>`,
+  orbit: `
+    <div class="anim-left"><div class="orbit-wrap">
+      <span class="orbit"><span class="orbit-dot top"></span><span class="orbit-dot bottom"></span></span>
+    </div></div>`,
+  shimmer: `
+    <div class="anim-left"><div class="shimmer-wrap"><span class="shimmer"></span></div></div>`,
+};
+
+// ─── ESTALUNA (default) thinking phrases — cutesy, playful ───
+const phrases = [
+  'Twirling through the racks…',
+  'Finding your perfect fit…',
+  'Pulling pieces just for you…',
+  'Styling something special…',
+  'Hunting for the one…',
+  'Matching your vibe…',
+  'Curating cute picks…',
+  'Almost ready to dazzle…',
+];
+
+// ─── Sami Jewels thinking phrases — warm, clear, like a trusted friend ───
+const samiPhrases = [
+  'Finding your perfect piece',
+  'Looking into that for you',
+  'Searching the jewelry box',
+  'Polishing up an answer ♡',
+  'Pulling a few favorites',
+  'Checking our newest arrivals',
+  'Pairing you with the right piece',
+  'One moment — on it ♡',
+];
+// build a slot-machine rotator from any 8-phrase list (trailing ellipses stripped)
+function slotRotatorFor(list) {
+  const slot = list.map(p => p.replace(/…$/, ''));
+  return `
+  <div class="phrase-window"><div class="phrase-track">
+    ${slot.map(p => `<span class="phrase">${p}</span>`).join('')}
+    <span class="phrase">${slot[0]}</span>
+  </div></div>`;
+}
+
+// Parachute (linens) thinking phrases — concise, reassuring, speaks as "we/our", no brand name
+const parachutePhrases = [
+  'Finding your softest match',
+  'Looking into that for you',
+  'Pulling up the details',
+  'Smoothing out an answer',
+  'Checking our bed & bath',
+  'Searching our linens',
+  'On it for you',
+  'One soft moment',
+];
+
+// Toys R Us thinking phrases — bright, playful, imaginative, championing play
+const toysrusPhrases = [
+  'Rounding up the fun!',
+  'Digging through the toy box',
+  'Imagining the possibilities',
+  'Finding something awesome',
+  'Off on an adventure!',
+  'Hunting for treasure',
+  'Let the fun begin!',
+  'Almost playtime!',
+];
+
+// Glamnetic thinking phrases — friendly beauty brand (press-on nails, magnetic lashes)
+const glamneticPhrases = [
+  'Finding your perfect set',
+  'Looking into that for you',
+  'Picking out some glam',
+  'Checking our lashes & nails',
+  'Searching our bestsellers',
+  'Getting you glam-ready',
+  'On it for you!',
+  'One sec, gorgeous!',
+];
+
+const phraseRotator = slotRotatorFor(phrases);       // ESTALUNA (default)
+const samiRotator = slotRotatorFor(samiPhrases);      // Sami Jewels card
+const parachuteRotator = slotRotatorFor(parachutePhrases); // Parachute card
+const toysrusRotator = slotRotatorFor(toysrusPhrases);     // Toys R Us card
+// Glamnetic uses a GSAP split-by-character animation (filled by JS), no dots
+const glamneticRotator = '<div class="phrase-split"></div>';
+
+// typed-out rotator — letters ripple in one-by-one (filled by JS), then re-types the next phrase
+const typeRotator = '<div class="phrase-type"></div>';
+
+// Sami Jewels wordmark — script "Sami" + heart outline, spaced "JEWELS" beneath
+const samiLogo = `
+  <div class="sami-logo">
+    <span class="sami-script">Sami</span>
+    <svg class="sami-heart" width="30" height="26" viewBox="0 0 30 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 23.5C15 23.5 2.5 15.8 2.5 8.2C2.5 4.6 5.2 2 8.6 2C11 2 13.1 3.5 14 5.7C14.3 6.4 15.7 6.4 16 5.7C16.9 3.5 19 2 21.4 2C24.8 2 27.5 4.6 27.5 8.2C27.5 12.4 24 16.4 21 19" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="22.5" cy="21.5" r="1.1" fill="#fff"/>
+    </svg>
+  </div>
+  <div class="sami-jewels">JEWELS</div>`;
+
+// Toys R Us wordmark — playful multicolor "ToysЯus" with white keyline
+const toysrusLogo = `
+  <div class="toysrus-logo">
+    <span class="tru-pink">T</span><span class="tru-orange">o</span><span class="tru-green">y</span><span class="tru-pink">s</span><span class="tru-r">Я</span><span class="tru-green">u</span><span class="tru-pink">s</span>
+  </div>`;
+
+// Glamnetic wordmark — bold "GLAM" + light "NETIC", condensed uppercase
+const glamneticLogo = `<div class="glamnetic-logo"><span class="g1">GLAM</span><span class="g2">NETIC</span></div>`;
+
+function card(animHTML, rotator = phraseRotator, brand = 'estaluna') {
+  const isSami = brand === 'sami';
+  const isParachute = brand === 'parachute';
+  const isToysrus = brand === 'toysrus';
+  const isGlamnetic = brand === 'glamnetic';
+  const branded = isSami || isParachute || isToysrus || isGlamnetic;
+  const estalunaLogo = `
+        <svg viewBox="0 0 390 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <text x="195" y="38" text-anchor="middle" font-family="Inter" font-weight="700" font-size="30" letter-spacing="12" fill="#404DA8">ESTALUNA</text>
+        </svg>`;
+  const logo = isSami ? samiLogo
+             : isParachute ? `<div class="parachute-logo">PARACHUTE</div>`
+             : isToysrus ? toysrusLogo
+             : isGlamnetic ? glamneticLogo
+             : estalunaLogo;
+  const sub = branded
+    ? `<p class="logo-sub">This chat is AI-powered for faster assistance.</p>`
+    : `<p class="logo-sub">This chat is AI-powered for faster assistance. <span class="u">Read more</span></p>`;
+  const userMsg = isSami ? 'Does your jewelry tarnish?'
+                : isParachute ? 'Do your sheets get softer over time?'
+                : isToysrus ? "What's a good gift for a 5-year-old?"
+                : isGlamnetic ? 'How long do the press-ons last?'
+                : 'Help me find the right size';
+  const brandClass = isSami ? ' sami' : isParachute ? ' parachute' : isToysrus ? ' toysrus' : isGlamnetic ? ' glamnetic' : '';
+  return `
+    <div class="card${brandClass}">
+      ${chatBg}
+      <div class="header">
+        <div class="chat-glass icon-btn">${ic.chevronLeft}</div>
+        <div class="header-right">
+          <div class="chat-glass icon-btn">${ic.cart}</div>
+          <div class="chat-glass track-pill"><span>Track Orders</span></div>
+          <div class="chat-glass icon-btn">${ic.x}</div>
+        </div>
+      </div>
+      <div class="logo-area">
+        ${logo}
+        ${sub}
+      </div>
+      <div class="convo">
+        <div class="user-row"><div class="user-bubble"><span>${userMsg}</span></div></div>
+        ${rotator}
+        ${animHTML}
+      </div>
+      <div class="footer">
+        <div class="chat-glass-input input-bar">
+          <span class="placeholder">Ask anything</span>
+          ${ic.imagePlus}
+        </div>
+      </div>
+    </div>`;
+}
+
+const cell = (label, animHTML, rotator, brand) =>
+  `<div class="cell"><div class="cell-label">${label}</div>${card(animHTML, rotator, brand)}</div>`;
+
+// Conveyor stop — branded skeleton carousels that halt on real products from each site
+const convMarkup = brand => `
+  <div class="conv-reply"></div>
+  <div class="conv" data-brand="${brand}"><div class="conv-track"></div></div>`;
+const gridMarkup = brand => `
+  <div class="conv-reply"></div>
+  <div class="grid4" data-brand="${brand}"></div>`;
+const belt2Markup = brand => `
+  <div class="conv-reply"></div>
+  <div class="belt2" data-brand="${brand}">
+    <div class="conv"><div class="conv-track"></div></div>
+    <div class="conv"><div class="conv-track"></div></div>
+  </div>`;
+const fallMarkup = brand => `
+  <div class="conv-reply"></div>
+  <div class="fall-stage" data-brand="${brand}"></div>
+  <div class="fall-cards"></div>`;
+const spinMarkup = brand => `
+  <div class="conv-reply"></div>
+  <div class="spin-stage" data-brand="${brand}"><div class="g-orb"><div class="g-ring"></div></div><div class="spin-text"></div></div>
+  <div class="fall-cards"></div>`;
+
+document.getElementById('rowConveyor').innerHTML = [
+  ['Sequential grid — Toys R Us', gridMarkup('toysrus'), toysrusRotator, 'toysrus'],
+  ['Swipe carousel — Sami Jewels', belt2Markup('sami'), samiRotator, 'sami'],
+].map(([l, a, r, brand]) => cell(l, a, r, brand)).join('');
+
+document.querySelectorAll('.phrase-type').forEach(el => {
+  let i = 0;
+  const waveStep = 70;    // stagger while typing in (left → right wave)
+  const delStep = 45;     // stagger while deleting (right → left, snappier)
+  const typeDur = 550, delDur = 280, dwellMs = 1300;
+
+  function typeIn() {
+    const text = phrases[i];
+    el.innerHTML = '';
+    const spans = [...text].map((c, idx) => {
+      const s = document.createElement('span');
+      s.className = 'ch';
+      s.textContent = c;
+      s.style.animationDelay = (idx * waveStep) + 'ms';
+      el.appendChild(s);
+      return s;
+    });
+    setTimeout(() => deleteOut(spans), text.length * waveStep + typeDur + dwellMs);
+  }
+
+  function deleteOut(spans) {
+    const n = spans.length;
+    spans.forEach((s, idx) => {
+      s.style.animationDelay = ((n - 1 - idx) * delStep) + 'ms';  // backspace: last letter first
+      s.classList.add('deleting');
+    });
+    setTimeout(() => { i = (i + 1) % phrases.length; typeIn(); }, n * delStep + delDur);
+  }
+
+  typeIn();
+});
+
+// Glamnetic variation: GSAP SplitText character animation (slide in from right, power4, staggered)
+document.querySelectorAll('.phrase-split').forEach(el => {
+  if (!window.gsap) { el.textContent = glamneticPhrases[0]; return; }
+  const useSplit = !!window.SplitText;
+  if (useSplit) gsap.registerPlugin(SplitText);
+  let i = 0;
+  function play() {
+    const text = glamneticPhrases[i];
+    let chars, split;
+    if (useSplit) {
+      el.textContent = text;
+      split = SplitText.create(el, { type: 'chars' });
+      chars = split.chars;
+    } else {
+      el.innerHTML = '';
+      chars = [...text].map(c => {
+        const s = document.createElement('span');
+        s.className = 'sc';
+        s.textContent = c;
+        el.appendChild(s);
+        return s;
+      });
+    }
+    // slide in from the right
+    gsap.from(chars, { x: 50, opacity: 0, duration: 0.7, ease: 'power4', stagger: 0.04 });
+    i = (i + 1) % glamneticPhrases.length;
+    // after it settles + holds, slide out to the left, then play the next phrase
+    setTimeout(() => {
+      gsap.to(chars, {
+        x: -50, opacity: 0, duration: 0.6, ease: 'power4.in', stagger: 0.04,
+        onComplete: () => { if (split) split.revert(); play(); }
+      });
+    }, chars.length * 40 + 700 + 1500);
+  }
+  play();
+});
+
+// ─── Conveyor stop engine ───
+// Real products + photos pulled from each brand's live site (image / name / price)
+const convProducts = {
+  toysrus: [
+    ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743641107.jpg?v=1763743995&width=240', 'Bluey Bushland Adventures Water Playset', '$104.99'],
+    ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743642302.jpg?v=1763744037&width=240', 'Little Tikes Cozy Coupe Ride-On', '$66.99'],
+    ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743612329_03.jpg?v=1763756212&width=240', 'TotSports Easy Score Basketball Set', '$37.99'],
+  ],
+  sami: [
+    ['https://cdn.shopify.com/s/files/1/0541/8575/4799/files/sami-jewels-turquoise-tennis-bracelet.jpg?v=1753883192&width=240', 'Turquoise Bezel Tennis Bracelet', '$84'],
+    ['https://cdn.shopify.com/s/files/1/0541/8575/4799/files/sami-jewels-dainty-diamond-round-tennis-bracelet_273ce77f-d706-4b90-8527-5fc72ef44a1b.jpg?v=1757082860&width=240', '2.5mm Round Bezel Tennis Bracelet', '$79'],
+    ['https://cdn.shopify.com/s/files/1/0541/8575/4799/files/sami-jewels-twisted-bangle_jpg.jpg?width=240', 'Twisted Bangle Cuff', '$84'],
+  ],
+  parachute: [
+    ['https://parachutehome.com/cdn/shop/files/linen_sheet_set_dusk_main_01-min.jpg?v=1762839018&width=240', 'Linen Sheet Set', '$349'],
+    ['https://parachutehome.com/cdn/shop/files/brushed-cotton-check-sheet-set_adobe-tobacco_main__1666_afaf1b25-5a45-4740-8b6a-b4ae1ac64b55.jpg?v=1779908266&width=240', 'Brushed Cotton Sheet Set', '$249'],
+    ['https://parachutehome.com/cdn/shop/files/percale-split-king-sheet-set_sky_main_01_1439b1dc-8d4e-41f1-8164-c577ef690ed7.jpg?v=1773787811&width=240', 'Percale Sheet Set', '$239'],
+  ],
+  glamnetic: [
+    ['https://cdn.shopify.com/s/files/1/0139/2302/4944/products/11_22_Dayanna-Sapiens_Disseynails_Short-_-Sweet_Hailey_Static-Image_3.jpg?v=1771018923&width=240', 'Hailey Press-On Nails', '$19.99'],
+    ['https://cdn.shopify.com/s/files/1/0139/2302/4944/files/Creamer_1_23a660a1-74c5-4f81-a3bf-1d1af03d6b41.webp?v=1762301772&width=240', 'Creamer Press-On Nails', '$19.99'],
+    ['https://cdn.shopify.com/s/files/1/0139/2302/4944/products/2023_03_Brush-On-Nail-Glue_HighRes_1.jpg?v=1762198814&width=240', 'Brush-On Nail Glue', '$7.99'],
+  ],
+};
+const convReplies = {
+  toysrus: 'Geoffrey found these hits!',
+  sami: 'Tarnish-free favorites ♡',
+  parachute: 'These only get softer:',
+  glamnetic: 'Up to 3 weeks — try these!',
+};
+
+document.querySelectorAll('.conv[data-brand]').forEach(el => {
+  const brand = el.dataset.brand;
+  const track = el.querySelector('.conv-track');
+  const convo = el.closest('.convo');
+  const phraseEl = convo.querySelector('.phrase-window, .phrase-split, .phrase-type');
+  const replyEl = convo.querySelector('.conv-reply');
+  replyEl.textContent = convReplies[brand];
+  convProducts[brand].forEach(pr => { const im = new Image(); im.src = pr[0]; }); // preload photos
+
+  const GAP = 8, N = 8;
+  const w = (el.clientWidth - 2 * GAP) / 3, unit = w + GAP, total = N * unit;
+  for (let k = 0; k < 2 * N; k++) { // two copies for a seamless loop
+    const c = document.createElement('div');
+    c.className = 'conv-card';
+    c.style.width = w + 'px';
+    c.innerHTML = '<div class="conv-img csk"><div class="conv-real"></div></div>' +
+      '<div class="conv-info"><div class="cbar csk w80"></div><div class="cbar csk w50"></div>' +
+      '<div class="conv-txt"><div class="conv-name"></div><div class="conv-price"></div></div></div>';
+    track.appendChild(c);
+  }
+
+  const RUN_SECS = 2.6, HOLD_MS = 3600, dur = 900; // belt run, product hold, deceleration
+  let x = 0, v = unit * 1.7, mode = 'run', runElapsed = 0, xFrom = 0, xTo = 0, t0 = 0;
+  let revealed = [];
+  let last = performance.now();
+  const fadeIn = brand === 'sami'; // Sami: each skeleton fades in as it enters the belt
+  const apply = () => {
+    const ax = -((-x) % total);
+    track.style.transform = `translateX(${ax}px)`;
+    if (fadeIn) {
+      const cw = el.clientWidth;
+      for (let k = 0; k < track.children.length; k++) {
+        const left = k * unit + ax; // card's left edge in viewport coords
+        track.children[k].style.opacity = Math.max(0, Math.min(1, (cw + 6 - left) / 52));
+      }
+    }
+    return ax;
+  };
+
+  function tick(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (mode === 'run') {
+      x -= v * dt; apply();
+      runElapsed += dt;
+      if (runElapsed >= RUN_SECS) { // decelerate to the next aligned stop
+        runElapsed = 0;
+        const D = v * (dur / 1000) * 0.55;
+        xFrom = x; xTo = -(Math.ceil((-x + D) / unit) * unit);
+        mode = 'stop'; t0 = now;
+      }
+    } else if (mode === 'stop') {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      x = xFrom + (xTo - xFrom) * e;
+      const ax = apply();
+      if (p >= 1) {
+        mode = 'hold';
+        const first = Math.round(-ax / unit);
+        if (phraseEl) phraseEl.style.display = 'none';
+        replyEl.style.display = 'block';
+        // load the picks strictly one by one: pulse card 1 → reveal it, then card 2, then card 3
+        const STEP = 700, PULSE = 480; // ms between cards / loading-pulse length
+        convProducts[brand].forEach((pr, j) => {
+          const card = track.children[first + j];
+          const real = card.querySelector('.conv-real');
+          real.innerHTML = '<img src="' + pr[0] + '" alt="' + pr[1] + '" loading="eager">';
+          card.querySelector('.conv-name').textContent = pr[1];
+          card.querySelector('.conv-price').innerHTML = '<b>' + pr[2] + '</b>';
+          revealed.push(card);
+          setTimeout(() => card.classList.add('loading'), j * STEP);
+          setTimeout(() => { card.classList.remove('loading'); card.classList.add('reveal'); }, j * STEP + PULSE);
+        });
+        setTimeout(() => { // reset and run again
+          revealed.forEach(c => c.classList.remove('reveal', 'loading'));
+          revealed = [];
+          replyEl.style.display = 'none';
+          if (phraseEl) phraseEl.style.display = '';
+          mode = 'run';
+        }, HOLD_MS + 2 * STEP + PULSE); // hold counts from the last card's reveal
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+});
+
+// 12 real Toys R Us products (5-7 gift guide) — image slots rotate through these while loading
+const toysrusRotation = [
+  '050743641107.jpg?v=1763743995', // Bluey Bushland Water Playset
+  '050743642302.jpg?v=1763744037', // Cozy Coupe
+  '050743612329_03.jpg?v=1763756212', // TotSports Basketball Set
+  '050743641664.jpg?v=1763744001', // 7ft Trampoline
+  '050743642722.jpg?v=1763744009', // Princess Cozy Coupe
+  '050743654046.jpg?v=1763744010', // My First Pet Checkup Set
+  '050743649615.jpg?v=1763744012', // Balance-to-Pedal Bike
+  '050743660443.jpg?v=1763744020', // Jett Car Racer Pink
+  '050743646768.jpg?v=1763744020', // Jett Car Racer
+  '050743630439.jpg?v=1763744028', // First Self-Checkout Stand
+  '050743651403.jpg?v=1763744029', // First Oven Playset
+  '050743651427.jpg?v=1763744030', // First Fridge Playset
+].map(f => 'https://cdn.shopify.com/s/files/1/0675/0476/7192/files/' + f + '&width=240');
+
+// ─── Sequential grid engine (Toys R Us) ───
+// Skeletons appear 1→2→3→4 with image slots rotating through 12 real products (text stays
+// skeleton), disappear 4→2→3→1, then 3 final picks load into cells 1→2→3 with name + price.
+document.querySelectorAll('.grid4').forEach(el => {
+  const brand = el.dataset.brand;
+  const convo = el.closest('.convo');
+  const phraseEl = convo.querySelector('.phrase-window, .phrase-split, .phrase-type');
+  const replyEl = convo.querySelector('.conv-reply');
+  replyEl.textContent = convReplies[brand];
+  const products = convProducts[brand];
+  products.forEach(pr => { const im = new Image(); im.src = pr[0]; }); // preload photos
+
+  const cells = [];
+  for (let k = 0; k < 4; k++) {
+    const c = document.createElement('div');
+    c.className = 'conv-card';
+    c.innerHTML = '<div class="conv-img csk"><div class="conv-real"></div></div>' +
+      '<div class="conv-info"><div class="cbar csk w80"></div><div class="cbar csk w50"></div>' +
+      '<div class="conv-txt"><div class="conv-name"></div><div class="conv-price"></div></div></div>';
+    el.appendChild(c); cells.push(c);
+  }
+
+  toysrusRotation.forEach(src => { const im = new Image(); im.src = src; }); // preload the 12
+
+  const t = ms => new Promise(r => setTimeout(r, ms));
+  (async function cycle() {
+    cells.forEach(c => c.classList.remove('show', 'reveal', 'cycling'));
+    replyEl.style.display = 'none';
+    if (phraseEl) phraseEl.style.display = '';
+    await t(700);
+    for (let pass = 0; pass < 3; pass++) { // 3 passes × 4 products = all 12 shown
+      cells.forEach((c, k) => {
+        c.querySelector('.conv-real').innerHTML = '<img src="' + toysrusRotation[pass * 4 + k] + '" alt="">';
+        c.classList.add('cycling');
+      });
+      for (const c of cells) { c.classList.add('show'); await t(320); }              // in: 1,2,3,4
+      await t(650);
+      for (const i of [3, 1, 2, 0]) { cells[i].classList.remove('show'); await t(300); } // out: 4,2,3,1
+      await t(350);
+    }
+    if (phraseEl) phraseEl.style.display = 'none';
+    replyEl.style.display = 'block';
+    cells.forEach(c => c.classList.remove('cycling'));
+    products.forEach((pr, j) => { // the 3 final picks, now with name + price
+      const real = cells[j].querySelector('.conv-real');
+      real.innerHTML = '<img src="' + pr[0] + '" alt="' + pr[1] + '" loading="eager">';
+      cells[j].querySelector('.conv-name').textContent = pr[1];
+      cells[j].querySelector('.conv-price').innerHTML = '<b>' + pr[2] + '</b>';
+    });
+    for (const j of [0, 1, 2]) { cells[j].classList.add('reveal', 'show'); await t(450); } // picks in: 1,2,3
+    await t(3400);
+    cycle();
+  })();
+});
+
+// ─── shared helpers for stage-based loaders ───
+const cellHTML = '<div class="conv-img csk"><div class="conv-real"></div></div>' +
+  '<div class="conv-info"><div class="cbar csk w80"></div><div class="cbar csk w50"></div>' +
+  '<div class="conv-txt"><div class="conv-name"></div><div class="conv-price"></div></div></div>';
+function makeCells(container, n = 3) {
+  const cells = [];
+  for (let k = 0; k < n; k++) {
+    const c = document.createElement('div');
+    c.className = 'conv-card';
+    c.innerHTML = cellHTML;
+    container.appendChild(c); cells.push(c);
+  }
+  return cells;
+}
+function fillCell(cell, pr) {
+  cell.querySelector('.conv-real').innerHTML = '<img src="' + pr[0] + '" alt="' + pr[1] + '" loading="eager">';
+  cell.querySelector('.conv-name').textContent = pr[1];
+  cell.querySelector('.conv-price').innerHTML = '<b>' + pr[2] + '</b>';
+}
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// ─── Dual-row carousel engine (Sami): two skeleton belts (2 cards visible each),
+//     second row starts on a delay so it scrolls out of sync; stop → reveal 3 picks in the grid ───
+document.querySelectorAll('.belt2').forEach(el => {
+  const brand = el.dataset.brand;
+  const convo = el.closest('.convo');
+  const phraseEl = convo.querySelector('.phrase-window, .phrase-split, .phrase-type');
+  const replyEl = convo.querySelector('.conv-reply');
+  replyEl.textContent = convReplies[brand];
+  const products = convProducts[brand];
+  products.forEach(pr => { const im = new Image(); im.src = pr[0]; });
+
+  const GAP = 8, N = 8;
+  const cw = el.querySelector('.conv').clientWidth;
+  const w = (cw - GAP) / 2, unit = w + GAP, total = N * unit; // 2 cards visible per row
+  const belts = [...el.querySelectorAll('.conv')].map((conv, bi) => {
+    const track = conv.querySelector('.conv-track');
+    for (let k = 0; k < 2 * N; k++) {
+      const c = document.createElement('div');
+      c.className = 'conv-card';
+      c.style.width = w + 'px';
+      c.innerHTML = cellHTML;
+      track.appendChild(c);
+    }
+    // row 2 waits half a beat before its first swipe → rows alternate, never in sync
+    return { conv, track, x: 0, t: bi * -520, from: 0, to: 0, phase: 'dwell' };
+  });
+
+  const RUN_SECS = 3.2, DWELL = 780, SWIPE = 460; // hold, then one quick swipe per beat
+  const easeSwipe = p => { const c1 = 1.1, c3 = c1 + 1, q = p - 1; return 1 + c3 * q * q * q + c1 * q * q; }; // ease-out-back: fast push, slight overshoot, settle
+  let state = 'run', runT = 0;
+  let last = performance.now();
+  const applyBelt = b => {
+    const ax = -((-b.x) % total);
+    b.track.style.transform = 'translateX(' + ax + 'px)';
+    return ax;
+  };
+  const STAG = 110; // per-card stagger inside a row — each card swipes on its own
+  const stepBelt = (b, dtMs) => {
+    b.t += dtMs;
+    if (b.phase === 'dwell') {
+      if (b.t >= DWELL) {
+        b.phase = 'swipe'; b.t = 0;
+        b.first = Math.round(((-b.x) % total) / unit); // leftmost visible card leads the cascade
+      }
+      applyBelt(b);
+    } else { // cards swipe over one at a time: exiting card first, its neighbor next, entering card last
+      const kids = b.track.children;
+      for (let k = 0; k < kids.length; k++) {
+        const d = Math.max(0, Math.min(3, k - b.first)) * STAG;
+        const p = Math.max(0, Math.min(1, (b.t - d) / SWIPE));
+        kids[k].style.transform = 'translateX(' + (-unit * easeSwipe(p)) + 'px)';
+      }
+      if (b.t >= SWIPE + 3 * STAG) { // cascade finished → commit the step to the track
+        for (const c of kids) c.style.transform = '';
+        b.x -= unit; b.phase = 'dwell'; b.t = 0;
+        applyBelt(b);
+      }
+    }
+  };
+
+  function reveal() {
+    const slots = [];
+    belts.forEach(b => {
+      const ax = applyBelt(b);
+      const first = Math.round(-ax / unit);
+      slots.push(b.track.children[first], b.track.children[first + 1]);
+    });
+    (async () => {
+      if (phraseEl) phraseEl.style.display = 'none';
+      replyEl.style.display = 'block';
+      await wait(250); // small breath after the belt settles
+      for (let j = 0; j < 3; j++) { // picks swipe in 1 → 2 → 3, same cascade rhythm as the belt
+        fillCell(slots[j], products[j]);
+        slots[j].classList.add('reveal', 'swipe-in');
+        await wait(320);
+      }
+      slots[3].classList.add('dim'); // leftover skeleton card fades away entirely
+      await wait(3400);
+      slots.forEach(s => s.classList.remove('reveal', 'dim', 'swipe-in'));
+      replyEl.style.display = 'none';
+      if (phraseEl) phraseEl.style.display = '';
+      belts.forEach((b, bi) => { b.phase = 'dwell'; b.t = bi * -520; }); // re-offset the rows
+      runT = 0; state = 'run';
+    })();
+  }
+
+  (function tick(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (state === 'run') {
+      runT += dt;
+      belts.forEach(b => stepBelt(b, dt * 1000));
+      // stop only once every row has finished its swipe and sits aligned
+      if (runT >= RUN_SECS && belts.every(b => b.phase === 'dwell')) { state = 'hold'; reveal(); }
+    }
+    requestAnimationFrame(tick);
+  })(last);
+});
+
+// ─── Falling products engine (Parachute): photos drop in and bounce while loading ───
+document.querySelectorAll('.fall-stage').forEach(stage => {
+  const brand = stage.dataset.brand;
+  const convo = stage.closest('.convo');
+  const cardsEl = convo.querySelector('.fall-cards');
+  const phraseEl = convo.querySelector('.phrase-window, .phrase-split, .phrase-type');
+  const replyEl = convo.querySelector('.conv-reply');
+  replyEl.textContent = convReplies[brand];
+  const products = convProducts[brand];
+  products.forEach(pr => { const im = new Image(); im.src = pr[0]; });
+  const cells = makeCells(cardsEl);
+
+  const balls = products.map((pr, i) => {
+    const b = document.createElement('div');
+    b.className = 'fall-ball';
+    b.innerHTML = '<img src="' + pr[0] + '" alt="">';
+    stage.appendChild(b);
+    return { el: b, x: 25 + i * 80, y: -50 - i * 70, vx: Math.random() * 80 - 40, vy: 0 };
+  });
+  let physicsOn = true;
+  let last = performance.now();
+  (function step(now) {
+    const dt = Math.min(0.04, (now - last) / 1000); last = now;
+    if (physicsOn && stage.clientWidth) {
+      const w = stage.clientWidth - 38, h = stage.clientHeight - 38;
+      balls.forEach(o => {
+        o.vy += 560 * dt; o.x += o.vx * dt; o.y += o.vy * dt;
+        if (o.x < 0) { o.x = 0; o.vx = Math.abs(o.vx) * 0.9; }
+        if (o.x > w) { o.x = w; o.vx = -Math.abs(o.vx) * 0.9; }
+        if (o.y > h) { // floor bounce, with a kick so they keep dancing
+          o.y = h; o.vy = -Math.abs(o.vy) * 0.8; o.vx += Math.random() * 60 - 30;
+          if (Math.abs(o.vy) < 90) o.vy = -(240 + Math.random() * 170);
+        }
+        o.el.style.transform = 'translate(' + o.x + 'px,' + o.y + 'px)';
+      });
+    }
+    requestAnimationFrame(step);
+  })(last);
+
+  (async function cycle() {
+    physicsOn = true;
+    stage.style.display = '';
+    requestAnimationFrame(() => stage.classList.remove('hide'));
+    cells.forEach(c => c.classList.remove('show', 'reveal'));
+    cardsEl.style.display = 'none';
+    replyEl.style.display = 'none';
+    if (phraseEl) phraseEl.style.display = '';
+    balls.forEach((o, i) => { o.x = 25 + i * 80; o.y = -50 - i * 70; o.vx = Math.random() * 80 - 40; o.vy = 0; });
+    await wait(3300);
+    stage.classList.add('hide'); await wait(330);
+    stage.style.display = 'none'; physicsOn = false;
+    cardsEl.style.display = 'grid';
+    if (phraseEl) phraseEl.style.display = 'none';
+    replyEl.style.display = 'block';
+    products.forEach((pr, j) => fillCell(cells[j], pr));
+    for (const j of [0, 1, 2]) { cells[j].classList.add('reveal', 'show'); await wait(430); }
+    await wait(3400);
+    cycle();
+  })();
+});
+
+// ─── Breathing spinner engine (Glamnetic): spinning orb + rotating loading text ───
+document.querySelectorAll('.spin-stage').forEach(stage => {
+  const brand = stage.dataset.brand;
+  const convo = stage.closest('.convo');
+  const cardsEl = convo.querySelector('.fall-cards');
+  const replyEl = convo.querySelector('.conv-reply');
+  replyEl.textContent = convReplies[brand];
+  const textEl = stage.querySelector('.spin-text');
+  const products = convProducts[brand];
+  products.forEach(pr => { const im = new Image(); im.src = pr[0]; });
+  const cells = makeCells(cardsEl);
+
+  let ti = 0, rotating = true;
+  textEl.textContent = glamneticPhrases[0];
+  setInterval(() => {
+    if (!rotating) return;
+    textEl.style.opacity = 0;
+    setTimeout(() => { ti = (ti + 1) % glamneticPhrases.length; textEl.textContent = glamneticPhrases[ti]; textEl.style.opacity = 1; }, 300);
+  }, 1700);
+
+  (async function cycle() {
+    rotating = true;
+    stage.style.display = 'flex';
+    requestAnimationFrame(() => stage.classList.remove('hide'));
+    cells.forEach(c => c.classList.remove('show', 'reveal'));
+    cardsEl.style.display = 'none';
+    replyEl.style.display = 'none';
+    await wait(3400);
+    stage.classList.add('hide'); await wait(330);
+    stage.style.display = 'none'; rotating = false;
+    cardsEl.style.display = 'grid';
+    replyEl.style.display = 'block';
+    products.forEach((pr, j) => fillCell(cells[j], pr));
+    for (const j of [0, 1, 2]) { cells[j].classList.add('reveal', 'show'); await wait(430); }
+    await wait(3400);
+    cycle();
+  })();
+});
+</script>
+</body>
+</html>
