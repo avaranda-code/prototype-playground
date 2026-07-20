@@ -101,5 +101,12 @@
     "description": "Two-flow, brand-switchable Gorgias chat concierge prototype. Flow 1 recreates the Melinda Maria homepage with a grey-glass chat launcher and panel matching the live site's design (custom wordmark lockup, glass buttons, monitored/recorded disclaimer). Flow 2 recreates the Kosas homepage with a left-docked launcher, a warm cream/yellow panel theme, quick-reply pills, and a clickable privacy-policy disclaimer. A floating top switcher toggles between the two.",
     "file": "privacy-policy-ui.html",
     "image": "privacy-policy-ui.png"
+  },
+  {
+    "name": "Latency animations — Shopping Assistant product reveals",
+    "author": "Ava",
+    "date": "2026-07-20",
+    "description": "Two branded loading-state concepts for the moment the shopping assistant reveals product picks. Toys R Us: a 2×2 sequential grid — cards pop in 1→4 with image slots cycling through 12 real gift-guide toys over 3 passes (text stays skeleton), drop out 4→2→3→1, then 3 final picks land with name + price. Sami Jewels: a dual-row swipe carousel — skeleton cards flick over one position per beat with a per-card ease-out-back cascade, rows offset half a beat so they never sync; on load the belts settle and 3 real bracelets swipe in with the same momentum while the leftover skeleton fades away. Real product photos and prices pulled from each merchant's live site.",
+    "file": "latency-animations.html"
   }
 ]
