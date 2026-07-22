@@ -1413,6 +1413,24 @@
     font-size: 10.5px;
   }
 
+  /* Halfsheet-only: SPQ / quick-reply chips scroll horizontally in a single
+     row instead of wrapping onto their own lines, so more options are
+     reachable without pushing the input bar down. */
+  .discovery-half-sheet[data-brand="pjsalvage"] .chat-replies {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .discovery-half-sheet[data-brand="pjsalvage"] .chat-replies::-webkit-scrollbar {
+    display: none;
+  }
+  .discovery-half-sheet[data-brand="pjsalvage"] .chat-reply {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
   /* Recommendation card — vertical product tile shown at the end of the
      conversation. Image on top with a floating glass cart button, name +
      price below. */
