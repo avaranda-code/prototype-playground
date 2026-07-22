@@ -108,5 +108,12 @@
     "date": "2026-07-20",
     "description": "Two branded loading-state concepts for the moment the shopping assistant reveals product picks. Toys R Us: a 2×2 sequential grid — cards pop in 1→4 with image slots cycling through 12 real gift-guide toys over 3 passes (text stays skeleton), drop out 4→2→3→1, then 3 final picks land with name + price. Sami Jewels: a dual-row swipe carousel — skeleton cards flick over one position per beat with a per-card ease-out-back cascade, rows offset half a beat so they never sync; on load the belts settle and 3 real bracelets swipe in with the same momentum while the leftover skeleton fades away. Real product photos and prices pulled from each merchant's live site.",
     "file": "latency-animations.html"
+  },
+  {
+    "name": "PJ Salvage · Ads to Messaging",
+    "author": "Ava",
+    "date": "2026-07-22",
+    "description": "P.J. Salvage build of the ads-to-messaging prototype: Instagram ad → PDP / Half-sheet / Direct to chat flows with multi-turn AI dialogue, featuring the bestselling It's Five O'clock Somewhere Cocktail Print 3-Piece PJ Set (top, shorts, and matching eye mask) in Light Aqua with XS–XL sizing. SPQs and chat answers are tuned to real PJ Salvage FAQ themes — Butter Jersey fabric feel, true-to-size fit, what's included in the set, care/washing, gifting, other prints, and returns — in a warm, playful, coastal/vacation brand voice, ending in an add-to-cart recommendation card.",
+    "file": "pj_salvage_ads_to_messaging.html"
   }
 ]
