@@ -361,6 +361,9 @@
      eased swipe pushes each row over one position — rows offset so they alternate. ─── */
   .belt2 { margin-top: 6px; }
   .belt2 .conv + .conv { margin-top: 8px; }
+  /* Toys R Us variant: cards carry product photos while loading (text stays skeleton) */
+  .belt2 .conv-card.cycling .conv-real { opacity: 1; transform: none; }
+  .belt2 .conv-card.cycling .csk::after { display: none; }
   .belt2 .conv-card.dim { opacity: 0; transform: scale(0.9); transition: opacity .4s, transform .4s; }
   /* loaded product cards swipe in with the same push the belt uses, keeping the momentum */
   .belt2 .conv-card.swipe-in { animation: swipeInCard .75s cubic-bezier(.3, 1.35, .45, 1) both; }
@@ -659,7 +662,7 @@ const spinMarkup = brand => `
   <div class="fall-cards"></div>`;
 
 document.getElementById('rowConveyor').innerHTML = [
-  ['Sequential grid — Toys R Us', gridMarkup('toysrus'), toysrusRotator, 'toysrus'],
+  ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus'), toysrusRotator, 'toysrus'],
   ['Swipe carousel — Sami Jewels', belt2Markup('sami'), samiRotator, 'sami'],
 ].map(([l, a, r, brand]) => cell(l, a, r, brand)).join('');
 
@@ -950,6 +953,9 @@ document.querySelectorAll('.belt2').forEach(el => {
   replyEl.textContent = convReplies[brand];
   const products = convProducts[brand];
   products.forEach(pr => { const im = new Image(); im.src = pr[0]; });
+  // Toys R Us: cards carry rotating product photos while loading (text stays skeleton)
+  const previews = brand === 'toysrus' ? toysrusRotation : null;
+  if (previews) previews.forEach(src => { const im = new Image(); im.src = src; });
 
   const GAP = 8, N = 8;
   const cw = el.querySelector('.conv').clientWidth;
@@ -961,6 +967,12 @@ document.querySelectorAll('.belt2').forEach(el => {
       c.className = 'conv-card';
       c.style.width = w + 'px';
       c.innerHTML = cellHTML;
+      if (previews) { // offset per row so the two belts never show the same toy side by side
+        const src = previews[(bi * 7 + k) % previews.length];
+        c.dataset.preview = src;
+        c.querySelector('.conv-real').innerHTML = '<img src="' + src + '" alt="">';
+        c.classList.add('cycling');
+      }
       track.appendChild(c);
     }
     // row 2 waits half a beat before its first swipe → rows alternate, never in sync
@@ -1012,13 +1024,20 @@ document.querySelectorAll('.belt2').forEach(el => {
       replyEl.style.display = 'block';
       await wait(250); // small breath after the belt settles
       for (let j = 0; j < 3; j++) { // picks swipe in 1 → 2 → 3, same cascade rhythm as the belt
+        slots[j].classList.remove('cycling');
         fillCell(slots[j], products[j]);
         slots[j].classList.add('reveal', 'swipe-in');
         await wait(320);
       }
-      slots[3].classList.add('dim'); // leftover skeleton card fades away entirely
+      slots[3].classList.add('dim'); // leftover loading card fades away entirely
       await wait(3400);
-      slots.forEach(s => s.classList.remove('reveal', 'dim', 'swipe-in'));
+      slots.forEach(s => {
+        s.classList.remove('reveal', 'dim', 'swipe-in');
+        if (s.dataset.preview) { // restore the loading-state preview photo for the next loop
+          s.querySelector('.conv-real').innerHTML = '<img src="' + s.dataset.preview + '" alt="">';
+          s.classList.add('cycling');
+        }
+      });
       replyEl.style.display = 'none';
       if (phraseEl) phraseEl.style.display = '';
       belts.forEach((b, bi) => { b.phase = 'dwell'; b.t = bi * -520; }); // re-offset the rows
