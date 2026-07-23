@@ -27,7 +27,7 @@
 
   .wrap { max-width: 1280px; margin: 0 auto; }
   .row {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; align-items: flex-start;
   }
   .row-brands { margin-bottom: 72px; }
   .row-1 { margin-bottom: 56px; }
@@ -35,7 +35,7 @@
   .row-3 { margin-bottom: 80px; }
   .section-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; margin-bottom: 24px; letter-spacing: 0.5px; }
   .cell { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 280px; }
-  .cell-label { font-size: 12px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; }
+  .cell-label { font-size: 12px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; white-space: nowrap; }
 
   /* ─── CHAT CARD (ConversationShell) ─── */
   .card {
@@ -359,8 +359,17 @@
 
   /* ─── Dual-row swipe carousel (Sami): 2×2 grid of skeletons. Cards hold, then a quick
      eased swipe pushes each row over one position — rows offset so they alternate. ─── */
-  .belt2 { margin-top: 6px; opacity: 0; transition: opacity .35s; }
-  .belt2.on { opacity: 1; }
+  .belt2 {
+    margin-top: 6px; opacity: 0; transform: translateY(10px);
+    transition: opacity .35s, transform .4s cubic-bezier(.2, 1.2, .4, 1); /* same entrance as the sent message */
+  }
+  .belt2.on { opacity: 1; transform: none; }
+  /* thinking indicator + AI reply ease in the same way whenever they (re)appear */
+  .phrase-window, .conv-reply { animation: fadeUpIn .4s cubic-bezier(.2, 1.2, .4, 1) both; }
+  @keyframes fadeUpIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
   .belt2 .conv + .conv { margin-top: 8px; }
   /* user message "sends" at the start of each round, then loading begins */
   .user-row { opacity: 0; transform: translateY(10px) scale(0.95); transition: opacity .35s, transform .4s cubic-bezier(.2, 1.2, .4, 1); }
