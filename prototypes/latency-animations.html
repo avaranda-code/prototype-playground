@@ -742,6 +742,7 @@ const convProducts = {
     ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743641107.jpg?v=1763743995&width=240', 'Bluey Bushland Adventures Water Playset', '$104.99'],
     ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743642302.jpg?v=1763744037&width=240', 'Little Tikes Cozy Coupe Ride-On', '$66.99'],
     ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743612329_03.jpg?v=1763756212&width=240', 'TotSports Easy Score Basketball Set', '$37.99'],
+    ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743630439.jpg?v=1763744028&width=240', 'First Self-Checkout Stand Playset', '$35.99'],
   ],
   sami: [
     ['https://cdn.shopify.com/s/files/1/0541/8575/4799/files/sami-jewels-turquoise-tennis-bracelet.jpg?v=1753883192&width=240', 'Turquoise Bezel Tennis Bracelet', '$84'],
@@ -1023,13 +1024,14 @@ document.querySelectorAll('.belt2').forEach(el => {
       if (phraseEl) phraseEl.style.display = 'none';
       replyEl.style.display = 'block';
       await wait(250); // small breath after the belt settles
-      for (let j = 0; j < 3; j++) { // picks swipe in 1 → 2 → 3, same cascade rhythm as the belt
+      const nReveal = Math.min(products.length, slots.length); // toysrus fills all 4, sami shows 3
+      for (let j = 0; j < nReveal; j++) { // picks swipe in sequentially, same cascade rhythm as the belt
         slots[j].classList.remove('cycling');
         fillCell(slots[j], products[j]);
         slots[j].classList.add('reveal', 'swipe-in');
         await wait(320);
       }
-      slots[3].classList.add('dim'); // leftover loading card fades away entirely
+      if (nReveal < slots.length) slots[3].classList.add('dim'); // leftover loading card fades away entirely
       await wait(3400);
       slots.forEach(s => {
         s.classList.remove('reveal', 'dim', 'swipe-in');
