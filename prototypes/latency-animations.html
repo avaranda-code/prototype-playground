@@ -344,7 +344,7 @@
   .cbar.w80 { width: 80%; }
   .cbar.w50 { width: 50%; }
   .conv-reply {
-    display: none; height: 18px; line-height: 18px; padding-left: 8px; margin-bottom: 2px;
+    display: none; height: 18px; line-height: 18px; padding-left: 8px; margin-top: 4px;
     font-size: 11px; font-weight: 500; color: hsl(var(--chat-text)); white-space: nowrap;
   }
 
@@ -621,8 +621,8 @@ function card(animHTML, rotator = phraseRotator, brand = 'estaluna') {
       </div>
       <div class="convo">
         <div class="user-row"><div class="user-bubble"><span>${userMsg}</span></div></div>
-        ${rotator}
         ${animHTML}
+        ${rotator}
       </div>
       <div class="footer">
         <div class="chat-glass-input input-bar">
@@ -641,14 +641,14 @@ const convMarkup = brand => `
   <div class="conv-reply"></div>
   <div class="conv" data-brand="${brand}"><div class="conv-track"></div></div>`;
 const gridMarkup = brand => `
-  <div class="conv-reply"></div>
-  <div class="grid4" data-brand="${brand}"></div>`;
+  <div class="grid4" data-brand="${brand}"></div>
+  <div class="conv-reply"></div>`;
 const belt2Markup = brand => `
-  <div class="conv-reply"></div>
   <div class="belt2" data-brand="${brand}">
     <div class="conv"><div class="conv-track"></div></div>
     <div class="conv"><div class="conv-track"></div></div>
-  </div>`;
+  </div>
+  <div class="conv-reply"></div>`;
 const fallMarkup = brand => `
   <div class="conv-reply"></div>
   <div class="fall-stage" data-brand="${brand}"></div>
