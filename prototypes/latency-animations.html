@@ -359,8 +359,12 @@
 
   /* ─── Dual-row swipe carousel (Sami): 2×2 grid of skeletons. Cards hold, then a quick
      eased swipe pushes each row over one position — rows offset so they alternate. ─── */
-  .belt2 { margin-top: 6px; }
+  .belt2 { margin-top: 6px; opacity: 0; transition: opacity .35s; }
+  .belt2.on { opacity: 1; }
   .belt2 .conv + .conv { margin-top: 8px; }
+  /* user message "sends" at the start of each round, then loading begins */
+  .user-row { opacity: 0; transform: translateY(10px) scale(0.95); transition: opacity .35s, transform .4s cubic-bezier(.2, 1.2, .4, 1); }
+  .user-row.sent { opacity: 1; transform: none; }
   /* Toys R Us variant: cards carry product photos while loading (text stays skeleton) */
   .belt2 .conv-card.cycling .conv-real { opacity: 1; transform: none; }
   .belt2 .conv-card.cycling .csk::after { display: none; }
@@ -646,8 +650,8 @@ const convMarkup = brand => `
 const gridMarkup = brand => `
   <div class="grid4" data-brand="${brand}"></div>
   <div class="conv-reply"></div>`;
-const belt2Markup = brand => `
-  <div class="belt2" data-brand="${brand}">
+const belt2Markup = (brand, previews) => `
+  <div class="belt2" data-brand="${brand}"${previews ? ' data-previews="1"' : ''}>
     <div class="conv"><div class="conv-track"></div></div>
     <div class="conv"><div class="conv-track"></div></div>
   </div>
@@ -662,8 +666,8 @@ const spinMarkup = brand => `
   <div class="fall-cards"></div>`;
 
 document.getElementById('rowConveyor').innerHTML = [
-  ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus'), toysrusRotator, 'toysrus'],
-  ['Swipe carousel — Sami Jewels', belt2Markup('sami'), samiRotator, 'sami'],
+  ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus', true), toysrusRotator, 'toysrus'],
+  ['Fallback — skeletons when product previews don’t load', belt2Markup('toysrus'), toysrusRotator, 'toysrus'],
 ].map(([l, a, r, brand]) => cell(l, a, r, brand)).join('');
 
 document.querySelectorAll('.phrase-type').forEach(el => {
@@ -952,10 +956,11 @@ document.querySelectorAll('.belt2').forEach(el => {
   const phraseEl = convo.querySelector('.phrase-window, .phrase-split, .phrase-type');
   const replyEl = convo.querySelector('.conv-reply');
   replyEl.textContent = convReplies[brand];
+  const userRow = convo.querySelector('.user-row');
   const products = convProducts[brand];
   products.forEach(pr => { const im = new Image(); im.src = pr[0]; });
-  // Toys R Us: cards carry rotating product photos while loading (text stays skeleton)
-  const previews = brand === 'toysrus' ? toysrusRotation : null;
+  // data-previews: cards carry product photos while loading; without it, skeletons (fallback)
+  const previews = el.dataset.previews ? toysrusRotation : null;
   if (previews) previews.forEach(src => { const im = new Image(); im.src = src; });
 
   const GAP = 8, N = 8;
@@ -982,8 +987,21 @@ document.querySelectorAll('.belt2').forEach(el => {
 
   const RUN_SECS = 3.2, DWELL = 780, SWIPE = 460; // hold, then one quick swipe per beat
   const easeSwipe = p => { const c1 = 1.1, c3 = c1 + 1, q = p - 1; return 1 + c3 * q * q * q + c1 * q * q; }; // ease-out-back: fast push, slight overshoot, settle
-  let state = 'run', runT = 0;
+  let state = 'hold', runT = 0;
   let last = performance.now();
+
+  async function beginRound() { // user sends the message, then loading begins
+    userRow.classList.remove('sent');
+    el.classList.remove('on');
+    if (phraseEl) phraseEl.style.display = 'none';
+    await wait(700);
+    userRow.classList.add('sent');   // message pops in
+    await wait(650);
+    if (phraseEl) phraseEl.style.display = '';
+    el.classList.add('on');          // loading carousel appears
+    belts.forEach((b, bi) => { b.phase = 'dwell'; b.t = bi * -520; }); // re-offset the rows
+    runT = 0; state = 'run';
+  }
   const applyBelt = b => {
     const ax = -((-b.x) % total);
     b.track.style.transform = 'translateX(' + ax + 'px)';
@@ -1041,9 +1059,7 @@ document.querySelectorAll('.belt2').forEach(el => {
         }
       });
       replyEl.style.display = 'none';
-      if (phraseEl) phraseEl.style.display = '';
-      belts.forEach((b, bi) => { b.phase = 'dwell'; b.t = bi * -520; }); // re-offset the rows
-      runT = 0; state = 'run';
+      beginRound(); // next loop starts with the message being sent again
     })();
   }
 
@@ -1057,6 +1073,7 @@ document.querySelectorAll('.belt2').forEach(el => {
     }
     requestAnimationFrame(tick);
   })(last);
+  beginRound();
 });
 
 // ─── Falling products engine (Parachute): photos drop in and bounce while loading ───
