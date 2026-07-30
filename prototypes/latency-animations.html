@@ -416,12 +416,119 @@
   @keyframes gspin { to { transform: rotate(360deg); } }
   @keyframes gbreathe { 0%, 100% { transform: scale(0.85); } 50% { transform: scale(1.12); } }
   .spin-text { font-size: 11px; font-weight: 500; color: #fff; height: 16px; transition: opacity .3s; }
+
+  /* ─── Round 2 shared: loading stage + 2×2 finals grid ─── */
+  .stage {
+    margin-top: 6px; border-radius: 12px; background: hsl(0 0% 100% / 0.14);
+    position: relative; overflow: hidden; height: 170px;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .35s, transform .4s cubic-bezier(.2, 1.2, .4, 1), height .45s cubic-bezier(.5, 0, .2, 1);
+  }
+  .stage.on { opacity: 1; transform: none; }
+  .stage.hide { opacity: 0; }
+  .finals { display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .finals .conv-card { opacity: 0; }
+  .finals .conv-img { height: 64px; }
+  .conv-card.swipe-any { animation: swipeInCard .75s cubic-bezier(.3, 1.35, .45, 1) both; }
+
+  /* A · Deal & discard */
+  .pk-card {
+    position: absolute; left: 50%; top: 40%; width: 72px; height: 72px; margin: -36px 0 0 -36px;
+    border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 3px 10px hsl(0 0% 0% / 0.25);
+    opacity: 0; transform: scale(0.5);
+    transition: transform .4s cubic-bezier(.25, 1.2, .4, 1), opacity .3s;
+  }
+  .pk-card img { width: 100%; height: 100%; object-fit: cover; }
+  .pk-card.in { opacity: 1; transform: scale(1); }
+  .pk-card.in.considering { animation: pkConsider .55s ease-in-out; }
+  @keyframes pkConsider { 0%, 100% { rotate: 0deg; } 30% { rotate: -3.5deg; } 70% { rotate: 3deg; } }
+  .pk-card.toss { opacity: 0; transform: translateX(-150px) rotate(-22deg) scale(0.85); }
+  .pk-slots { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; }
+  .pk-slot { width: 32px; height: 32px; border-radius: 9px; border: 1.5px dashed hsl(0 0% 100% / 0.5); position: relative; }
+  .pk-slot.filled { border-style: solid; border-color: #fff; }
+  .pk-slot.filled::after { content: "✓"; position: absolute; right: -4px; top: -7px; font-size: 10px; color: #fff; font-weight: 700; }
+
+  /* B · Focus scan */
+  .sc-grid { display: grid; grid-template-columns: repeat(3, 52px); gap: 10px; justify-content: center; padding-top: 22px; }
+  .sc-thumb {
+    width: 52px; height: 52px; border-radius: 11px; overflow: hidden; background: #fff;
+    opacity: 0; transform: scale(0.7); transition: opacity .3s, transform .35s cubic-bezier(.2, 1.3, .4, 1), filter .3s;
+  }
+  .sc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .sc-thumb.in { opacity: 0.45; transform: scale(1); }
+  .sc-thumb.in.focus { opacity: 1; transform: scale(1.16); box-shadow: 0 0 0 2.5px #fff, 0 4px 12px hsl(0 0% 0% / 0.3); z-index: 2; }
+  .sc-thumb.in.out { opacity: 0.12; filter: grayscale(1); transform: scale(0.88); }
+  .sc-thumb.in.win { opacity: 1; }
+
+  /* C · Score & sort */
+  .sr-row {
+    display: flex; align-items: center; gap: 8px; padding: 5px 12px;
+    opacity: 0; transform: translateX(-10px); transition: opacity .3s, transform .35s;
+  }
+  .sr-row.in { opacity: 1; transform: none; }
+  .sr-row.drop { opacity: 0.22; }
+  .sr-thumb { width: 26px; height: 26px; border-radius: 7px; overflow: hidden; background: #fff; flex: none; }
+  .sr-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .sr-meter { flex: 1; height: 5px; border-radius: 3px; background: hsl(0 0% 100% / 0.25); overflow: hidden; }
+  .sr-meter i { display: block; height: 100%; width: 0; border-radius: 3px; background: #fff; transition: width 1s cubic-bezier(.3, 0, .2, 1); }
+  .sr-pct { width: 30px; font-size: 10px; font-weight: 600; color: #fff; text-align: right; font-variant-numeric: tabular-nums; }
+  .sr-row .sr-check { width: 12px; font-size: 10px; color: #fff; font-weight: 700; opacity: 0; }
+  .sr-row.win .sr-check { opacity: 1; }
+
+  /* D · Universal loader (no product data) */
+  .stage.orb { height: 140px; }
+  .ob-wrap { position: absolute; left: 50%; top: 42px; width: 0; height: 0; }
+  .ob-star { position: absolute; left: -13px; top: -15px; font-size: 26px; color: #fff; animation: obBreathe 1.8s ease-in-out infinite; }
+  @keyframes obBreathe { 0%, 100% { transform: scale(0.82) rotate(0deg); opacity: .8; } 50% { transform: scale(1.15) rotate(18deg); opacity: 1; } }
+  .ob-ring { position: absolute; left: -30px; top: -30px; width: 60px; height: 60px; animation: gspin 2.6s linear infinite; }
+  .ob-ring i { position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%; background: hsl(0 0% 100% / 0.85); }
+  .ob-ring i:nth-child(1) { transform: rotate(0deg) translateY(-28px); }
+  .ob-ring i:nth-child(2) { transform: rotate(120deg) translateY(-28px); opacity: .65; }
+  .ob-ring i:nth-child(3) { transform: rotate(240deg) translateY(-28px); opacity: .4; }
+  .ob-copy { position: absolute; left: 0; right: 0; top: 88px; text-align: center; font-size: 11px; font-weight: 500; color: #fff; transition: opacity .3s; }
+  .ob-bar { position: absolute; left: 24px; right: 24px; bottom: 14px; height: 3px; border-radius: 2px; background: hsl(0 0% 100% / 0.25); overflow: hidden; }
+  .ob-bar i { position: absolute; top: 0; bottom: 0; width: 34%; border-radius: 2px; background: #fff; animation: obSweep 1.4s ease-in-out infinite; }
+  @keyframes obSweep { 0% { left: -34%; } 100% { left: 100%; } }
+
+  /* E · Collapse tray */
+  .stage.tray { height: 84px; }
+  .stage.tray.collapsed { height: 34px; background: hsl(0 0% 100% / 0.22); }
+  .ty-track { display: flex; gap: 8px; padding: 10px; width: max-content; animation: tyMarquee 16s linear infinite; transition: opacity .3s; }
+  @keyframes tyMarquee { to { transform: translateX(-50%); } }
+  .ty-tile { width: 64px; height: 64px; border-radius: 11px; overflow: hidden; background: #fff; flex: none; box-shadow: 0 2px 6px hsl(0 0% 0% / 0.18); }
+  .ty-tile img { width: 100%; height: 100%; object-fit: cover; }
+  .stage.tray.collapsed .ty-track { opacity: 0; }
+  .ty-pill {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 7px;
+    font-size: 10.5px; font-weight: 600; color: #fff; opacity: 0; transition: opacity .35s .2s;
+  }
+  .stage.tray.collapsed .ty-pill { opacity: 1; }
+  .ty-thumbs { display: flex; }
+  .ty-thumbs img { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #fff; object-fit: cover; margin-left: -7px; }
+  .ty-thumbs img:first-child { margin-left: 0; }
+
+  /* F · Criteria match */
+  .stage.match { height: 120px; }
+  .mt-chips { display: flex; justify-content: center; gap: 6px; padding-top: 18px; flex-wrap: wrap; }
+  .mt-chip {
+    font-size: 10.5px; font-weight: 600; color: #0a57d6; background: #fff; border-radius: 99px; padding: 4px 10px;
+    opacity: 0; transform: scale(0.6); transition: opacity .3s, transform .4s cubic-bezier(.2, 1.5, .4, 1);
+  }
+  .mt-chip.in { opacity: 1; transform: scale(1); }
+  .mt-narrow { position: absolute; left: 0; right: 0; bottom: 20px; text-align: center; font-size: 12px; font-weight: 600; color: #fff; }
+  .mt-count { display: inline-block; font-variant-numeric: tabular-nums; }
+  .mt-count.pop { animation: mtPop .35s cubic-bezier(.2, 1.4, .4, 1); }
+  @keyframes mtPop { 0% { transform: scale(1.35); } 100% { transform: scale(1); } }
+  .mt-funnel { margin: 8px auto 0; width: 70%; height: 4px; border-radius: 2px; background: hsl(0 0% 100% / 0.25); overflow: hidden; }
+  .mt-funnel i { display: block; height: 100%; width: 100%; border-radius: 2px; background: #fff; transition: width .7s cubic-bezier(.5, 0, .2, 1); }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h2 class="section-title">Latency animations — loading states that reveal real product picks</h2>
   <div class="row row-brands" id="rowConveyor"></div>
+  <h2 class="section-title">Round 2 — “picking for you” concepts (from the demo thread + Natasha’s feedback)</h2>
+  <div class="row row-brands" id="rowConcepts"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -678,6 +785,20 @@ document.getElementById('rowConveyor').innerHTML = [
   ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus', true), toysrusRotator, 'toysrus'],
   ['Fallback — skeletons when product previews don’t load', belt2Markup('toysrus'), toysrusRotator, 'toysrus'],
 ].map(([l, a, r, brand]) => cell(l, a, r, brand)).join('');
+
+// Round 2 — "picking for you" concepts from the demo thread + Natasha's feedback
+const stageMarkup = type => `
+  <div class="stage ${type}"></div>
+  <div class="finals"></div>
+  <div class="conv-reply"></div>`;
+document.getElementById('rowConcepts').innerHTML = [
+  ['Deal & discard — picking, not listing', stageMarkup('pick')],
+  ['Focus scan — inspecting each candidate', stageMarkup('scan')],
+  ['Score & sort — ranking the shortlist', stageMarkup('score')],
+  ['Universal loader — no product data needed', stageMarkup('orb')],
+  ['Collapse tray — previews stay accessible', stageMarkup('tray')],
+  ['Criteria match — narrowing 1,248 → 4', stageMarkup('match')],
+].map(([l, a]) => cell(l, a, toysrusRotator, 'toysrus')).join('');
 
 document.querySelectorAll('.phrase-type').forEach(el => {
   let i = 0;
@@ -1181,6 +1302,222 @@ document.querySelectorAll('.spin-stage').forEach(stage => {
     products.forEach((pr, j) => fillCell(cells[j], pr));
     for (const j of [0, 1, 2]) { cells[j].classList.add('reveal', 'show'); await wait(430); }
     await wait(3400);
+    cycle();
+  })();
+});
+
+// ─── Round 2 shared helpers: send message → run stage → finals swipe in → reset ───
+function roundCtx(stage) {
+  const convo = stage.closest('.convo');
+  const ctx = {
+    stage, convo,
+    userRow: convo.querySelector('.user-row'),
+    phraseEl: convo.querySelector('.phrase-window, .phrase-split, .phrase-type'),
+    replyEl: convo.querySelector('.conv-reply'),
+    finalsEl: convo.querySelector('.finals'),
+  };
+  ctx.replyEl.textContent = convReplies.toysrus;
+  ctx.cells = makeCells(ctx.finalsEl, 4);
+  return ctx;
+}
+async function introSend(ctx) {
+  ctx.userRow.classList.remove('sent');
+  ctx.stage.classList.remove('on', 'hide', 'collapsed');
+  ctx.stage.style.display = '';
+  ctx.finalsEl.style.display = 'none';
+  ctx.replyEl.style.display = 'none';
+  if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
+  await wait(700);
+  ctx.userRow.classList.add('sent');   // message pops in
+  await wait(650);
+  if (ctx.phraseEl) ctx.phraseEl.style.display = '';
+  ctx.stage.classList.add('on');       // loading stage eases in
+  await wait(400);
+}
+async function hideStage(ctx) {
+  ctx.stage.classList.add('hide');
+  await wait(330);
+  ctx.stage.style.display = 'none';
+}
+async function finalsIn(ctx) {
+  if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
+  ctx.replyEl.style.display = 'block';
+  ctx.finalsEl.style.display = 'grid';
+  for (let j = 0; j < 4; j++) {
+    fillCell(ctx.cells[j], convProducts.toysrus[j]);
+    ctx.cells[j].classList.add('reveal', 'swipe-any');
+    await wait(320);
+  }
+  await wait(3400);
+  ctx.cells.forEach(c => c.classList.remove('reveal', 'swipe-any'));
+}
+
+// ─── A · Deal & discard: the agent visibly considers each product, tosses some, shortlists the rest ───
+document.querySelectorAll('.stage.pick').forEach(stage => {
+  const ctx = roundCtx(stage);
+  stage.innerHTML = '<div class="pk-slots"><div class="pk-slot"></div><div class="pk-slot"></div><div class="pk-slot"></div><div class="pk-slot"></div></div>';
+  const slots = [...stage.querySelectorAll('.pk-slot')];
+  (async function cycle() {
+    await introSend(ctx);
+    stage.querySelectorAll('.pk-card').forEach(n => n.remove());
+    slots.forEach(s => s.classList.remove('filled'));
+    await wait(300);
+    const seq = [3, 0, 7, 1, 10, 2, 9]; // rotation indices considered
+    const keep = new Set([0, 1, 2, 9]); // 4 make the shortlist
+    let slotIdx = 0;
+    for (const idx of seq) {
+      const c = document.createElement('div');
+      c.className = 'pk-card';
+      c.innerHTML = '<img src="' + toysrusRotation[idx] + '" alt="">';
+      stage.appendChild(c);
+      await wait(60);
+      c.classList.add('in', 'considering'); // pop to center + think wiggle
+      await wait(640);
+      if (keep.has(idx)) { // shrink into the next shortlist slot
+        const sh = stage.clientHeight;
+        c.style.transform = 'translate(' + ((slotIdx - 1.5) * 40) + 'px,' + (sh * 0.5 - 42) + 'px) scale(0.42)';
+        slots[slotIdx].classList.add('filled');
+        slotIdx++;
+        await wait(360);
+        c.remove(); // slot outline takes over
+      } else { // tossed aside
+        c.classList.add('toss');
+        await wait(300);
+        c.remove();
+      }
+    }
+    await wait(450);
+    await hideStage(ctx);
+    await finalsIn(ctx);
+    cycle();
+  })();
+});
+
+// ─── B · Focus scan: every candidate visible, the agent's "eye" inspects each, eliminates two ───
+document.querySelectorAll('.stage.scan').forEach(stage => {
+  const ctx = roundCtx(stage);
+  stage.innerHTML = '<div class="sc-grid">' +
+    [0, 1, 2, 3, 4, 5].map(i => '<div class="sc-thumb"><img src="' + toysrusRotation[i] + '" alt=""></div>').join('') +
+    '</div>';
+  const thumbs = [...stage.querySelectorAll('.sc-thumb')];
+  (async function cycle() {
+    await introSend(ctx);
+    thumbs.forEach(t => t.classList.remove('in', 'focus', 'out', 'win'));
+    for (const t of thumbs) { t.classList.add('in'); await wait(110); } // candidates appear
+    await wait(250);
+    for (const i of [0, 1, 2, 5, 4, 3, 0, 2]) { // the eye hops around, some get a second look
+      thumbs[i].classList.add('focus');
+      await wait(330);
+      thumbs[i].classList.remove('focus');
+    }
+    for (const i of [1, 4]) { thumbs[i].classList.add('out'); await wait(320); } // eliminated
+    thumbs.forEach((t, i) => { if (i !== 1 && i !== 4) t.classList.add('win'); });
+    await wait(700);
+    await hideStage(ctx);
+    await finalsIn(ctx);
+    cycle();
+  })();
+});
+
+// ─── C · Score & sort: candidates get scored live; low scores drop out ───
+document.querySelectorAll('.stage.score').forEach(stage => {
+  const ctx = roundCtx(stage);
+  const scores = [92, 88, 34, 81, 76];
+  stage.innerHTML = [0, 1, 2, 3, 4].map(i =>
+    '<div class="sr-row"><div class="sr-thumb"><img src="' + toysrusRotation[i] + '" alt=""></div>' +
+    '<div class="sr-meter"><i></i></div><div class="sr-pct">0%</div><div class="sr-check">✓</div></div>'
+  ).join('');
+  const rows = [...stage.querySelectorAll('.sr-row')];
+  (async function cycle() {
+    await introSend(ctx);
+    rows.forEach(r => { r.classList.remove('in', 'drop', 'win'); r.querySelector('.sr-meter i').style.width = '0'; r.querySelector('.sr-pct').textContent = '0%'; });
+    for (const r of rows) { r.classList.add('in'); await wait(120); }
+    await wait(200);
+    rows.forEach((r, i) => setTimeout(() => { // meters fill, staggered
+      r.querySelector('.sr-meter i').style.width = scores[i] + '%';
+      let v = 0; const step = setInterval(() => {
+        v = Math.min(scores[i], v + Math.ceil(scores[i] / 10));
+        r.querySelector('.sr-pct').textContent = v + '%';
+        if (v >= scores[i]) clearInterval(step);
+      }, 90);
+    }, i * 160));
+    await wait(1900);
+    rows[2].classList.add('drop'); // 34% doesn't make the cut
+    await wait(350);
+    rows.forEach((r, i) => { if (i !== 2) r.classList.add('win'); });
+    await wait(750);
+    await hideStage(ctx);
+    await finalsIn(ctx);
+    cycle();
+  })();
+});
+
+// ─── D · Universal loader: brand sparkle + real tool copy — needs no product data, usable everywhere ───
+document.querySelectorAll('.stage.orb').forEach(stage => {
+  const ctx = roundCtx(stage);
+  stage.innerHTML = '<div class="ob-wrap"><div class="ob-ring"><i></i><i></i><i></i></div><div class="ob-star">✦</div></div>' +
+    '<div class="ob-copy"></div><div class="ob-bar"><i></i></div>';
+  const copyEl = stage.querySelector('.ob-copy');
+  const steps = ['Searching products', 'Searching products and discounts', 'Checking product details']; // real tool copy
+  (async function cycle() {
+    await introSend(ctx);
+    for (const s of steps) {
+      copyEl.style.opacity = 0;
+      await wait(250);
+      copyEl.textContent = s + '…';
+      copyEl.style.opacity = 1;
+      await wait(1350);
+    }
+    await hideStage(ctx);
+    await finalsIn(ctx);
+    cycle();
+  })();
+});
+
+// ─── E · Collapse tray: preview marquee collapses into a pill, so waiting-time products stay accessible ───
+document.querySelectorAll('.stage.tray').forEach(stage => {
+  const ctx = roundCtx(stage);
+  const tiles = toysrusRotation.concat(toysrusRotation) // doubled for a seamless loop
+    .map(src => '<div class="ty-tile"><img src="' + src + '" alt=""></div>').join('');
+  stage.innerHTML = '<div class="ty-track">' + tiles + '</div>' +
+    '<div class="ty-pill"><span class="ty-thumbs">' +
+    toysrusRotation.slice(0, 3).map(src => '<img src="' + src + '" alt="">').join('') +
+    '</span><span>Seen while searching · 12</span><span>▾</span></div>';
+  (async function cycle() {
+    await introSend(ctx);
+    await wait(3800); // marquee browses the catalog
+    stage.classList.add('collapsed'); // tray tucks away but stays reachable
+    await wait(500);
+    await finalsIn(ctx); // note: stage is NOT hidden — pill stays above the finals
+    stage.classList.remove('collapsed');
+    cycle();
+  })();
+});
+
+// ─── F · Criteria match: the agent shows *why* — extracts criteria, then narrows the catalog live ───
+document.querySelectorAll('.stage.match').forEach(stage => {
+  const ctx = roundCtx(stage);
+  stage.innerHTML = '<div class="mt-chips"><span class="mt-chip">🎁 gift-worthy</span><span class="mt-chip">🧒 age 5</span><span class="mt-chip">⭐ top rated</span></div>' +
+    '<div class="mt-narrow"><span class="mt-count">1,248</span> toys<div class="mt-funnel"><i></i></div></div>';
+  const chips = [...stage.querySelectorAll('.mt-chip')];
+  const countEl = stage.querySelector('.mt-count');
+  const funnel = stage.querySelector('.mt-funnel i');
+  const narrowSteps = [['1,248', 100], ['214', 55], ['36', 24], ['4', 6]];
+  (async function cycle() {
+    await introSend(ctx);
+    chips.forEach(c => c.classList.remove('in'));
+    countEl.textContent = '1,248'; funnel.style.width = '100%';
+    for (const c of chips) { c.classList.add('in'); await wait(340); } // criteria extracted from the question
+    await wait(400);
+    for (const [n, w] of narrowSteps.slice(1)) { // catalog narrows step by step
+      countEl.textContent = n;
+      countEl.classList.remove('pop'); void countEl.offsetWidth; countEl.classList.add('pop');
+      funnel.style.width = w + '%';
+      await wait(850);
+    }
+    await wait(500);
+    await hideStage(ctx);
+    await finalsIn(ctx);
     cycle();
   })();
 });
