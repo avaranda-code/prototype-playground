@@ -305,6 +305,21 @@
   .phrase-split { height: 20px; padding-left: 8px; font-size: 12px; font-weight: 500; line-height: 20px; color: #fff; white-space: nowrap; }
   .phrase-split .sc { display: inline-block; white-space: pre; }
 
+  /* ─── OSEA Malibu brand skin (coastal seafoam, clean + calm) ─── */
+  .card.osea {
+    --primary: 172 32% 25%;
+    --chat-text: 172 32% 18%;
+    --chat-text-muted: 172 15% 38%;
+    --chat-glow: 172 32% 30% / 0.15;
+    background: linear-gradient(to bottom, #dcebe7, #b6d4cc);
+  }
+  .card.osea .chat-bg { display: none; }
+  .card.osea .chat-glass { background: hsl(160 25% 98% / 0.78); box-shadow: 0px 1px 3px hsl(172 30% 20% / 0.18); }
+  .card.osea .header svg.lucide { stroke: #1d4a43; }
+  .card.osea .track-pill span { color: #1d4a43; }
+  .card.osea .chat-glass-input { background: hsl(160 25% 97% / 0.4); box-shadow: 0px 1px 3px hsl(172 30% 20% / 0.18); }
+  .osea-logo { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 26px; letter-spacing: 11px; color: #143d38; padding-left: 11px; text-align: center; }
+
   /* ─── Conveyor stop — skeleton product carousel that halts on real picks ─── */
   .conv { margin-top: 6px; overflow: hidden; position: relative; }
   .conv-track { display: flex; gap: 8px; will-change: transform; }
@@ -471,11 +486,15 @@
     opacity: 0; transform: scale(0.7); transition: opacity .3s, transform .35s cubic-bezier(.2, 1.3, .4, 1), filter .3s;
   }
   .sc-thumb img { width: 100%; height: 100%; object-fit: cover; transition: opacity .22s; }
-  /* zoom handoff: the picks grow toward the viewer as the rest of the grid melts away */
-  .sc-thumb.in.zoom {
-    opacity: 0; transform: scale(1.45); z-index: 3;
-    transition: opacity .6s ease, transform .65s cubic-bezier(.4, 0, .55, 1);
+  /* flight clones: winners glide from grid spot to final slot; width/height animate and the
+     image re-crops via object-fit, so the card never distorts or smushes */
+  .fly-card {
+    position: absolute; z-index: 6; border-radius: 11px; overflow: hidden; background: #fff;
+    box-shadow: 0 3px 10px hsl(0 0% 0% / 0.22);
+    transition: left .7s cubic-bezier(.45, .05, .25, 1), top .7s cubic-bezier(.45, .05, .25, 1),
+                width .7s cubic-bezier(.45, .05, .25, 1), height .7s cubic-bezier(.45, .05, .25, 1);
   }
+  .fly-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .sc-thumb.in { opacity: 0.45; transform: scale(1); }
   .sc-thumb.in.focus { opacity: 1; transform: scale(1.16); box-shadow: 0 0 0 2.5px #fff, 0 4px 12px hsl(0 0% 0% / 0.3); z-index: 2; }
   .sc-thumb.in.out { opacity: 0.12; filter: grayscale(1); transform: scale(0.88); }
@@ -575,6 +594,7 @@
 <body>
 <div class="wrap">
   <h2 class="section-title">Latency animations — loading states that reveal real product picks</h2>
+  <div class="row row-brands" id="rowScan"></div>
   <div class="row row-brands" id="rowConveyor"></div>
 </div>
 
@@ -755,7 +775,8 @@ function card(animHTML, rotator = phraseRotator, brand = 'estaluna') {
   const isParachute = brand === 'parachute';
   const isToysrus = brand === 'toysrus';
   const isGlamnetic = brand === 'glamnetic';
-  const branded = isSami || isParachute || isToysrus || isGlamnetic;
+  const isOsea = brand === 'osea';
+  const branded = isSami || isParachute || isToysrus || isGlamnetic || isOsea;
   const estalunaLogo = `
         <svg viewBox="0 0 390 50" fill="none" xmlns="http://www.w3.org/2000/svg">
           <text x="195" y="38" text-anchor="middle" font-family="Inter" font-weight="700" font-size="30" letter-spacing="12" fill="#404DA8">ESTALUNA</text>
@@ -764,6 +785,7 @@ function card(animHTML, rotator = phraseRotator, brand = 'estaluna') {
              : isParachute ? `<div class="parachute-logo">PARACHUTE</div>`
              : isToysrus ? toysrusLogo
              : isGlamnetic ? glamneticLogo
+             : isOsea ? `<div class="osea-logo">OSEA</div>`
              : estalunaLogo;
   const sub = branded
     ? `<p class="logo-sub">This chat is AI-powered for faster assistance.</p>`
@@ -772,8 +794,9 @@ function card(animHTML, rotator = phraseRotator, brand = 'estaluna') {
                 : isParachute ? 'Do your sheets get softer over time?'
                 : isToysrus ? "What's a good gift for a 5-year-old?"
                 : isGlamnetic ? 'How long do the press-ons last?'
+                : isOsea ? 'Which body oil is best for dry skin?'
                 : 'Help me find the right size';
-  const brandClass = isSami ? ' sami' : isParachute ? ' parachute' : isToysrus ? ' toysrus' : isGlamnetic ? ' glamnetic' : '';
+  const brandClass = isSami ? ' sami' : isParachute ? ' parachute' : isToysrus ? ' toysrus' : isGlamnetic ? ' glamnetic' : isOsea ? ' osea' : '';
   return `
     <div class="card${brandClass}">
       ${chatBg}
@@ -829,8 +852,8 @@ const spinMarkup = brand => `
   <div class="fall-cards"></div>`;
 
 // Round 2 — "picking for you" concepts from the demo thread + Natasha's feedback
-const stageMarkup = type => `
-  <div class="stage ${type}"></div>
+const stageMarkup = (type, brand = 'toysrus') => `
+  <div class="stage ${type}" data-brand="${brand}"></div>
   <div class="finals"></div>
   <div class="conv-reply"></div>`;
 // sequential loading phrases: one at a time, fully gone before the next appears
@@ -840,16 +863,22 @@ const seqRotator = '<div class="phrase-seq"></div>';
 const scanPhrases = ['Pulling up details', 'Rounding up products', 'Hunting for deals'];
 const seqScanRotator = '<div class="phrase-seq" data-set="scan"></div>';
 
+// row 1: the two branded focus scans side by side
+document.getElementById('rowScan').innerHTML = [
+  ['Focus scan — Toys R Us product previews', stageMarkup('scan', 'toysrus'), seqScanRotator, 'toysrus'],
+  ['Focus scan — OSEA product previews', stageMarkup('scan', 'osea'), seqScanRotator, 'osea'],
+].map(([l, a, r, b]) => cell(l, a, r, b)).join('');
+
+// row 2+: skeleton scan, universal loader, then the rest
 document.getElementById('rowConveyor').innerHTML = [
-  ['Universal loader — no product data needed', stageMarkup('orb'), ''],
-  ['Focus scan — inspecting each candidate', stageMarkup('scan'), seqScanRotator],
-  ['Focus scan — skeleton cards', stageMarkup('scan2'), seqScanRotator],
-  ['Collapse tray — previews stay accessible', stageMarkup('tray'), seqRotator],
-  ['Criteria match — a framework for any vertical', stageMarkup('match'), ''],
-  ['Shuffle deal — skeletons → photos → picks', stageMarkup('shuffle'), seqRotator],
-  ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus', true), toysrusRotator],
-  ['Fallback — skeletons when product previews don’t load', belt2Markup('toysrus'), toysrusRotator],
-].map(([l, a, r]) => cell(l, a, r, 'toysrus')).join('');
+  ['Focus scan — skeleton cards', stageMarkup('scan2'), seqScanRotator, 'toysrus'],
+  ['Universal loader — no product data needed', stageMarkup('orb'), '', 'toysrus'],
+  ['Collapse tray — previews stay accessible', stageMarkup('tray'), seqRotator, 'toysrus'],
+  ['Criteria match — a framework for any vertical', stageMarkup('match'), '', 'toysrus'],
+  ['Shuffle deal — skeletons → photos → picks', stageMarkup('shuffle'), seqRotator, 'toysrus'],
+  ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus', true), toysrusRotator, 'toysrus'],
+  ['Fallback — skeletons when product previews don’t load', belt2Markup('toysrus'), toysrusRotator, 'toysrus'],
+].map(([l, a, r, b]) => cell(l, a, r, b)).join('');
 
 // drive the sequential phrases: fade in → dwell → fade fully out → next
 // (data-set elements are driven by their own engine instead, so timing stays synced)
@@ -963,13 +992,32 @@ const convProducts = {
     ['https://cdn.shopify.com/s/files/1/0139/2302/4944/files/Creamer_1_23a660a1-74c5-4f81-a3bf-1d1af03d6b41.webp?v=1762301772&width=240', 'Creamer Press-On Nails', '$19.99'],
     ['https://cdn.shopify.com/s/files/1/0139/2302/4944/products/2023_03_Brush-On-Nail-Glue_HighRes_1.jpg?v=1762198814&width=240', 'Brush-On Nail Glue', '$7.99'],
   ],
+  osea: [ // 3 final options for the dry-skin body oil question (real products from oseamalibu.com)
+    ['https://cdn.shopify.com/s/files/1/1368/9993/files/OSEA_UndariaAlgaeBodyOil_UAO-295-DTC-1_badgeless.jpg?v=1758087570&width=240', 'Undaria Algae™ Body Oil', '$84'],
+    ['https://cdn.shopify.com/s/files/1/1368/9993/files/OSEA_AntiAgingBodyBalm_B-BALM-295-DTC_588b5640-d991-4b44-9b30-1d179441b87b.jpg?v=1762197942&width=240', 'Anti-Aging Body Balm', '$84'],
+    ['https://cdn.shopify.com/s/files/1/1368/9993/files/2024_UndariaAlgaeBodyButter_OBMO-UABB-200_Frontal_1000x1275_6d7a27b3-c1ce-4928-8163-e6b49ff93ea3.jpg?v=1762198438&width=240', 'Undaria Algae™ Body Butter', '$54'],
+  ],
 };
 const convReplies = {
   toysrus: 'Geoffrey found these hits!',
   sami: 'Tarnish-free favorites ♡',
   parachute: 'These only get softer:',
   glamnetic: 'Up to 3 weeks — try these!',
+  osea: 'Seaworthy picks for dry skin:',
 };
+// OSEA body-care pool the scan cycles through while loading (real product photos)
+const oseaRotation = [
+  'OSEA_UndariaAlgaeBodyOil_UAO-295-DTC-1_badgeless.jpg?v=1758087570', // Undaria Algae Body Oil
+  'OSEA_UndariaAlgaeBodyWash_UABW-1_Frontal.jpg?v=1762201589', // Undaria Algae Body Wash
+  '2024_UndariaAlgaeBodyButter_OBMO-UABB-200_Frontal_1000x1275_6d7a27b3-c1ce-4928-8163-e6b49ff93ea3.jpg?v=1762198438', // Body Butter
+  'OSEA_AntiAgingBodyBalm_B-BALM-295-DTC_588b5640-d991-4b44-9b30-1d179441b87b.jpg?v=1762197942', // Anti-Aging Body Balm
+  '2024_UndariaAlgaeBodyLotion_UBCL-1_1000x1275_2c942a2b-0b2d-442e-8e96-7634a3b76d7b.jpg?v=1762200199', // Body Lotion
+  'SOE-1-Frontal-DTC.jpg?v=1762197941', // Salts of the Earth Body Scrub
+  'HBS-1_DTC.jpg?v=1758090608', // Hyaluronic Body Serum
+  'UndariaCollection_UBC-1_DTC.jpg?v=1776362090', // Undaria Body Collection
+  'PDP_2_-_Product_Frontal_DTC_1600x2000_eedbab0f-922b-4568-b4dd-61363aaa9968.jpg?v=1766096034', // Dream Bio-Retinol Body Serum
+  'BHH-1_BG_COLOR_79d62181-8a2a-468e-bee5-be4bc8257256.jpg?v=1776359843', // Body Hydration Heroes
+].map(f => 'https://cdn.shopify.com/s/files/1/1368/9993/files/' + f + '&width=240');
 
 document.querySelectorAll('.conv[data-brand]').forEach(el => {
   const brand = el.dataset.brand;
@@ -1379,15 +1427,17 @@ document.querySelectorAll('.spin-stage').forEach(stage => {
 // ─── Round 2 shared helpers: send message → run stage → finals swipe in → reset ───
 function roundCtx(stage) {
   const convo = stage.closest('.convo');
+  const brand = stage.dataset.brand || 'toysrus';
   const ctx = {
-    stage, convo,
+    stage, convo, brand,
+    prods: convProducts[brand],
     userRow: convo.querySelector('.user-row'),
     phraseEl: convo.querySelector('.phrase-window, .phrase-split, .phrase-type, .phrase-seq'),
     replyEl: convo.querySelector('.conv-reply'),
     finalsEl: convo.querySelector('.finals'),
   };
-  ctx.replyEl.textContent = convReplies.toysrus;
-  ctx.cells = makeCells(ctx.finalsEl, 4);
+  ctx.replyEl.textContent = convReplies[brand];
+  ctx.cells = makeCells(ctx.finalsEl, Math.min(4, ctx.prods.length));
   return ctx;
 }
 async function introSend(ctx) {
@@ -1414,8 +1464,8 @@ async function finalsIn(ctx, anim = 'swipe-any', stagger = 320) {
   if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
   ctx.replyEl.style.display = 'block';
   ctx.finalsEl.style.display = 'grid';
-  for (let j = 0; j < 4; j++) {
-    fillCell(ctx.cells[j], convProducts.toysrus[j]);
+  for (let j = 0; j < ctx.cells.length; j++) {
+    fillCell(ctx.cells[j], ctx.prods[j]);
     ctx.cells[j].classList.add('reveal', anim);
     await wait(stagger);
   }
@@ -1423,22 +1473,28 @@ async function finalsIn(ctx, anim = 'swipe-any', stagger = 320) {
   ctx.cells.forEach(c => c.classList.remove('reveal', 'swipe-any', 'fade-any'));
 }
 
-// ─── B · Focus scan: every candidate visible, the agent's "eye" inspects each, eliminates two.
-//     .scan shows product photos; .scan2 is the same choreography over card skeletons. ───
+// ─── B · Focus scan: every candidate visible, the agent's "eye" inspects each, eliminates the
+//     rest. .scan shows product photos (per brand); .scan2 is the same choreography over card
+//     skeletons. Works for 3-final brands (OSEA) and 4-final brands (Toys R Us). ───
 document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
   const ctx = roundCtx(stage);
   const skeleton = stage.classList.contains('scan2');
+  const pool = ctx.brand === 'osea' ? oseaRotation : toysrusRotation;
+  const prods = ctx.prods;
+  const elim = prods.length === 3 ? [1, 4, 5] : [1, 4]; // eliminate down to the number of finals
+  const winners = [0, 1, 2, 3, 4, 5].filter(i => !elim.includes(i));
   stage.innerHTML = '<div class="sc-grid">' +
     [0, 1, 2, 3, 4, 5].map(i => skeleton
       ? '<div class="sc-thumb csk"></div>'
-      : '<div class="sc-thumb"><img src="' + toysrusRotation[i] + '" alt=""></div>').join('') +
+      : '<div class="sc-thumb"><img src="' + pool[i] + '" alt=""></div>').join('') +
     '</div>';
   const thumbs = [...stage.querySelectorAll('.sc-thumb')];
   (async function cycle() {
     await introSend(ctx);
     thumbs.forEach((t, i) => {
-      t.classList.remove('in', 'focus', 'out', 'win', 'zoom');
-      if (!skeleton) { const im = t.querySelector('img'); im.src = toysrusRotation[i]; im.style.opacity = 1; }
+      t.classList.remove('in', 'focus', 'out', 'win');
+      t.style.opacity = ''; t.style.transition = '';
+      if (!skeleton) { const im = t.querySelector('img'); im.src = pool[i]; im.style.opacity = 1; }
     });
     if (ctx.phraseEl) (async () => { // copy synced to the 9s scan: each phrase holds 3s
       for (const p of scanPhrases) {
@@ -1449,17 +1505,17 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
         await wait(420);
       }
     })();
-    // the 6 slots cycle through the whole candidate pool (12 here; works for 12–20 the same
-    // way — unfocused slots keep crossfading to unseen products until the pool is exhausted)
+    // the 6 slots cycle through the whole candidate pool (works for 12–20 the same way —
+    // unfocused slots keep crossfading to unseen products until the pool is exhausted)
     let nextIdx = 6;
     async function swapThumb(exclude) {
-      if (skeleton || nextIdx >= toysrusRotation.length) return;
+      if (skeleton || nextIdx >= pool.length) return;
       const options = thumbs.map((t, i) => i).filter(i => i !== exclude && !thumbs[i].classList.contains('out'));
       const i = options[Math.floor(Math.random() * options.length)];
       const img = thumbs[i].querySelector('img');
       img.style.opacity = 0;
       await wait(220);
-      img.src = toysrusRotation[nextIdx++];
+      img.src = pool[nextIdx++];
       img.style.opacity = 1;
     }
     for (const t of thumbs) { t.classList.add('in'); await wait(150); } // candidates appear
@@ -1471,16 +1527,25 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
       await wait(470);
       thumbs[hops[h]].classList.remove('focus');
     }
-    for (const i of [1, 4]) { thumbs[i].classList.add('out'); await wait(450); } // eliminated
-    thumbs.forEach((t, i) => { if (i !== 1 && i !== 4) t.classList.add('win'); });
+    const elimBeat = Math.round(900 / elim.length);
+    for (const i of elim) { thumbs[i].classList.add('out'); await wait(elimBeat); } // eliminated
+    thumbs.forEach((t, i) => { if (!elim.includes(i)) t.classList.add('win'); });
+    // the surviving cards settle on the ACTUAL final products before the zoom
+    if (!skeleton) winners.forEach((wi, k) => setTimeout(async () => {
+      const img = thumbs[wi].querySelector('img');
+      img.style.opacity = 0;
+      await wait(220);
+      img.src = prods[k][0];
+      img.style.opacity = 1;
+    }, 120 + k * 150));
     await wait(1240); // exactly 9s of scanning in total, matching the 3×3s copy
 
     // ── seamless handoff ──
-    // The finals grid is overlaid (invisible) exactly where it will finally rest; each winning
-    // card flies from its grid spot straight into a final card's image slot while the two
-    // eliminated cards melt away; the finals then crossfade in over the arrived cards and the
-    // overlay swaps to normal flow at identical height — the chat never bounces.
-    for (let j = 0; j < 4; j++) fillCell(ctx.cells[j], convProducts.toysrus[j]);
+    // The finals grid is overlaid (invisible) exactly where it will rest. Each winning card is
+    // cloned and glides into its final card's image slot by animating position AND size — the
+    // photo re-crops via object-fit instead of stretching, so nothing smushes. The finals then
+    // crossfade in over the arrived clones at identical height — the chat never bounces.
+    for (let j = 0; j < ctx.cells.length; j++) fillCell(ctx.cells[j], prods[j]);
     ctx.cells.forEach(c => { c.classList.add('reveal'); c.style.opacity = '1'; });
     const f = ctx.finalsEl;
     f.style.position = 'absolute'; f.style.left = '12px'; f.style.right = '12px';
@@ -1488,33 +1553,44 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
     const stageH0 = stage.offsetHeight;
     const targetH = f.offsetHeight;
     f.style.top = (stage.offsetTop + stageH0 - targetH) + 'px'; // where the finals will rest
-    const shiftY = stageH0 - targetH; // the stage top drifts by this much as it resizes
+    const convoRect = ctx.convo.getBoundingClientRect();
     const targets = ctx.cells.map(c => c.querySelector('.conv-img').getBoundingClientRect());
-    [0, 2, 3, 5].forEach((wi, k) => { // winners fly to their final slots
-      const t = thumbs[wi], s = t.getBoundingClientRect(), tgt = targets[k];
-      t.style.transformOrigin = 'top left';
-      t.style.transition = 'transform .68s cubic-bezier(.45, .05, .25, 1)';
-      t.style.zIndex = 4;
-      t.style.transform = 'translate(' + (tgt.left - s.left) + 'px,' + (tgt.top - s.top - shiftY) + 'px) ' +
-        'scale(' + (tgt.width / s.width) + ',' + (tgt.height / s.height) + ')';
+    const flies = winners.map((wi, k) => {
+      const s = thumbs[wi].getBoundingClientRect();
+      const fly = document.createElement('div');
+      fly.className = 'fly-card' + (skeleton ? ' csk' : '');
+      if (!skeleton) fly.innerHTML = '<img src="' + prods[k][0] + '" alt="">';
+      fly.style.left = (s.left - convoRect.left) + 'px';
+      fly.style.top = (s.top - convoRect.top) + 'px';
+      fly.style.width = s.width + 'px';
+      fly.style.height = s.height + 'px';
+      ctx.convo.appendChild(fly);
+      thumbs[wi].style.transition = 'none';
+      thumbs[wi].style.opacity = '0'; // the clone takes over from here
+      return fly;
     });
-    thumbs[1].style.opacity = 0; thumbs[4].style.opacity = 0; // eliminated cards melt away
+    elim.forEach(i => { thumbs[i].style.transition = 'opacity .4s'; thumbs[i].style.opacity = '0'; });
+    void ctx.convo.offsetWidth; // commit start rects, then send the clones flying
+    flies.forEach((fly, k) => {
+      const tgt = targets[k];
+      fly.style.left = (tgt.left - convoRect.left) + 'px';
+      fly.style.top = (tgt.top - convoRect.top) + 'px';
+      fly.style.width = tgt.width + 'px';
+      fly.style.height = tgt.height + 'px';
+    });
     stage.style.height = targetH + 'px';
     if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
-    await wait(700);
+    await wait(720);
     f.style.transition = 'opacity .35s';
-    f.style.opacity = '1'; // crossfade: full cards materialize over the arrived thumbs
+    f.style.opacity = '1'; // crossfade: full cards materialize over the arrived clones
     ctx.replyEl.style.display = 'block';
     await wait(380);
+    flies.forEach(fl => fl.remove());
     stage.style.display = 'none'; // swap overlay → normal flow at identical height
     f.style.position = ''; f.style.left = ''; f.style.right = ''; f.style.top = '';
     f.style.marginTop = ''; f.style.transition = ''; f.style.opacity = '';
     await wait(3400);
     ctx.cells.forEach(c => { c.classList.remove('reveal'); c.style.opacity = ''; });
-    thumbs.forEach(t => { // clean up flight styles for the next round
-      t.style.transform = ''; t.style.transition = ''; t.style.zIndex = '';
-      t.style.opacity = ''; t.style.transformOrigin = '';
-    });
     cycle();
   })();
 });
