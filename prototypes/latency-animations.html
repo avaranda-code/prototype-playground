@@ -448,7 +448,8 @@
   .pk-slot.filled { border-style: solid; border-color: #fff; }
   .pk-slot.filled::after { content: "✓"; position: absolute; right: -4px; top: -7px; font-size: 10px; color: #fff; font-weight: 700; }
 
-  /* B · Focus scan */
+  /* B · Focus scan (no box/frame — thumbs float directly in the chat) */
+  .stage.scan, .stage.scan2 { background: none; }
   .sc-grid { display: grid; grid-template-columns: repeat(3, 52px); gap: 10px; justify-content: center; padding-top: 22px; }
   .sc-thumb {
     width: 52px; height: 52px; border-radius: 11px; overflow: hidden; background: #fff;
@@ -477,7 +478,7 @@
 
   /* D · Universal loader (no product data) */
   .stage.orb { height: 140px; }
-  .ob-wrap { position: absolute; left: 50%; top: 42px; width: 0; height: 0; }
+  .ob-wrap { position: absolute; left: 50%; top: 58px; width: 0; height: 0; }
   .ob-star { position: absolute; left: -13px; top: -15px; font-size: 26px; color: #fff; animation: obBreathe 1.8s ease-in-out infinite; }
   @keyframes obBreathe { 0%, 100% { transform: scale(0.82) rotate(0deg); opacity: .8; } 50% { transform: scale(1.15) rotate(18deg); opacity: 1; } }
   .ob-ring { position: absolute; left: -30px; top: -30px; width: 60px; height: 60px; animation: gspin 2.6s linear infinite; }
@@ -507,20 +508,31 @@
   .ty-thumbs img { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #fff; object-fit: cover; margin-left: -7px; }
   .ty-thumbs img:first-child { margin-left: 0; }
 
-  /* F · Criteria match */
-  .stage.match { height: 120px; }
+  /* F · Criteria match — chips are the framework; swap them per vertical (toys, skincare, apparel…) */
+  .stage.match { height: 130px; }
   .mt-chips { display: flex; justify-content: center; gap: 6px; padding-top: 18px; flex-wrap: wrap; }
   .mt-chip {
     font-size: 10.5px; font-weight: 600; color: #0a57d6; background: #fff; border-radius: 99px; padding: 4px 10px;
-    opacity: 0; transform: scale(0.6); transition: opacity .3s, transform .4s cubic-bezier(.2, 1.5, .4, 1);
+    opacity: 0; transform: scale(0.6);
+    transition: opacity .3s, transform .4s cubic-bezier(.2, 1.5, .4, 1), box-shadow .3s;
   }
   .mt-chip.in { opacity: 1; transform: scale(1); }
-  .mt-narrow { position: absolute; left: 0; right: 0; bottom: 20px; text-align: center; font-size: 12px; font-weight: 600; color: #fff; }
-  .mt-count { display: inline-block; font-variant-numeric: tabular-nums; }
-  .mt-count.pop { animation: mtPop .35s cubic-bezier(.2, 1.4, .4, 1); }
-  @keyframes mtPop { 0% { transform: scale(1.35); } 100% { transform: scale(1); } }
-  .mt-funnel { margin: 8px auto 0; width: 70%; height: 4px; border-radius: 2px; background: hsl(0 0% 100% / 0.25); overflow: hidden; }
-  .mt-funnel i { display: block; height: 100%; width: 100%; border-radius: 2px; background: #fff; transition: width .7s cubic-bezier(.5, 0, .2, 1); }
+  .mt-chip.active { box-shadow: 0 0 0 2.5px hsl(0 0% 100% / 0.85); transform: scale(1.07); }
+  .mt-thumbs { position: absolute; left: 0; right: 0; bottom: 20px; display: flex; justify-content: center; gap: 7px; }
+  .mt-thumb {
+    width: 32px; height: 32px; border-radius: 9px; overflow: hidden; background: #fff; position: relative; flex: none;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity .4s, transform .45s cubic-bezier(.2, 1.3, .4, 1), filter .4s;
+  }
+  .mt-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .mt-thumb.in { opacity: 1; transform: none; }
+  .mt-thumb.cut { opacity: 0.15; filter: grayscale(1); transform: scale(0.82); }
+  .mt-thumb.ok::after {
+    content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: #fff; background: hsl(220 70% 20% / 0.4);
+    animation: mtOk .4s cubic-bezier(.2, 1.4, .4, 1);
+  }
+  @keyframes mtOk { from { opacity: 0; transform: scale(1.5); } to { opacity: 1; transform: scale(1); } }
 </style>
 </head>
 <body>
@@ -781,24 +793,24 @@ const spinMarkup = brand => `
   <div class="spin-stage" data-brand="${brand}"><div class="g-orb"><div class="g-ring"></div></div><div class="spin-text"></div></div>
   <div class="fall-cards"></div>`;
 
-document.getElementById('rowConveyor').innerHTML = [
-  ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus', true), toysrusRotator, 'toysrus'],
-  ['Fallback — skeletons when product previews don’t load', belt2Markup('toysrus'), toysrusRotator, 'toysrus'],
-].map(([l, a, r, brand]) => cell(l, a, r, brand)).join('');
-
 // Round 2 — "picking for you" concepts from the demo thread + Natasha's feedback
 const stageMarkup = type => `
   <div class="stage ${type}"></div>
   <div class="finals"></div>
   <div class="conv-reply"></div>`;
+
+document.getElementById('rowConveyor').innerHTML = [
+  ['Universal loader — no product data needed', stageMarkup('orb'), '', 'toysrus'],
+  ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus', true), toysrusRotator, 'toysrus'],
+  ['Fallback — skeletons when product previews don’t load', belt2Markup('toysrus'), toysrusRotator, 'toysrus'],
+].map(([l, a, r, brand]) => cell(l, a, r, brand)).join('');
+
 document.getElementById('rowConcepts').innerHTML = [
-  ['Deal & discard — picking, not listing', stageMarkup('pick')],
-  ['Focus scan — inspecting each candidate', stageMarkup('scan')],
-  ['Score & sort — ranking the shortlist', stageMarkup('score')],
-  ['Universal loader — no product data needed', stageMarkup('orb')],
-  ['Collapse tray — previews stay accessible', stageMarkup('tray')],
-  ['Criteria match — narrowing 1,248 → 4', stageMarkup('match')],
-].map(([l, a]) => cell(l, a, toysrusRotator, 'toysrus')).join('');
+  ['Focus scan — inspecting each candidate', stageMarkup('scan'), toysrusRotator],
+  ['Focus scan — skeleton cards', stageMarkup('scan2'), toysrusRotator],
+  ['Collapse tray — previews stay accessible', stageMarkup('tray'), toysrusRotator],
+  ['Criteria match — a framework for any vertical', stageMarkup('match'), ''],
+].map(([l, a, r]) => cell(l, a, r, 'toysrus')).join('');
 
 document.querySelectorAll('.phrase-type').forEach(el => {
   let i = 0;
@@ -1352,52 +1364,15 @@ async function finalsIn(ctx) {
   ctx.cells.forEach(c => c.classList.remove('reveal', 'swipe-any'));
 }
 
-// ─── A · Deal & discard: the agent visibly considers each product, tosses some, shortlists the rest ───
-document.querySelectorAll('.stage.pick').forEach(stage => {
+// ─── B · Focus scan: every candidate visible, the agent's "eye" inspects each, eliminates two.
+//     .scan shows product photos; .scan2 is the same choreography over card skeletons. ───
+document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
   const ctx = roundCtx(stage);
-  stage.innerHTML = '<div class="pk-slots"><div class="pk-slot"></div><div class="pk-slot"></div><div class="pk-slot"></div><div class="pk-slot"></div></div>';
-  const slots = [...stage.querySelectorAll('.pk-slot')];
-  (async function cycle() {
-    await introSend(ctx);
-    stage.querySelectorAll('.pk-card').forEach(n => n.remove());
-    slots.forEach(s => s.classList.remove('filled'));
-    await wait(300);
-    const seq = [3, 0, 7, 1, 10, 2, 9]; // rotation indices considered
-    const keep = new Set([0, 1, 2, 9]); // 4 make the shortlist
-    let slotIdx = 0;
-    for (const idx of seq) {
-      const c = document.createElement('div');
-      c.className = 'pk-card';
-      c.innerHTML = '<img src="' + toysrusRotation[idx] + '" alt="">';
-      stage.appendChild(c);
-      await wait(60);
-      c.classList.add('in', 'considering'); // pop to center + think wiggle
-      await wait(640);
-      if (keep.has(idx)) { // shrink into the next shortlist slot
-        const sh = stage.clientHeight;
-        c.style.transform = 'translate(' + ((slotIdx - 1.5) * 40) + 'px,' + (sh * 0.5 - 42) + 'px) scale(0.42)';
-        slots[slotIdx].classList.add('filled');
-        slotIdx++;
-        await wait(360);
-        c.remove(); // slot outline takes over
-      } else { // tossed aside
-        c.classList.add('toss');
-        await wait(300);
-        c.remove();
-      }
-    }
-    await wait(450);
-    await hideStage(ctx);
-    await finalsIn(ctx);
-    cycle();
-  })();
-});
-
-// ─── B · Focus scan: every candidate visible, the agent's "eye" inspects each, eliminates two ───
-document.querySelectorAll('.stage.scan').forEach(stage => {
-  const ctx = roundCtx(stage);
+  const skeleton = stage.classList.contains('scan2');
   stage.innerHTML = '<div class="sc-grid">' +
-    [0, 1, 2, 3, 4, 5].map(i => '<div class="sc-thumb"><img src="' + toysrusRotation[i] + '" alt=""></div>').join('') +
+    [0, 1, 2, 3, 4, 5].map(i => skeleton
+      ? '<div class="sc-thumb csk"></div>'
+      : '<div class="sc-thumb"><img src="' + toysrusRotation[i] + '" alt=""></div>').join('') +
     '</div>';
   const thumbs = [...stage.querySelectorAll('.sc-thumb')];
   (async function cycle() {
@@ -1419,55 +1394,14 @@ document.querySelectorAll('.stage.scan').forEach(stage => {
   })();
 });
 
-// ─── C · Score & sort: candidates get scored live; low scores drop out ───
-document.querySelectorAll('.stage.score').forEach(stage => {
-  const ctx = roundCtx(stage);
-  const scores = [92, 88, 34, 81, 76];
-  stage.innerHTML = [0, 1, 2, 3, 4].map(i =>
-    '<div class="sr-row"><div class="sr-thumb"><img src="' + toysrusRotation[i] + '" alt=""></div>' +
-    '<div class="sr-meter"><i></i></div><div class="sr-pct">0%</div><div class="sr-check">✓</div></div>'
-  ).join('');
-  const rows = [...stage.querySelectorAll('.sr-row')];
-  (async function cycle() {
-    await introSend(ctx);
-    rows.forEach(r => { r.classList.remove('in', 'drop', 'win'); r.querySelector('.sr-meter i').style.width = '0'; r.querySelector('.sr-pct').textContent = '0%'; });
-    for (const r of rows) { r.classList.add('in'); await wait(120); }
-    await wait(200);
-    rows.forEach((r, i) => setTimeout(() => { // meters fill, staggered
-      r.querySelector('.sr-meter i').style.width = scores[i] + '%';
-      let v = 0; const step = setInterval(() => {
-        v = Math.min(scores[i], v + Math.ceil(scores[i] / 10));
-        r.querySelector('.sr-pct').textContent = v + '%';
-        if (v >= scores[i]) clearInterval(step);
-      }, 90);
-    }, i * 160));
-    await wait(1900);
-    rows[2].classList.add('drop'); // 34% doesn't make the cut
-    await wait(350);
-    rows.forEach((r, i) => { if (i !== 2) r.classList.add('win'); });
-    await wait(750);
-    await hideStage(ctx);
-    await finalsIn(ctx);
-    cycle();
-  })();
-});
-
-// ─── D · Universal loader: brand sparkle + real tool copy — needs no product data, usable everywhere ───
+// ─── D · Universal loader: pure brand sparkle — needs no product data or copy, usable everywhere ───
 document.querySelectorAll('.stage.orb').forEach(stage => {
   const ctx = roundCtx(stage);
   stage.innerHTML = '<div class="ob-wrap"><div class="ob-ring"><i></i><i></i><i></i></div><div class="ob-star">✦</div></div>' +
-    '<div class="ob-copy"></div><div class="ob-bar"><i></i></div>';
-  const copyEl = stage.querySelector('.ob-copy');
-  const steps = ['Searching products', 'Searching products and discounts', 'Checking product details']; // real tool copy
+    '<div class="ob-bar"><i></i></div>';
   (async function cycle() {
     await introSend(ctx);
-    for (const s of steps) {
-      copyEl.style.opacity = 0;
-      await wait(250);
-      copyEl.textContent = s + '…';
-      copyEl.style.opacity = 1;
-      await wait(1350);
-    }
+    await wait(4200);
     await hideStage(ctx);
     await finalsIn(ctx);
     cycle();
@@ -1494,28 +1428,43 @@ document.querySelectorAll('.stage.tray').forEach(stage => {
   })();
 });
 
-// ─── F · Criteria match: the agent shows *why* — extracts criteria, then narrows the catalog live ───
+// ─── F · Criteria match: chips extracted from the question filter live candidates.
+//     The framework is vertical-agnostic — swap the chips per catalog:
+//     toys: 🎁 gift-worthy / 🧒 age 5 / ⭐ top rated
+//     skincare: 🧴 dry skin / 🌿 fragrance-free / ⭐ top rated
+//     apparel: 🌧 waterproof / 📏 true to size / 💰 under $150 ───
 document.querySelectorAll('.stage.match').forEach(stage => {
   const ctx = roundCtx(stage);
-  stage.innerHTML = '<div class="mt-chips"><span class="mt-chip">🎁 gift-worthy</span><span class="mt-chip">🧒 age 5</span><span class="mt-chip">⭐ top rated</span></div>' +
-    '<div class="mt-narrow"><span class="mt-count">1,248</span> toys<div class="mt-funnel"><i></i></div></div>';
+  const criteria = ['🎁 gift-worthy', '🧒 age 5', '⭐ top rated'];
+  stage.innerHTML = '<div class="mt-chips">' + criteria.map(c => '<span class="mt-chip">' + c + '</span>').join('') + '</div>' +
+    '<div class="mt-thumbs">' + [0, 1, 2, 3, 4, 5].map(i => '<div class="mt-thumb"><img src="' + toysrusRotation[i] + '" alt=""></div>').join('') + '</div>';
   const chips = [...stage.querySelectorAll('.mt-chip')];
-  const countEl = stage.querySelector('.mt-count');
-  const funnel = stage.querySelector('.mt-funnel i');
-  const narrowSteps = [['1,248', 100], ['214', 55], ['36', 24], ['4', 6]];
+  const thumbs = [...stage.querySelectorAll('.mt-thumb')];
+  const cuts = [5, 3, null]; // each chip filters the field; the last one confirms the survivors
   (async function cycle() {
     await introSend(ctx);
-    chips.forEach(c => c.classList.remove('in'));
-    countEl.textContent = '1,248'; funnel.style.width = '100%';
-    for (const c of chips) { c.classList.add('in'); await wait(340); } // criteria extracted from the question
-    await wait(400);
-    for (const [n, w] of narrowSteps.slice(1)) { // catalog narrows step by step
-      countEl.textContent = n;
-      countEl.classList.remove('pop'); void countEl.offsetWidth; countEl.classList.add('pop');
-      funnel.style.width = w + '%';
-      await wait(850);
-    }
+    chips.forEach(c => c.classList.remove('in', 'active'));
+    thumbs.forEach(t => t.classList.remove('in', 'cut', 'ok'));
+    for (const t of thumbs) { t.classList.add('in'); await wait(130); } // candidates line up
     await wait(500);
+    for (let i = 0; i < chips.length; i++) { // slower, deliberate: one criterion at a time
+      chips[i].classList.add('in');
+      await wait(550);
+      chips[i].classList.add('active'); // this criterion is being applied…
+      await wait(500);
+      if (cuts[i] !== null) {
+        thumbs[cuts[i]].classList.add('cut'); // …and one candidate doesn't pass
+        await wait(650);
+      } else {
+        for (const t of thumbs) { // final criterion: survivors get their checkmarks
+          if (!t.classList.contains('cut')) { t.classList.add('ok'); await wait(200); }
+        }
+        await wait(400);
+      }
+      chips[i].classList.remove('active');
+      await wait(300);
+    }
+    await wait(650);
     await hideStage(ctx);
     await finalsIn(ctx);
     cycle();
