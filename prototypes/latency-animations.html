@@ -1506,6 +1506,10 @@ async function finalsIn(ctx, anim = 'swipe-any', stagger = 320) {
 //     tiles); OSEA cycles 14 images through the 9 tiles. ───
 document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
   const ctx = roundCtx(stage);
+  // one permanent text line: it ALWAYS occupies its 22px — loading copy fades to the reply
+  // in place, so the layout (and the user's message) never shifts by a single pixel
+  const seqEl = ctx.phraseEl;
+  ctx.phraseEl = null; // keep the shared helpers from display-toggling it
   const skeleton = stage.classList.contains('scan2');
   const pool = ctx.brand === 'osea' ? oseaRotation : toysrusRotation.slice(0, 6);
   const prods = ctx.prods;
@@ -1524,6 +1528,7 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
   // stage and finals are both a fixed 230px (CSS) — identical by construction, no measuring
 
   (async function cycle() {
+    if (seqEl) seqEl.style.opacity = 0; // clear last round's reply text
     await introSend(ctx);
     thumbs.forEach((t, i) => {
       t.classList.remove('in', 'focus', 'out', 'win');
@@ -1531,12 +1536,12 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
       clearImg(i);
     });
     if (!skeleton) for (let i = 0; i < 6; i++) setImg(i, pool[i]); // all 6 tiles start filled
-    if (ctx.phraseEl) (async () => { // copy synced to the 9s scan: each phrase holds 3s
+    if (seqEl) (async () => { // copy synced to the 9s scan: each phrase holds 3s
       for (const p of scanPhrases) {
-        ctx.phraseEl.textContent = p;
-        ctx.phraseEl.style.opacity = 1;
+        seqEl.textContent = p;
+        seqEl.style.opacity = 1;
         await wait(2580);
-        ctx.phraseEl.style.opacity = 0;
+        seqEl.style.opacity = 0;
         await wait(420);
       }
     })();
@@ -1622,11 +1627,11 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
       fly.style.height = tgt.height + 'px';
     });
     stage.style.height = targetH + 'px';
-    if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
+    if (seqEl) seqEl.style.opacity = 0; // loading copy fades out — the line itself stays put
     await wait(720);
     f.style.transition = 'opacity .35s';
     f.style.opacity = '1'; // crossfade: full cards materialize over the arrived clones
-    ctx.replyEl.style.display = 'block';
+    if (seqEl) { seqEl.textContent = convReplies[ctx.brand]; seqEl.style.opacity = 1; } // …and fades back in as the reply
     await wait(380);
     flies.forEach(fl => fl.remove());
     stage.style.display = 'none'; // swap overlay → normal flow at identical height
