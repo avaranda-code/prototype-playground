@@ -533,6 +533,18 @@
     animation: mtOk .4s cubic-bezier(.2, 1.4, .4, 1);
   }
   @keyframes mtOk { from { opacity: 0; transform: scale(1.5); } to { opacity: 1; transform: scale(1); } }
+
+  /* G · Shuffle deal — cards shuffle positions while loading; photos deal on mid-shuffle */
+  .stage.shuffle { height: 190px; }
+  .sh-card {
+    position: absolute; left: 0; top: 0; border-radius: 10px; background: #fff; overflow: hidden;
+    box-shadow: 0 2px 6px hsl(0 0% 0% / 0.18);
+    transition: transform .55s cubic-bezier(.35, .1, .25, 1.1);
+  }
+  .sh-card .conv-img { height: 44px; }
+  .sh-card .conv-real { opacity: 0; transform: none; transition: opacity .55s; }
+  .sh-card.pic .conv-real { opacity: 1; }
+  .sh-card.pic .csk::after { display: none; }
 </style>
 </head>
 <body>
@@ -810,6 +822,7 @@ document.getElementById('rowConcepts').innerHTML = [
   ['Focus scan — skeleton cards', stageMarkup('scan2'), toysrusRotator],
   ['Collapse tray — previews stay accessible', stageMarkup('tray'), toysrusRotator],
   ['Criteria match — a framework for any vertical', stageMarkup('match'), ''],
+  ['Shuffle deal — skeletons → photos → picks', stageMarkup('shuffle'), toysrusRotator],
 ].map(([l, a, r]) => cell(l, a, r, 'toysrus')).join('');
 
 document.querySelectorAll('.phrase-type').forEach(el => {
@@ -1424,6 +1437,60 @@ document.querySelectorAll('.stage.tray').forEach(stage => {
     await wait(500);
     await finalsIn(ctx); // note: stage is NOT hidden — pill stays above the finals
     stage.classList.remove('collapsed');
+    cycle();
+  })();
+});
+
+// ─── G · Shuffle deal: cards shuffle like a shell game — skeletons first, then photos deal on,
+//     then the picks land. Full loading animation runs 10 seconds. ───
+document.querySelectorAll('.stage.shuffle').forEach(stage => {
+  const ctx = roundCtx(stage);
+  const cards = [0, 1, 2, 3].map(i => {
+    const c = document.createElement('div');
+    c.className = 'sh-card';
+    c.innerHTML = '<div class="conv-img csk"><div class="conv-real"><img src="' + toysrusRotation[i] + '" alt=""></div></div>' +
+      '<div class="conv-info"><div class="cbar csk w80"></div><div class="cbar csk w50"></div></div>';
+    stage.appendChild(c);
+    return c;
+  });
+  let slotOf = [0, 1, 2, 3];
+  function place() { // 2×2 slots; cards glide to their (re)assigned slot
+    const pad = 12, gap = 8;
+    const w = (stage.clientWidth - pad * 2 - gap) / 2;
+    const h = (stage.clientHeight - pad * 2 - gap) / 2;
+    cards.forEach((c, i) => {
+      c.style.width = w + 'px'; c.style.height = h + 'px';
+      const s = slotOf[i], col = s % 2, row = s >> 1;
+      c.style.transform = 'translate(' + (pad + col * (w + gap)) + 'px,' + (pad + row * (h + gap)) + 'px)';
+    });
+  }
+  (async function cycle() {
+    await introSend(ctx);
+    cards.forEach(c => c.classList.remove('pic'));
+    slotOf = [0, 1, 2, 3];
+    place();
+    let shuffling = true;
+    (async () => { // the shuffle: mostly pair swaps, sometimes the whole deck rotates
+      while (shuffling) {
+        if (Math.random() < 0.7) {
+          const a = Math.floor(Math.random() * 4);
+          let b = Math.floor(Math.random() * 4);
+          if (b === a) b = (b + 1) % 4;
+          [slotOf[a], slotOf[b]] = [slotOf[b], slotOf[a]];
+        } else {
+          slotOf = slotOf.map(s => (s + 1) % 4);
+        }
+        place();
+        await wait(760);
+      }
+    })();
+    await wait(4600); // phase 1: skeleton cards shuffling
+    cards.forEach((c, i) => setTimeout(() => c.classList.add('pic'), i * 250)); // phase 2: photos deal on
+    await wait(5400); // …still shuffling — 10s of loading total
+    shuffling = false;
+    await wait(600);  // last move settles
+    await hideStage(ctx);
+    await finalsIn(ctx); // phase 3: final states
     cycle();
   })();
 });
