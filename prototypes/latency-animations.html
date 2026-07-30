@@ -444,6 +444,12 @@
   .finals { display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
   .finals .conv-card { opacity: 0; }
   .finals .conv-img { height: 64px; }
+  /* finals cells keep IDENTICAL height in skeleton, veiled and revealed states: the bars
+     overlay the (hidden) text instead of adding their own height, so nothing ever shifts */
+  .finals .conv-info { position: relative; }
+  .finals .cbar { position: absolute; left: 7px; margin-top: 0; }
+  .finals .cbar.w80 { top: 8px; width: 65%; }
+  .finals .cbar.w50 { top: 20px; width: 42%; }
   .conv-card.swipe-any { animation: swipeInCard .75s cubic-bezier(.3, 1.35, .45, 1) both; }
   /* gentler entrance for handoffs that should feel continuous, not like a scene change */
   .conv-card.fade-any { animation: fadeInCard .7s cubic-bezier(.25, .8, .3, 1) both; position: relative; }
@@ -477,10 +483,15 @@
   .pk-slot.filled { border-style: solid; border-color: #fff; }
   .pk-slot.filled::after { content: "✓"; position: absolute; right: -4px; top: -7px; font-size: 10px; color: #fff; font-weight: 700; }
 
-  /* B · Focus scan (no box/frame — thumbs float directly in the chat, 248px wide grid).
-     overflow visible so focused cards can scale up without getting cropped */
-  .stage.scan, .stage.scan2 { background: none; height: 184px; overflow: visible; }
-  .sc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 6px 0; width: 248px; margin: 0 auto; }
+  /* B · Focus scan (no box/frame). The stage reserves the exact height the finals will occupy
+     (~230px, measured at runtime) and the compact 2×3 tile grid floats centered inside it —
+     so the chat never gets bumped when the finals land. overflow visible so focused cards
+     can scale up without getting cropped */
+  .stage.scan, .stage.scan2 { background: none; height: 230px; overflow: visible; display: flex; align-items: center; }
+  .sc-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; padding: 0; width: 248px; margin: 0 auto;
+  }
   .sc-thumb {
     width: 100%; aspect-ratio: 1 / 1; border-radius: 11px; overflow: hidden; background: #fff;
     opacity: 0; transform: scale(0.7); transition: opacity .3s, transform .35s cubic-bezier(.2, 1.3, .4, 1), filter .3s;
@@ -495,6 +506,12 @@
                 width .7s cubic-bezier(.45, .05, .25, 1), height .7s cubic-bezier(.45, .05, .25, 1);
   }
   .fly-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* veiled finals: the landed card is a full skeleton (shimmer image + bars), then the
+     product image and text plop in together */
+  .conv-card.reveal.veiled .conv-real { opacity: 0; transform: scale(1); transition: none; }
+  .conv-card.reveal.veiled .conv-txt { opacity: 0; transition: none; }
+  .conv-card.reveal.veiled .cbar { display: block; }
+  .conv-card.reveal.veiled .csk::after { display: block; }
   .sc-thumb.in { opacity: 0.45; transform: scale(1); }
   .sc-thumb.in.focus { opacity: 1; transform: scale(1.16); box-shadow: 0 0 0 2.5px #fff, 0 4px 12px hsl(0 0% 0% / 0.3); z-index: 2; }
   .sc-thumb.in.out { opacity: 0.12; filter: grayscale(1); transform: scale(0.88); }
@@ -519,9 +536,9 @@
   .stage.orb { height: 140px; background: none; }
   /* sequential loading phrases — each appears alone and disappears before the next */
   .phrase-seq {
-    height: 18px; line-height: 18px; padding-left: 8px; font-size: 11px; font-weight: 500;
+    height: 18px; line-height: 18px; padding-left: 8px; margin-top: 4px; font-size: 11px; font-weight: 500;
     color: hsl(var(--primary)); white-space: nowrap; opacity: 0; transition: opacity .35s;
-  }
+  } /* margin matches .conv-reply so the phrase → reply swap doesn't shift the chat */
   .ob-wrap { position: absolute; left: 50%; top: 58px; width: 0; height: 0; }
   .ob-star { position: absolute; left: -13px; top: -15px; font-size: 26px; color: #fff; animation: obBreathe 1.8s ease-in-out infinite; }
   @keyframes obBreathe { 0%, 100% { transform: scale(0.82) rotate(0deg); opacity: .8; } 50% { transform: scale(1.15) rotate(18deg); opacity: 1; } }
@@ -1017,6 +1034,10 @@ const oseaRotation = [
   'UndariaCollection_UBC-1_DTC.jpg?v=1776362090', // Undaria Body Collection
   'PDP_2_-_Product_Frontal_DTC_1600x2000_eedbab0f-922b-4568-b4dd-61363aaa9968.jpg?v=1766096034', // Dream Bio-Retinol Body Serum
   'BHH-1_BG_COLOR_79d62181-8a2a-468e-bee5-be4bc8257256.jpg?v=1776359843', // Body Hydration Heroes
+  '2-HSS_PDP_ECOMM_1600x2000_84592bad-f79c-43cf-a7f2-79ac949e203e.jpg?v=1769725294', // Hyaluronic Sea Serum
+  '2-DNS_PDP_LIFESTYLE_1600x2000_8e7e9735-56f3-4156-a0f0-53f392344cda.jpg?v=1769725787', // Dream Night Serum
+  '2-OEYES_PDP_OPEN_ECOMM_1600x2000_ca11d762-8f21-4d2f-8b8b-305a4300a376.jpg?v=1774454539', // Ocean Eyes Eye Serum
+  'OSEA_SeaglowOvernightSerum_OFME-SOS-30-DTC-4.jpg?v=1762198943', // Seaglow Overnight Serum
 ].map(f => 'https://cdn.shopify.com/s/files/1/1368/9993/files/' + f + '&width=240');
 
 document.querySelectorAll('.conv[data-brand]').forEach(el => {
@@ -1444,7 +1465,6 @@ async function introSend(ctx) {
   ctx.userRow.classList.remove('sent');
   ctx.stage.classList.remove('on', 'hide', 'collapsed');
   ctx.stage.style.display = '';
-  ctx.stage.style.height = '';
   ctx.finalsEl.style.display = 'none';
   ctx.replyEl.style.display = 'none';
   if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
@@ -1473,29 +1493,46 @@ async function finalsIn(ctx, anim = 'swipe-any', stagger = 320) {
   ctx.cells.forEach(c => c.classList.remove('reveal', 'swipe-any', 'fade-any'));
 }
 
-// ─── B · Focus scan: every candidate visible, the agent's "eye" inspects each, eliminates the
-//     rest. .scan shows product photos (per brand); .scan2 is the same choreography over card
-//     skeletons. Works for 3-final brands (OSEA) and 4-final brands (Toys R Us). ───
+// ─── B · Focus scan: a 3×3 grid of tiles sized to the exact footprint the finals will occupy.
+//     The agent's "eye" inspects tiles, images shuffle through the pool, losers drop out, the
+//     winning tiles skeletonize and glide into the final slots, then the products plop in.
+//     .scan shows product photos (per brand); .scan2 runs the same choreography on skeletons.
+//     Toys R Us cycles 6 images through 9 tiles (blanks included — images hop into blank
+//     tiles); OSEA cycles 14 images through the 9 tiles. ───
 document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
   const ctx = roundCtx(stage);
   const skeleton = stage.classList.contains('scan2');
-  const pool = ctx.brand === 'osea' ? oseaRotation : toysrusRotation;
+  const pool = ctx.brand === 'osea' ? oseaRotation : toysrusRotation.slice(0, 6);
   const prods = ctx.prods;
-  const elim = prods.length === 3 ? [1, 4, 5] : [1, 4]; // eliminate down to the number of finals
-  const winners = [0, 1, 2, 3, 4, 5].filter(i => !elim.includes(i));
+  // 2×3 grid; corner tiles map onto the final cells (TL, TR, BL, BR)
+  const winners = prods.length === 3 ? [0, 2, 3] : [0, 2, 3, 5];
+  const elim = [0, 1, 2, 3, 4, 5].filter(i => !winners.includes(i));
   stage.innerHTML = '<div class="sc-grid">' +
-    [0, 1, 2, 3, 4, 5].map(i => skeleton
+    Array.from({ length: 6 }, () => skeleton
       ? '<div class="sc-thumb csk"></div>'
-      : '<div class="sc-thumb"><img src="' + pool[i] + '" alt=""></div>').join('') +
+      : '<div class="sc-thumb csk"><img alt=""></div>').join('') +
     '</div>';
   const thumbs = [...stage.querySelectorAll('.sc-thumb')];
+  const hasImg = new Array(6).fill(false);
+  const setImg = (i, src) => { const im = thumbs[i].querySelector('img'); im.src = src; im.style.opacity = 1; thumbs[i].classList.remove('csk'); hasImg[i] = true; };
+  const clearImg = i => { const im = thumbs[i].querySelector('img'); if (im) im.style.opacity = 0; thumbs[i].classList.add('csk'); hasImg[i] = false; };
+  // size the scan to the exact space the finals will occupy
+  for (let j = 0; j < ctx.cells.length; j++) fillCell(ctx.cells[j], prods[j]);
+  const f0 = ctx.finalsEl;
+  f0.style.position = 'absolute'; f0.style.left = '12px'; f0.style.right = '12px';
+  f0.style.visibility = 'hidden'; f0.style.display = 'grid';
+  const stageTargetH = f0.offsetHeight;
+  f0.style.display = 'none'; f0.style.position = ''; f0.style.left = ''; f0.style.right = ''; f0.style.visibility = '';
+  stage.style.height = stageTargetH + 'px';
+
   (async function cycle() {
     await introSend(ctx);
     thumbs.forEach((t, i) => {
       t.classList.remove('in', 'focus', 'out', 'win');
       t.style.opacity = ''; t.style.transition = '';
-      if (!skeleton) { const im = t.querySelector('img'); im.src = pool[i]; im.style.opacity = 1; }
+      clearImg(i);
     });
+    if (!skeleton) for (let i = 0; i < 6; i++) setImg(i, pool[i]); // all 6 tiles start filled
     if (ctx.phraseEl) (async () => { // copy synced to the 9s scan: each phrase holds 3s
       for (const p of scanPhrases) {
         ctx.phraseEl.textContent = p;
@@ -1505,39 +1542,48 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
         await wait(420);
       }
     })();
-    // the 6 slots cycle through the whole candidate pool (works for 12–20 the same way —
-    // unfocused slots keep crossfading to unseen products until the pool is exhausted)
-    let nextIdx = 6;
-    async function swapThumb(exclude) {
-      if (skeleton || nextIdx >= pool.length) return;
-      const options = thumbs.map((t, i) => i).filter(i => i !== exclude && !thumbs[i].classList.contains('out'));
-      const i = options[Math.floor(Math.random() * options.length)];
-      const img = thumbs[i].querySelector('img');
-      img.style.opacity = 0;
-      await wait(220);
-      img.src = pool[nextIdx++];
-      img.style.opacity = 1;
+    let nextIdx = 6; // OSEA: next unseen product in the pool
+    async function stir(exclude) {
+      if (skeleton) return;
+      if (ctx.brand === 'osea') { // a tile quietly crossfades to a product not yet seen (14 total)
+        if (nextIdx >= pool.length) return;
+        const opts = [0, 1, 2, 3, 4, 5].filter(i => i !== exclude && hasImg[i]);
+        const i = opts[Math.floor(Math.random() * opts.length)];
+        const img = thumbs[i].querySelector('img');
+        img.style.opacity = 0;
+        await wait(220);
+        img.src = pool[nextIdx++];
+        img.style.opacity = 1;
+      } else { // Toys R Us: two tiles trade products, so the same 6 toys keep moving around
+        const opts = [0, 1, 2, 3, 4, 5].filter(i => i !== exclude && hasImg[i]);
+        if (opts.length < 2) return;
+        const a = opts.splice(Math.floor(Math.random() * opts.length), 1)[0];
+        const b = opts[Math.floor(Math.random() * opts.length)];
+        const ia = thumbs[a].querySelector('img'), ib = thumbs[b].querySelector('img');
+        ia.style.opacity = 0; ib.style.opacity = 0;
+        await wait(240);
+        const tmp = ia.src; ia.src = ib.src; ib.src = tmp;
+        ia.style.opacity = 1; ib.style.opacity = 1;
+      }
     }
-    for (const t of thumbs) { t.classList.add('in'); await wait(150); } // candidates appear
+    for (const t of thumbs) { t.classList.add('in'); await wait(150); } // tiles appear
     await wait(320);
-    const hops = [0, 1, 2, 5, 4, 3, 1, 0, 4, 2, 5, 3]; // the eye inspects, revisits, compares
-    for (let h = 0; h < hops.length; h++) {
-      thumbs[hops[h]].classList.add('focus');
-      if (h % 2 === 1) swapThumb(hops[h]); // meanwhile another slot quietly cycles to a new product
+    let prev = -1; // the eye inspects tiles, revisits, compares
+    for (let h = 0; h < 12; h++) {
+      const opts = [0, 1, 2, 3, 4, 5].filter(i => i !== prev);
+      const i = opts[Math.floor(Math.random() * opts.length)];
+      thumbs[i].classList.add('focus');
+      if (ctx.brand === 'osea' ? true : h % 2 === 1) stir(i); // the field keeps moving
       await wait(470);
-      thumbs[hops[h]].classList.remove('focus');
+      thumbs[i].classList.remove('focus');
+      prev = i;
     }
     const elimBeat = Math.round(900 / elim.length);
     for (const i of elim) { thumbs[i].classList.add('out'); await wait(elimBeat); } // eliminated
-    thumbs.forEach((t, i) => { if (!elim.includes(i)) t.classList.add('win'); });
-    // the surviving cards settle on the ACTUAL final products before the zoom
-    if (!skeleton) winners.forEach((wi, k) => setTimeout(async () => {
-      const img = thumbs[wi].querySelector('img');
-      img.style.opacity = 0;
-      await wait(220);
-      img.src = prods[k][0];
-      img.style.opacity = 1;
-    }, 120 + k * 150));
+    thumbs.forEach((t, i) => { if (winners.includes(i)) t.classList.add('win'); });
+    // the winning tiles shimmer back into skeletons — they'll expand as skeletons,
+    // so the resize is perfectly clean and the products plop in once landed
+    if (!skeleton) winners.forEach((wi, k) => setTimeout(() => clearImg(wi), 200 + k * 150));
     await wait(1240); // exactly 9s of scanning in total, matching the 3×3s copy
 
     // ── seamless handoff ──
@@ -1546,7 +1592,7 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
     // photo re-crops via object-fit instead of stretching, so nothing smushes. The finals then
     // crossfade in over the arrived clones at identical height — the chat never bounces.
     for (let j = 0; j < ctx.cells.length; j++) fillCell(ctx.cells[j], prods[j]);
-    ctx.cells.forEach(c => { c.classList.add('reveal'); c.style.opacity = '1'; });
+    ctx.cells.forEach(c => { c.classList.add('reveal', 'veiled'); c.style.opacity = '1'; }); // images stay shimmered until landed
     const f = ctx.finalsEl;
     f.style.position = 'absolute'; f.style.left = '12px'; f.style.right = '12px';
     f.style.marginTop = '0'; f.style.opacity = '0'; f.style.display = 'grid';
@@ -1554,12 +1600,11 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
     const targetH = f.offsetHeight;
     f.style.top = (stage.offsetTop + stageH0 - targetH) + 'px'; // where the finals will rest
     const convoRect = ctx.convo.getBoundingClientRect();
-    const targets = ctx.cells.map(c => c.querySelector('.conv-img').getBoundingClientRect());
+    const targets = ctx.cells.map(c => c.getBoundingClientRect()); // grow into the WHOLE product card
     const flies = winners.map((wi, k) => {
       const s = thumbs[wi].getBoundingClientRect();
       const fly = document.createElement('div');
-      fly.className = 'fly-card' + (skeleton ? ' csk' : '');
-      if (!skeleton) fly.innerHTML = '<img src="' + prods[k][0] + '" alt="">';
+      fly.className = 'fly-card csk'; // clones shimmer while morphing — no image, no smush
       fly.style.left = (s.left - convoRect.left) + 'px';
       fly.style.top = (s.top - convoRect.top) + 'px';
       fly.style.width = s.width + 'px';
@@ -1589,8 +1634,10 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
     stage.style.display = 'none'; // swap overlay → normal flow at identical height
     f.style.position = ''; f.style.left = ''; f.style.right = ''; f.style.top = '';
     f.style.marginTop = ''; f.style.transition = ''; f.style.opacity = '';
-    await wait(3400);
-    ctx.cells.forEach(c => { c.classList.remove('reveal'); c.style.opacity = ''; });
+    // the landed cards shimmer briefly, then each image reveals — no mid-flight distortion
+    ctx.cells.forEach((c, k) => setTimeout(() => c.classList.remove('veiled'), 300 + k * 200));
+    await wait(6400); // hold the final products 3s longer before the round restarts
+    ctx.cells.forEach(c => { c.classList.remove('reveal', 'veiled'); c.style.opacity = ''; });
     cycle();
   })();
 });
