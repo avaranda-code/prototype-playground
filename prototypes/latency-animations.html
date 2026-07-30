@@ -462,14 +462,19 @@
   .pk-slot.filled { border-style: solid; border-color: #fff; }
   .pk-slot.filled::after { content: "✓"; position: absolute; right: -4px; top: -7px; font-size: 10px; color: #fff; font-weight: 700; }
 
-  /* B · Focus scan (no box/frame — thumbs float directly in the chat, full 256px width) */
+  /* B · Focus scan (no box/frame — thumbs float directly in the chat, 248px wide grid) */
   .stage.scan, .stage.scan2 { background: none; height: 184px; }
-  .sc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 6px 0; }
+  .sc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 6px 0; width: 248px; margin: 0 auto; }
   .sc-thumb {
     width: 100%; aspect-ratio: 1 / 1; border-radius: 11px; overflow: hidden; background: #fff;
     opacity: 0; transform: scale(0.7); transition: opacity .3s, transform .35s cubic-bezier(.2, 1.3, .4, 1), filter .3s;
   }
-  .sc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .sc-thumb img { width: 100%; height: 100%; object-fit: cover; transition: opacity .22s; }
+  /* zoom handoff: the picks grow toward the viewer as the rest of the grid melts away */
+  .sc-thumb.in.zoom {
+    opacity: 0; transform: scale(1.45); z-index: 3;
+    transition: opacity .6s ease, transform .65s cubic-bezier(.4, 0, .55, 1);
+  }
   .sc-thumb.in { opacity: 0.45; transform: scale(1); }
   .sc-thumb.in.focus { opacity: 1; transform: scale(1.16); box-shadow: 0 0 0 2.5px #fff, 0 4px 12px hsl(0 0% 0% / 0.3); z-index: 2; }
   .sc-thumb.in.out { opacity: 0.12; filter: grayscale(1); transform: scale(0.88); }
@@ -1430,7 +1435,10 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
   const thumbs = [...stage.querySelectorAll('.sc-thumb')];
   (async function cycle() {
     await introSend(ctx);
-    thumbs.forEach(t => t.classList.remove('in', 'focus', 'out', 'win'));
+    thumbs.forEach((t, i) => {
+      t.classList.remove('in', 'focus', 'out', 'win', 'zoom');
+      if (!skeleton) { const im = t.querySelector('img'); im.src = toysrusRotation[i]; im.style.opacity = 1; }
+    });
     if (ctx.phraseEl) (async () => { // copy synced to the 9s scan: each phrase holds 3s
       for (const p of scanPhrases) {
         ctx.phraseEl.textContent = p;
@@ -1440,22 +1448,46 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
         await wait(420);
       }
     })();
+    // the 6 slots cycle through the whole candidate pool (12 here; works for 12–20 the same
+    // way — unfocused slots keep crossfading to unseen products until the pool is exhausted)
+    let nextIdx = 6;
+    async function swapThumb(exclude) {
+      if (skeleton || nextIdx >= toysrusRotation.length) return;
+      const options = thumbs.map((t, i) => i).filter(i => i !== exclude && !thumbs[i].classList.contains('out'));
+      const i = options[Math.floor(Math.random() * options.length)];
+      const img = thumbs[i].querySelector('img');
+      img.style.opacity = 0;
+      await wait(220);
+      img.src = toysrusRotation[nextIdx++];
+      img.style.opacity = 1;
+    }
     for (const t of thumbs) { t.classList.add('in'); await wait(150); } // candidates appear
     await wait(320);
-    for (const i of [0, 1, 2, 5, 4, 3, 1, 0, 4, 2, 5, 3]) { // the eye inspects, revisits, compares
-      thumbs[i].classList.add('focus');
+    const hops = [0, 1, 2, 5, 4, 3, 1, 0, 4, 2, 5, 3]; // the eye inspects, revisits, compares
+    for (let h = 0; h < hops.length; h++) {
+      thumbs[hops[h]].classList.add('focus');
+      if (h % 2 === 1) swapThumb(hops[h]); // meanwhile another slot quietly cycles to a new product
       await wait(470);
-      thumbs[i].classList.remove('focus');
+      thumbs[hops[h]].classList.remove('focus');
     }
     for (const i of [1, 4]) { thumbs[i].classList.add('out'); await wait(450); } // eliminated
     thumbs.forEach((t, i) => { if (i !== 1 && i !== 4) t.classList.add('win'); });
     await wait(1240); // exactly 9s of scanning in total, matching the 3×3s copy
-    // gentle handoff: the grid fades and collapses while the finals cross-fade in with a reveal shimmer
+    // zoom handoff: pre-size the stage to the finals' height so the chat never bounces,
+    // then the picks zoom toward the viewer while the rest of the grid melts away
+    for (let j = 0; j < 4; j++) fillCell(ctx.cells[j], convProducts.toysrus[j]);
+    ctx.finalsEl.style.visibility = 'hidden';
+    ctx.finalsEl.style.display = 'grid';
+    const targetH = ctx.finalsEl.offsetHeight;
+    ctx.finalsEl.style.display = 'none';
+    ctx.finalsEl.style.visibility = '';
+    thumbs.forEach((t, i) => { if (i !== 1 && i !== 4) t.classList.add('zoom'); });
+    stage.style.height = targetH + 'px';
+    await wait(620);
     stage.classList.add('hide');
-    stage.style.height = '0px';
-    await wait(460);
+    await wait(240);
     stage.style.display = 'none';
-    await finalsIn(ctx, 'fade-any', 260);
+    await finalsIn(ctx, 'fade-any', 240);
     cycle();
   })();
 });
