@@ -80,7 +80,7 @@
 
   .convo {
     flex: 1; display: flex; flex-direction: column; justify-content: flex-end;
-    padding: 0 12px 64px; gap: 8px;
+    padding: 0 12px 64px; gap: 8px; position: relative;
   }
   .user-row { display: flex; justify-content: flex-end; }
   .user-bubble {
@@ -462,8 +462,9 @@
   .pk-slot.filled { border-style: solid; border-color: #fff; }
   .pk-slot.filled::after { content: "✓"; position: absolute; right: -4px; top: -7px; font-size: 10px; color: #fff; font-weight: 700; }
 
-  /* B · Focus scan (no box/frame — thumbs float directly in the chat, 248px wide grid) */
-  .stage.scan, .stage.scan2 { background: none; height: 184px; }
+  /* B · Focus scan (no box/frame — thumbs float directly in the chat, 248px wide grid).
+     overflow visible so focused cards can scale up without getting cropped */
+  .stage.scan, .stage.scan2 { background: none; height: 184px; overflow: visible; }
   .sc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 6px 0; width: 248px; margin: 0 auto; }
   .sc-thumb {
     width: 100%; aspect-ratio: 1 / 1; border-radius: 11px; overflow: hidden; background: #fff;
@@ -1473,21 +1474,47 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
     for (const i of [1, 4]) { thumbs[i].classList.add('out'); await wait(450); } // eliminated
     thumbs.forEach((t, i) => { if (i !== 1 && i !== 4) t.classList.add('win'); });
     await wait(1240); // exactly 9s of scanning in total, matching the 3×3s copy
-    // zoom handoff: pre-size the stage to the finals' height so the chat never bounces,
-    // then the picks zoom toward the viewer while the rest of the grid melts away
+
+    // ── seamless handoff ──
+    // The finals grid is overlaid (invisible) exactly where it will finally rest; each winning
+    // card flies from its grid spot straight into a final card's image slot while the two
+    // eliminated cards melt away; the finals then crossfade in over the arrived cards and the
+    // overlay swaps to normal flow at identical height — the chat never bounces.
     for (let j = 0; j < 4; j++) fillCell(ctx.cells[j], convProducts.toysrus[j]);
-    ctx.finalsEl.style.visibility = 'hidden';
-    ctx.finalsEl.style.display = 'grid';
-    const targetH = ctx.finalsEl.offsetHeight;
-    ctx.finalsEl.style.display = 'none';
-    ctx.finalsEl.style.visibility = '';
-    thumbs.forEach((t, i) => { if (i !== 1 && i !== 4) t.classList.add('zoom'); });
+    ctx.cells.forEach(c => { c.classList.add('reveal'); c.style.opacity = '1'; });
+    const f = ctx.finalsEl;
+    f.style.position = 'absolute'; f.style.left = '12px'; f.style.right = '12px';
+    f.style.marginTop = '0'; f.style.opacity = '0'; f.style.display = 'grid';
+    const stageH0 = stage.offsetHeight;
+    const targetH = f.offsetHeight;
+    f.style.top = (stage.offsetTop + stageH0 - targetH) + 'px'; // where the finals will rest
+    const shiftY = stageH0 - targetH; // the stage top drifts by this much as it resizes
+    const targets = ctx.cells.map(c => c.querySelector('.conv-img').getBoundingClientRect());
+    [0, 2, 3, 5].forEach((wi, k) => { // winners fly to their final slots
+      const t = thumbs[wi], s = t.getBoundingClientRect(), tgt = targets[k];
+      t.style.transformOrigin = 'top left';
+      t.style.transition = 'transform .68s cubic-bezier(.45, .05, .25, 1)';
+      t.style.zIndex = 4;
+      t.style.transform = 'translate(' + (tgt.left - s.left) + 'px,' + (tgt.top - s.top - shiftY) + 'px) ' +
+        'scale(' + (tgt.width / s.width) + ',' + (tgt.height / s.height) + ')';
+    });
+    thumbs[1].style.opacity = 0; thumbs[4].style.opacity = 0; // eliminated cards melt away
     stage.style.height = targetH + 'px';
-    await wait(620);
-    stage.classList.add('hide');
-    await wait(240);
-    stage.style.display = 'none';
-    await finalsIn(ctx, 'fade-any', 240);
+    if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
+    await wait(700);
+    f.style.transition = 'opacity .35s';
+    f.style.opacity = '1'; // crossfade: full cards materialize over the arrived thumbs
+    ctx.replyEl.style.display = 'block';
+    await wait(380);
+    stage.style.display = 'none'; // swap overlay → normal flow at identical height
+    f.style.position = ''; f.style.left = ''; f.style.right = ''; f.style.top = '';
+    f.style.marginTop = ''; f.style.transition = ''; f.style.opacity = '';
+    await wait(3400);
+    ctx.cells.forEach(c => { c.classList.remove('reveal'); c.style.opacity = ''; });
+    thumbs.forEach(t => { // clean up flight styles for the next round
+      t.style.transform = ''; t.style.transition = ''; t.style.zIndex = '';
+      t.style.opacity = ''; t.style.transformOrigin = '';
+    });
     cycle();
   })();
 });
