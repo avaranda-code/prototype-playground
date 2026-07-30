@@ -476,8 +476,13 @@
   .sr-row .sr-check { width: 12px; font-size: 10px; color: #fff; font-weight: 700; opacity: 0; }
   .sr-row.win .sr-check { opacity: 1; }
 
-  /* D · Universal loader (no product data) */
-  .stage.orb { height: 140px; }
+  /* D · Universal loader (no product data, no frame) */
+  .stage.orb { height: 140px; background: none; }
+  /* sequential loading phrases — each appears alone and disappears before the next */
+  .phrase-seq {
+    height: 18px; line-height: 18px; padding-left: 8px; font-size: 11px; font-weight: 500;
+    color: hsl(var(--primary)); white-space: nowrap; opacity: 0; transition: opacity .35s;
+  }
   .ob-wrap { position: absolute; left: 50%; top: 58px; width: 0; height: 0; }
   .ob-star { position: absolute; left: -13px; top: -15px; font-size: 26px; color: #fff; animation: obBreathe 1.8s ease-in-out infinite; }
   @keyframes obBreathe { 0%, 100% { transform: scale(0.82) rotate(0deg); opacity: .8; } 50% { transform: scale(1.15) rotate(18deg); opacity: 1; } }
@@ -534,8 +539,8 @@
   }
   @keyframes mtOk { from { opacity: 0; transform: scale(1.5); } to { opacity: 1; transform: scale(1); } }
 
-  /* G · Shuffle deal — cards shuffle positions while loading; photos deal on mid-shuffle */
-  .stage.shuffle { height: 190px; }
+  /* G · Shuffle deal — cards shuffle positions while loading; photos deal on mid-shuffle (no frame) */
+  .stage.shuffle { height: 190px; background: none; }
   .sh-card {
     position: absolute; left: 0; top: 0; border-radius: 10px; background: #fff; overflow: hidden;
     box-shadow: 0 2px 6px hsl(0 0% 0% / 0.18);
@@ -551,8 +556,6 @@
 <div class="wrap">
   <h2 class="section-title">Latency animations — loading states that reveal real product picks</h2>
   <div class="row row-brands" id="rowConveyor"></div>
-  <h2 class="section-title">Round 2 — “picking for you” concepts (from the demo thread + Natasha’s feedback)</h2>
-  <div class="row row-brands" id="rowConcepts"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -810,20 +813,37 @@ const stageMarkup = type => `
   <div class="stage ${type}"></div>
   <div class="finals"></div>
   <div class="conv-reply"></div>`;
+// sequential loading phrases: one at a time, fully gone before the next appears
+const huntPhrases = ['on the hunt', 'gathering the good stuff', 'sniffing out savings'];
+const seqRotator = '<div class="phrase-seq"></div>';
 
 document.getElementById('rowConveyor').innerHTML = [
-  ['Universal loader — no product data needed', stageMarkup('orb'), '', 'toysrus'],
-  ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus', true), toysrusRotator, 'toysrus'],
-  ['Fallback — skeletons when product previews don’t load', belt2Markup('toysrus'), toysrusRotator, 'toysrus'],
-].map(([l, a, r, brand]) => cell(l, a, r, brand)).join('');
-
-document.getElementById('rowConcepts').innerHTML = [
-  ['Focus scan — inspecting each candidate', stageMarkup('scan'), toysrusRotator],
-  ['Focus scan — skeleton cards', stageMarkup('scan2'), toysrusRotator],
-  ['Collapse tray — previews stay accessible', stageMarkup('tray'), toysrusRotator],
+  ['Universal loader — no product data needed', stageMarkup('orb'), ''],
+  ['Focus scan — inspecting each candidate', stageMarkup('scan'), seqRotator],
+  ['Focus scan — skeleton cards', stageMarkup('scan2'), seqRotator],
+  ['Collapse tray — previews stay accessible', stageMarkup('tray'), seqRotator],
   ['Criteria match — a framework for any vertical', stageMarkup('match'), ''],
-  ['Shuffle deal — skeletons → photos → picks', stageMarkup('shuffle'), toysrusRotator],
+  ['Shuffle deal — skeletons → photos → picks', stageMarkup('shuffle'), seqRotator],
+  ['Swipe carousel + product previews — Toys R Us', belt2Markup('toysrus', true), toysrusRotator],
+  ['Fallback — skeletons when product previews don’t load', belt2Markup('toysrus'), toysrusRotator],
 ].map(([l, a, r]) => cell(l, a, r, 'toysrus')).join('');
+
+// drive the sequential phrases: fade in → dwell → fade fully out → next
+document.querySelectorAll('.phrase-seq').forEach(el => {
+  let i = 0;
+  el.textContent = huntPhrases[0];
+  el.style.opacity = 1;
+  (async function loop() {
+    while (true) {
+      await new Promise(r => setTimeout(r, 1500));
+      el.style.opacity = 0;
+      await new Promise(r => setTimeout(r, 420));
+      i = (i + 1) % huntPhrases.length;
+      el.textContent = huntPhrases[i];
+      el.style.opacity = 1;
+    }
+  })();
+});
 
 document.querySelectorAll('.phrase-type').forEach(el => {
   let i = 0;
@@ -1337,7 +1357,7 @@ function roundCtx(stage) {
   const ctx = {
     stage, convo,
     userRow: convo.querySelector('.user-row'),
-    phraseEl: convo.querySelector('.phrase-window, .phrase-split, .phrase-type'),
+    phraseEl: convo.querySelector('.phrase-window, .phrase-split, .phrase-type, .phrase-seq'),
     replyEl: convo.querySelector('.conv-reply'),
     finalsEl: convo.querySelector('.finals'),
   };
@@ -1407,14 +1427,21 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
   })();
 });
 
-// ─── D · Universal loader: pure brand sparkle — needs no product data or copy, usable everywhere ───
+// ─── D · Universal loader: brand sparkle + sequential hunt phrases — no product data, usable everywhere ───
 document.querySelectorAll('.stage.orb').forEach(stage => {
   const ctx = roundCtx(stage);
   stage.innerHTML = '<div class="ob-wrap"><div class="ob-ring"><i></i><i></i><i></i></div><div class="ob-star">✦</div></div>' +
-    '<div class="ob-bar"><i></i></div>';
+    '<div class="ob-copy"></div><div class="ob-bar"><i></i></div>';
+  const copyEl = stage.querySelector('.ob-copy');
   (async function cycle() {
     await introSend(ctx);
-    await wait(4200);
+    for (const p of huntPhrases) { // one at a time, gone before the next appears
+      copyEl.textContent = p;
+      copyEl.style.opacity = 1;
+      await wait(1150);
+      copyEl.style.opacity = 0;
+      await wait(420);
+    }
     await hideStage(ctx);
     await finalsIn(ctx);
     cycle();
