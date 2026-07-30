@@ -430,6 +430,20 @@
   .finals .conv-card { opacity: 0; }
   .finals .conv-img { height: 64px; }
   .conv-card.swipe-any { animation: swipeInCard .75s cubic-bezier(.3, 1.35, .45, 1) both; }
+  /* gentler entrance for handoffs that should feel continuous, not like a scene change */
+  .conv-card.fade-any { animation: fadeInCard .7s cubic-bezier(.25, .8, .3, 1) both; position: relative; }
+  @keyframes fadeInCard {
+    from { opacity: 0; transform: translateY(12px) scale(0.96); }
+    to   { opacity: 1; transform: none; }
+  }
+  /* one-shot cross-fade shimmer as each final card lands — makes it read as a reveal */
+  .conv-card.fade-any::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 35%, hsl(0 0% 100% / 0.7) 50%, transparent 65%);
+    transform: translateX(-120%);
+    animation: revealShimmer .9s ease-out .3s 1 both;
+  }
+  @keyframes revealShimmer { to { transform: translateX(120%); } }
 
   /* A · Deal & discard */
   .pk-card {
@@ -448,11 +462,11 @@
   .pk-slot.filled { border-style: solid; border-color: #fff; }
   .pk-slot.filled::after { content: "✓"; position: absolute; right: -4px; top: -7px; font-size: 10px; color: #fff; font-weight: 700; }
 
-  /* B · Focus scan (no box/frame — thumbs float directly in the chat) */
-  .stage.scan, .stage.scan2 { background: none; }
-  .sc-grid { display: grid; grid-template-columns: repeat(3, 52px); gap: 10px; justify-content: center; padding-top: 22px; }
+  /* B · Focus scan (no box/frame — thumbs float directly in the chat, full 256px width) */
+  .stage.scan, .stage.scan2 { background: none; height: 184px; }
+  .sc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 6px 0; }
   .sc-thumb {
-    width: 52px; height: 52px; border-radius: 11px; overflow: hidden; background: #fff;
+    width: 100%; aspect-ratio: 1 / 1; border-radius: 11px; overflow: hidden; background: #fff;
     opacity: 0; transform: scale(0.7); transition: opacity .3s, transform .35s cubic-bezier(.2, 1.3, .4, 1), filter .3s;
   }
   .sc-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -816,11 +830,14 @@ const stageMarkup = type => `
 // sequential loading phrases: one at a time, fully gone before the next appears
 const huntPhrases = ['on the hunt', 'gathering the good stuff', 'sniffing out savings'];
 const seqRotator = '<div class="phrase-seq"></div>';
+// focus-scan copy: engine-driven so each phrase holds exactly 3s across the 9s scan
+const scanPhrases = ['Pulling up details', 'Rounding up products', 'Hunting for deals'];
+const seqScanRotator = '<div class="phrase-seq" data-set="scan"></div>';
 
 document.getElementById('rowConveyor').innerHTML = [
   ['Universal loader — no product data needed', stageMarkup('orb'), ''],
-  ['Focus scan — inspecting each candidate', stageMarkup('scan'), seqRotator],
-  ['Focus scan — skeleton cards', stageMarkup('scan2'), seqRotator],
+  ['Focus scan — inspecting each candidate', stageMarkup('scan'), seqScanRotator],
+  ['Focus scan — skeleton cards', stageMarkup('scan2'), seqScanRotator],
   ['Collapse tray — previews stay accessible', stageMarkup('tray'), seqRotator],
   ['Criteria match — a framework for any vertical', stageMarkup('match'), ''],
   ['Shuffle deal — skeletons → photos → picks', stageMarkup('shuffle'), seqRotator],
@@ -829,7 +846,9 @@ document.getElementById('rowConveyor').innerHTML = [
 ].map(([l, a, r]) => cell(l, a, r, 'toysrus')).join('');
 
 // drive the sequential phrases: fade in → dwell → fade fully out → next
+// (data-set elements are driven by their own engine instead, so timing stays synced)
 document.querySelectorAll('.phrase-seq').forEach(el => {
+  if (el.dataset.set) return;
   let i = 0;
   el.textContent = huntPhrases[0];
   el.style.opacity = 1;
@@ -1369,6 +1388,7 @@ async function introSend(ctx) {
   ctx.userRow.classList.remove('sent');
   ctx.stage.classList.remove('on', 'hide', 'collapsed');
   ctx.stage.style.display = '';
+  ctx.stage.style.height = '';
   ctx.finalsEl.style.display = 'none';
   ctx.replyEl.style.display = 'none';
   if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
@@ -1384,17 +1404,17 @@ async function hideStage(ctx) {
   await wait(330);
   ctx.stage.style.display = 'none';
 }
-async function finalsIn(ctx) {
+async function finalsIn(ctx, anim = 'swipe-any', stagger = 320) {
   if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
   ctx.replyEl.style.display = 'block';
   ctx.finalsEl.style.display = 'grid';
   for (let j = 0; j < 4; j++) {
     fillCell(ctx.cells[j], convProducts.toysrus[j]);
-    ctx.cells[j].classList.add('reveal', 'swipe-any');
-    await wait(320);
+    ctx.cells[j].classList.add('reveal', anim);
+    await wait(stagger);
   }
   await wait(3400);
-  ctx.cells.forEach(c => c.classList.remove('reveal', 'swipe-any'));
+  ctx.cells.forEach(c => c.classList.remove('reveal', 'swipe-any', 'fade-any'));
 }
 
 // ─── B · Focus scan: every candidate visible, the agent's "eye" inspects each, eliminates two.
@@ -1411,18 +1431,31 @@ document.querySelectorAll('.stage.scan, .stage.scan2').forEach(stage => {
   (async function cycle() {
     await introSend(ctx);
     thumbs.forEach(t => t.classList.remove('in', 'focus', 'out', 'win'));
-    for (const t of thumbs) { t.classList.add('in'); await wait(110); } // candidates appear
-    await wait(250);
-    for (const i of [0, 1, 2, 5, 4, 3, 0, 2]) { // the eye hops around, some get a second look
+    if (ctx.phraseEl) (async () => { // copy synced to the 9s scan: each phrase holds 3s
+      for (const p of scanPhrases) {
+        ctx.phraseEl.textContent = p;
+        ctx.phraseEl.style.opacity = 1;
+        await wait(2580);
+        ctx.phraseEl.style.opacity = 0;
+        await wait(420);
+      }
+    })();
+    for (const t of thumbs) { t.classList.add('in'); await wait(150); } // candidates appear
+    await wait(320);
+    for (const i of [0, 1, 2, 5, 4, 3, 1, 0, 4, 2, 5, 3]) { // the eye inspects, revisits, compares
       thumbs[i].classList.add('focus');
-      await wait(330);
+      await wait(470);
       thumbs[i].classList.remove('focus');
     }
-    for (const i of [1, 4]) { thumbs[i].classList.add('out'); await wait(320); } // eliminated
+    for (const i of [1, 4]) { thumbs[i].classList.add('out'); await wait(450); } // eliminated
     thumbs.forEach((t, i) => { if (i !== 1 && i !== 4) t.classList.add('win'); });
-    await wait(700);
-    await hideStage(ctx);
-    await finalsIn(ctx);
+    await wait(1240); // exactly 9s of scanning in total, matching the 3×3s copy
+    // gentle handoff: the grid fades and collapses while the finals cross-fade in with a reveal shimmer
+    stage.classList.add('hide');
+    stage.style.height = '0px';
+    await wait(460);
+    stage.style.display = 'none';
+    await finalsIn(ctx, 'fade-any', 260);
     cycle();
   })();
 });
