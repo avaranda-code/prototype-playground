@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Latency animations — conveyor stop product reveal</title>
+<title>Latency animations — 10s loading states for the Shopping Assistant</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sacramento&family=Fredoka:wght@500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sacramento&family=Fredoka:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -27,7 +27,7 @@
 
   .wrap { max-width: 1280px; margin: 0 auto; }
   .row {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; align-items: flex-start;
   }
   .row-brands { margin-bottom: 72px; }
   .row-1 { margin-bottom: 56px; }
@@ -35,7 +35,7 @@
   .row-3 { margin-bottom: 80px; }
   .section-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; margin-bottom: 24px; letter-spacing: 0.5px; }
   .cell { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 280px; }
-  .cell-label { font-size: 12px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; }
+  .cell-label { font-size: 12px; font-weight: 600; color: hsl(var(--chat-text-muted)); text-align: center; white-space: nowrap; }
 
   /* ─── CHAT CARD (ConversationShell) ─── */
   .card {
@@ -80,7 +80,7 @@
 
   .convo {
     flex: 1; display: flex; flex-direction: column; justify-content: flex-end;
-    padding: 0 12px 64px; gap: 8px;
+    padding: 0 12px 64px; gap: 8px; position: relative;
   }
   .user-row { display: flex; justify-content: flex-end; }
   .user-bubble {
@@ -305,6 +305,617 @@
   .phrase-split { height: 20px; padding-left: 8px; font-size: 12px; font-weight: 500; line-height: 20px; color: #fff; white-space: nowrap; }
   .phrase-split .sc { display: inline-block; white-space: pre; }
 
+  /* ─── OSEA Malibu brand skin (coastal seafoam, clean + calm) ─── */
+  .card.osea {
+    --primary: 172 32% 25%;
+    --chat-text: 172 32% 18%;
+    --chat-text-muted: 172 15% 38%;
+    --chat-glow: 172 32% 30% / 0.15;
+    background: linear-gradient(to bottom, #dcebe7, #b6d4cc);
+  }
+  .card.osea .chat-bg { display: none; }
+  .card.osea .chat-glass { background: hsl(160 25% 98% / 0.78); box-shadow: 0px 1px 3px hsl(172 30% 20% / 0.18); }
+  .card.osea .header svg.lucide { stroke: #1d4a43; }
+  .card.osea .track-pill span { color: #1d4a43; }
+  .card.osea .chat-glass-input { background: hsl(160 25% 97% / 0.4); box-shadow: 0px 1px 3px hsl(172 30% 20% / 0.18); }
+  .osea-logo { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 26px; letter-spacing: 11px; color: #143d38; padding-left: 11px; text-align: center; }
+
+  /* ─── ATELIER brand skin (quiet-luxury cream, serif — Brunello Cucinelli-inspired) ─── */
+  .card.atelier {
+    --primary: 32 10% 28%;
+    --chat-text: 32 12% 16%;
+    --chat-text-muted: 32 8% 38%;
+    --chat-glow: 32 12% 30% / 0.1;
+    background: linear-gradient(to bottom, #f4f1ea, #e7e1d4);
+  }
+  .card.atelier .chat-bg { display: none; }
+  .card.atelier .chat-glass { background: hsl(42 30% 97% / 0.8); box-shadow: 0px 1px 3px hsl(32 15% 25% / 0.15); }
+  .card.atelier .header svg.lucide { stroke: #3b342c; }
+  .card.atelier .track-pill span { color: #3b342c; }
+  .card.atelier .chat-glass-input { background: hsl(42 28% 96% / 0.45); box-shadow: 0px 1px 3px hsl(32 15% 25% / 0.15); }
+  .atelier-logo { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 21px; letter-spacing: 7px; color: #2b2620; text-align: center; padding-left: 7px; }
+  .atelier-logo .crest { display: block; font-size: 13px; letter-spacing: 2px; color: #6b6157; margin-bottom: 1px; font-weight: 500; }
+
+  /* ─── Atelier interstitial loaders: full-stage, serif copy cycling, ornament animating ─── */
+  .stage.atl {
+    background: none; height: 230px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  }
+  .atl-copy {
+    font-family: 'Cormorant Garamond', serif; font-size: 17.5px; font-weight: 500; color: #2b2620;
+    text-align: center; height: 22px; opacity: 0; transition: opacity .7s;
+  }
+  .atl-orn svg { display: block; }
+  .atl-orn path { fill: none; stroke: #6b6157; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  /* draw-in ornaments (skyline, silhouette): the illustration sketches itself over the load */
+  .atl-draw path { stroke-dasharray: 100; stroke-dashoffset: 100; }
+  .stage.on .atl-draw path { animation: atlDraw 8s cubic-bezier(.4, 0, .3, 1) forwards; }
+  @keyframes atlDraw { to { stroke-dashoffset: 0; } }
+  /* infinity ribbon: the house motif draws itself endlessly */
+  .atl-ribbon path { stroke-dasharray: 62 38; animation: atlFlow 2.8s linear infinite; }
+  @keyframes atlFlow { to { stroke-dashoffset: -100; } }
+  /* gold dust: a drifting constellation of sparkle */
+  .atl-stars { position: relative; width: 210px; height: 84px; }
+  .atl-stars .atl-star-core {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    font-size: 22px; color: #b49b62; animation: atlBreath 2.4s ease-in-out infinite;
+  }
+  @keyframes atlBreath { 0%, 100% { opacity: .5; transform: translate(-50%, -50%) scale(.8) rotate(0deg); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(22deg); } }
+  .atl-stars i { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #b49b62; animation: atlTwinkle 2.6s ease-in-out infinite; }
+  .atl-stars i:nth-child(2) { left: 12%; top: 30%; animation-delay: .2s; }
+  .atl-stars i:nth-child(3) { left: 26%; top: 68%; animation-delay: 1.1s; }
+  .atl-stars i:nth-child(4) { left: 38%; top: 18%; animation-delay: .6s; }
+  .atl-stars i:nth-child(5) { left: 62%; top: 74%; animation-delay: 1.5s; }
+  .atl-stars i:nth-child(6) { left: 74%; top: 24%; animation-delay: .9s; }
+  .atl-stars i:nth-child(7) { left: 88%; top: 55%; animation-delay: .35s; }
+  .atl-stars i:nth-child(8) { left: 50%; top: 10%; animation-delay: 1.8s; }
+  .atl-stars i:nth-child(9) { left: 8%; top: 78%; animation-delay: 1.3s; }
+  @keyframes atlTwinkle { 0%, 100% { opacity: .1; transform: scale(.5); } 50% { opacity: 1; transform: scale(1.4); } }
+
+  /* ─── Abstract loaders: pure motion, brand-agnostic ─── */
+  .stage.abs { background: none; height: 230px; display: flex; align-items: center; justify-content: center; }
+  /* 1 · Liquid thought — an organic blob slowly morphing and turning */
+  .ab-blob {
+    width: 92px; height: 92px;
+    background: linear-gradient(135deg, hsl(38 28% 76%), hsl(33 18% 52%));
+    animation: abMorph 6.5s ease-in-out infinite, abTurn 16s linear infinite;
+    box-shadow: 0 10px 30px hsl(33 20% 40% / 0.25);
+  }
+  @keyframes abMorph {
+    0%, 100% { border-radius: 58% 42% 63% 37% / 45% 55% 40% 60%; }
+    33%      { border-radius: 40% 60% 45% 55% / 60% 38% 62% 40%; }
+    66%      { border-radius: 55% 45% 38% 62% / 42% 58% 55% 45%; }
+  }
+  @keyframes abTurn { to { rotate: 360deg; } }
+  /* 2 · Quiet orbits — nested arcs circling at different speeds */
+  .ab-orbits { position: relative; width: 110px; height: 110px; }
+  .ab-orbits i { position: absolute; border-radius: 50%; border: 1.5px solid transparent; }
+  .ab-orbits i:nth-child(1) { inset: 0;    border-top-color: hsl(33 20% 45%); border-right-color: hsl(33 20% 45% / .25); animation: abOrbit 3.2s linear infinite; }
+  .ab-orbits i:nth-child(2) { inset: 16px; border-top-color: hsl(38 24% 60%); border-left-color: hsl(38 24% 60% / .25); animation: abOrbit 2.2s linear infinite reverse; }
+  .ab-orbits i:nth-child(3) { inset: 32px; border-top-color: hsl(30 15% 35%); animation: abOrbit 4.6s linear infinite; }
+  .ab-orbits .ab-core {
+    position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px;
+    border-radius: 50%; background: hsl(30 15% 35%); animation: abPulse 2s ease-in-out infinite;
+  }
+  @keyframes abOrbit { to { transform: rotate(360deg); } }
+  @keyframes abPulse { 0%, 100% { transform: scale(.7); opacity: .5; } 50% { transform: scale(1.2); opacity: 1; } }
+  /* 3 · Ripple field — a 5×5 dot matrix pulsing in waves from the center */
+  .ab-field { display: grid; grid-template-columns: repeat(5, 22px); grid-auto-rows: 22px; gap: 4px; }
+  .ab-field i {
+    width: 8px; height: 8px; margin: auto; border-radius: 50%;
+    background: hsl(33 20% 48%); animation: abRipple 2.4s ease-in-out infinite;
+  }
+  @keyframes abRipple { 0%, 100% { transform: scale(.45); opacity: .25; } 40% { transform: scale(1.35); opacity: 1; } }
+  /* 4 · Juggle — three balls bouncing in round, squash & stretch */
+  .ab-juggle { position: relative; width: 128px; height: 92px; }
+  .ab-juggle i {
+    position: absolute; bottom: 6px; width: 17px; height: 17px; border-radius: 50%;
+    animation: abBounce .6s cubic-bezier(.35, 0, .65, 1) infinite alternate;
+  }
+  .ab-juggle i:nth-child(1) { left: 10px;  background: #fff;     animation-delay: 0s; }
+  .ab-juggle i:nth-child(2) { left: 56px;  background: #ffd166;  animation-delay: .2s; }
+  .ab-juggle i:nth-child(3) { left: 102px; background: #ff8fab;  animation-delay: .4s; }
+  @keyframes abBounce {
+    0%   { transform: translateY(0) scale(1.3, .7); }
+    18%  { transform: translateY(-8px) scale(.92, 1.1); }
+    100% { transform: translateY(-56px) scale(1, 1); }
+  }
+  /* 5 · Shape hopscotch — a little character hops and shapeshifts mid-air */
+  .ab-hopwrap { position: relative; width: 60px; height: 104px; }
+  .ab-hopper {
+    position: absolute; bottom: 12px; left: 8px; width: 44px; height: 44px; background: #fff;
+    box-shadow: 0 3px 8px hsl(220 70% 18% / 0.25);
+    animation: abHop 1.15s cubic-bezier(.35, 0, .6, 1) infinite alternate, abShape 4.6s ease-in-out infinite;
+  }
+  @keyframes abHop {
+    0%   { transform: translateY(0) scale(1.28, .72) rotate(0deg); }
+    22%  { transform: translateY(-10px) scale(.9, 1.12) rotate(20deg); }
+    100% { transform: translateY(-52px) scale(1, 1) rotate(180deg); }
+  }
+  @keyframes abShape {
+    0%, 100% { border-radius: 50%; }
+    25%      { border-radius: 24% 76% 65% 35% / 62% 30% 70% 38%; }
+    50%      { border-radius: 18%; }
+    75%      { border-radius: 61% 39% 26% 74% / 36% 63% 37% 64%; }
+  }
+  .ab-hopwrap::after { /* landing shadow, breathing opposite the hop */
+    content: ""; position: absolute; left: 10px; bottom: 4px; width: 40px; height: 7px;
+    border-radius: 50%; background: hsl(220 70% 18% / 0.28);
+    animation: abShadow 1.15s cubic-bezier(.35, 0, .6, 1) infinite alternate;
+  }
+  @keyframes abShadow { 0% { transform: scale(1.25); opacity: .8; } 100% { transform: scale(.5); opacity: .25; } }
+  /* 6 · Chase train — a conga line of dots looping a lazy figure-eight */
+  .ab-train { position: relative; width: 160px; height: 96px; }
+  .ab-train i {
+    position: absolute; border-radius: 50%; background: #fff;
+    offset-path: path('M30,48 C30,16 76,16 80,48 C84,80 130,80 130,48 C130,16 84,16 80,48 C76,80 30,80 30,48 Z');
+    animation: abChase 3.4s linear infinite;
+  }
+  .ab-train i:nth-child(1) { width: 15px; height: 15px; animation-delay: 0s; }
+  .ab-train i:nth-child(2) { width: 12px; height: 12px; animation-delay: -.15s; opacity: .85; background: #ffd166; }
+  .ab-train i:nth-child(3) { width: 10px; height: 10px; animation-delay: -.3s;  opacity: .7; }
+  .ab-train i:nth-child(4) { width: 8px;  height: 8px;  animation-delay: -.45s; opacity: .55; background: #ff8fab; }
+  .ab-train i:nth-child(5) { width: 6px;  height: 6px;  animation-delay: -.6s;  opacity: .4; }
+  @keyframes abChase { to { offset-distance: 100%; } }
+  /* 7 · Newton's cradle — end balls trade swings */
+  .ab-cradle { position: relative; width: 130px; height: 96px; }
+  .ab-cradle::before { content: ""; position: absolute; left: 6px; right: 6px; top: 0; height: 3px; border-radius: 2px; background: hsl(0 0% 100% / 0.75); }
+  .ab-cradle .arm { position: absolute; top: 2px; width: 2px; height: 58px; background: hsl(0 0% 100% / 0.55); transform-origin: top center; }
+  .ab-cradle .arm::after { content: ""; position: absolute; left: 50%; bottom: -14px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #fff; }
+  .ab-cradle .arm:nth-child(1) { left: 28px; animation: abCradleL 1.7s ease-in-out infinite; }
+  .ab-cradle .arm:nth-child(2) { left: 46px; }
+  .ab-cradle .arm:nth-child(3) { left: 64px; }
+  .ab-cradle .arm:nth-child(4) { left: 82px; }
+  .ab-cradle .arm:nth-child(5) { left: 100px; animation: abCradleR 1.7s ease-in-out infinite; }
+  .ab-cradle .arm:nth-child(1)::after { background: #ff8fab; }
+  .ab-cradle .arm:nth-child(5)::after { background: #ffd166; }
+  @keyframes abCradleL { 0%, 50%, 100% { rotate: 0deg; } 25% { rotate: -46deg; } }
+  @keyframes abCradleR { 0%, 50%, 100% { rotate: 0deg; } 75% { rotate: 46deg; } }
+  /* 8 · Block stack — blocks pile up, wobble, tumble, repeat */
+  .ab-stackwrap { position: relative; width: 60px; height: 104px; }
+  .ab-stackwrap i { position: absolute; left: 15px; bottom: 8px; width: 30px; height: 22px; border-radius: 6px; background: #fff; opacity: 0; }
+  .ab-stackwrap i:nth-child(1) { animation: abStack1 3.9s cubic-bezier(.4, 0, .6, 1) infinite; }
+  .ab-stackwrap i:nth-child(2) { background: #ffd166; animation: abStack2 3.9s cubic-bezier(.4, 0, .6, 1) infinite; }
+  .ab-stackwrap i:nth-child(3) { background: #ff8fab; animation: abStack3 3.9s cubic-bezier(.4, 0, .6, 1) infinite; }
+  @keyframes abStack1 {
+    0% { transform: translateY(-96px); opacity: 0; } 8% { transform: translateY(0) scaleY(.8); opacity: 1; }
+    11% { transform: translateY(0) scaleY(1); } 78% { transform: translateY(0) rotate(0); opacity: 1; }
+    90%, 100% { transform: translateY(70px) rotate(-24deg); opacity: 0; }
+  }
+  @keyframes abStack2 {
+    0%, 18% { transform: translateY(-96px); opacity: 0; } 26% { transform: translateY(-24px) scaleY(.8); opacity: 1; }
+    29% { transform: translateY(-24px) scaleY(1); } 78% { transform: translateY(-24px) rotate(0); opacity: 1; }
+    90%, 100% { transform: translateY(60px) translateX(18px) rotate(30deg); opacity: 0; }
+  }
+  @keyframes abStack3 {
+    0%, 36% { transform: translateY(-96px); opacity: 0; } 44% { transform: translateY(-48px) scaleY(.8); opacity: 1; }
+    47% { transform: translateY(-48px) scaleY(1); } 74% { transform: translateY(-48px) rotate(0); opacity: 1; }
+    78% { transform: translateY(-48px) rotate(7deg); }
+    90%, 100% { transform: translateY(50px) translateX(-20px) rotate(-42deg); opacity: 0; }
+  }
+  /* 9 · Plinko — dots zigzag down an invisible peg board */
+  .ab-plinko { position: relative; width: 110px; height: 104px; }
+  .ab-plinko b { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: hsl(0 0% 100% / 0.35); }
+  .ab-plinko span { position: absolute; left: 50%; top: 6px; width: 13px; height: 13px; margin-left: -6.5px; border-radius: 50%; background: #fff; animation: abPlinko 3.3s cubic-bezier(.5, 0, .8, .4) infinite; }
+  .ab-plinko span:nth-of-type(2) { background: #ffd166; animation-delay: -1.1s; }
+  .ab-plinko span:nth-of-type(3) { background: #ff8fab; animation-delay: -2.2s; }
+  @keyframes abPlinko {
+    0% { transform: translate(0, -14px); opacity: 0; }
+    8% { transform: translate(0, 0); opacity: 1; }
+    26% { transform: translate(-20px, 22px); }
+    46% { transform: translate(14px, 44px); }
+    66% { transform: translate(-12px, 66px); }
+    86% { transform: translate(18px, 88px); opacity: 1; }
+    100% { transform: translate(18px, 96px); opacity: 0; }
+  }
+  /* 10 · Domino wave — a kickline of tiles takes turns flipping */
+  .ab-dominos { display: flex; gap: 9px; perspective: 300px; }
+  .ab-dominos i { width: 13px; height: 46px; border-radius: 4px; background: #fff; animation: abDomino 2.6s ease-in-out infinite; }
+  .ab-dominos i:nth-child(2) { animation-delay: .12s; }
+  .ab-dominos i:nth-child(3) { animation-delay: .24s; background: #ffd166; }
+  .ab-dominos i:nth-child(4) { animation-delay: .36s; }
+  .ab-dominos i:nth-child(5) { animation-delay: .48s; background: #ff8fab; }
+  .ab-dominos i:nth-child(6) { animation-delay: .6s; }
+  @keyframes abDomino { 0%, 55%, 100% { transform: rotateY(0); } 20%, 35% { transform: rotateY(180deg); } }
+  /* 10b · Domino shapeshift — the flip wave passes, then the whole line tips into a
+     horizontal "ladder", waves again in its new orientation, and cartwheels back upright */
+  .ab-dominos2 { display: flex; gap: 9px; perspective: 320px; }
+  .ab-dominos2 i { width: 13px; height: 46px; border-radius: 4px; background: #fff; animation: abDomino2 5.2s cubic-bezier(.45, 0, .55, 1) infinite; }
+  .ab-dominos2 i:nth-child(2) { animation-delay: .13s; }
+  .ab-dominos2 i:nth-child(3) { animation-delay: .26s; background: #ffd166; }
+  .ab-dominos2 i:nth-child(4) { animation-delay: .39s; }
+  .ab-dominos2 i:nth-child(5) { animation-delay: .52s; background: #ff8fab; }
+  .ab-dominos2 i:nth-child(6) { animation-delay: .65s; }
+  @keyframes abDomino2 {
+    0%        { transform: rotateY(0) rotate(0deg) scaleY(1); }
+    7%        { transform: rotateY(180deg) rotate(0deg) scaleY(1); }    /* wave 1 rolls through */
+    14%, 26%  { transform: rotateY(360deg) rotate(0deg) scaleY(1); }
+    36%, 50%  { transform: rotateY(360deg) rotate(90deg) scaleY(.42); } /* tips over AND shrinks so the dashes don't overlap */
+    58%       { transform: rotateY(540deg) rotate(90deg) scaleY(.42); } /* wave 2, in the new orientation */
+    64%, 80%  { transform: rotateY(720deg) rotate(90deg) scaleY(.42); }
+    92%, 100% { transform: rotateY(720deg) rotate(180deg) scaleY(1); }  /* cartwheels back upright, full size */
+  }
+
+  /* 8b · Block-stack shapes — 10s builds: blocks drop in and assemble a picture,
+     enjoy a payoff moment, then scatter. Animations run only while the stage is on,
+     so every round starts from the first block. */
+  .bs { position: relative; }
+  .bs i {
+    position: absolute; top: -34px; left: var(--x); width: 20px; height: 20px;
+    border-radius: 5px; background: var(--c); opacity: 0;
+    box-shadow: 0 2px 5px hsl(220 70% 18% / 0.3);
+  }
+  .stage.on .bs i { animation: bsBuild 10s cubic-bezier(.5, 0, .5, 1) infinite; animation-delay: var(--d); }
+  .stage.on .bs i.hold { animation-name: bsBuildHold; }
+  .stage.on .bs i.wink { animation-name: bsBuildWink; }
+  @keyframes bsBuild {
+    0%       { transform: translateY(0); opacity: 0; }
+    4%       { transform: translateY(var(--y)) scale(1.06, .78); opacity: 1; }
+    7%       { transform: translateY(var(--y)) scale(1, 1); }
+    80%      { transform: translateY(var(--y)) rotate(0deg); opacity: 1; }
+    92%, 100% { transform: translate(var(--sx), calc(var(--y) + 120px)) rotate(var(--sr)); opacity: 0; }
+  }
+  @keyframes bsBuildHold {
+    0%      { transform: translateY(0); opacity: 0; }
+    4%      { transform: translateY(var(--y)) scale(1.06, .78); opacity: 1; }
+    7%, 100% { transform: translateY(var(--y)); opacity: 1; }
+  }
+  @keyframes bsBuildWink { /* one eye winks twice before the scatter */
+    0%       { transform: translateY(0); opacity: 0; }
+    4%       { transform: translateY(var(--y)) scale(1.06, .78); opacity: 1; }
+    7%       { transform: translateY(var(--y)) scale(1, 1); }
+    64%      { transform: translateY(var(--y)) scaleY(1); }
+    67%      { transform: translateY(var(--y)) scaleY(.12); }
+    70%      { transform: translateY(var(--y)) scaleY(1); }
+    74%      { transform: translateY(var(--y)) scaleY(.12); }
+    77%      { transform: translateY(var(--y)) scaleY(1); }
+    80%      { transform: translateY(var(--y)); opacity: 1; }
+    92%, 100% { transform: translate(var(--sx), calc(var(--y) + 120px)) rotate(var(--sr)); opacity: 0; }
+  }
+  .stage.on .bs-heart { animation: bsHeartBeat 10s ease-in-out infinite; }
+  @keyframes bsHeartBeat { /* two heartbeats once assembled */
+    0%, 58%, 78%, 100% { transform: scale(1); }
+    63% { transform: scale(1.1); }
+    68% { transform: scale(1); }
+    73% { transform: scale(1.12); }
+  }
+  .stage.on .bs-rocket { animation: bsLiftoff 10s ease-in-out infinite; }
+  @keyframes bsLiftoff { /* rumble, then away it goes */
+    0%, 60% { transform: translate(0, 0); opacity: 1; }
+    63% { transform: translate(-2px, 0); }
+    66% { transform: translate(2px, -2px); }
+    69% { transform: translate(-2px, -1px); }
+    72% { transform: translate(2px, -3px); }
+    86% { transform: translate(0, -195px); opacity: 1; }
+    88%, 100% { transform: translate(0, -215px); opacity: 0; }
+  }
+  .bs-rocket .flame {
+    position: absolute; left: 50%; bottom: -16px; width: 14px; height: 17px; margin-left: -7px;
+    border-radius: 50% 50% 50% 50% / 15% 15% 85% 85%;
+    background: linear-gradient(#ffd166, #ff8fab); opacity: 0; transform-origin: top center;
+  }
+  .stage.on .bs-rocket .flame { animation: bsFlame 10s ease-in-out infinite; }
+  @keyframes bsFlame {
+    0%, 60% { opacity: 0; transform: scaleY(.2); }
+    63% { opacity: 1; transform: scaleY(1); }
+    67% { transform: scaleY(.65); }
+    71% { transform: scaleY(1.2); }
+    75% { transform: scaleY(.8); }
+    80% { opacity: 1; transform: scaleY(1.3); }
+    88%, 100% { opacity: 0; transform: scaleY(.2); }
+  }
+
+  /* 11 · Balloons — inflate, drift up, pop */
+  .ab-balloons { position: relative; width: 120px; height: 104px; }
+  .ab-balloons i { position: absolute; bottom: 4px; width: 22px; height: 26px; border-radius: 50% 50% 48% 52% / 58% 58% 42% 42%; animation: abBalloon 3.6s ease-in infinite; opacity: 0; }
+  .ab-balloons i:nth-child(1) { left: 12px; background: #fff; }
+  .ab-balloons i:nth-child(2) { left: 50px; background: #ffd166; animation-delay: 1.2s; }
+  .ab-balloons i:nth-child(3) { left: 88px; background: #ff8fab; animation-delay: 2.4s; }
+  @keyframes abBalloon {
+    0% { transform: translate(0, 0) scale(.45); opacity: 0; }
+    12% { transform: translate(-3px, -8px) scale(.7); opacity: 1; }
+    48% { transform: translate(6px, -38px) scale(.92); }
+    80% { transform: translate(-5px, -66px) scale(1); opacity: 1; }
+    87% { transform: translate(-5px, -72px) scale(1.45); opacity: 0; }
+    100% { opacity: 0; }
+  }
+  /* 13 · Bubbles — blown up from below, wobble as they rise, pop! */
+  .ab-bubbles { position: relative; width: 134px; height: 108px; }
+  .ab-bubbles i {
+    position: absolute; bottom: 6px; border-radius: 50%; opacity: 0;
+    border: 1.5px solid hsl(0 0% 100% / 0.9);
+    background: radial-gradient(circle at 32% 28%, hsl(0 0% 100% / 0.55), hsl(0 0% 100% / 0.08) 45%);
+    animation: abBubble ease-in infinite;
+  }
+  .ab-bubbles i:nth-child(1) { left: 12px;  width: 18px; height: 18px; animation-duration: 3.1s; }
+  .ab-bubbles i:nth-child(2) { left: 44px;  width: 27px; height: 27px; animation-duration: 3.8s; animation-delay: .9s; }
+  .ab-bubbles i:nth-child(3) { left: 84px;  width: 14px; height: 14px; animation-duration: 2.7s; animation-delay: 1.6s; }
+  .ab-bubbles i:nth-child(4) { left: 106px; width: 22px; height: 22px; animation-duration: 3.4s; animation-delay: .4s; }
+  .ab-bubbles i:nth-child(5) { left: 62px;  width: 12px; height: 12px; animation-duration: 2.5s; animation-delay: 2.2s; }
+  @keyframes abBubble {
+    0%   { transform: translate(0, 0) scale(.2); opacity: 0; }
+    10%  { transform: translate(2px, -4px) scale(.65); opacity: 1; }   /* blown up… */
+    18%  { transform: translate(-2px, -10px) scale(1); }               /* …fully inflated */
+    45%  { transform: translate(6px, -34px) scale(1.03) skewX(2deg); } /* wobbly rise */
+    70%  { transform: translate(-7px, -58px) scale(1); opacity: 1; }
+    77%  { transform: translate(-7px, -65px) scale(1.4); opacity: 0; } /* pop! */
+    100% { opacity: 0; }
+  }
+
+  /* 12 · Inchworm — stretch, scoot, repeat */
+  .ab-worm { position: relative; width: 150px; height: 40px; }
+  .ab-worm i {
+    position: absolute; left: 0; bottom: 8px; width: 46px; height: 16px; border-radius: 9px;
+    background: #fff; transform-origin: left center;
+    animation: abWorm 3.2s cubic-bezier(.45, 0, .55, 1) infinite;
+  }
+  @keyframes abWorm {
+    0%   { transform: translateX(0) scaleX(.42) scaleY(1.25); opacity: 1; }
+    22%  { transform: translateX(0) scaleX(1) scaleY(.85); }
+    50%  { transform: translateX(52px) scaleX(.42) scaleY(1.25); }
+    72%  { transform: translateX(52px) scaleX(1) scaleY(.85); }
+    94%  { transform: translateX(104px) scaleX(.42) scaleY(1.25); opacity: 1; }
+    97%  { opacity: 0; }
+    100% { transform: translateX(0) scaleX(.42) scaleY(1.25); opacity: 0; }
+  }
+
+  /* 14 · Aurora orb — a glass sphere with iridescent color swirling inside */
+  .ab-glassorb {
+    position: relative; width: 98px; height: 98px; border-radius: 50%; overflow: hidden;
+    border: 1.5px solid hsl(0 0% 100% / 0.8);
+    box-shadow: 0 14px 32px hsl(260 60% 50% / 0.2), inset 0 0 20px hsl(0 0% 100% / 0.35);
+    animation: glassBreathe 3.4s ease-in-out infinite;
+  }
+  .ab-glassorb::before {
+    content: ""; position: absolute; inset: -32%;
+    background: conic-gradient(from 0deg, #8ec5ff, #c9a2ff, #ff9ad5, #ffd28f, #9df2d0, #8ec5ff);
+    filter: blur(15px) saturate(1.25);
+    animation: glassSpin 6s linear infinite;
+  }
+  .ab-glassorb::after { /* specular highlight — the glass */
+    content: ""; position: absolute; left: 14%; top: 7%; width: 48%; height: 30%;
+    border-radius: 50%; background: linear-gradient(hsl(0 0% 100% / 0.85), hsl(0 0% 100% / 0));
+  }
+  @keyframes glassSpin { to { rotate: 360deg; } }
+  @keyframes glassBreathe { 0%, 100% { transform: scale(.94); } 50% { transform: scale(1.04); } }
+
+  /* 15 · Aurora curtains — glass bars with color flowing through them */
+  .ab-aurora { display: flex; align-items: center; gap: 11px; }
+  .ab-aurora i {
+    width: 27px; border-radius: 14px; border: 1px solid hsl(0 0% 100% / 0.65);
+    background: linear-gradient(168deg, #8ec5ff, #c9a2ff 28%, #ff9ad5 52%, #ffd28f 76%, #9df2d0);
+    background-size: 100% 320%; filter: saturate(1.15);
+    box-shadow: inset 0 0 12px hsl(0 0% 100% / 0.4), 0 10px 22px hsl(260 60% 50% / 0.14);
+    animation: auroraFlow 3.8s ease-in-out infinite alternate, auroraSway 5.2s ease-in-out infinite;
+  }
+  .ab-aurora i:nth-child(1) { height: 74px; }
+  .ab-aurora i:nth-child(2) { height: 100px; animation-delay: .6s, .3s; }
+  .ab-aurora i:nth-child(3) { height: 84px; animation-delay: 1.2s, .9s; }
+  @keyframes auroraFlow { from { background-position: 0 0; } to { background-position: 0 100%; } }
+  @keyframes auroraSway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
+
+  /* 16 · Lava glass — translucent color blobs drifting into and out of each other */
+  .ab-lava { position: relative; width: 136px; height: 104px; filter: saturate(1.2); }
+  .ab-lava i {
+    position: absolute; border: 1px solid hsl(0 0% 100% / 0.6);
+    box-shadow: inset 0 0 14px hsl(0 0% 100% / 0.35), 0 10px 22px hsl(260 60% 50% / 0.12);
+    animation: abMorph 7s ease-in-out infinite, lavaFloat ease-in-out infinite alternate;
+  }
+  .ab-lava i:nth-child(1) {
+    left: 6px; top: 14px; width: 58px; height: 58px; animation-duration: 7s, 3.6s;
+    background: radial-gradient(circle at 32% 26%, hsl(0 0% 100% / 0.55), transparent 42%), linear-gradient(135deg, #8ec5ffd9, #c9a2ffd9);
+  }
+  .ab-lava i:nth-child(2) {
+    right: 8px; top: 6px; width: 46px; height: 46px; animation-duration: 7s, 4.4s; animation-delay: .8s, .5s; animation-direction: normal, alternate-reverse;
+    background: radial-gradient(circle at 32% 26%, hsl(0 0% 100% / 0.55), transparent 42%), linear-gradient(135deg, #ff9ad5d9, #ffd28fd9);
+  }
+  .ab-lava i:nth-child(3) {
+    left: 46px; bottom: 4px; width: 38px; height: 38px; animation-duration: 7s, 3s; animation-delay: 1.6s, 1s;
+    background: radial-gradient(circle at 32% 26%, hsl(0 0% 100% / 0.55), transparent 42%), linear-gradient(135deg, #9df2d0d9, #8ec5ffd9);
+  }
+  @keyframes lavaFloat { from { translate: 0 0; } to { translate: 16px -12px; } }
+
+  /* 17 · Comet orb — a glowing orb races an oval track, trailing fading copies */
+  .ab-comet { position: relative; width: 164px; height: 104px; }
+  .ab-comet i {
+    position: absolute; border-radius: 50%;
+    background: conic-gradient(from 0deg, #8ec5ff, #c9a2ff, #ff9ad5, #ffd28f, #9df2d0, #8ec5ff);
+    filter: saturate(1.3);
+    offset-path: path('M32,52 C32,12 132,12 132,52 C132,92 32,92 32,52 Z');
+    animation: abChase 2.4s cubic-bezier(.45, .1, .55, .9) infinite;
+  }
+  .ab-comet i:nth-child(1) { width: 26px; height: 26px; box-shadow: 0 0 18px hsl(275 80% 70% / .85), 0 0 38px hsl(210 90% 70% / .5); }
+  .ab-comet i:nth-child(2) { width: 19px; height: 19px; animation-delay: -.07s; opacity: .6; }
+  .ab-comet i:nth-child(3) { width: 14px; height: 14px; animation-delay: -.14s; opacity: .4; }
+  .ab-comet i:nth-child(4) { width: 9px;  height: 9px;  animation-delay: -.21s; opacity: .25; }
+  .ab-comet i:nth-child(5) { width: 5px;  height: 5px;  animation-delay: -.28s; opacity: .15; }
+
+  /* 18 · Binary orbs — two glowing orbs whirl around each other while the pair bobs */
+  .ab-binarywrap { animation: binaryBob 3.4s ease-in-out infinite alternate; }
+  .ab-binary { position: relative; width: 110px; height: 110px; animation: abOrbit 2.1s linear infinite; }
+  .ab-binary i { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px; border-radius: 50%; }
+  .ab-binary i:nth-child(1) {
+    transform: translateX(-32px);
+    background: radial-gradient(circle at 32% 28%, hsl(0 0% 100% / .7), transparent 45%), linear-gradient(135deg, #8ec5ff, #c9a2ff);
+    box-shadow: 0 0 16px hsl(220 90% 70% / .8); animation: binaryGlow 1.3s ease-in-out infinite alternate;
+  }
+  .ab-binary i:nth-child(2) {
+    transform: translateX(32px);
+    background: radial-gradient(circle at 32% 28%, hsl(0 0% 100% / .7), transparent 45%), linear-gradient(135deg, #ff9ad5, #ffd28f);
+    box-shadow: 0 0 16px hsl(330 90% 72% / .8); animation: binaryGlow 1.3s ease-in-out infinite alternate-reverse;
+  }
+  .ab-binary .spark { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #fff; animation: abPulse 1.05s ease-in-out infinite; }
+  @keyframes binaryGlow { from { filter: brightness(.92) saturate(1); } to { filter: brightness(1.2) saturate(1.4); } }
+  @keyframes binaryBob { from { transform: translateY(-9px); } to { transform: translateY(9px); } }
+
+  /* 19 · Wandering orb — Lissajous drift: never quite repeats, always on the move */
+  .ab-liss { position: relative; width: 176px; height: 104px; }
+  .ab-liss .lx { position: absolute; left: 0; top: 0; animation: lissX 2.3s cubic-bezier(.37, 0, .63, 1) infinite alternate; }
+  .ab-liss .ly { animation: lissY 1.7s cubic-bezier(.37, 0, .63, 1) infinite alternate; }
+  .ab-liss .orb {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: conic-gradient(from 0deg, #8ec5ff, #c9a2ff, #ff9ad5, #ffd28f, #9df2d0, #8ec5ff);
+    box-shadow: 0 0 16px hsl(275 80% 70% / .8), 0 0 34px hsl(210 90% 70% / .45);
+    animation: glassSpin 4s linear infinite, lissHue 6s linear infinite;
+  }
+  @keyframes lissX { from { transform: translateX(0); } to { transform: translateX(148px); } }
+  @keyframes lissY { from { transform: translateY(0); } to { transform: translateY(76px); } }
+  @keyframes lissHue { to { filter: hue-rotate(360deg) saturate(1.3); } }
+
+  /* ─── PLAIN skin — pure white chat, for animations shown on white ─── */
+  .card.plain {
+    --primary: 244 60% 56%;
+    --chat-text: 220 18% 16%;
+    --chat-text-muted: 220 10% 45%;
+    --chat-glow: 244 60% 56% / 0.14;
+    background: #fff;
+  }
+  .card.plain .chat-bg { display: none; }
+  .card.plain .chat-glass { background: hsl(220 16% 96%); box-shadow: 0px 1px 2px hsl(220 20% 20% / 0.1); }
+  .card.plain .header svg.lucide { stroke: #2b2f3a; }
+  .card.plain .track-pill span { color: #2b2f3a; }
+  .card.plain .chat-glass-input { background: hsl(220 16% 97%); box-shadow: 0px 1px 3px hsl(220 20% 20% / 0.1); }
+  .plain-logo { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: 5px; color: #23262f; text-align: center; padding-left: 5px; }
+
+  /* 3b/3c · Ripple variants — same dot field, different wave origins */
+  .ab-field.diag i { animation-name: abRipple; }   /* delays set inline per pattern */
+  .ab-field.on-white i { background: hsl(244 60% 60%); }
+  .ab-field.on-white i.alt { background: hsl(330 80% 68%); }
+  /* radar sweep: dots brighten as an invisible arm rotates past them */
+  @keyframes abSweepDot { 0%, 100% { transform: scale(.4); opacity: .18; } 12% { transform: scale(1.45); opacity: 1; } 32% { transform: scale(.6); opacity: .35; } }
+  /* slow spiral sweep: a sharp flash with a long fade, so only one or two dots glow at once */
+  @keyframes abSweepSlow {
+    0%      { transform: scale(.42); opacity: .12; }
+    4%      { transform: scale(1.6);  opacity: 1; }   /* flash */
+    14%     { transform: scale(.85);  opacity: .45; } /* lingering afterglow */
+    30%     { transform: scale(.5);   opacity: .18; }
+    100%    { transform: scale(.42);  opacity: .12; }
+  }
+
+  /* 6b · Loop-de-loop train — dots race a rounded racetrack, bunching on the curves */
+  .ab-track2 { position: relative; width: 176px; height: 104px; }
+  .ab-track2 i {
+    position: absolute; border-radius: 50%;
+    offset-path: path('M34,20 L142,20 A32,32 0 0 1 142,84 L34,84 A32,32 0 0 1 34,20 Z');
+    animation: abChase 2.9s cubic-bezier(.5, .05, .5, .95) infinite; /* speeds up on straights */
+  }
+  .ab-track2 i:nth-child(1) { width: 16px; height: 16px; background: hsl(244 60% 58%); }
+  .ab-track2 i:nth-child(2) { width: 14px; height: 14px; background: hsl(268 66% 62%); animation-delay: -.12s; }
+  .ab-track2 i:nth-child(3) { width: 12px; height: 12px; background: hsl(320 74% 66%); animation-delay: -.24s; }
+  .ab-track2 i:nth-child(4) { width: 10px; height: 10px; background: hsl(346 82% 70%); animation-delay: -.36s; }
+  .ab-track2 i:nth-child(5) { width: 8px;  height: 8px;  background: hsl(30 88% 66%);  animation-delay: -.48s; }
+  .ab-track2 i:nth-child(6) { width: 6px;  height: 6px;  background: hsl(170 62% 52%); animation-delay: -.6s; }
+  .ab-track2::before { /* faint racetrack guide */
+    content: ""; position: absolute; left: 34px; top: 20px; width: 108px; height: 64px;
+    border: 1.5px dashed hsl(244 30% 82%); border-radius: 32px;
+  }
+
+  /* 8c · Teetering tower — many blocks, alternating offsets, wobbles then topples */
+  .ab-tower { position: relative; width: 96px; height: 168px; }
+  .stage.on .ab-tower { animation: towerLean 10s cubic-bezier(.4, 0, .5, 1) infinite; transform-origin: bottom center; }
+  @keyframes towerLean { /* the whole stack sways as it gets taller, then gives up */
+    0%, 12%   { transform: rotate(0deg); }
+    30%       { transform: rotate(-1.6deg); }
+    46%       { transform: rotate(2deg); }
+    58%       { transform: rotate(-2.6deg); }
+    66%       { transform: rotate(3.4deg); }
+    72%       { transform: rotate(-4deg); }
+    78%       { transform: rotate(5deg); }
+    88%, 100% { transform: rotate(16deg) translateY(10px); }
+  }
+  .ab-tower i {
+    position: absolute; left: var(--x); bottom: var(--b); width: var(--w); height: 17px;
+    border-radius: 4px; background: var(--c); opacity: 0;
+    box-shadow: 0 1px 3px hsl(220 25% 25% / 0.22);
+  }
+  .stage.on .ab-tower i { animation: towerBlock 10s cubic-bezier(.45, 0, .55, 1) infinite; animation-delay: var(--d); }
+  @keyframes towerBlock {
+    0%       { transform: translateY(-150px) rotate(-8deg); opacity: 0; }
+    5%       { transform: translateY(0) scale(1.05, .8); opacity: 1; } /* lands with a squash */
+    8%       { transform: translateY(0) scale(1, 1); }
+    82%      { transform: translateY(0) rotate(0deg); opacity: 1; }
+    93%, 100% { transform: translate(var(--sx), 116px) rotate(var(--sr)); opacity: 0; } /* topples off */
+  }
+
+  /* 20 · Orbit → chase morph (black & greys). The concentric orbits stretch open into a
+     figure-eight track, a conga line runs it, then it collapses back into orbits. 10s loop. */
+  .ab-morph { position: relative; width: 168px; height: 104px; }
+  .ab-morph > div { position: absolute; inset: 0; }
+  /* — phase A: orbits — */
+  .mo-rings { display: grid; place-items: center; animation: moRingsPhase 10s cubic-bezier(.5, 0, .5, 1) infinite; transform-origin: center; }
+  /* rings are made of DOTS (same vocabulary as the chase train) so the morph reads as one idea */
+  .mo-rings .ring { position: absolute; border-radius: 50%; animation: abOrbit linear infinite; }
+  .mo-rings .ring:nth-child(1) { width: 96px; height: 96px; animation-duration: 3s; }
+  .mo-rings .ring:nth-child(2) { width: 66px; height: 66px; animation-duration: 2.1s; animation-direction: reverse; }
+  .mo-rings .ring:nth-child(3) { width: 38px; height: 38px; animation-duration: 4.2s; }
+  .mo-rings .ring b { /* many mini dots trace each ring, so the circle reads clearly */
+    position: absolute; left: 50%; top: 50%; border-radius: 50%;
+    transform: rotate(var(--a)) translateY(calc(var(--r) * -1)) translate(-50%, -50%);
+  }
+  .mo-rings .ring:nth-child(1) b { --r: 48px; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; }
+  .mo-rings .ring:nth-child(2) b { --r: 33px; width: 6px; height: 6px; margin: -3px 0 0 -3px; }
+  .mo-rings .ring:nth-child(3) b { --r: 19px; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; }
+  .mo-rings .core { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #111; animation: abPulse 1.9s ease-in-out infinite; }
+  @keyframes moRingsPhase { /* PHASE 2: rings condense out of the wide track and settle into orbit */
+    0%, 40%   { transform: scaleX(1.7); opacity: 0; }
+    52%       { transform: scaleX(1.12); opacity: .6; } /* pulled inward from the track's width */
+    60%, 88%  { transform: scaleX(1); opacity: 1; }     /* full circular orbit, spinning */
+    96%, 100% { transform: scaleX(1.6); opacity: 0; }   /* stretches back out to become the track again */
+  }
+  /* — phase B: the chase train — */
+  .mo-train { animation: moTrainPhase 10s cubic-bezier(.5, 0, .5, 1) infinite; transform-origin: center; }
+  .mo-train .guide { display: none; } /* no guide line — just the dots */
+  .mo-train i {
+    position: absolute; border-radius: 50%;
+    offset-path: path('M34,52 C34,18 80,18 84,52 C88,86 134,86 134,52 C134,18 88,18 84,52 C80,86 34,86 34,52 Z');
+    animation: abChase 2.6s linear infinite;
+  }
+  .mo-train i:nth-of-type(1) { width: 15px; height: 15px; background: #111; }
+  .mo-train i:nth-of-type(2) { width: 13px; height: 13px; background: #3d3d3d; animation-delay: -.13s; }
+  .mo-train i:nth-of-type(3) { width: 11px; height: 11px; background: #6b6b6b; animation-delay: -.26s; }
+  .mo-train i:nth-of-type(4) { width: 9px;  height: 9px;  background: #949494; animation-delay: -.39s; }
+  .mo-train i:nth-of-type(5) { width: 7px;  height: 7px;  background: #bdbdbd; animation-delay: -.52s; }
+  @keyframes moTrainPhase { /* PHASE 1: the train runs the figure-eight, then squeezes into the orbit */
+    0%, 34%   { transform: scaleX(1) scaleY(1); opacity: 1; }
+    46%       { transform: scaleX(.42) scaleY(.95); opacity: .3; } /* collapses toward the center */
+    54%, 88%  { transform: scaleX(.35) scaleY(.9); opacity: 0; }
+    97%       { transform: scaleX(.9) scaleY(1); opacity: .5; }    /* re-opens for the next lap */
+    100%      { transform: scaleX(1) scaleY(1); opacity: 1; }
+  }
+
+  /* 21 · Shape hopscotch II — dark grey on white, 8 hops in 10s, a different morph each bounce */
+  .ab-hop2 { position: relative; width: 64px; height: 116px; }
+  .ab-hop2 .hopper2 {
+    position: absolute; bottom: 14px; left: 10px; width: 44px; height: 44px; background: #3a3a3a;
+    box-shadow: 0 3px 9px hsl(0 0% 20% / 0.28);
+  }
+  .stage.on .ab-hop2 .hopper2 { animation: hop2 10s cubic-bezier(.38, 0, .6, 1) infinite; }
+  @keyframes hop2 { /* land (squash) → apex (new shape) → land (settle into it) … 8 times */
+    0%      { transform: translateY(0) scale(1.3, .72) rotate(0deg);      border-radius: 50%; }
+    6%      { transform: translateY(-54px) scale(1) rotate(48deg);        border-radius: 32%; }
+    12.5%   { transform: translateY(0) scale(1.28, .74) rotate(90deg);    border-radius: 32%; }
+    18.5%   { transform: translateY(-50px) scale(1) rotate(140deg);       border-radius: 24% 76% 65% 35% / 62% 30% 70% 38%; }
+    25%     { transform: translateY(0) scale(1.3, .72) rotate(180deg);    border-radius: 24% 76% 65% 35% / 62% 30% 70% 38%; }
+    31%     { transform: translateY(-56px) scale(1) rotate(232deg);       border-radius: 12%; }
+    37.5%   { transform: translateY(0) scale(1.26, .76) rotate(270deg);   border-radius: 12%; }
+    43.5%   { transform: translateY(-48px) scale(1) rotate(318deg);       border-radius: 50% 50% 44% 56% / 62% 62% 38% 38%; }
+    50%     { transform: translateY(0) scale(1.3, .72) rotate(360deg);    border-radius: 50% 50% 44% 56% / 62% 62% 38% 38%; }
+    56%     { transform: translateY(-52px) scale(1) rotate(410deg);       border-radius: 4% 50% 50% 50%; }
+    62.5%   { transform: translateY(0) scale(1.28, .74) rotate(450deg);   border-radius: 4% 50% 50% 50%; }
+    68.5%   { transform: translateY(-58px) scale(1) rotate(500deg);       border-radius: 50% 4% 50% 4%; }
+    75%     { transform: translateY(0) scale(1.32, .7) rotate(540deg);    border-radius: 50% 4% 50% 4%; }
+    81%     { transform: translateY(-46px) scale(1) rotate(586deg);       border-radius: 46% / 26%; }
+    87.5%   { transform: translateY(0) scale(1.26, .76) rotate(630deg);   border-radius: 46% / 26%; }
+    93.5%   { transform: translateY(-54px) scale(1) rotate(680deg);       border-radius: 50%; }
+    100%    { transform: translateY(0) scale(1.3, .72) rotate(720deg);    border-radius: 50%; }
+  }
+  .ab-hop2::after { /* landing shadow, breathing opposite each hop */
+    content: ""; position: absolute; left: 12px; bottom: 6px; width: 40px; height: 7px;
+    border-radius: 50%; background: hsl(0 0% 25% / 0.26);
+  }
+  .stage.on .ab-hop2::after { animation: hop2Shadow 1.25s cubic-bezier(.38, 0, .6, 1) infinite alternate; }
+  @keyframes hop2Shadow { 0% { transform: scale(1.25); opacity: .85; } 100% { transform: scale(.45); opacity: .2; } }
+
   /* ─── Conveyor stop — skeleton product carousel that halts on real picks ─── */
   .conv { margin-top: 6px; overflow: hidden; position: relative; }
   .conv-track { display: flex; gap: 8px; will-change: transform; }
@@ -344,9 +955,20 @@
   .cbar.w80 { width: 80%; }
   .cbar.w50 { width: 50%; }
   .conv-reply {
-    display: none; height: 18px; line-height: 18px; padding-left: 8px; margin-bottom: 2px;
+    display: none; height: 18px; line-height: 18px; padding-left: 8px; margin-top: 4px;
     font-size: 11px; font-weight: 500; color: hsl(var(--chat-text)); white-space: nowrap;
   }
+  /* typed assistant response — replaces the product grid */
+  .reply-body {
+    display: none; margin-top: 6px; padding: 9px 12px; border-radius: 14px 14px 14px 4px;
+    background: hsl(0 0% 100% / 0.5); font-size: 11.5px; line-height: 1.5;
+    color: hsl(var(--chat-text)); min-height: 92px;
+  }
+  .reply-body .caret {
+    display: inline-block; width: 1.5px; height: 11px; margin-left: 1px; vertical-align: -1px;
+    background: currentColor; animation: caretBlink .9s steps(1) infinite;
+  }
+  @keyframes caretBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
   /* ─── Sequential 2×2 grid (Toys R Us): skeletons in 1-4, out 4-2-3-1, products in 1-3 ─── */
   .grid4 { margin-top: 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -359,8 +981,24 @@
 
   /* ─── Dual-row swipe carousel (Sami): 2×2 grid of skeletons. Cards hold, then a quick
      eased swipe pushes each row over one position — rows offset so they alternate. ─── */
-  .belt2 { margin-top: 6px; }
+  .belt2 {
+    margin-top: 6px; opacity: 0; transform: translateY(10px);
+    transition: opacity .35s, transform .4s cubic-bezier(.2, 1.2, .4, 1); /* same entrance as the sent message */
+  }
+  .belt2.on { opacity: 1; transform: none; }
+  /* thinking indicator + AI reply ease in the same way whenever they (re)appear */
+  .phrase-window, .conv-reply { animation: fadeUpIn .4s cubic-bezier(.2, 1.2, .4, 1) both; }
+  @keyframes fadeUpIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
   .belt2 .conv + .conv { margin-top: 8px; }
+  /* user message "sends" at the start of each round, then loading begins */
+  .user-row { opacity: 0; transform: translateY(10px) scale(0.95); transition: opacity .35s, transform .4s cubic-bezier(.2, 1.2, .4, 1); }
+  .user-row.sent { opacity: 1; transform: none; }
+  /* Toys R Us variant: cards carry product photos while loading (text stays skeleton) */
+  .belt2 .conv-card.cycling .conv-real { opacity: 1; transform: none; }
+  .belt2 .conv-card.cycling .csk::after { display: none; }
   .belt2 .conv-card.dim { opacity: 0; transform: scale(0.9); transition: opacity .4s, transform .4s; }
   /* loaded product cards swipe in with the same push the belt uses, keeping the momentum */
   .belt2 .conv-card.swipe-in { animation: swipeInCard .75s cubic-bezier(.3, 1.35, .45, 1) both; }
@@ -400,12 +1038,213 @@
   @keyframes gspin { to { transform: rotate(360deg); } }
   @keyframes gbreathe { 0%, 100% { transform: scale(0.85); } 50% { transform: scale(1.12); } }
   .spin-text { font-size: 11px; font-weight: 500; color: #fff; height: 16px; transition: opacity .3s; }
+
+  /* ─── Round 2 shared: loading stage + 2×2 finals grid ─── */
+  .stage {
+    margin-top: 6px; border-radius: 12px; background: hsl(0 0% 100% / 0.14);
+    position: relative; overflow: hidden; height: 170px;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .35s, transform .4s cubic-bezier(.2, 1.2, .4, 1), height .45s cubic-bezier(.5, 0, .2, 1);
+  }
+  .stage.on { opacity: 1; transform: none; }
+  .stage.hide { opacity: 0; }
+  /* fixed 230px finals grid — identical to the loading stage height by construction,
+     so the handoff can never shift the chat */
+  .finals {
+    display: none; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(2, 1fr);
+    gap: 8px; margin-top: 6px; height: 230px;
+  }
+  .finals .conv-card { opacity: 0; }
+  .finals .conv-img { height: 58px; }
+  /* finals cells keep IDENTICAL height in skeleton, veiled and revealed states: the bars
+     overlay the (hidden) text instead of adding their own height, so nothing ever shifts */
+  .finals .conv-info { position: relative; }
+  .finals .cbar { position: absolute; left: 7px; margin-top: 0; }
+  .finals .cbar.w80 { top: 8px; width: 65%; }
+  .finals .cbar.w50 { top: 20px; width: 42%; }
+  .conv-card.swipe-any { animation: swipeInCard .75s cubic-bezier(.3, 1.35, .45, 1) both; }
+  /* gentler entrance for handoffs that should feel continuous, not like a scene change */
+  .conv-card.fade-any { animation: fadeInCard .7s cubic-bezier(.25, .8, .3, 1) both; position: relative; }
+  @keyframes fadeInCard {
+    from { opacity: 0; transform: translateY(12px) scale(0.96); }
+    to   { opacity: 1; transform: none; }
+  }
+  /* one-shot cross-fade shimmer as each final card lands — makes it read as a reveal */
+  .conv-card.fade-any::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 35%, hsl(0 0% 100% / 0.7) 50%, transparent 65%);
+    transform: translateX(-120%);
+    animation: revealShimmer .9s ease-out .3s 1 both;
+  }
+  @keyframes revealShimmer { to { transform: translateX(120%); } }
+
+  /* A · Deal & discard */
+  .pk-card {
+    position: absolute; left: 50%; top: 40%; width: 72px; height: 72px; margin: -36px 0 0 -36px;
+    border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 3px 10px hsl(0 0% 0% / 0.25);
+    opacity: 0; transform: scale(0.5);
+    transition: transform .4s cubic-bezier(.25, 1.2, .4, 1), opacity .3s;
+  }
+  .pk-card img { width: 100%; height: 100%; object-fit: cover; }
+  .pk-card.in { opacity: 1; transform: scale(1); }
+  .pk-card.in.considering { animation: pkConsider .55s ease-in-out; }
+  @keyframes pkConsider { 0%, 100% { rotate: 0deg; } 30% { rotate: -3.5deg; } 70% { rotate: 3deg; } }
+  .pk-card.toss { opacity: 0; transform: translateX(-150px) rotate(-22deg) scale(0.85); }
+  .pk-slots { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; }
+  .pk-slot { width: 32px; height: 32px; border-radius: 9px; border: 1.5px dashed hsl(0 0% 100% / 0.5); position: relative; }
+  .pk-slot.filled { border-style: solid; border-color: #fff; }
+  .pk-slot.filled::after { content: "✓"; position: absolute; right: -4px; top: -7px; font-size: 10px; color: #fff; font-weight: 700; }
+
+  /* B · Focus scan (no box/frame). The stage reserves the exact height the finals will occupy
+     (~230px, measured at runtime) and the compact 2×3 tile grid floats centered inside it —
+     so the chat never gets bumped when the finals land. overflow visible so focused cards
+     can scale up without getting cropped */
+  .stage.scan, .stage.scan2 { background: none; height: 230px; overflow: visible; display: flex; align-items: center; }
+  .sc-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; padding: 0; width: 248px; margin: 0 auto;
+  }
+  .sc-thumb {
+    width: 100%; aspect-ratio: 1 / 1; border-radius: 11px; overflow: hidden; background: #fff;
+    opacity: 0; transform: scale(0.7); transition: opacity .3s, transform .35s cubic-bezier(.2, 1.3, .4, 1), filter .3s;
+  }
+  .sc-thumb img { width: 100%; height: 100%; object-fit: cover; transition: opacity .22s; }
+  /* flight clones: winners glide from grid spot to final slot; width/height animate and the
+     image re-crops via object-fit, so the card never distorts or smushes */
+  .fly-card {
+    position: absolute; z-index: 6; border-radius: 11px; overflow: hidden; background: #fff;
+    box-shadow: 0 3px 10px hsl(0 0% 0% / 0.22);
+    transition: left .7s cubic-bezier(.45, .05, .25, 1), top .7s cubic-bezier(.45, .05, .25, 1),
+                width .7s cubic-bezier(.45, .05, .25, 1), height .7s cubic-bezier(.45, .05, .25, 1);
+  }
+  .fly-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* veiled finals: the landed card is a full skeleton (shimmer image + bars), then the
+     product image and text plop in together */
+  .conv-card.reveal.veiled .conv-real { opacity: 0; transform: scale(1); transition: none; }
+  .conv-card.reveal.veiled .conv-txt { opacity: 0; transition: none; }
+  .conv-card.reveal.veiled .cbar { display: block; }
+  .conv-card.reveal.veiled .csk::after { display: block; }
+  .sc-thumb.in { opacity: 0.45; transform: scale(1); }
+  .sc-thumb.in.focus { opacity: 1; transform: scale(1.16); box-shadow: 0 0 0 2.5px #fff, 0 4px 12px hsl(0 0% 0% / 0.3); z-index: 2; }
+  .sc-thumb.in.out { opacity: 0.12; filter: grayscale(1); transform: scale(0.88); }
+  .sc-thumb.in.win { opacity: 1; }
+
+  /* C · Score & sort */
+  .sr-row {
+    display: flex; align-items: center; gap: 8px; padding: 5px 12px;
+    opacity: 0; transform: translateX(-10px); transition: opacity .3s, transform .35s;
+  }
+  .sr-row.in { opacity: 1; transform: none; }
+  .sr-row.drop { opacity: 0.22; }
+  .sr-thumb { width: 26px; height: 26px; border-radius: 7px; overflow: hidden; background: #fff; flex: none; }
+  .sr-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .sr-meter { flex: 1; height: 5px; border-radius: 3px; background: hsl(0 0% 100% / 0.25); overflow: hidden; }
+  .sr-meter i { display: block; height: 100%; width: 0; border-radius: 3px; background: #fff; transition: width 1s cubic-bezier(.3, 0, .2, 1); }
+  .sr-pct { width: 30px; font-size: 10px; font-weight: 600; color: #fff; text-align: right; font-variant-numeric: tabular-nums; }
+  .sr-row .sr-check { width: 12px; font-size: 10px; color: #fff; font-weight: 700; opacity: 0; }
+  .sr-row.win .sr-check { opacity: 1; }
+
+  /* D · Universal loader (no product data, no frame) */
+  .stage.orb { height: 140px; background: none; }
+  /* sequential loading phrases — each appears alone and disappears before the next */
+  .phrase-seq {
+    height: 18px; line-height: 18px; padding-left: 8px; margin-top: 4px; font-size: 11px; font-weight: 500;
+    color: hsl(var(--primary)); white-space: nowrap; opacity: 0; transition: opacity .35s;
+  } /* margin matches .conv-reply so the phrase → reply swap doesn't shift the chat */
+  .ob-wrap { position: absolute; left: 50%; top: 58px; width: 0; height: 0; }
+  .ob-star { position: absolute; left: -13px; top: -15px; font-size: 26px; color: #fff; animation: obBreathe 1.8s ease-in-out infinite; }
+  @keyframes obBreathe { 0%, 100% { transform: scale(0.82) rotate(0deg); opacity: .8; } 50% { transform: scale(1.15) rotate(18deg); opacity: 1; } }
+  .ob-ring { position: absolute; left: -30px; top: -30px; width: 60px; height: 60px; animation: gspin 2.6s linear infinite; }
+  .ob-ring i { position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%; background: hsl(0 0% 100% / 0.85); }
+  .ob-ring i:nth-child(1) { transform: rotate(0deg) translateY(-28px); }
+  .ob-ring i:nth-child(2) { transform: rotate(120deg) translateY(-28px); opacity: .65; }
+  .ob-ring i:nth-child(3) { transform: rotate(240deg) translateY(-28px); opacity: .4; }
+  .ob-copy { position: absolute; left: 0; right: 0; top: 88px; text-align: center; font-size: 11px; font-weight: 500; color: #fff; transition: opacity .3s; }
+  .ob-bar { position: absolute; left: 24px; right: 24px; bottom: 14px; height: 3px; border-radius: 2px; background: hsl(0 0% 100% / 0.25); overflow: hidden; }
+  .ob-bar i { position: absolute; top: 0; bottom: 0; width: 34%; border-radius: 2px; background: #fff; animation: obSweep 1.4s ease-in-out infinite; }
+  @keyframes obSweep { 0% { left: -34%; } 100% { left: 100%; } }
+
+  /* D2 · Chase train + universal-loader copy & sweep line */
+  .stage.ctrain { height: 150px; background: none; }
+  .ct-track { position: relative; width: 160px; height: 96px; margin: 0 auto; }
+  .ct-track i {
+    position: absolute; border-radius: 50%; background: #fff;
+    offset-path: path('M30,48 C30,16 76,16 80,48 C84,80 130,80 130,48 C130,16 84,16 80,48 C76,80 30,80 30,48 Z');
+    animation: abChase 3.4s linear infinite;
+  }
+  .ct-track i:nth-child(1) { width: 15px; height: 15px; }
+  .ct-track i:nth-child(2) { width: 12px; height: 12px; opacity: .85; animation-delay: -.15s; }
+  .ct-track i:nth-child(3) { width: 10px; height: 10px; opacity: .7;  animation-delay: -.3s; }
+  .ct-track i:nth-child(4) { width: 8px;  height: 8px;  opacity: .55; animation-delay: -.45s; }
+  .ct-track i:nth-child(5) { width: 6px;  height: 6px;  opacity: .4;  animation-delay: -.6s; }
+  .ct-copy { position: absolute; left: 0; right: 0; top: 100px; text-align: center; font-size: 11px; font-weight: 500; color: #fff; opacity: 0; transition: opacity .3s; }
+  .ct-bar { position: absolute; left: 24px; right: 24px; bottom: 14px; height: 3px; border-radius: 2px; background: hsl(0 0% 100% / 0.25); overflow: hidden; }
+  .ct-bar i { position: absolute; top: 0; bottom: 0; width: 34%; border-radius: 2px; background: #fff; animation: obSweep 1.4s ease-in-out infinite; }
+
+  /* E · Collapse tray */
+  .stage.tray { height: 84px; }
+  .stage.tray.collapsed { height: 34px; background: hsl(0 0% 100% / 0.22); }
+  .ty-track { display: flex; gap: 8px; padding: 10px; width: max-content; animation: tyMarquee 16s linear infinite; transition: opacity .3s; }
+  @keyframes tyMarquee { to { transform: translateX(-50%); } }
+  .ty-tile { width: 64px; height: 64px; border-radius: 11px; overflow: hidden; background: #fff; flex: none; box-shadow: 0 2px 6px hsl(0 0% 0% / 0.18); }
+  .ty-tile img { width: 100%; height: 100%; object-fit: cover; }
+  .stage.tray.collapsed .ty-track { opacity: 0; }
+  .ty-pill {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 7px;
+    font-size: 10.5px; font-weight: 600; color: #fff; opacity: 0; transition: opacity .35s .2s;
+  }
+  .stage.tray.collapsed .ty-pill { opacity: 1; }
+  .ty-thumbs { display: flex; }
+  .ty-thumbs img { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #fff; object-fit: cover; margin-left: -7px; }
+  .ty-thumbs img:first-child { margin-left: 0; }
+
+  /* F · Criteria match — chips are the framework; swap them per vertical (toys, skincare, apparel…) */
+  .stage.match { height: 130px; }
+  .mt-chips { display: flex; justify-content: center; gap: 6px; padding-top: 18px; flex-wrap: wrap; }
+  .mt-chip {
+    font-size: 10.5px; font-weight: 600; color: #0a57d6; background: #fff; border-radius: 99px; padding: 4px 10px;
+    opacity: 0; transform: scale(0.6);
+    transition: opacity .3s, transform .4s cubic-bezier(.2, 1.5, .4, 1), box-shadow .3s;
+  }
+  .mt-chip.in { opacity: 1; transform: scale(1); }
+  .mt-chip.active { box-shadow: 0 0 0 2.5px hsl(0 0% 100% / 0.85); transform: scale(1.07); }
+  .mt-thumbs { position: absolute; left: 0; right: 0; bottom: 20px; display: flex; justify-content: center; gap: 7px; }
+  .mt-thumb {
+    width: 32px; height: 32px; border-radius: 9px; overflow: hidden; background: #fff; position: relative; flex: none;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity .4s, transform .45s cubic-bezier(.2, 1.3, .4, 1), filter .4s;
+  }
+  .mt-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .mt-thumb.in { opacity: 1; transform: none; }
+  .mt-thumb.cut { opacity: 0.15; filter: grayscale(1); transform: scale(0.82); }
+  .mt-thumb.ok::after {
+    content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: #fff; background: hsl(220 70% 20% / 0.4);
+    animation: mtOk .4s cubic-bezier(.2, 1.4, .4, 1);
+  }
+  @keyframes mtOk { from { opacity: 0; transform: scale(1.5); } to { opacity: 1; transform: scale(1); } }
+
+  /* G · Shuffle deal — cards shuffle positions while loading; photos deal on mid-shuffle (no frame) */
+  .stage.shuffle { height: 190px; background: none; }
+  .sh-card {
+    position: absolute; left: 0; top: 0; border-radius: 10px; background: #fff; overflow: hidden;
+    box-shadow: 0 2px 6px hsl(0 0% 0% / 0.18);
+    transition: transform .55s cubic-bezier(.35, .1, .25, 1.1);
+  }
+  .sh-card .conv-img { height: 44px; }
+  .sh-card .conv-real { opacity: 0; transform: none; transition: opacity .55s; }
+  .sh-card.pic .conv-real { opacity: 1; }
+  .sh-card.pic .csk::after { display: none; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h2 class="section-title">Latency animations — loading states that reveal real product picks</h2>
+  <h2 class="section-title">Latency animations — 10s loading states, then a typed response</h2>
   <div class="row row-brands" id="rowConveyor"></div>
+  <h2 class="section-title">Atelier interstitials — full-screen loaders in the Brunello Cucinelli spirit</h2>
+  <div class="row row-brands" id="rowAtelier"></div>
+  <h2 class="section-title">Abstract loaders — pure motion, no products, no copy</h2>
+  <div class="row row-brands" id="rowAbstract"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -585,7 +1424,10 @@ function card(animHTML, rotator = phraseRotator, brand = 'estaluna') {
   const isParachute = brand === 'parachute';
   const isToysrus = brand === 'toysrus';
   const isGlamnetic = brand === 'glamnetic';
-  const branded = isSami || isParachute || isToysrus || isGlamnetic;
+  const isOsea = brand === 'osea';
+  const isAtelier = brand === 'atelier';
+  const isPlain = brand === 'plain';
+  const branded = isSami || isParachute || isToysrus || isGlamnetic || isOsea || isAtelier || isPlain;
   const estalunaLogo = `
         <svg viewBox="0 0 390 50" fill="none" xmlns="http://www.w3.org/2000/svg">
           <text x="195" y="38" text-anchor="middle" font-family="Inter" font-weight="700" font-size="30" letter-spacing="12" fill="#404DA8">ESTALUNA</text>
@@ -594,6 +1436,9 @@ function card(animHTML, rotator = phraseRotator, brand = 'estaluna') {
              : isParachute ? `<div class="parachute-logo">PARACHUTE</div>`
              : isToysrus ? toysrusLogo
              : isGlamnetic ? glamneticLogo
+             : isOsea ? `<div class="osea-logo">OSEA</div>`
+             : isAtelier ? `<div class="atelier-logo"><span class="crest">✣</span>ATELIER</div>`
+             : isPlain ? `<div class="plain-logo">SHOP</div>`
              : estalunaLogo;
   const sub = branded
     ? `<p class="logo-sub">This chat is AI-powered for faster assistance.</p>`
@@ -602,8 +1447,11 @@ function card(animHTML, rotator = phraseRotator, brand = 'estaluna') {
                 : isParachute ? 'Do your sheets get softer over time?'
                 : isToysrus ? "What's a good gift for a 5-year-old?"
                 : isGlamnetic ? 'How long do the press-ons last?'
+                : isOsea ? 'Which body oil is best for dry skin?'
+                : isAtelier ? 'Womens dresses for a wedding'
+                : isPlain ? "What's a good gift for a 5-year-old?"
                 : 'Help me find the right size';
-  const brandClass = isSami ? ' sami' : isParachute ? ' parachute' : isToysrus ? ' toysrus' : isGlamnetic ? ' glamnetic' : '';
+  const brandClass = isSami ? ' sami' : isParachute ? ' parachute' : isToysrus ? ' toysrus' : isGlamnetic ? ' glamnetic' : isOsea ? ' osea' : isAtelier ? ' atelier' : isPlain ? ' plain' : '';
   return `
     <div class="card${brandClass}">
       ${chatBg}
@@ -621,8 +1469,8 @@ function card(animHTML, rotator = phraseRotator, brand = 'estaluna') {
       </div>
       <div class="convo">
         <div class="user-row"><div class="user-bubble"><span>${userMsg}</span></div></div>
-        ${rotator}
         ${animHTML}
+        ${rotator}
       </div>
       <div class="footer">
         <div class="chat-glass-input input-bar">
@@ -641,14 +1489,14 @@ const convMarkup = brand => `
   <div class="conv-reply"></div>
   <div class="conv" data-brand="${brand}"><div class="conv-track"></div></div>`;
 const gridMarkup = brand => `
-  <div class="conv-reply"></div>
-  <div class="grid4" data-brand="${brand}"></div>`;
-const belt2Markup = brand => `
-  <div class="conv-reply"></div>
-  <div class="belt2" data-brand="${brand}">
+  <div class="grid4" data-brand="${brand}"></div>
+  <div class="conv-reply"></div>`;
+const belt2Markup = (brand, previews) => `
+  <div class="belt2" data-brand="${brand}"${previews ? ' data-previews="1"' : ''}>
     <div class="conv"><div class="conv-track"></div></div>
     <div class="conv"><div class="conv-track"></div></div>
-  </div>`;
+  </div>
+  <div class="conv-reply"></div>`;
 const fallMarkup = brand => `
   <div class="conv-reply"></div>
   <div class="fall-stage" data-brand="${brand}"></div>
@@ -658,10 +1506,153 @@ const spinMarkup = brand => `
   <div class="spin-stage" data-brand="${brand}"><div class="g-orb"><div class="g-ring"></div></div><div class="spin-text"></div></div>
   <div class="fall-cards"></div>`;
 
+// Round 2 — "picking for you" concepts from the demo thread + Natasha's feedback
+const stageMarkup = (type, brand = 'toysrus') => `
+  <div class="stage ${type}" data-brand="${brand}" data-load="10000"></div>
+  <div class="reply-body"></div>`;
+// sequential loading phrases: one at a time, fully gone before the next appears
+const huntPhrases = ['on the hunt', 'gathering the good stuff', 'sniffing out savings'];
+const seqRotator = '<div class="phrase-seq"></div>';
+// focus-scan copy: engine-driven so each phrase holds exactly 3s across the 9s scan
+const scanPhrases = ['Pulling up details', 'Rounding up products', 'Hunting for deals'];
+const seqScanRotator = '<div class="phrase-seq" data-set="scan"></div>';
+
+// Atelier interstitials — Brunello Cucinelli-inspired full-stage loaders
+const atlMarkup = inner => `
+  <div class="stage atl" data-brand="atelier" data-load="10000">${inner}${'<div class="atl-copy"></div>'}</div>
+  <div class="reply-body"></div>`;
+document.getElementById('rowAtelier').innerHTML = [
+  ['Hand-drawn borgo — the skyline sketches itself', atlMarkup(
+    '<div class="atl-orn atl-draw"><svg width="232" height="72" viewBox="0 0 240 75"><path pathLength="100" d="M2,70 L18,70 L18,52 L26,45 L34,52 L34,70 L52,70 L52,40 L58,34 L64,40 L64,70 L82,70 L82,56 L96,56 L96,70 L112,70 L112,30 L118,22 L118,14 L121,10 L124,14 L124,22 L130,30 L130,70 L150,70 L150,48 C150,38 166,38 166,48 L166,70 L184,70 L184,58 L196,50 L208,58 L208,70 L226,70 L226,62 L238,62"/></svg></div>')],
+  ['Infinity ribbon — the house motif, endlessly drawn', atlMarkup(
+    '<div class="atl-orn atl-ribbon"><svg width="112" height="48" viewBox="0 0 120 50"><path pathLength="100" d="M30,25 C30,12 48,12 60,25 C72,38 90,38 90,25 C90,12 72,12 60,25 C48,38 30,38 30,25 Z"/></svg></div>')],
+  ['Tailor’s sketch — a silhouette takes shape', atlMarkup(
+    '<div class="atl-orn atl-draw"><svg width="86" height="112" viewBox="0 0 120 160"><path pathLength="100" d="M42,8 C50,20 70,20 78,8 L84,36 C84,48 36,48 36,36 Z M38,50 C32,86 24,120 18,148 C46,156 74,156 102,148 C96,120 88,86 82,50"/></svg></div>')],
+  ['Gold dust — a constellation of sparkle', atlMarkup(
+    '<div class="atl-stars"><span class="atl-star-core">✦</span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>')],
+].map(([l, a]) => cell(l, a, '', 'atelier')).join('');
+
+// Abstract loaders — pure motion, no products, no copy
+const absMarkup = (inner, brand = 'atelier', loadMs = 10000) => `
+  <div class="stage abs" data-brand="${brand}" data-load="${loadMs}">${inner}</div>
+  <div class="reply-body"></div>`;
+// block-stack shape builder: cells are [col, row, color, className?] in build (drop) order
+const bsShape = (cells, cols) => cells.map(([col, row, color, cls], i) =>
+  '<i class="' + (cls || '') + '" style="--x:' + (col * 22) + 'px;--y:' + (row * 22 + 34) + 'px;--c:' + color +
+  ';--d:' + (i * 0.14).toFixed(2) + 's;--sx:' + ((col - (cols - 1) / 2) * 16) + 'px;--sr:' + ((col % 2 ? 1 : -1) * (22 + row * 9)) + 'deg"></i>').join('');
+const rippleDots = Array.from({ length: 25 }, (_, k) => {
+  const d = Math.hypot((k % 5) - 2, Math.floor(k / 5) - 2); // wave radiates from the center dot
+  return '<i style="animation-delay:' + (d * 0.22).toFixed(2) + 's"></i>';
+}).join('');
+document.getElementById('rowAbstract').innerHTML = [
+  ['Liquid thought — a slowly morphing blob', absMarkup('<div class="ab-blob"></div>'), 'atelier'],
+  ['Quiet orbits — nested arcs, different speeds', absMarkup('<div class="ab-orbits"><i></i><i></i><i></i><span class="ab-core"></span></div>'), 'atelier'],
+  ['Ripple field — dot waves from the center', absMarkup('<div class="ab-field">' + rippleDots + '</div>'), 'atelier'],
+  ['Juggle — bouncing in round, squash & stretch', absMarkup('<div class="ab-juggle"><i></i><i></i><i></i></div>', 'toysrus'), 'toysrus'],
+  ['Shape hopscotch — hops and shapeshifts mid-air', absMarkup('<div class="ab-hopwrap"><div class="ab-hopper"></div></div>', 'toysrus'), 'toysrus'],
+  ['Chase train — a conga line looping a figure-eight', absMarkup('<div class="ab-train"><i></i><i></i><i></i><i></i><i></i></div>', 'toysrus'), 'toysrus'],
+  ['Newton’s cradle — end balls trade swings', absMarkup('<div class="ab-cradle"><span class="arm"></span><span class="arm"></span><span class="arm"></span><span class="arm"></span><span class="arm"></span></div>', 'toysrus'), 'toysrus'],
+  ['Block stack — pile up, wobble, tumble', absMarkup('<div class="ab-stackwrap"><i></i><i></i><i></i></div>', 'toysrus'), 'toysrus'],
+  ['Block heart — builds, beats twice, scatters (10s)', absMarkup('<div class="bs bs-heart" style="width:108px;height:122px">' + bsShape([
+    [2, 3, '#ff8fab'], [1, 2, '#ff8fab'], [2, 2, '#ff8fab'], [3, 2, '#ff8fab'],
+    [0, 1, '#ff8fab'], [1, 1, '#ff8fab'], [2, 1, '#fff'], [3, 1, '#ff8fab'], [4, 1, '#ff8fab'],
+    [1, 0, '#ff8fab'], [3, 0, '#ff8fab'],
+  ], 5) + '</div>', 'toysrus', 10000), 'toysrus'],
+  ['Block smiley — builds a face, then winks (10s)', absMarkup('<div class="bs" style="width:108px;height:122px">' + bsShape([
+    [0, 2, '#ffd166'], [4, 2, '#ffd166'], [1, 3, '#ffd166'], [3, 3, '#ffd166'], [2, 3, '#ffd166'],
+    [1, 1, '#fff'], [3, 1, '#fff', 'wink'],
+  ], 5) + '</div>', 'toysrus', 10000), 'toysrus'],
+  ['Block rocket — builds, rumbles, lifts off (10s)', absMarkup('<div class="bs bs-rocket" style="width:64px;height:144px">' + bsShape([
+    [0, 4, '#ffd166', 'hold'], [2, 4, '#ffd166', 'hold'],
+    [0, 3, '#fff', 'hold'], [1, 3, '#fff', 'hold'], [2, 3, '#fff', 'hold'],
+    [0, 2, '#fff', 'hold'], [1, 2, '#fff', 'hold'], [2, 2, '#fff', 'hold'],
+    [0, 1, '#fff', 'hold'], [1, 1, '#fff', 'hold'], [2, 1, '#fff', 'hold'],
+    [1, 0, '#ff8fab', 'hold'],
+  ], 3) + '<span class="flame"></span></div>', 'toysrus', 10000), 'toysrus'],
+  ['Plinko — dots zigzag down invisible pegs', absMarkup('<div class="ab-plinko">' +
+    '<b style="left:22px;top:24px"></b><b style="left:66px;top:24px"></b><b style="left:44px;top:46px"></b>' +
+    '<b style="left:22px;top:68px"></b><b style="left:66px;top:68px"></b><b style="left:88px;top:46px"></b>' +
+    '<span></span><span></span><span></span></div>', 'toysrus'), 'toysrus'],
+  ['Domino wave — a kickline of flipping tiles', absMarkup('<div class="ab-dominos"><i></i><i></i><i></i><i></i><i></i><i></i></div>', 'toysrus'), 'toysrus'],
+  ['Domino shapeshift — wave, tip over, wave again', absMarkup('<div class="ab-dominos2"><i></i><i></i><i></i><i></i><i></i><i></i></div>', 'toysrus'), 'toysrus'],
+  ['Balloons — inflate, drift up, pop', absMarkup('<div class="ab-balloons"><i></i><i></i><i></i></div>', 'toysrus'), 'toysrus'],
+  ['Bubbles — blown, wobble up, pop!', absMarkup('<div class="ab-bubbles"><i></i><i></i><i></i><i></i><i></i></div>', 'toysrus'), 'toysrus'],
+  ['Inchworm — stretch, scoot, repeat', absMarkup('<div class="ab-worm"><i></i></div>', 'toysrus'), 'toysrus'],
+  ['Aurora orb — iridescence swirling inside glass', absMarkup('<div class="ab-glassorb"></div>'), 'atelier'],
+  ['Aurora curtains — color flowing through glass bars', absMarkup('<div class="ab-aurora"><i></i><i></i><i></i></div>'), 'atelier'],
+  ['Lava glass — translucent blobs drifting and blending', absMarkup('<div class="ab-lava"><i></i><i></i><i></i></div>'), 'atelier'],
+  ['Comet orb — racing an oval track with a fading trail', absMarkup('<div class="ab-comet"><i></i><i></i><i></i><i></i><i></i></div>'), 'atelier'],
+  ['Binary orbs — whirling around each other, bobbing', absMarkup('<div class="ab-binarywrap"><div class="ab-binary"><i></i><i></i><span class="spark"></span></div></div>'), 'atelier'],
+  ['Wandering orb — Lissajous drift, never repeats', absMarkup('<div class="ab-liss"><div class="lx"><div class="ly"><div class="orb"></div></div></div></div>'), 'atelier'],
+  // ── on white: 10s windows ──
+  ['Ripple · diagonal — wave from the top-left corner', absMarkup(
+    '<div class="ab-field on-white">' + Array.from({ length: 25 }, (_, k) => {
+      const col = k % 5, row = Math.floor(k / 5), d = (col + row) * 0.16; // travels corner → corner
+      return '<i class="' + ((col + row) % 2 ? 'alt' : '') + '" style="animation-delay:' + d.toFixed(2) + 's"></i>';
+    }).join('') + '</div>', 'plain', 10000), 'plain'],
+  ['Ripple · radar — a slow spiral, one dot at a time', absMarkup(
+    // 5s sweep; delay follows the angle AND the radius, so the flash spirals outward and
+    // never lights more than a dot or two at once — you start guessing what's next
+    '<div class="ab-field on-white">' + Array.from({ length: 25 }, (_, k) => {
+      const col = k % 5, row = Math.floor(k / 5);
+      const ang = (Math.atan2(row - 2, col - 2) + Math.PI) / (2 * Math.PI);
+      const rad = Math.hypot(col - 2, row - 2);
+      const delay = (ang * 5 + rad * 0.42) % 5;
+      return '<i class="' + (rad > 1.6 ? 'alt' : '') + '" style="animation-name:abSweepSlow;animation-duration:5s;animation-delay:' +
+        delay.toFixed(2) + 's"></i>';
+    }).join('') + '</div>', 'plain', 10000), 'plain'],
+  ['Loop-de-loop train — racing a rounded track', absMarkup(
+    '<div class="ab-track2"><i></i><i></i><i></i><i></i><i></i><i></i></div>', 'plain', 10000), 'plain'],
+  ['Shape hopscotch II — new shape every bounce (10s)', absMarkup(
+    '<div class="ab-hop2"><div class="hopper2"></div></div>', 'plain', 10000), 'plain'],
+  ['Chase → orbit morph — black & greys (10s)', absMarkup(
+    '<div class="ab-morph">' +
+      '<div class="mo-rings">' + [
+        [18, ['#111', '#bdbdbd']],  // outer ring: 18 mini dots, fading around the circle
+        [13, ['#3d3d3d', '#c9c9c9']],
+        [9,  ['#6b6b6b', '#d4d4d4']],
+      ].map(([n, [dark, light]]) => '<span class="ring">' + Array.from({ length: n }, (_, k) => {
+        const t = k / n; // colour ramps around the ring so the spin is legible
+        const mix = 'color-mix(in srgb, ' + dark + ' ' + Math.round((1 - t) * 100) + '%, ' + light + ')';
+        return '<b style="--a:' + (t * 360).toFixed(1) + 'deg;background:' + mix + '"></b>';
+      }).join('') + '</span>').join('') +
+      '<span class="core"></span></div>' +
+      '<div class="mo-train"><i></i><i></i><i></i><i></i><i></i></div>' +
+    '</div>', 'plain', 10000), 'plain'],
+  ['Teetering tower — 9 blocks, off-balance, topples (10s)', absMarkup(
+    '<div class="ab-tower">' + [
+      [6, 0, 60, 'hsl(244 60% 58%)'], [22, 17, 44, 'hsl(268 66% 62%)'], [10, 34, 52, 'hsl(320 74% 66%)'],
+      [30, 51, 40, 'hsl(346 82% 70%)'], [14, 68, 48, 'hsl(30 88% 66%)'], [34, 85, 34, 'hsl(170 62% 52%)'],
+      [20, 102, 42, 'hsl(244 60% 58%)'], [38, 119, 30, 'hsl(320 74% 66%)'], [26, 136, 36, 'hsl(30 88% 66%)'],
+    ].map(([x, b, w, c], i) =>
+      '<i style="--x:' + x + 'px;--b:' + b + 'px;--w:' + w + 'px;--c:' + c + ';--d:' + (i * 0.42).toFixed(2) +
+      's;--sx:' + ((i % 2 ? 1 : -1) * (26 + i * 5)) + 'px;--sr:' + ((i % 2 ? 1 : -1) * (55 + i * 12)) + 'deg"></i>'
+    ).join('') + '</div>', 'plain', 10000), 'plain'],
+].map(([l, a, b]) => cell(l, a, '', b)).join('');
+
 document.getElementById('rowConveyor').innerHTML = [
-  ['Sequential grid — Toys R Us', gridMarkup('toysrus'), toysrusRotator, 'toysrus'],
-  ['Swipe carousel — Sami Jewels', belt2Markup('sami'), samiRotator, 'sami'],
-].map(([l, a, r, brand]) => cell(l, a, r, brand)).join('');
+  ['Universal loader — no product data needed', stageMarkup('orb'), '', 'toysrus'],
+  ['Chase train + copy & sweep line', stageMarkup('ctrain'), '', 'toysrus'],
+].map(([l, a, r, b]) => cell(l, a, r, b)).join('');
+
+// drive the sequential phrases: fade in → dwell → fade fully out → next
+// (data-set elements are driven by their own engine instead, so timing stays synced)
+document.querySelectorAll('.phrase-seq').forEach(el => {
+  if (el.dataset.set) return;
+  let i = 0;
+  el.textContent = huntPhrases[0];
+  el.style.opacity = 1;
+  (async function loop() {
+    while (true) {
+      await new Promise(r => setTimeout(r, 1500));
+      el.style.opacity = 0;
+      await new Promise(r => setTimeout(r, 420));
+      i = (i + 1) % huntPhrases.length;
+      el.textContent = huntPhrases[i];
+      el.style.opacity = 1;
+    }
+  })();
+});
 
 document.querySelectorAll('.phrase-type').forEach(el => {
   let i = 0;
@@ -739,6 +1730,7 @@ const convProducts = {
     ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743641107.jpg?v=1763743995&width=240', 'Bluey Bushland Adventures Water Playset', '$104.99'],
     ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743642302.jpg?v=1763744037&width=240', 'Little Tikes Cozy Coupe Ride-On', '$66.99'],
     ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743612329_03.jpg?v=1763756212&width=240', 'TotSports Easy Score Basketball Set', '$37.99'],
+    ['https://cdn.shopify.com/s/files/1/0675/0476/7192/files/050743630439.jpg?v=1763744028&width=240', 'First Self-Checkout Stand Playset', '$35.99'],
   ],
   sami: [
     ['https://cdn.shopify.com/s/files/1/0541/8575/4799/files/sami-jewels-turquoise-tennis-bracelet.jpg?v=1753883192&width=240', 'Turquoise Bezel Tennis Bracelet', '$84'],
@@ -755,98 +1747,51 @@ const convProducts = {
     ['https://cdn.shopify.com/s/files/1/0139/2302/4944/files/Creamer_1_23a660a1-74c5-4f81-a3bf-1d1af03d6b41.webp?v=1762301772&width=240', 'Creamer Press-On Nails', '$19.99'],
     ['https://cdn.shopify.com/s/files/1/0139/2302/4944/products/2023_03_Brush-On-Nail-Glue_HighRes_1.jpg?v=1762198814&width=240', 'Brush-On Nail Glue', '$7.99'],
   ],
+  osea: [ // 3 final options for the dry-skin body oil question (real products from oseamalibu.com)
+    ['https://cdn.shopify.com/s/files/1/1368/9993/files/OSEA_UndariaAlgaeBodyOil_UAO-295-DTC-1_badgeless.jpg?v=1758087570&width=240', 'Undaria Algae™ Body Oil', '$84'],
+    ['https://cdn.shopify.com/s/files/1/1368/9993/files/OSEA_AntiAgingBodyBalm_B-BALM-295-DTC_588b5640-d991-4b44-9b30-1d179441b87b.jpg?v=1762197942&width=240', 'Anti-Aging Body Balm', '$84'],
+    ['https://cdn.shopify.com/s/files/1/1368/9993/files/2024_UndariaAlgaeBodyButter_OBMO-UABB-200_Frontal_1000x1275_6d7a27b3-c1ce-4928-8163-e6b49ff93ea3.jpg?v=1762198438&width=240', 'Undaria Algae™ Body Butter', '$54'],
+  ],
 };
 const convReplies = {
   toysrus: 'Geoffrey found these hits!',
   sami: 'Tarnish-free favorites ♡',
   parachute: 'These only get softer:',
   glamnetic: 'Up to 3 weeks — try these!',
+  osea: 'Seaworthy picks for dry skin:',
+  atelier: 'The creations selected for you',
 };
-
-document.querySelectorAll('.conv[data-brand]').forEach(el => {
-  const brand = el.dataset.brand;
-  const track = el.querySelector('.conv-track');
-  const convo = el.closest('.convo');
-  const phraseEl = convo.querySelector('.phrase-window, .phrase-split, .phrase-type');
-  const replyEl = convo.querySelector('.conv-reply');
-  replyEl.textContent = convReplies[brand];
-  convProducts[brand].forEach(pr => { const im = new Image(); im.src = pr[0]; }); // preload photos
-
-  const GAP = 8, N = 8;
-  const w = (el.clientWidth - 2 * GAP) / 3, unit = w + GAP, total = N * unit;
-  for (let k = 0; k < 2 * N; k++) { // two copies for a seamless loop
-    const c = document.createElement('div');
-    c.className = 'conv-card';
-    c.style.width = w + 'px';
-    c.innerHTML = '<div class="conv-img csk"><div class="conv-real"></div></div>' +
-      '<div class="conv-info"><div class="cbar csk w80"></div><div class="cbar csk w50"></div>' +
-      '<div class="conv-txt"><div class="conv-name"></div><div class="conv-price"></div></div></div>';
-    track.appendChild(c);
-  }
-
-  const RUN_SECS = 2.6, HOLD_MS = 3600, dur = 900; // belt run, product hold, deceleration
-  let x = 0, v = unit * 1.7, mode = 'run', runElapsed = 0, xFrom = 0, xTo = 0, t0 = 0;
-  let revealed = [];
-  let last = performance.now();
-  const fadeIn = brand === 'sami'; // Sami: each skeleton fades in as it enters the belt
-  const apply = () => {
-    const ax = -((-x) % total);
-    track.style.transform = `translateX(${ax}px)`;
-    if (fadeIn) {
-      const cw = el.clientWidth;
-      for (let k = 0; k < track.children.length; k++) {
-        const left = k * unit + ax; // card's left edge in viewport coords
-        track.children[k].style.opacity = Math.max(0, Math.min(1, (cw + 6 - left) / 52));
-      }
-    }
-    return ax;
-  };
-
-  function tick(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    if (mode === 'run') {
-      x -= v * dt; apply();
-      runElapsed += dt;
-      if (runElapsed >= RUN_SECS) { // decelerate to the next aligned stop
-        runElapsed = 0;
-        const D = v * (dur / 1000) * 0.55;
-        xFrom = x; xTo = -(Math.ceil((-x + D) / unit) * unit);
-        mode = 'stop'; t0 = now;
-      }
-    } else if (mode === 'stop') {
-      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
-      x = xFrom + (xTo - xFrom) * e;
-      const ax = apply();
-      if (p >= 1) {
-        mode = 'hold';
-        const first = Math.round(-ax / unit);
-        if (phraseEl) phraseEl.style.display = 'none';
-        replyEl.style.display = 'block';
-        // load the picks strictly one by one: pulse card 1 → reveal it, then card 2, then card 3
-        const STEP = 700, PULSE = 480; // ms between cards / loading-pulse length
-        convProducts[brand].forEach((pr, j) => {
-          const card = track.children[first + j];
-          const real = card.querySelector('.conv-real');
-          real.innerHTML = '<img src="' + pr[0] + '" alt="' + pr[1] + '" loading="eager">';
-          card.querySelector('.conv-name').textContent = pr[1];
-          card.querySelector('.conv-price').innerHTML = '<b>' + pr[2] + '</b>';
-          revealed.push(card);
-          setTimeout(() => card.classList.add('loading'), j * STEP);
-          setTimeout(() => { card.classList.remove('loading'); card.classList.add('reveal'); }, j * STEP + PULSE);
-        });
-        setTimeout(() => { // reset and run again
-          revealed.forEach(c => c.classList.remove('reveal', 'loading'));
-          revealed = [];
-          replyEl.style.display = 'none';
-          if (phraseEl) phraseEl.style.display = '';
-          mode = 'run';
-        }, HOLD_MS + 2 * STEP + PULSE); // hold counts from the last card's reveal
-      }
-    }
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-});
+// Atelier placeholder "creations" — soft fabric-toned swatches, no real merchant needed
+const atlSwatch = (a, b) => 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="150">' +
+  '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+  '<stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/>' +
+  '</linearGradient></defs><rect width="240" height="150" fill="url(%23g)"/></svg>');
+convProducts.plain = convProducts.toysrus; // white-skin cards reuse the toy picks
+convReplies.plain = convReplies.toysrus;
+convProducts.atelier = [
+  [atlSwatch('#e9e3d7', '#cfc4b0'), 'The Column Gown', '$2,950'],
+  [atlSwatch('#e2dbcd', '#b9ac97'), 'Silk Evening Wrap', '$1,180'],
+  [atlSwatch('#ece7dd', '#c8bda9'), 'Linen Midi Dress', '$1,850'],
+  [atlSwatch('#e5decf', '#bdb09a'), 'Suede Cinch Belt', '$495'],
+];
+// OSEA body-care pool the scan cycles through while loading (real product photos)
+const oseaRotation = [
+  'OSEA_UndariaAlgaeBodyOil_UAO-295-DTC-1_badgeless.jpg?v=1758087570', // Undaria Algae Body Oil
+  'OSEA_UndariaAlgaeBodyWash_UABW-1_Frontal.jpg?v=1762201589', // Undaria Algae Body Wash
+  '2024_UndariaAlgaeBodyButter_OBMO-UABB-200_Frontal_1000x1275_6d7a27b3-c1ce-4928-8163-e6b49ff93ea3.jpg?v=1762198438', // Body Butter
+  'OSEA_AntiAgingBodyBalm_B-BALM-295-DTC_588b5640-d991-4b44-9b30-1d179441b87b.jpg?v=1762197942', // Anti-Aging Body Balm
+  '2024_UndariaAlgaeBodyLotion_UBCL-1_1000x1275_2c942a2b-0b2d-442e-8e96-7634a3b76d7b.jpg?v=1762200199', // Body Lotion
+  'SOE-1-Frontal-DTC.jpg?v=1762197941', // Salts of the Earth Body Scrub
+  'HBS-1_DTC.jpg?v=1758090608', // Hyaluronic Body Serum
+  'UndariaCollection_UBC-1_DTC.jpg?v=1776362090', // Undaria Body Collection
+  'PDP_2_-_Product_Frontal_DTC_1600x2000_eedbab0f-922b-4568-b4dd-61363aaa9968.jpg?v=1766096034', // Dream Bio-Retinol Body Serum
+  'BHH-1_BG_COLOR_79d62181-8a2a-468e-bee5-be4bc8257256.jpg?v=1776359843', // Body Hydration Heroes
+  '2-HSS_PDP_ECOMM_1600x2000_84592bad-f79c-43cf-a7f2-79ac949e203e.jpg?v=1769725294', // Hyaluronic Sea Serum
+  '2-DNS_PDP_LIFESTYLE_1600x2000_8e7e9735-56f3-4156-a0f0-53f392344cda.jpg?v=1769725787', // Dream Night Serum
+  '2-OEYES_PDP_OPEN_ECOMM_1600x2000_ca11d762-8f21-4d2f-8b8b-305a4300a376.jpg?v=1774454539', // Ocean Eyes Eye Serum
+  'OSEA_SeaglowOvernightSerum_OFME-SOS-30-DTC-4.jpg?v=1762198943', // Seaglow Overnight Serum
+].map(f => 'https://cdn.shopify.com/s/files/1/1368/9993/files/' + f + '&width=240');
 
 // 12 real Toys R Us products (5-7 gift guide) — image slots rotate through these while loading
 const toysrusRotation = [
@@ -864,276 +1809,138 @@ const toysrusRotation = [
   '050743651427.jpg?v=1763744030', // First Fridge Playset
 ].map(f => 'https://cdn.shopify.com/s/files/1/0675/0476/7192/files/' + f + '&width=240');
 
-// ─── Sequential grid engine (Toys R Us) ───
-// Skeletons appear 1→2→3→4 with image slots rotating through 12 real products (text stays
-// skeleton), disappear 4→2→3→1, then 3 final picks load into cells 1→2→3 with name + price.
-document.querySelectorAll('.grid4').forEach(el => {
-  const brand = el.dataset.brand;
-  const convo = el.closest('.convo');
-  const phraseEl = convo.querySelector('.phrase-window, .phrase-split, .phrase-type');
-  const replyEl = convo.querySelector('.conv-reply');
-  replyEl.textContent = convReplies[brand];
-  const products = convProducts[brand];
-  products.forEach(pr => { const im = new Image(); im.src = pr[0]; }); // preload photos
-
-  const cells = [];
-  for (let k = 0; k < 4; k++) {
-    const c = document.createElement('div');
-    c.className = 'conv-card';
-    c.innerHTML = '<div class="conv-img csk"><div class="conv-real"></div></div>' +
-      '<div class="conv-info"><div class="cbar csk w80"></div><div class="cbar csk w50"></div>' +
-      '<div class="conv-txt"><div class="conv-name"></div><div class="conv-price"></div></div></div>';
-    el.appendChild(c); cells.push(c);
-  }
-
-  toysrusRotation.forEach(src => { const im = new Image(); im.src = src; }); // preload the 12
-
-  const t = ms => new Promise(r => setTimeout(r, ms));
-  (async function cycle() {
-    cells.forEach(c => c.classList.remove('show', 'reveal', 'cycling'));
-    replyEl.style.display = 'none';
-    if (phraseEl) phraseEl.style.display = '';
-    await t(700);
-    for (let pass = 0; pass < 3; pass++) { // 3 passes × 4 products = all 12 shown
-      cells.forEach((c, k) => {
-        c.querySelector('.conv-real').innerHTML = '<img src="' + toysrusRotation[pass * 4 + k] + '" alt="">';
-        c.classList.add('cycling');
-      });
-      for (const c of cells) { c.classList.add('show'); await t(320); }              // in: 1,2,3,4
-      await t(650);
-      for (const i of [3, 1, 2, 0]) { cells[i].classList.remove('show'); await t(300); } // out: 4,2,3,1
-      await t(350);
-    }
-    if (phraseEl) phraseEl.style.display = 'none';
-    replyEl.style.display = 'block';
-    cells.forEach(c => c.classList.remove('cycling'));
-    products.forEach((pr, j) => { // the 3 final picks, now with name + price
-      const real = cells[j].querySelector('.conv-real');
-      real.innerHTML = '<img src="' + pr[0] + '" alt="' + pr[1] + '" loading="eager">';
-      cells[j].querySelector('.conv-name').textContent = pr[1];
-      cells[j].querySelector('.conv-price').innerHTML = '<b>' + pr[2] + '</b>';
-    });
-    for (const j of [0, 1, 2]) { cells[j].classList.add('reveal', 'show'); await t(450); } // picks in: 1,2,3
-    await t(3400);
-    cycle();
-  })();
-});
-
 // ─── shared helpers for stage-based loaders ───
 const cellHTML = '<div class="conv-img csk"><div class="conv-real"></div></div>' +
   '<div class="conv-info"><div class="cbar csk w80"></div><div class="cbar csk w50"></div>' +
   '<div class="conv-txt"><div class="conv-name"></div><div class="conv-price"></div></div></div>';
-function makeCells(container, n = 3) {
-  const cells = [];
-  for (let k = 0; k < n; k++) {
-    const c = document.createElement('div');
-    c.className = 'conv-card';
-    c.innerHTML = cellHTML;
-    container.appendChild(c); cells.push(c);
-  }
-  return cells;
-}
-function fillCell(cell, pr) {
-  cell.querySelector('.conv-real').innerHTML = '<img src="' + pr[0] + '" alt="' + pr[1] + '" loading="eager">';
-  cell.querySelector('.conv-name').textContent = pr[1];
-  cell.querySelector('.conv-price').innerHTML = '<b>' + pr[2] + '</b>';
-}
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
-// ─── Dual-row carousel engine (Sami): two skeleton belts (2 cards visible each),
-//     second row starts on a delay so it scrolls out of sync; stop → reveal 3 picks in the grid ───
-document.querySelectorAll('.belt2').forEach(el => {
-  const brand = el.dataset.brand;
-  const convo = el.closest('.convo');
-  const phraseEl = convo.querySelector('.phrase-window, .phrase-split, .phrase-type');
-  const replyEl = convo.querySelector('.conv-reply');
-  replyEl.textContent = convReplies[brand];
-  const products = convProducts[brand];
-  products.forEach(pr => { const im = new Image(); im.src = pr[0]; });
-
-  const GAP = 8, N = 8;
-  const cw = el.querySelector('.conv').clientWidth;
-  const w = (cw - GAP) / 2, unit = w + GAP, total = N * unit; // 2 cards visible per row
-  const belts = [...el.querySelectorAll('.conv')].map((conv, bi) => {
-    const track = conv.querySelector('.conv-track');
-    for (let k = 0; k < 2 * N; k++) {
-      const c = document.createElement('div');
-      c.className = 'conv-card';
-      c.style.width = w + 'px';
-      c.innerHTML = cellHTML;
-      track.appendChild(c);
-    }
-    // row 2 waits half a beat before its first swipe → rows alternate, never in sync
-    return { conv, track, x: 0, t: bi * -520, from: 0, to: 0, phase: 'dwell' };
-  });
-
-  const RUN_SECS = 3.2, DWELL = 780, SWIPE = 460; // hold, then one quick swipe per beat
-  const easeSwipe = p => { const c1 = 1.1, c3 = c1 + 1, q = p - 1; return 1 + c3 * q * q * q + c1 * q * q; }; // ease-out-back: fast push, slight overshoot, settle
-  let state = 'run', runT = 0;
-  let last = performance.now();
-  const applyBelt = b => {
-    const ax = -((-b.x) % total);
-    b.track.style.transform = 'translateX(' + ax + 'px)';
-    return ax;
-  };
-  const STAG = 110; // per-card stagger inside a row — each card swipes on its own
-  const stepBelt = (b, dtMs) => {
-    b.t += dtMs;
-    if (b.phase === 'dwell') {
-      if (b.t >= DWELL) {
-        b.phase = 'swipe'; b.t = 0;
-        b.first = Math.round(((-b.x) % total) / unit); // leftmost visible card leads the cascade
-      }
-      applyBelt(b);
-    } else { // cards swipe over one at a time: exiting card first, its neighbor next, entering card last
-      const kids = b.track.children;
-      for (let k = 0; k < kids.length; k++) {
-        const d = Math.max(0, Math.min(3, k - b.first)) * STAG;
-        const p = Math.max(0, Math.min(1, (b.t - d) / SWIPE));
-        kids[k].style.transform = 'translateX(' + (-unit * easeSwipe(p)) + 'px)';
-      }
-      if (b.t >= SWIPE + 3 * STAG) { // cascade finished → commit the step to the track
-        for (const c of kids) c.style.transform = '';
-        b.x -= unit; b.phase = 'dwell'; b.t = 0;
-        applyBelt(b);
-      }
-    }
-  };
-
-  function reveal() {
-    const slots = [];
-    belts.forEach(b => {
-      const ax = applyBelt(b);
-      const first = Math.round(-ax / unit);
-      slots.push(b.track.children[first], b.track.children[first + 1]);
-    });
-    (async () => {
-      if (phraseEl) phraseEl.style.display = 'none';
-      replyEl.style.display = 'block';
-      await wait(250); // small breath after the belt settles
-      for (let j = 0; j < 3; j++) { // picks swipe in 1 → 2 → 3, same cascade rhythm as the belt
-        fillCell(slots[j], products[j]);
-        slots[j].classList.add('reveal', 'swipe-in');
-        await wait(320);
-      }
-      slots[3].classList.add('dim'); // leftover skeleton card fades away entirely
-      await wait(3400);
-      slots.forEach(s => s.classList.remove('reveal', 'dim', 'swipe-in'));
-      replyEl.style.display = 'none';
-      if (phraseEl) phraseEl.style.display = '';
-      belts.forEach((b, bi) => { b.phase = 'dwell'; b.t = bi * -520; }); // re-offset the rows
-      runT = 0; state = 'run';
-    })();
-  }
-
-  (function tick(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    if (state === 'run') {
-      runT += dt;
-      belts.forEach(b => stepBelt(b, dt * 1000));
-      // stop only once every row has finished its swipe and sits aligned
-      if (runT >= RUN_SECS && belts.every(b => b.phase === 'dwell')) { state = 'hold'; reveal(); }
-    }
-    requestAnimationFrame(tick);
-  })(last);
-});
-
-// ─── Falling products engine (Parachute): photos drop in and bounce while loading ───
-document.querySelectorAll('.fall-stage').forEach(stage => {
-  const brand = stage.dataset.brand;
-  const convo = stage.closest('.convo');
-  const cardsEl = convo.querySelector('.fall-cards');
-  const phraseEl = convo.querySelector('.phrase-window, .phrase-split, .phrase-type');
-  const replyEl = convo.querySelector('.conv-reply');
-  replyEl.textContent = convReplies[brand];
-  const products = convProducts[brand];
-  products.forEach(pr => { const im = new Image(); im.src = pr[0]; });
-  const cells = makeCells(cardsEl);
-
-  const balls = products.map((pr, i) => {
-    const b = document.createElement('div');
-    b.className = 'fall-ball';
-    b.innerHTML = '<img src="' + pr[0] + '" alt="">';
-    stage.appendChild(b);
-    return { el: b, x: 25 + i * 80, y: -50 - i * 70, vx: Math.random() * 80 - 40, vy: 0 };
-  });
-  let physicsOn = true;
-  let last = performance.now();
-  (function step(now) {
-    const dt = Math.min(0.04, (now - last) / 1000); last = now;
-    if (physicsOn && stage.clientWidth) {
-      const w = stage.clientWidth - 38, h = stage.clientHeight - 38;
-      balls.forEach(o => {
-        o.vy += 560 * dt; o.x += o.vx * dt; o.y += o.vy * dt;
-        if (o.x < 0) { o.x = 0; o.vx = Math.abs(o.vx) * 0.9; }
-        if (o.x > w) { o.x = w; o.vx = -Math.abs(o.vx) * 0.9; }
-        if (o.y > h) { // floor bounce, with a kick so they keep dancing
-          o.y = h; o.vy = -Math.abs(o.vy) * 0.8; o.vx += Math.random() * 60 - 30;
-          if (Math.abs(o.vy) < 90) o.vy = -(240 + Math.random() * 170);
-        }
-        o.el.style.transform = 'translate(' + o.x + 'px,' + o.y + 'px)';
-      });
-    }
-    requestAnimationFrame(step);
-  })(last);
-
+// ─── Atelier interstitials: ornament animates while serif copy cycles the Cucinelli way,
+//     then the curated creations fade in. Reply line reserves its space from the start so
+//     the chat never shifts. ───
+document.querySelectorAll('.stage.atl').forEach(stage => {
+  const ctx = roundCtx(stage);
+  const copyEl = stage.querySelector('.atl-copy');
+  const lines = ['Crafting your experience', 'Gathering inspiration', 'Curating suggestions'];
   (async function cycle() {
-    physicsOn = true;
-    stage.style.display = '';
-    requestAnimationFrame(() => stage.classList.remove('hide'));
-    cells.forEach(c => c.classList.remove('show', 'reveal'));
-    cardsEl.style.display = 'none';
-    replyEl.style.display = 'none';
-    if (phraseEl) phraseEl.style.display = '';
-    balls.forEach((o, i) => { o.x = 25 + i * 80; o.y = -50 - i * 70; o.vx = Math.random() * 80 - 40; o.vy = 0; });
-    await wait(3300);
-    stage.classList.add('hide'); await wait(330);
-    stage.style.display = 'none'; physicsOn = false;
-    cardsEl.style.display = 'grid';
-    if (phraseEl) phraseEl.style.display = 'none';
-    replyEl.style.display = 'block';
-    products.forEach((pr, j) => fillCell(cells[j], pr));
-    for (const j of [0, 1, 2]) { cells[j].classList.add('reveal', 'show'); await wait(430); }
-    await wait(3400);
+    await introSend(ctx);
+    for (const l of lines) { // 3 × ~3.3s of quiet copy = 10s
+      copyEl.textContent = l;
+      copyEl.style.opacity = 1;
+      await wait(2733);
+      copyEl.style.opacity = 0;
+      await wait(600);
+    }
+    await hideStage(ctx);
+    await typeReply(ctx);
     cycle();
   })();
 });
 
-// ─── Breathing spinner engine (Glamnetic): spinning orb + rotating loading text ───
-document.querySelectorAll('.spin-stage').forEach(stage => {
-  const brand = stage.dataset.brand;
-  const convo = stage.closest('.convo');
-  const cardsEl = convo.querySelector('.fall-cards');
-  const replyEl = convo.querySelector('.conv-reply');
-  replyEl.textContent = convReplies[brand];
-  const textEl = stage.querySelector('.spin-text');
-  const products = convProducts[brand];
-  products.forEach(pr => { const im = new Image(); im.src = pr[0]; });
-  const cells = makeCells(cardsEl);
-
-  let ti = 0, rotating = true;
-  textEl.textContent = glamneticPhrases[0];
-  setInterval(() => {
-    if (!rotating) return;
-    textEl.style.opacity = 0;
-    setTimeout(() => { ti = (ti + 1) % glamneticPhrases.length; textEl.textContent = glamneticPhrases[ti]; textEl.style.opacity = 1; }, 300);
-  }, 1700);
-
+// ─── Abstract loaders: pure motion (9s default, per-card via data-load), then the picks fade in ───
+document.querySelectorAll('.stage.abs').forEach(stage => {
+  const ctx = roundCtx(stage);
+  const loadMs = +stage.dataset.load || 10000;
   (async function cycle() {
-    rotating = true;
-    stage.style.display = 'flex';
-    requestAnimationFrame(() => stage.classList.remove('hide'));
-    cells.forEach(c => c.classList.remove('show', 'reveal'));
-    cardsEl.style.display = 'none';
-    replyEl.style.display = 'none';
-    await wait(3400);
-    stage.classList.add('hide'); await wait(330);
-    stage.style.display = 'none'; rotating = false;
-    cardsEl.style.display = 'grid';
-    replyEl.style.display = 'block';
-    products.forEach((pr, j) => fillCell(cells[j], pr));
-    for (const j of [0, 1, 2]) { cells[j].classList.add('reveal', 'show'); await wait(430); }
-    await wait(3400);
+    await introSend(ctx);
+    await wait(loadMs);
+    await hideStage(ctx);
+    await typeReply(ctx);
+    cycle();
+  })();
+});
+
+// ─── Round 2 shared helpers: send message → run stage → finals swipe in → reset ───
+const LOREM = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor ' +
+  'incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud.';
+function roundCtx(stage) {
+  const convo = stage.closest('.convo');
+  const brand = stage.dataset.brand || 'toysrus';
+  return {
+    stage, convo, brand,
+    userRow: convo.querySelector('.user-row'),
+    phraseEl: convo.querySelector('.phrase-window, .phrase-split, .phrase-type, .phrase-seq'),
+    bodyEl: convo.querySelector('.reply-body'),
+  };
+}
+// type the response out character by character, with a blinking caret
+async function typeReply(ctx, holdMs = 2600) {
+  const el = ctx.bodyEl;
+  el.textContent = '';
+  el.style.display = 'block';
+  const caret = document.createElement('span');
+  caret.className = 'caret';
+  el.appendChild(caret);
+  for (let i = 0; i < LOREM.length; i++) {
+    caret.insertAdjacentText('beforebegin', LOREM[i]);
+    await wait(LOREM[i] === ' ' ? 10 : 16);
+  }
+  caret.remove();
+  await wait(holdMs);
+  el.style.display = 'none';
+  el.textContent = '';
+}
+async function introSend(ctx) {
+  ctx.userRow.classList.remove('sent');
+  ctx.stage.classList.remove('on', 'hide', 'collapsed');
+  ctx.stage.style.display = '';
+  if (ctx.bodyEl) { ctx.bodyEl.style.display = 'none'; ctx.bodyEl.textContent = ''; }
+  if (ctx.phraseEl) ctx.phraseEl.style.display = 'none';
+  await wait(700);
+  ctx.userRow.classList.add('sent');   // message pops in
+  await wait(650);
+  if (ctx.phraseEl) ctx.phraseEl.style.display = '';
+  ctx.stage.classList.add('on');       // loading stage eases in
+  await wait(400);
+}
+async function hideStage(ctx) {
+  ctx.stage.classList.add('hide');
+  await wait(330);
+  ctx.stage.style.display = 'none';
+}
+
+// ─── D · Universal loader: brand sparkle + sequential hunt phrases — no product data, usable everywhere ───
+document.querySelectorAll('.stage.orb').forEach(stage => {
+  const ctx = roundCtx(stage);
+  stage.innerHTML = '<div class="ob-wrap"><div class="ob-ring"><i></i><i></i><i></i></div><div class="ob-star">✦</div></div>' +
+    '<div class="ob-copy"></div><div class="ob-bar"><i></i></div>';
+  const copyEl = stage.querySelector('.ob-copy');
+  (async function cycle() {
+    await introSend(ctx);
+    for (let r = 0; r < 2; r++) { // 2 passes ≈ 10s of loading
+      for (const p of huntPhrases) { // one at a time, gone before the next appears
+        copyEl.textContent = p;
+        copyEl.style.opacity = 1;
+        await wait(1230);
+        copyEl.style.opacity = 0;
+        await wait(440);
+      }
+    }
+    await hideStage(ctx);
+    await typeReply(ctx);
+    cycle();
+  })();
+});
+
+// ─── D2 · Chase train + the universal loader's copy line and sweep bar ───
+document.querySelectorAll('.stage.ctrain').forEach(stage => {
+  const ctx = roundCtx(stage);
+  stage.innerHTML = '<div class="ct-track"><i></i><i></i><i></i><i></i><i></i></div>' +
+    '<div class="ct-copy"></div><div class="ct-bar"><i></i></div>';
+  const copyEl = stage.querySelector('.ct-copy');
+  (async function cycle() {
+    await introSend(ctx);
+    for (let r = 0; r < 2; r++) { // 2 passes ≈ 10s of loading
+      for (const p of huntPhrases) {
+        copyEl.textContent = p;
+        copyEl.style.opacity = 1;
+        await wait(1230);
+        copyEl.style.opacity = 0;
+        await wait(440);
+      }
+    }
+    await hideStage(ctx);
+    await typeReply(ctx);
     cycle();
   })();
 });
